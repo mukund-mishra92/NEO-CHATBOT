@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semi-Automated Diagnostic Support</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        button.secondary {
+            background: #6c757d;
+        }
+        
+        button.secondary:hover {
+            background: #5a6268;
+        }
+        
+        button.success {
+            background: #28a745;
+        }
+        
+        button.success:hover {
+            background: #218838;
+        }
+        
+        button.danger {
+            background: #dc3545;
+        }
+        
+        button.danger:hover {
+            background: #c82333;
+        }
+        
+        .case-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .case-header {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .field {
+            margin-bottom: 10px;
+        }
+        
+        .field-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .field-value {
+            color: #333;
+            margin-top: 3px;
+        }
+        
+        .sql-query {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin-top: 5px;
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .results-table th {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .results-table td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .impact-high {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
+        .impact-medium {
+            color: #ffc107;
+            font-weight: 600;
+        }
+        
+        .impact-low {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .status-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Semi-Automated Diagnostic Support</h1>
+            <p>Interactive Problem Diagnosis with SQL Audit</p>
+        </div>
+        
+        <div class="content">
+            <!-- Step 1: Problem Input -->
+            <div id="step1" class="section">
+                <h2>Step 1: Describe the Problem</h2>
+                <div class="input-group">
+                    <label for="problemInput">What issue are you experiencing?</label>
+                    <textarea id="problemInput" placeholder="e.g., Bot is not moving, Station showing error, Data not updating..."></textarea>
+                </div>
+                <button onclick="startDiagnosis()">Start Diagnosis</button>
+            </div>
+            
+            <!-- Step 2: Show Matched Cases -->
+            <div id="step2" class="section hidden">
+                <h2>Step 2: Matched Cases</h2>
+                <div id="caseDisplay"></div>
+                <div id="sqlAuditSection" class="hidden">
+                    <button onclick="runSQLAudit()">Run SQL Audit</button>
+                    <div id="sqlResults" class="hidden"></div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="success" onclick="solutionWorked()">✓ This Solved It</button>
+                    <button class="danger" onclick="tryNextSolution()">✗ Not Correct</button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Resolution -->
+            <div id="step3" class="section hidden">
+                <h2>Resolution</h2>
+                <div id="resolutionMessage"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let sessionData = null;
+        const API_BASE = 'http://localhost:8000/api/chatbot';
+        
+        async function startDiagnosis() {
+            const problem = document.getElementById('problemInput').value.trim();
+            if (!problem) {
+                alert('Please describe the problem');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/diagnostic/start?problem_description=${encodeURIComponent(problem)}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                sessionData = data;
+                
+                if (data.matched_cases && data.matched_cases.length > 0) {
+                    displayCase(data.current_case);
+                    document.getElementById('step1').classList.add('hidden');
+                    document.getElementById('step2').classList.remove('hidden');
+                    
+                    if (data.requires_sql_audit) {
+                        document.getElementById('sqlAuditSection').classList.remove('hidden');
+                    }
+                } else {
+                    alert('No matching cases found. Please provide more details or contact support.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to start diagnosis: ' + error.message);
+            }
+        }
+        
+        function displayCase(caseData) {
+            const impactClass = caseData.impact.toLowerCase().includes('high') ? 'impact-high' :
+                               caseData.impact.toLowerCase().includes('medium') ? 'impact-medium' : 'impact-low';
+            
+            let html = `
+                <div class="case-box">
+                    <div class="case-header">Case ${caseData.case_number} - ${caseData.type}</div>
+                    
+                    <div class="field">
+                        <div class="field-label">Impact</div>
+                        <div class="field-value ${impactClass}">${caseData.impact}</div>
+                    </div>
+                    
+                    <div class="field">
+                        <div class="field-label">Problem</div>
+                        <div class="field-value">${caseData.problem}</div>
+                    </div>
+                    
+                    <div class="field">
+                        <div class="field-label">Solution</div>
+                        <div class="field-value">${caseData.solution}</div>
+                    </div>
+            `;
+            
+            if (caseData.sql_query) {
+                html += `
+                    <div class="field">
+                        <div class="field-label">SQL Audit Query</div>
+                        <div class="sql-query">${caseData.sql_query}</div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Expected Outcome</div>
+                        <div class="field-value">${caseData.expected_outcome}</div>
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+            document.getElementById('caseDisplay').innerHTML = html;
+        }
+        
+        async function runSQLAudit() {
+            const sqlQuery = sessionData.current_case.sql_query;
+            
+            try {
+                const response = await fetch(`${API_BASE}/diagnostic/audit-sql?sql_query=${encodeURIComponent(sqlQuery)}`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displaySQLResults(result);
+                    
+                    // Analyze results
+                    const analysisResponse = await fetch(`${API_BASE}/diagnostic/analyze-results`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            case: sessionData.current_case,
+                            sql_results: result
+                        })
+                    });
+                    
+                    const analysis = await analysisResponse.json();
+                    displayAnalysis(analysis);
+                } else {
+                    alert('SQL Audit Failed: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to run SQL audit: ' + error.message);
+            }
+        }
+        
+        function displaySQLResults(result) {
+            let html = '<div class="status-message status-success">';
+            html += `<strong>Audit Complete:</strong> ${result.row_count} row(s) found</div>`;
+            
+            if (result.data && result.data.length > 0) {
+                html += '<table class="results-table"><thead><tr>';
+                
+                result.columns.forEach(col => {
+                    html += `<th>${col}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+                
+                result.data.slice(0, 5).forEach(row => {
+                    html += '<tr>';
+                    result.columns.forEach(col => {
+                        html += `<td>${row[col]}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table>';
+                
+                if (result.data.length > 5) {
+                    html += `<p style="margin-top:10px; font-size:12px; color:#666;">Showing 5 of ${result.row_count} rows</p>`;
+                }
+            }
+            
+            document.getElementById('sqlResults').innerHTML = html;
+            document.getElementById('sqlResults').classList.remove('hidden');
+        }
+        
+        function displayAnalysis(analysis) {
+            let html = document.getElementById('sqlResults').innerHTML;
+            html += '<div class="status-message status-info">';
+            html += `<strong>Analysis:</strong> ${analysis.interpretation}</div>`;
+            document.getElementById('sqlResults').innerHTML = html;
+        }
+        
+        async function solutionWorked() {
+            try {
+                const response = await fetch(`${API_BASE}/diagnostic/feedback`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        session_data: sessionData,
+                        is_correct: true
+                    })
+                });
+                
+                const result = await response.json();
+                showResolution(result, true);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to submit feedback: ' + error.message);
+            }
+        }
+        
+        async function tryNextSolution() {
+            try {
+                const response = await fetch(`${API_BASE}/diagnostic/feedback`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        session_data: sessionData,
+                        is_correct: false
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'next_suggestion') {
+                    sessionData.current_case_index = result.current_case_index;
+                    sessionData.current_case = result.current_case;
+                    displayCase(result.current_case);
+                    document.getElementById('sqlResults').innerHTML = '';
+                    document.getElementById('sqlResults').classList.add('hidden');
+                    
+                    if (result.requires_sql_audit) {
+                        document.getElementById('sqlAuditSection').classList.remove('hidden');
+                    } else {
+                        document.getElementById('sqlAuditSection').classList.add('hidden');
+                    }
+                } else {
+                    showResolution(result, false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to get next solution: ' + error.message);
+            }
+        }
+        
+        function showResolution(result, success) {
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.remove('hidden');
+            
+            let html = success ? 
+                '<div class="status-message status-success"><h3>✅ Problem Resolved!</h3><p>Great! The solution worked.</p></div>' :
+                '<div class="status-message status-error"><h3>⚠️ All Solutions Exhausted</h3><p>Manual investigation required. Consider escalating to development team.</p></div>';
+            
+            html += '<button onclick="location.reload()">Start New Diagnosis</button>';
+            
+            document.getElementById('resolutionMessage').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
