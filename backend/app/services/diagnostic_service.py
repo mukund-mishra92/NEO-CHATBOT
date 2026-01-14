@@ -15,7 +15,7 @@ from .rlhf_service import RLHFService
 from .diagnostic_support_service import DiagnosticSupportService
 from .sql_assistant_service import SQLAssistantService
 from .intelligent_diagnostic_service import IntelligentDiagnosticService
-from ..models.schemas import ChatRequest, ChatResponse, ChatbotType, DiagnosticIssue, SystemHealthStatus
+from ..models.schemas import ChatRequest, ChatResponse, ChatbotType, DiagnosticIssue, SystemHealthStatus, SourceDocument
 
 logger = logging.getLogger(__name__)
 
@@ -100,18 +100,79 @@ Be patient, clear, and supportive. Break down complex solutions into simple step
     
     def process_query(self, chat_request: ChatRequest) -> ChatResponse:
         """
-        Process diagnostic query with intelligent AI-powered analysis
+        Process diagnostic query using support CSV database first, then AI if needed
         
         Args:
             chat_request: User's chat request
             
         Returns:
-            Chat response with intelligent diagnostic guidance
+            Chat response with diagnostic guidance from CSV data or AI
         """
         try:
-            logger.info(f"🔍 Processing intelligent diagnostic query: {chat_request.message[:50]}...")
+            logger.info(f"🔍 Processing diagnostic query: {chat_request.message[:50]}...")
             
-            # Use intelligent diagnostic service for comprehensive analysis
+            # First, search the diagnostic support CSV database
+            from app.services.diagnostic_support_service import DiagnosticSupportService
+            support_service = DiagnosticSupportService()
+            
+            matches = support_service.search_issue(
+                query=chat_request.message,
+                issue_type=None  # Search both BOT and STATION level
+            )
+            
+            # Check if we have good CSV matches (relevance >= 30%)
+            best_match_score = matches[0]['relevance_score'] if matches and len(matches) > 0 else 0
+            
+            if matches and len(matches) > 0 and best_match_score >= 30:
+                logger.info(f"✅ Found {len(matches)} matches in support CSV database (best: {best_match_score}%)")
+                response_text = self._format_csv_diagnostic_response(matches, chat_request.message)
+                
+                # Create source documents from matches
+                sources = [
+                    SourceDocument(
+                        document_name=f"{match['type'].replace('_', ' ')} Issue #{match['id']}",
+                        content_snippet=match['problem'][:200],
+                        relevance_score=match['relevance_score'] / 100.0,
+                        page_number=match['id'],
+                        document_type="diagnostic_csv"
+                    )
+                    for match in matches[:3]
+                ]
+                
+                # Record for RLHF learning
+                try:
+                    self.rlhf_service.record_feedback(
+                        chatbot_type="diagnostic_support",
+                        query=chat_request.message,
+                        response=response_text,
+                        feedback_type="neutral",
+                        rating=None,
+                        comment="CSV database match",
+                        metadata={
+                            "matches_count": len(matches),
+                            "top_relevance": matches[0]['relevance_score'] if matches else 0,
+                            "analysis_type": "csv_direct",
+                            "source": "csv_data"
+                        }
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to record RLHF feedback: {e}")
+                
+                return ChatResponse(
+                    response=response_text,
+                    chatbot_type=ChatbotType.DIAGNOSTIC,
+                    session_id=chat_request.session_id or str(uuid.uuid4()),
+                    sources=sources,
+                    confidence_score=0.95 if best_match_score >= 70 else 0.75,  # High confidence for good CSV matches
+                    suggested_actions=[
+                        "Show me the SQL queries",
+                        "What's the next step?",
+                        "Are there other related issues?"
+                    ]
+                )
+            
+            # If no good CSV matches (< 30% relevance), fall back to AI-powered intelligent diagnostics
+            logger.info(f"⚠️ No good CSV matches found (best: {best_match_score}%), using AI-powered analysis...")
             response = self.intelligent_service.diagnose_problem(chat_request)
             
             # Record for RLHF learning
@@ -122,12 +183,16 @@ Be patient, clear, and supportive. Break down complex solutions into simple step
                     response=response.response,
                     feedback_type="neutral",
                     rating=None,
-                    comment="Intelligent diagnostic analysis",
+                    comment="AI-powered fallback (no CSV match)",
                     metadata={
-                        "confidence": response.confidence_score,
-                        "analysis_type": "intelligent"
+                        "csv_match_score": best_match_score,
+                        "analysis_type": "ai_fallback",
+                        "source": "intelligent_llm",
+                        "confidence": response.confidence_score
                     }
                 )
+            except Exception as e:
+                logger.warning(f"Failed to record RLHF feedback: {e}")
             except Exception as e:
                 logger.warning(f"Failed to record RLHF feedback: {e}")
             
@@ -320,6 +385,89 @@ Could you describe your issue in more detail?""",
         # Sort by score
         matches.sort(key=lambda x: x["score"], reverse=True)
         return [m["issue"] for m in matches[:3]]  # Return top 3 matches
+    
+    def _format_csv_diagnostic_response(self, matches: List[Dict[str, Any]], user_query: str) -> str:
+        """
+        Format diagnostic response from CSV matches - shows actual documented solutions
+        
+        Args:
+            matches: List of matching issues from CSV
+            user_query: Original user query
+            
+        Returns:
+            Formatted response with CSV data
+        """
+        response_parts = [
+            "## 🔧 Diagnostic Solution from Support Database\n",
+            f"Found {len(matches)} documented solution(s) for your issue:\n"
+        ]
+        
+        # Show top 3 matches
+        for i, match in enumerate(matches[:3], 1):
+            severity_emoji = "🔴" if match['severity'].lower() == "high" else "🟡" if match['severity'].lower() == "medium" else "🟢"
+            
+            response_parts.append(f"\n### {severity_emoji} Solution {i}: {match['problem']}")
+            response_parts.append(f"\n**Severity:** {match['severity']}")
+            response_parts.append(f"\n**Issue Type:** {match['type'].replace('_', ' ').title()}")
+            response_parts.append(f"\n**Relevance Score:** {match['relevance_score']:.1f}%\n")
+            
+            # Format solution steps - parse numbered or bullet points
+            response_parts.append(f"\n**📋 Solution Steps:**\n")
+            solution_text = match['solution'].strip()
+            
+            # Try to parse numbered steps or bullet points
+            lines = solution_text.split('·')  # CSV uses · as bullet points
+            if len(lines) == 1:
+                lines = solution_text.split('\n')  # Try newline split
+            
+            step_num = 1
+            for line in lines:
+                line = line.strip()
+                if line:
+                    # Remove leading numbers/bullets if present
+                    line = line.lstrip('0123456789.-) ')
+                    if line:
+                        response_parts.append(f"{step_num}. {line}\n")
+                        step_num += 1
+            
+            # Add SQL queries if available - parse multiple queries
+            if match.get('sql_query') and match['sql_query'].strip():
+                response_parts.append(f"\n**💻 SQL Diagnostic Queries:**\n")
+                
+                # Split multiple SQL queries by semicolon
+                sql_queries = match['sql_query'].split(';')
+                query_num = 1
+                for query in sql_queries:
+                    query = query.strip()
+                    if query and len(query) > 5:  # Skip empty or very short fragments
+                        response_parts.append(f"\n**Query {query_num}:**")
+                        response_parts.append(f"\n```sql\n{query};\n```\n")
+                        query_num += 1
+            
+            # Add outcome/expected result
+            if match.get('outcome') and match['outcome'].strip():
+                response_parts.append(f"\n**✅ Expected Outcome:**\n{match['outcome']}\n")
+            
+            # Add developer escalation note
+            if match.get('reported_to_dev', '').upper() == 'Y':
+                response_parts.append(f"\n⚠️ **Note:** This issue may require developer attention if basic steps don't resolve it.\n")
+            
+            response_parts.append("\n" + "-" * 80 + "\n")
+        
+        # Add step-by-step diagnostic option
+        response_parts.append("\n### 🎯 Need Step-by-Step Guidance?\n")
+        response_parts.append("Use the **Step-by-Step Diagnostic** feature to execute each solution step interactively.\n")
+        response_parts.append("This will guide you through each SQL query and verify the solution at each stage.\n")
+        
+        # Add general troubleshooting tips
+        response_parts.append("\n### 💡 General Troubleshooting Tips:\n")
+        response_parts.append("1. Always verify bot/station status before making changes\n")
+        response_parts.append("2. Check alarms and error logs first\n")
+        response_parts.append("3. Execute diagnostic SQL queries to gather data\n")
+        response_parts.append("4. Document what you've tried and the results\n")
+        response_parts.append("5. Escalate to developers if issue persists\n")
+        
+        return "".join(response_parts)
     
     def _generate_diagnostic_response(self, issue: Dict[str, Any], user_query: str) -> str:
         """Generate diagnostic response for a specific issue"""
