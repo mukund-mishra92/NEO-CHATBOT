@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 import re
+import uuid
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +25,9 @@ class DiagnosticSupportService:
         self.bot_level_issues: List[Dict[str, Any]] = []
         self.station_level_issues: List[Dict[str, Any]] = []
         self.support_logs_path = Path(__file__).parent.parent / "data" / "support" / "support_logs"
+        
+        # Session management for step-by-step diagnostics
+        self.active_sessions: Dict[str, Dict[str, Any]] = {}
         
         # Load support logs
         self._load_support_logs()
@@ -363,3 +368,236 @@ class DiagnosticSupportService:
             'reported_to_developers': reported_to_dev
         }
 
+    def parse_solution_steps(self, solution_text: str) -> List[str]:
+        """
+        Parse solution text into individual steps
+        Supports numbered lists like "1.", "2." or "Step 1:", "Step 2:"
+        """
+        if not solution_text or pd.isna(solution_text):
+            return []
+        
+        # Clean the text
+        solution_text = self._clean_text(str(solution_text))
+        
+        # Try different patterns for numbered steps
+        patterns = [
+            r'(?:^|\n)(\d+)\.\s*([^\n]+)',  # 1. Step text
+            r'(?:^|\n)Step\s*(\d+):\s*([^\n]+)',  # Step 1: text
+            r'(?:^|\n)(\d+)\)\s*([^\n]+)',  # 1) Step text
+        ]
+        
+        steps = []
+        for pattern in patterns:
+            matches = re.findall(pattern, solution_text, re.MULTILINE | re.IGNORECASE)
+            if matches:
+                steps = [step_text.strip() for _, step_text in matches]
+                break
+        
+        # If no numbered pattern found, try splitting by newlines
+        if not steps:
+            lines = [line.strip() for line in solution_text.split('\n') if line.strip()]
+            if len(lines) > 1:
+                steps = lines
+            else:
+                # Single step solution
+                steps = [solution_text]
+        
+        return steps
+
+    def parse_sql_queries(self, sql_text: str) -> List[str]:
+        """
+        Parse SQL query text into individual queries
+        Splits by semicolon and cleans each query
+        """
+        if not sql_text or pd.isna(sql_text):
+            return []
+        
+        # Clean and split by semicolon
+        sql_text = self._clean_text(str(sql_text))
+        queries = [q.strip() for q in sql_text.split(';') if q.strip()]
+        
+        return queries
+
+    def start_diagnostic_session(self, issue_id: int, issue_type: str = "bot_level") -> Dict[str, Any]:
+        """
+        Start a step-by-step diagnostic session for a specific issue
+        Returns session ID and first step information
+        """
+        # Find the issue
+        issues = self.bot_level_issues if issue_type == "bot_level" else self.station_level_issues
+        issue = next((i for i in issues if i.get('s_no') == issue_id), None)
+        
+        if not issue:
+            return {
+                'success': False,
+                'error': f'Issue {issue_id} not found in {issue_type} issues'
+            }
+        
+        # Parse solution steps and SQL queries
+        solution_steps = self.parse_solution_steps(issue.get('solution', ''))
+        sql_queries = self.parse_sql_queries(issue.get('sql_query', ''))
+        
+        # Create session
+        session_id = str(uuid.uuid4())
+        session = {
+            'session_id': session_id,
+            'issue_id': issue_id,
+            'issue_type': issue_type,
+            'problem': issue.get('problem', ''),
+            'severity': issue.get('severity', ''),
+            'solution_steps': solution_steps,
+            'sql_queries': sql_queries,
+            'current_step': 0,
+            'total_steps': len(solution_steps),
+            'status': 'active',
+            'created_at': datetime.now().isoformat(),
+            'history': []
+        }
+        
+        self.active_sessions[session_id] = session
+        
+        # Return first step
+        return {
+            'success': True,
+            'session_id': session_id,
+            'problem': session['problem'],
+            'severity': session['severity'],
+            'total_steps': session['total_steps'],
+            'current_step': {
+                'step_number': 1,
+                'step_text': solution_steps[0] if solution_steps else 'No solution steps available',
+                'sql_query': sql_queries[0] if sql_queries else None,
+                'has_sql': bool(sql_queries)
+            }
+        }
+
+    def get_session_status(self, session_id: str) -> Dict[str, Any]:
+        """Get current status of a diagnostic session"""
+        session = self.active_sessions.get(session_id)
+        
+        if not session:
+            return {
+                'success': False,
+                'error': 'Session not found or expired'
+            }
+        
+        current_idx = session['current_step']
+        solution_steps = session['solution_steps']
+        sql_queries = session['sql_queries']
+        
+        if current_idx >= len(solution_steps):
+            return {
+                'success': True,
+                'session_id': session_id,
+                'status': 'completed',
+                'message': 'All diagnostic steps completed',
+                'history': session['history']
+            }
+        
+        return {
+            'success': True,
+            'session_id': session_id,
+            'status': session['status'],
+            'problem': session['problem'],
+            'severity': session['severity'],
+            'current_step': {
+                'step_number': current_idx + 1,
+                'total_steps': session['total_steps'],
+                'step_text': solution_steps[current_idx],
+                'sql_query': sql_queries[current_idx] if current_idx < len(sql_queries) else None,
+                'has_sql': current_idx < len(sql_queries)
+            },
+            'history': session['history']
+        }
+
+    def submit_step_feedback(self, session_id: str, is_fixed: bool, feedback_notes: str = "") -> Dict[str, Any]:
+        """
+        Submit feedback for current step and move to next step if not fixed
+        Returns next step or completion status
+        """
+        session = self.active_sessions.get(session_id)
+        
+        if not session:
+            return {
+                'success': False,
+                'error': 'Session not found or expired'
+            }
+        
+        current_idx = session['current_step']
+        solution_steps = session['solution_steps']
+        sql_queries = session['sql_queries']
+        
+        # Record feedback in history
+        step_record = {
+            'step_number': current_idx + 1,
+            'step_text': solution_steps[current_idx] if current_idx < len(solution_steps) else None,
+            'sql_query': sql_queries[current_idx] if current_idx < len(sql_queries) else None,
+            'is_fixed': is_fixed,
+            'feedback_notes': feedback_notes,
+            'timestamp': datetime.now().isoformat()
+        }
+        session['history'].append(step_record)
+        
+        # If issue is fixed, complete the session
+        if is_fixed:
+            session['status'] = 'resolved'
+            session['completed_at'] = datetime.now().isoformat()
+            
+            return {
+                'success': True,
+                'session_id': session_id,
+                'status': 'resolved',
+                'message': f'✅ Issue resolved at step {current_idx + 1}',
+                'total_steps_used': current_idx + 1,
+                'history': session['history']
+            }
+        
+        # Move to next step
+        session['current_step'] += 1
+        next_idx = session['current_step']
+        
+        # Check if all steps are exhausted
+        if next_idx >= len(solution_steps):
+            session['status'] = 'unresolved'
+            session['completed_at'] = datetime.now().isoformat()
+            
+            return {
+                'success': True,
+                'session_id': session_id,
+                'status': 'unresolved',
+                'message': '⚠️ All diagnostic steps completed but issue not resolved. May need to escalate.',
+                'total_steps': len(solution_steps),
+                'history': session['history']
+            }
+        
+        # Return next step
+        return {
+            'success': True,
+            'session_id': session_id,
+            'status': 'active',
+            'message': f'Moving to step {next_idx + 1}',
+            'next_step': {
+                'step_number': next_idx + 1,
+                'total_steps': session['total_steps'],
+                'step_text': solution_steps[next_idx],
+                'sql_query': sql_queries[next_idx] if next_idx < len(sql_queries) else None,
+                'has_sql': next_idx < len(sql_queries)
+            },
+            'history': session['history']
+        }
+
+    def close_session(self, session_id: str) -> Dict[str, Any]:
+        """Close a diagnostic session"""
+        if session_id in self.active_sessions:
+            session = self.active_sessions.pop(session_id)
+            return {
+                'success': True,
+                'message': 'Session closed',
+                'final_status': session.get('status'),
+                'history': session.get('history', [])
+            }
+        
+        return {
+            'success': False,
+            'error': 'Session not found'
+        }

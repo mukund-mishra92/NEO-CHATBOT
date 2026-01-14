@@ -34,6 +34,19 @@ class DiagnosticResponse(BaseModel):
     data: Dict[str, Any]
 
 
+class StartSessionRequest(BaseModel):
+    """Request model for starting a diagnostic session"""
+    issue_id: int = Field(..., description="Issue ID to diagnose")
+    issue_type: str = Field(default="bot_level", description="Type: bot_level or station_level")
+
+
+class StepFeedbackRequest(BaseModel):
+    """Request model for submitting step feedback"""
+    session_id: str = Field(..., description="Diagnostic session ID")
+    is_fixed: bool = Field(..., description="Whether the issue is fixed after this step")
+    feedback_notes: str = Field(default="", description="Optional feedback notes")
+
+
 @router.post("/search", response_model=DiagnosticResponse)
 async def search_issues(query_request: DiagnosticQuery):
     """
@@ -254,4 +267,161 @@ async def health_check():
     
     except Exception as e:
         logger.error(f"Health check failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ========== Step-by-Step Diagnostic Workflow Endpoints ==========
+
+@router.post("/session/start", response_model=DiagnosticResponse)
+async def start_diagnostic_session(request: StartSessionRequest):
+    """
+    Start a step-by-step diagnostic session for an issue
+    
+    **Parameters:**
+    - **issue_id**: ID of the issue to diagnose
+    - **issue_type**: Type of issue (bot_level or station_level)
+    
+    **Returns:**
+    - Session ID and first diagnostic step with SQL query (if available)
+    
+    **Workflow:**
+    1. Parses solution into individual steps
+    2. Parses SQL queries (split by semicolon)
+    3. Returns first step for execution
+    4. User executes SQL and provides feedback
+    5. If not fixed, moves to next step
+    """
+    try:
+        result = diagnostic_service.start_diagnostic_session(
+            issue_id=request.issue_id,
+            issue_type=request.issue_type
+        )
+        
+        if not result.get('success'):
+            raise HTTPException(status_code=404, detail=result.get('error'))
+        
+        return DiagnosticResponse(
+            success=True,
+            message=f"Diagnostic session started. Step 1 of {result.get('total_steps')}",
+            data=result
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error starting diagnostic session: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/session/{session_id}/status", response_model=DiagnosticResponse)
+async def get_session_status(session_id: str):
+    """
+    Get current status of a diagnostic session
+    
+    **Parameters:**
+    - **session_id**: Session ID from start_diagnostic_session
+    
+    **Returns:**
+    - Current step information, session history, and status
+    """
+    try:
+        result = diagnostic_service.get_session_status(session_id)
+        
+        if not result.get('success'):
+            raise HTTPException(status_code=404, detail=result.get('error'))
+        
+        status = result.get('status', 'unknown')
+        if status == 'completed':
+            message = "Session completed - all steps finished"
+        elif status == 'resolved':
+            message = "Session completed - issue resolved"
+        elif status == 'unresolved':
+            message = "Session completed - issue not resolved"
+        else:
+            current = result.get('current_step', {})
+            message = f"Step {current.get('step_number')} of {current.get('total_steps')}"
+        
+        return DiagnosticResponse(
+            success=True,
+            message=message,
+            data=result
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting session status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/session/feedback", response_model=DiagnosticResponse)
+async def submit_step_feedback(request: StepFeedbackRequest):
+    """
+    Submit feedback for current step and get next step (if not fixed)
+    
+    **Parameters:**
+    - **session_id**: Session ID
+    - **is_fixed**: True if issue is resolved, False to continue
+    - **feedback_notes**: Optional notes about the step execution
+    
+    **Returns:**
+    - Next step (if issue not fixed) or completion status (if fixed or no more steps)
+    
+    **Example Usage:**
+    ```
+    1. Execute SQL query from current step
+    2. Check if issue is fixed
+    3. Submit feedback: {"is_fixed": false, "feedback_notes": "Still seeing error"}
+    4. Receive next step and repeat
+    ```
+    """
+    try:
+        result = diagnostic_service.submit_step_feedback(
+            session_id=request.session_id,
+            is_fixed=request.is_fixed,
+            feedback_notes=request.feedback_notes
+        )
+        
+        if not result.get('success'):
+            raise HTTPException(status_code=404, detail=result.get('error'))
+        
+        return DiagnosticResponse(
+            success=True,
+            message=result.get('message', 'Feedback submitted'),
+            data=result
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error submitting feedback: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/session/{session_id}", response_model=DiagnosticResponse)
+async def close_diagnostic_session(session_id: str):
+    """
+    Close a diagnostic session
+    
+    **Parameters:**
+    - **session_id**: Session ID to close
+    
+    **Returns:**
+    - Final session status and history
+    """
+    try:
+        result = diagnostic_service.close_session(session_id)
+        
+        if not result.get('success'):
+            raise HTTPException(status_code=404, detail=result.get('error'))
+        
+        return DiagnosticResponse(
+            success=True,
+            message="Session closed",
+            data=result
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error closing session: {e}")
         raise HTTPException(status_code=500, detail=str(e))
