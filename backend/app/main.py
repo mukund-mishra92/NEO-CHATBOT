@@ -66,10 +66,11 @@ async def chatbot_page():
     """Serve the main chatbot UI with all features (Knowledge Base, SQL Assistant, Diagnostic)"""
     return serve_html_file("chatbot.html", "Chatbot UI not found")
 
-@app.get("/diagnostic", response_class=HTMLResponse)
-async def diagnostic_page():
-    """Serve the semi-automated diagnostic support UI"""
-    return serve_html_file("semi_auto_diagnostic.html", "Diagnostic UI not found")
+# DISABLED: Semi-Auto Diagnostic feature
+# @app.get("/diagnostic", response_class=HTMLResponse)
+# async def diagnostic_page():
+#     """Serve the semi-automated diagnostic support UI"""
+#     return serve_html_file("semi_auto_diagnostic.html", "Diagnostic UI not found")
 
 @app.get("/diagnostic-support", response_class=HTMLResponse)
 async def diagnostic_support_page():

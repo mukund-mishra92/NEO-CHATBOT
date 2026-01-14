@@ -821,7 +821,7 @@ Please regenerate the response addressing these issues:
                 logger.error("❌ Agent graph not available - falling back to error response")
                 return ChatResponse(
                     response="Agentic AI system is not properly initialized. Please check that LangChain and LangGraph are installed.",
-                    session_id=chat_request.session_id,
+                    session_id=chat_request.session_id or "default-session",
                     chatbot_type=chat_request.chatbot_type,
                     confidence_score=0.0,
                     source_documents=[],
@@ -837,7 +837,7 @@ Please regenerate the response addressing these issues:
             # Step 5: Build chat response with enhanced metadata
             response = ChatResponse(
                 response=final_response,
-                session_id=chat_request.session_id,
+                session_id=chat_request.session_id or "default-session",
                 chatbot_type=chat_request.chatbot_type,
                 confidence_score=confidence,
                 source_documents=source_documents,
