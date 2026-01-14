@@ -125,6 +125,11 @@ cd Neo-Chatbot/backend
 ### 2. Create Virtual Environment
 
 ```bash
+
+## Python 3.11 is required.
+## so you can create virtual environemnt like 
+py --3.11 venv venv
+## or 
 python -m venv venv
 # Windows
 venv\Scripts\activate
