@@ -133,7 +133,24 @@ class DiagnosticSupportService:
             List of matching issues with relevance scores
         """
         query_lower = query.lower()
-        query_terms = set(query_lower.split())
+        
+        # Remove stop words for better matching
+        stop_words = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'on', 'in', 'at', 'to', 'for', 'of', 'and', 'or', 'any'}
+        query_terms = set([w for w in query_lower.split() if w not in stop_words])
+        
+        # Key phrases that indicate specific issues (higher priority)
+        key_phrases = [
+            'stopped without error',
+            'stopped without any error',
+            'not moving',
+            'stuck',
+            'alarm',
+            'battery low',
+            'communication lost',
+            'communication issue',
+            'task failed',
+            'lidar issue'
+        ]
         
         results = []
         
@@ -146,6 +163,8 @@ class DiagnosticSupportService:
         else:
             issues_to_search = self.bot_level_issues + self.station_level_issues
         
+        logger.info(f"🔍 Searching for: '{query}' | Terms: {query_terms} | Searching {len(issues_to_search)} issues")
+        
         # Search and score
         for issue in issues_to_search:
             problem_text = issue['problem'].lower()
@@ -153,33 +172,68 @@ class DiagnosticSupportService:
             
             # Calculate relevance score
             score = 0
+            match_reasons = []
+            
+            # Check for key phrase matches (very high priority)
+            for phrase in key_phrases:
+                if phrase in query_lower and phrase in problem_text:
+                    score += 80
+                    match_reasons.append(f"Key phrase: '{phrase}'")
+                    break
             
             # Exact phrase match (highest priority)
-            if query_lower in problem_text:
+            if query_lower in problem_text or problem_text in query_lower:
                 score += 100
+                match_reasons.append("Exact phrase")
             
-            # Individual term matches in problem
-            problem_terms = set(problem_text.split())
+            # Partial phrase matching (3+ consecutive words)
+            query_words = query_lower.split()
+            if len(query_words) >= 3:
+                for i in range(len(query_words) - 2):
+                    three_word_phrase = ' '.join(query_words[i:i+3])
+                    if three_word_phrase in problem_text:
+                        score += 50
+                        match_reasons.append(f"3-word: '{three_word_phrase}'")
+                        break
+            
+            # Individual term matches in problem (with higher weight for diagnostic terms)
+            problem_terms = set([w for w in problem_text.split() if w not in stop_words])
             matching_terms = query_terms & problem_terms
-            score += len(matching_terms) * 10
+            
+            # Diagnostic terms get higher weight
+            diagnostic_terms = {'stopped', 'error', 'alarm', 'failed', 'stuck', 'issue', 'problem', 'bot', 'station'}
+            diagnostic_matches = matching_terms & diagnostic_terms
+            score += len(diagnostic_matches) * 20  # Higher weight
+            score += len(matching_terms - diagnostic_matches) * 10  # Regular terms
+            
+            if matching_terms:
+                match_reasons.append(f"Terms: {', '.join(list(matching_terms)[:5])}")
             
             # Term matches in solution
-            solution_terms = set(solution_text.split())
+            solution_terms = set([w for w in solution_text.split() if w not in stop_words])
             solution_matches = query_terms & solution_terms
             score += len(solution_matches) * 5
             
             # Severity boost
             if issue['severity'].lower() == 'high':
-                score += 2
+                score += 5
             
             if score > 0:
                 results.append({
                     **issue,
-                    'relevance_score': score
+                    'relevance_score': score,
+                    'match_reasons': match_reasons
                 })
         
         # Sort by relevance
         results.sort(key=lambda x: x['relevance_score'], reverse=True)
+        
+        # Log top matches for debugging
+        if results:
+            logger.info(f"📊 Top match: Score={results[0]['relevance_score']}, Problem='{results[0]['problem'][:60]}...'")
+            logger.info(f"   Reasons: {results[0].get('match_reasons', [])}")
+        else:
+            logger.warning(f"⚠️ No matches found for: '{query}'")
         
         return results[:10]  # Return top 10 matches
     
