@@ -7,6 +7,7 @@ import logging
 import json
 import csv
 import uuid
+import time
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
@@ -15,7 +16,9 @@ from .rlhf_service import RLHFService
 from .diagnostic_support_service import DiagnosticSupportService
 from .sql_assistant_service import SQLAssistantService
 from .intelligent_diagnostic_service import IntelligentDiagnosticService
+from .chat_history_service import ChatHistoryService
 from ..models.schemas import ChatRequest, ChatResponse, ChatbotType, DiagnosticIssue, SystemHealthStatus, SourceDocument
+from ..core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +37,23 @@ class DiagnosticService:
         self.sql_service = SQLAssistantService()  # SQL query execution service
         self.intelligent_service = IntelligentDiagnosticService()  # AI-powered diagnosis
         self.issues_db = self._load_issues_database()
+        
+        # Initialize chat history service
+        try:
+            db_config = {
+                'host': settings.DB_HOST,
+                'port': settings.DB_PORT,
+                'user': settings.DB_USER,
+                'password': settings.DB_PASSWORD,
+                'database': settings.DB_NAME,
+                'charset': 'utf8mb4',
+                'cursorclass': __import__('pymysql').cursors.DictCursor
+            }
+            self.chat_history_service = ChatHistoryService(db_config)
+            logger.info("✅ Chat history service initialized for Diagnostic")
+        except Exception as e:
+            logger.warning(f"⚠️ Could not initialize chat history service: {e}")
+            self.chat_history_service = None
         
         self.system_prompt = """You are a troubleshooting expert for the NEO Warehouse Management System.
 
@@ -158,12 +178,36 @@ Be patient, clear, and supportive. Break down complex solutions into simple step
                 except Exception as e:
                     logger.warning(f"Failed to record RLHF feedback: {e}")
                 
+                # Log to chat history database
+                confidence = 0.95 if best_match_score >= 70 else 0.75
+                if self.chat_history_service:
+                    try:
+                        start_time = time.time()
+                        response_time_ms = int((time.time() - start_time) * 1000)
+                        session_id = chat_request.session_id or str(uuid.uuid4())
+                        chat_id = self.chat_history_service.log_chat_interaction(
+                            session_id=session_id,
+                            chatbot_type="diagnostic",
+                            user_query=chat_request.message,
+                            assistant_response=response_text,
+                            confidence_score=confidence,
+                            response_time_ms=response_time_ms,
+                            metadata={
+                                "matches_count": len(matches),
+                                "top_relevance": best_match_score,
+                                "source": "csv_data"
+                            }
+                        )
+                        logger.info(f"💾 Logged diagnostic chat to database: {chat_id}")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Failed to log chat to database: {e}")
+                
                 return ChatResponse(
                     response=response_text,
                     chatbot_type=ChatbotType.DIAGNOSTIC,
                     session_id=chat_request.session_id or str(uuid.uuid4()),
                     sources=sources,
-                    confidence_score=0.95 if best_match_score >= 70 else 0.75,  # High confidence for good CSV matches
+                    confidence_score=confidence,
                     suggested_actions=[
                         "Show me the SQL queries",
                         "What's the next step?",
@@ -174,6 +218,28 @@ Be patient, clear, and supportive. Break down complex solutions into simple step
             # If no good CSV matches (< 30% relevance), fall back to AI-powered intelligent diagnostics
             logger.info(f"⚠️ No good CSV matches found (best: {best_match_score}%), using AI-powered analysis...")
             response = self.intelligent_service.diagnose_problem(chat_request)
+            
+            # Log to chat history database
+            if self.chat_history_service:
+                try:
+                    start_time = time.time()
+                    response_time_ms = int((time.time() - start_time) * 1000)
+                    session_id = chat_request.session_id or str(uuid.uuid4())
+                    chat_id = self.chat_history_service.log_chat_interaction(
+                        session_id=session_id,
+                        chatbot_type="diagnostic",
+                        user_query=chat_request.message,
+                        assistant_response=response.response,
+                        confidence_score=response.confidence_score,
+                        response_time_ms=response_time_ms,
+                        metadata={
+                            "csv_match_score": best_match_score,
+                            "source": "ai_fallback"
+                        }
+                    )
+                    logger.info(f"💾 Logged diagnostic chat to database: {chat_id}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to log chat to database: {e}")
             
             # Record for RLHF learning
             try:
@@ -191,8 +257,6 @@ Be patient, clear, and supportive. Break down complex solutions into simple step
                         "confidence": response.confidence_score
                     }
                 )
-            except Exception as e:
-                logger.warning(f"Failed to record RLHF feedback: {e}")
             except Exception as e:
                 logger.warning(f"Failed to record RLHF feedback: {e}")
             

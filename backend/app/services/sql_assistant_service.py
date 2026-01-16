@@ -2435,7 +2435,8 @@ Generate an IMPROVED SQL query that addresses the issues. Return ONLY the SQL qu
             if not self.db_available:
                 return self._create_error_response(
                     "Database connection is not available. Please check your database configuration.",
-                    chat_request.session_id
+                    chat_request.session_id,
+                    chat_request.message
                 )
             
             # Check if user is giving pure negative feedback (like "no" or "wrong")
@@ -2953,7 +2954,8 @@ I'm here to help - just tell me what you need! 💡""",
             logger.error(f"❌ Error processing SQL query: {e}", exc_info=True)
             return self._create_error_response(
                 f"I encountered an error: {str(e)}",
-                chat_request.session_id
+                chat_request.session_id,
+                chat_request.message
             )
     
     def _extract_sql_query(self, response: str) -> Optional[str]:
@@ -3389,8 +3391,25 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
         
         return "\n".join(response_parts)
     
-    def _create_error_response(self, message: str, session_id: Optional[str]) -> ChatResponse:
+    def _create_error_response(self, message: str, session_id: Optional[str], question: str = "") -> ChatResponse:
         """Create error response"""
+        
+        # Log to chat history database
+        if self.chat_history_service and question:
+            try:
+                import uuid
+                chat_id = self.chat_history_service.log_chat_interaction(
+                    session_id=session_id or str(uuid.uuid4()),
+                    chatbot_type="sql_assistant",
+                    user_query=question,
+                    assistant_response=f"❌ {message}",
+                    confidence_score=0.0,
+                    response_time_ms=0
+                )
+                logger.info(f"💾 Logged error response to database: {chat_id}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to log error response to database: {e}")
+        
         return ChatResponse(
             response=f"❌ {message}",
             chatbot_type=ChatbotType.SQL_ASSISTANT,
@@ -3426,6 +3445,39 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
 3. Review the SQL query above and run it manually if needed
 
 Would you like to try a different question?"""
+        
+        # Log to chat history database
+        if self.chat_history_service:
+            try:
+                from datetime import datetime
+                import uuid
+                response_time_ms = 0  # Not tracking time here
+                intent_info = self._classify_query_intent(question)
+                tables_used = self._extract_tables_from_sql(sql_query)
+                
+                chat_id = self.chat_history_service.log_chat_interaction(
+                    session_id=session_id or str(uuid.uuid4()),
+                    chatbot_type="sql_assistant",
+                    user_query=question,
+                    assistant_response=response_text,
+                    confidence_score=0.5,
+                    response_time_ms=response_time_ms
+                )
+                
+                self.chat_history_service.log_sql_query(
+                    chat_id=chat_id,
+                    session_id=session_id or str(uuid.uuid4()),
+                    user_query=question,
+                    generated_sql=sql_query,
+                    execution_status='not_executed',  # Low confidence, not executed
+                    error_message="Low confidence - validation failed or no confident results",
+                    tables_used=tables_used,
+                    intent=intent_info.get('intent'),
+                    entities=intent_info.get('entities')
+                )
+                logger.info(f"💾 Logged low-confidence query to database: {chat_id}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to log low-confidence query to database: {e}")
         
         return ChatResponse(
             response=response_text,

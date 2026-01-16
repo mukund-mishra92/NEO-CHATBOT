@@ -7,8 +7,8 @@ echo NEO Chatbot - Starting Server
 echo ========================================
 echo.
 
-REM Check if virtual environment exists
-if not exist "venv\" (
+REM Check if virtual environment exists (one level up)
+if not exist "..\venv\" (
     echo [WARNING] Virtual environment not found!
     echo Please run setup.bat first to create the virtual environment
     pause
@@ -17,7 +17,7 @@ if not exist "venv\" (
 
 REM Activate virtual environment
 echo [1/3] Activating virtual environment...
-call venv\Scripts\activate.bat
+call ..\venv\Scripts\activate.bat
 
 REM Check if .env file exists
 if not exist "backend\.env" (
@@ -34,14 +34,15 @@ REM Start the server
 echo [2/3] Starting NEO Chatbot server...
 echo.
 echo Server will be available at:
-echo   - API: http://localhost:8000
-echo   - Docs: http://localhost:8000/docs
-echo   - Chatbot UI: http://localhost:8000/chatbot
+echo   - Local: http://localhost:3960
+echo   - Network: http://192.168.16.20:3960
+echo   - API Docs: http://localhost:3960/docs
+echo   - Chatbot UI: http://localhost:3960/chatbot
 echo.
 echo [3/3] Press Ctrl+C to stop the server
 echo ========================================
 echo.
 
-python -m app.main
+uvicorn app.main:app --reload --port 3960 --host 0.0.0.0
 
 pause

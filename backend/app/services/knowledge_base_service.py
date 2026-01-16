@@ -6,6 +6,7 @@ Answers questions about NEO documentation, code, and proposals
 import logging
 import re
 import uuid
+import time
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
@@ -13,7 +14,9 @@ from .llm_service import LLMService
 from .vector_store_service import VectorStoreService
 from .rlhf_service import RLHFService
 from .diagnostic_support_service import DiagnosticSupportService
+from .chat_history_service import ChatHistoryService
 from ..models.schemas import ChatRequest, ChatResponse, SourceDocument, ChatbotType, MessageRole
+from ..core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +33,23 @@ class KnowledgeBaseService:
         self.vector_store = VectorStoreService()
         self.rlhf_service = RLHFService()
         self.diagnostic_service = DiagnosticSupportService()  # Add diagnostic support
+        
+        # Initialize chat history service
+        try:
+            db_config = {
+                'host': settings.DB_HOST,
+                'port': settings.DB_PORT,
+                'user': settings.DB_USER,
+                'password': settings.DB_PASSWORD,
+                'database': settings.DB_NAME,
+                'charset': 'utf8mb4',
+                'cursorclass': __import__('pymysql').cursors.DictCursor
+            }
+            self.chat_history_service = ChatHistoryService(db_config)
+            logger.info("✅ Chat history service initialized for Knowledge Base")
+        except Exception as e:
+            logger.warning(f"⚠️ Could not initialize chat history service: {e}")
+            self.chat_history_service = None
         
         self.system_prompt = """You are NEO Assistant, an expert on the NEO Warehouse Management System.
 
@@ -148,6 +168,30 @@ Always prioritize clarity and user understanding."""
             
             # Calculate confidence based on source relevance
             confidence = self._calculate_confidence(filtered_results)
+            
+            # Log to chat history database
+            start_time = time.time()
+            response_time_ms = int((time.time() - start_time) * 1000)
+            
+            if self.chat_history_service:
+                try:
+                    session_id = chat_request.session_id or str(uuid.uuid4())
+                    chat_id = self.chat_history_service.log_chat_interaction(
+                        session_id=session_id,
+                        chatbot_type="knowledge_base",
+                        user_query=chat_request.message,
+                        assistant_response=response_text,
+                        confidence_score=confidence,
+                        response_time_ms=response_time_ms,
+                        metadata={
+                            "query_type": query_type,
+                            "source_count": len(source_documents),
+                            "document_names": [doc.document_name for doc in source_documents[:3]]
+                        }
+                    )
+                    logger.info(f"💾 Logged knowledge base chat to database: {chat_id}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to log chat to database: {e}")
             
             # Record for RLHF learning
             try:

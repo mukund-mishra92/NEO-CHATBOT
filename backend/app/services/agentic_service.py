@@ -7,6 +7,8 @@ Implements a two-agent verification system where:
 
 import logging
 import os
+import time
+import uuid
 from typing import Dict, Any, List, TypedDict, Annotated, Optional
 from operator import add
 
@@ -32,7 +34,9 @@ except ImportError as e:
 # Local imports
 from .llm_service import LLMService
 from .vector_store_service import VectorStoreService
+from .chat_history_service import ChatHistoryService
 from ..models.schemas import ChatRequest, ChatResponse, SourceDocument, MessageRole
+from ..core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +71,23 @@ class AgenticService:
         """Initialize agentic service with LangChain components"""
         self.llm_service = LLMService()
         self.vector_store = VectorStoreService()
+        
+        # Initialize chat history service
+        try:
+            db_config = {
+                'host': settings.DB_HOST,
+                'port': settings.DB_PORT,
+                'user': settings.DB_USER,
+                'password': settings.DB_PASSWORD,
+                'database': settings.DB_NAME,
+                'charset': 'utf8mb4',
+                'cursorclass': __import__('pymysql').cursors.DictCursor
+            }
+            self.chat_history_service = ChatHistoryService(db_config)
+            logger.info("✅ Chat history service initialized for Agentic AI")
+        except Exception as e:
+            logger.warning(f"⚠️ Could not initialize chat history service: {e}")
+            self.chat_history_service = None
         
         # Check if dependencies are available
         if not LANGCHAIN_AVAILABLE or not LANGGRAPH_AVAILABLE:
@@ -833,6 +854,32 @@ Please regenerate the response addressing these issues:
             # Step 4: Extract final response
             final_response = final_state.get("verified_response") or final_state.get("initial_response", "No response generated")
             confidence = final_state.get("confidence_score", 0.5)
+            
+            # Log to chat history database
+            if self.chat_history_service:
+                try:
+                    start_time = time.time()
+                    response_time_ms = int((time.time() - start_time) * 1000)
+                    session_id = chat_request.session_id or str(uuid.uuid4())
+                    chat_id = self.chat_history_service.log_chat_interaction(
+                        session_id=session_id,
+                        chatbot_type="knowledge_base",  # Agentic AI is used for knowledge base
+                        user_query=chat_request.message,
+                        assistant_response=final_response,
+                        confidence_score=confidence,
+                        response_time_ms=response_time_ms,
+                        metadata={
+                            "agent_workflow": "agentic_ai",
+                            "documents_retrieved": len(search_results),
+                            "documents_ranked": len(ranked_results),
+                            "format_decision": final_state.get("format_decision", ""),
+                            "verification_passed": final_state.get("verification_passed", True),
+                            "iterations_used": final_state.get("iteration_count", 0)
+                        }
+                    )
+                    logger.info(f"💾 Logged agentic AI chat to database: {chat_id}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to log chat to database: {e}")
             
             # Step 5: Build chat response with enhanced metadata
             response = ChatResponse(
