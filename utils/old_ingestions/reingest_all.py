@@ -8,7 +8,7 @@ from pathlib import Path
 # Add project root to path
 sys.path.append(str(Path(__file__).parent))
 
-from app.modules.neo_chatbot.services.vector_store_service import VectorStoreService
+from ...backend.app.services.vector_store_service import VectorStoreService
 import logging
 
 logging.basicConfig(
@@ -35,7 +35,7 @@ def main():
     print("="*80)
     print()
     
-    from ingest_unified import UnifiedIngestionSystem, main as ingest_main
+    from utils.old_ingestions.ingest_unified import UnifiedIngestionSystem, main as ingest_main
     ingest_main()
     
     print("\n" + "="*80)

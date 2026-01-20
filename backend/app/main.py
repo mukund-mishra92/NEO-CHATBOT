@@ -51,11 +51,6 @@ async def root():
     """Root endpoint - Serve home/index page"""
     return serve_html_file("index.html", "Home page not found")
 
-@app.get("/dashboard", response_class=HTMLResponse)
-async def dashboard_page():
-    """Serve the navigation dashboard"""
-    return serve_html_file("navigation_dashboard.html", "Dashboard not found")
-
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
