@@ -46,9 +46,9 @@ class KnowledgeBaseService:
                 'cursorclass': __import__('pymysql').cursors.DictCursor
             }
             self.chat_history_service = ChatHistoryService(db_config)
-            logger.info("✅ Chat history service initialized for Knowledge Base")
+            logger.info("Chat history service initialized for Knowledge Base")
         except Exception as e:
-            logger.warning(f"⚠️ Could not initialize chat history service: {e}")
+            logger.warning(f"Could not initialize chat history service: {e}")
             self.chat_history_service = None
         
         self.system_prompt = """You are NEO Assistant, an expert on the NEO Warehouse Management System.

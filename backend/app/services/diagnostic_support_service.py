@@ -1,4 +1,4 @@
-"""
+﻿"""
 NEO Diagnostic Support Service
 Provides intelligent troubleshooting based on historical support logs
 """
@@ -24,7 +24,11 @@ class DiagnosticSupportService:
     def __init__(self):
         self.bot_level_issues: List[Dict[str, Any]] = []
         self.station_level_issues: List[Dict[str, Any]] = []
-        self.support_logs_path = Path(__file__).parent.parent / "data" / "support" / "support_logs"
+        # Point to the project-root data/support/support_logs (not backend/app/data/...)
+        # backend/app/services -> parent.parent is backend/app; need four parents to reach repo root
+        self.support_logs_path = (
+            Path(__file__).parent.parent.parent.parent / "data" / "support" / "support_logs"
+        )
         
         # Session management for step-by-step diagnostics
         self.active_sessions: Dict[str, Dict[str, Any]] = {}
@@ -41,8 +45,20 @@ class DiagnosticSupportService:
         if pd.isna(text) or not isinstance(text, str):
             return ""
         
-        # Remove bullet points and special characters
-        text = re.sub(r'[��������]', '', text)
+        # Normalize quotes, dashes, bullets, non-breaking spaces
+        replacements = {
+            '\u2018': "'", '\u2019': "'", '\u201C': '"', '\u201D': '"',  # curly quotes
+            '\u2013': '-', '\u2014': '-',                                    # en/em dashes
+            '\u00A0': ' ',                                                   # non-breaking space
+            '\u2022': ' ', '\u00B7': ' ', '\u25CF': ' ',                    # bullets: • · ●
+        }
+        for k, v in replacements.items():
+            text = text.replace(k, v)
+
+        # Remove remaining unknown replacement char , , etc.
+        text = re.sub(r'[\uFFFD\u0000]', '', text)
+
+        # Collapse whitespace
         text = re.sub(r'\s+', ' ', text)
         return text.strip()
     
@@ -426,6 +442,7 @@ class DiagnosticSupportService:
         """
         Parse solution text into individual steps
         Supports numbered lists like "1.", "2." or "Step 1:", "Step 2:"
+        Also splits on common bullet characters (•, ·, -) if present
         """
         if not solution_text or pd.isna(solution_text):
             return []
@@ -433,6 +450,12 @@ class DiagnosticSupportService:
         # Clean the text
         solution_text = self._clean_text(str(solution_text))
         
+        # First, try bullet characters explicitly (they may have been normalized to spaces)
+        bullet_split = re.split(r'(?:\n|\r|\s){0,}\u2022|\u00B7|\*|-\s+', solution_text)
+        bullet_steps = [s.strip() for s in bullet_split if isinstance(s, str) and s.strip()]
+        if len(bullet_steps) > 1:
+            return bullet_steps
+
         # Try different patterns for numbered steps
         patterns = [
             r'(?:^|\n)(\d+)\.\s*([^\n]+)',  # 1. Step text
@@ -449,7 +472,7 @@ class DiagnosticSupportService:
         
         # If no numbered pattern found, try splitting by newlines
         if not steps:
-            lines = [line.strip() for line in solution_text.split('\n') if line.strip()]
+            lines = [line.strip() for line in re.split(r'[\n\r]+', solution_text) if line.strip()]
             if len(lines) > 1:
                 steps = lines
             else:
@@ -461,14 +484,32 @@ class DiagnosticSupportService:
     def parse_sql_queries(self, sql_text: str) -> List[str]:
         """
         Parse SQL query text into individual queries
-        Splits by semicolon and cleans each query
+        - Normalizes curly quotes to ASCII
+        - Splits by semicolon or blank lines
+        - Cleans each query
         """
         if not sql_text or pd.isna(sql_text):
             return []
         
-        # Clean and split by semicolon
-        sql_text = self._clean_text(str(sql_text))
-        queries = [q.strip() for q in sql_text.split(';') if q.strip()]
+        # Normalize quotes/dashes and keep newlines for better splitting
+        raw = str(sql_text)
+        raw = raw.replace('\u2018', "'").replace('\u2019', "'").replace('\u201C', '"').replace('\u201D', '"')
+        raw = raw.replace('\u2013', '-').replace('\u2014', '-')
+        # Unify whitespace
+        raw = raw.replace('\r', '\n')
+
+        # First split by semicolon, keeping multi-line queries
+        parts = []
+        for chunk in raw.split(';'):
+            cleaned = self._clean_text(chunk)
+            if cleaned:
+                parts.append(cleaned)
+
+        # If semicolons not present, split by double newlines as a fallback
+        if len(parts) <= 1:
+            parts = [self._clean_text(x) for x in re.split(r'\n\s*\n+', raw) if self._clean_text(x)]
+        
+        queries = [p for p in parts if p]
         
         return queries
 
@@ -479,7 +520,8 @@ class DiagnosticSupportService:
         """
         # Find the issue
         issues = self.bot_level_issues if issue_type == "bot_level" else self.station_level_issues
-        issue = next((i for i in issues if i.get('s_no') == issue_id), None)
+        # CSV loader stores the numeric id under 'id'
+        issue = next((i for i in issues if i.get('id') == issue_id), None)
         
         if not issue:
             return {
