@@ -1,0 +1,508 @@
+================================================================================
+SQL ASSISTANT SERVICE - ARCHITECTURE DOCUMENTATION
+================================================================================
+Version: 3.0 (Modular Refactored)
+Last Updated: January 22, 2026
+Status: Production Ready
+Architecture: Coordinator Pattern with 6 Specialized Packages
+================================================================================
+
+OVERVIEW
+--------
+The SQL Assistant Service converts natural language queries into MySQL queries,
+executes them safely, and returns formatted results. It uses a sophisticated
+multi-strategy approach with validation, auto-correction, and LLM-as-Judge
+refinement for high-quality results.
+
+ARCHITECTURE TYPE
+-----------------
+Coordinator Pattern (Agentic Multi-Component)
+- Modular design with 20 specialized components
+- 6 functional packages (context, intent, prompts, query, schema, validation)
+- Auto-correction and fallback strategies
+- LLM-based query generation and refinement
+
+FILE STRUCTURE
+--------------
+Core:
+  backend/app/services/sql_assistant/
+    __init__.py                    # Package exports
+    core.py                        # Main coordinator (543 lines)
+
+Packages:
+  context/                         # Conversation & session management
+    __init__.py
+    conversation.py               # Extract context from history
+    session_cache.py              # Cache queries and corrections
+  
+  intent/                         # Query understanding
+    __init__.py
+    classifier.py                 # Intent classification
+    temporal.py                   # Historical vs current detection
+  
+  prompts/                        # LLM prompt engineering
+    __init__.py
+    prompt_builder.py             # System prompt construction
+  
+  query/                          # SQL generation & execution
+    __init__.py
+    executor.py                   # Safe query execution
+    generator.py                  # LLM-based SQL generation
+  
+  schema/                         # Database schema intelligence
+    __init__.py
+    discovery.py                  # Relevant table/JOIN discovery
+    parser.py                     # Schema.json parsing
+    validator.py                  # SQL validation
+  
+  validation/                     # Quality assurance
+    __init__.py
+    judge.py                      # LLM-as-Judge refinement
+    query_validator.py            # Result validation & confidence
+
+CORE COMPONENTS (Detailed)
+---------------------------
+
+1. SQL ASSISTANT CORE (Coordinator)
+   File: core.py (543 lines)
+   Purpose: Orchestrates all components for end-to-end query processing
+   Key Methods:
+     - process_query(chat_request) -> ChatResponse
+     - _auto_correct_query(sql_query) -> str (NEW: Auto-fixes case issues)
+     - _apply_judge_refinement() -> Improved response
+     - execute_query_safe(sql_query) -> Results
+   
+   Strategy Execution:
+     1. Try 'direct' strategy (plain conversion)
+     2. Try 'with_context' strategy (use conversation history)
+     3. Try 'simplified' strategy (basic query)
+     4. Select best result based on confidence
+     5. Apply auto-correction if 0 results
+     6. Apply LLM judge if medium confidence
+
+2. INTENT CLASSIFIER
+   File: intent/classifier.py
+   Purpose: Understand query type and requirements
+   Classification Types:
+     - retrieve: SELECT queries
+     - aggregate: COUNT, SUM, AVG queries
+     - filter: WHERE clause emphasis
+     - join: Multi-table queries
+     - temporal: Time-based queries
+   
+   Returns: {
+     'intent': 'retrieve',
+     'confidence': 0.85,
+     'keywords': ['bot', 'status'],
+     'requires_join': True
+   }
+
+3. TEMPORAL CLASSIFIER
+   File: intent/temporal.py
+   Purpose: Determine if query needs historical or current data
+   Detection:
+     - Historical indicators: "check the log", "till now", "performed"
+     - Current indicators: "is doing", "current", "assigned to"
+   
+   Table Guidance:
+     - Historical → task_detail_log, bot_master_log
+     - Current → task_detail, bot_master
+   
+   Confidence: 0.4-0.95 based on keyword matches
+
+4. SCHEMA DISCOVERY
+   File: schema/discovery.py
+   Purpose: Find relevant tables and JOIN paths
+   Capabilities:
+     - Semantic table selection (vector similarity)
+     - LLM-based JOIN detection
+     - Foreign key path finding
+     - Column relevance scoring
+   
+   Key Methods:
+     - get_relevant_schema(question) -> Filtered schema
+     - detect_joins_with_llm(question, tables) -> JOIN suggestions
+     - get_join_paths(tables) -> Foreign key relationships
+
+5. SCHEMA VALIDATOR
+   File: schema/validator.py
+   Purpose: Validate SQL against actual schema
+   Checks:
+     - Table existence in schema
+     - Column existence in tables
+     - Data type compatibility
+     - JOIN validity
+   
+   Returns: (is_valid, invalid_items)
+
+6. QUERY GENERATOR
+   File: query/generator.py
+   Purpose: Generate SQL from natural language using LLM
+   Features:
+     - Strategy-based generation (direct/context/simplified)
+     - Markdown code fence stripping (```sql ... ```)
+     - Temporal guidance integration
+     - Schema-aware prompt building
+   
+   LLM Parameters:
+     - Temperature: 0.1 (deterministic)
+     - Max tokens: 300
+     - System prompt: Schema + examples + temporal guidance
+
+7. QUERY EXECUTOR
+   File: query/executor.py
+   Purpose: Execute SQL safely with validation
+   Safety Features:
+     - Dangerous operation blocking (DROP, DELETE, etc.)
+     - Timeout protection (5 seconds)
+     - Blacklist table checking
+     - Result size limiting
+   
+   Uses: pymysql + pandas for execution
+
+8. QUERY VALIDATOR
+   File: validation/query_validator.py
+   Purpose: Validate results and calculate confidence
+   Validation Checks:
+     - Results exist (0.1 boost)
+     - Reasonable count 1-1000 rows (0.15 boost)
+     - Non-null data >= 70% (0.15 boost)
+     - Column relevance to question (0.10 boost)
+   
+   Returns: (confidence_score, validation_message)
+   
+   Confidence Calculation:
+     Base: 0.5
+     Max: 0.95 (never 100%)
+     0 results: 0.3 ("might be too restrictive")
+
+9. LLM JUDGE
+   File: validation/judge.py
+   Purpose: Refine medium-confidence responses
+   Applied when: 0.60 <= confidence < 0.90
+   Process:
+     - Reviews question, SQL, and results
+     - Suggests improvements
+     - Generates enhanced response
+     - Re-scores confidence
+
+10. AUTO-CORRECTION (NEW FEATURE)
+    File: core.py (_auto_correct_query method)
+    Purpose: Automatically fix common SQL issues
+    Triggers: Valid SQL but 0 results + WHERE clause exists
+    Corrections:
+      - Case sensitivity: STATUS = 'active' → UPPER(STATUS) = UPPER('active')
+      - Retries automatically with corrected version
+      - Logs correction attempts
+    
+    Example:
+      Original: SELECT * FROM bot_master WHERE STATUS = 'active'
+      Corrected: SELECT * FROM bot_master WHERE UPPER(STATUS) = UPPER('active')
+
+11. CONVERSATION CONTEXT
+    File: context/conversation.py
+    Purpose: Extract useful context from chat history
+    Extracts:
+      - Previously mentioned tables
+      - User corrections
+      - Preferred patterns
+    
+    Context Limit: Last 5 messages
+
+12. SESSION CACHE
+    File: context/session_cache.py
+    Purpose: Cache successful queries per session
+    Stores:
+      - Question → SQL mapping
+      - Results count
+      - Sample data (first 3 rows)
+      - Timestamp
+    
+    Retention: Last 10 queries per session
+
+13. PROMPT BUILDER
+    File: prompts/prompt_builder.py
+    Purpose: Build LLM system prompts with schema
+    Includes:
+      - Relevant table schemas
+      - Column descriptions
+      - Foreign key relationships
+      - Temporal guidance (if historical query)
+      - Example queries
+      - Best practices
+
+PROCESSING FLOW
+----------------
+1. Receive query from API endpoint
+2. Extract conversation context (tables, corrections)
+3. Classify intent (retrieve, aggregate, etc.)
+4. Classify temporal scope (current vs historical)
+5. FOR EACH strategy (direct, with_context, simplified):
+   a. Discover relevant schema tables
+   b. Build LLM prompt with schema + temporal guidance
+   c. Generate SQL using LLM
+   d. Strip markdown code fences (```sql)
+   e. Validate SQL tables and columns
+   f. Execute query safely
+   g. IF 0 results AND valid SQL:
+      - Auto-correct for case sensitivity
+      - Retry with corrected SQL
+   h. Validate results and calculate confidence
+   i. Track best result
+6. IF medium confidence (0.60-0.89):
+   - Apply LLM-as-Judge refinement
+7. Cache successful query in session
+8. Update chat history
+9. Return formatted response with confidence
+
+MULTI-STRATEGY APPROACH
+------------------------
+Strategy 1: DIRECT
+  - Plain conversion: "question → SQL"
+  - No extra context
+  - Fast, simple queries
+
+Strategy 2: WITH_CONTEXT
+  - Uses conversation history
+  - Incorporates user corrections
+  - Better for follow-up questions
+
+Strategy 3: SIMPLIFIED
+  - Minimal query, basic SELECT
+  - Removes complex filters
+  - Fallback for complex questions
+
+Selection:
+  - Execute all strategies in order
+  - Stop early if confidence >= 0.85
+  - Use highest confidence result
+
+AUTO-CORRECTION LOGIC
+----------------------
+Trigger Conditions:
+  1. Query executed successfully (no error)
+  2. Zero rows returned
+  3. SQL contains WHERE clause
+
+Correction Applied:
+  - Convert string comparisons to case-insensitive
+  - Example: col = 'value' → UPPER(col) = UPPER('value')
+  - Automatically retry corrected query
+  - Use corrected results if successful
+
+Benefits:
+  - Handles user typos (active vs ACTIVE)
+  - No user intervention needed
+  - Transparent auto-fix
+
+LLM-AS-JUDGE REFINEMENT
+------------------------
+When: Confidence between 0.60 and 0.90
+Purpose: Improve medium-quality responses
+Process:
+  1. Show judge: question, SQL, results, initial response
+  2. Ask: "Is this correct? Any improvements?"
+  3. Judge provides: refined answer, new confidence
+  4. Use refined version if confidence improves
+
+DATABASE SCHEMA
+---------------
+Schema Source: data/database/schema.json
+Total Tables: 162
+Key Tables:
+  - bot_master (current bot states)
+  - bot_master_log (historical states)
+  - task_detail (current tasks)
+  - task_detail_log (historical tasks)
+  - order_master, order_line
+  - bin_info_master, inventory_location
+
+Schema Format:
+  {
+    "table_name": {
+      "columns": [
+        {"name": "column_name", "type": "VARCHAR(50)", "nullable": true}
+      ],
+      "primary_key": "BOT_ID",
+      "foreign_keys": [
+        {"column": "FK_COL", "references": "other_table(PK)"}
+      ]
+    }
+  }
+
+INTEGRATION POINTS
+------------------
+API Endpoint: POST /api/chatbot/chat
+Request Body:
+  {
+    "message": "give me all active bots",
+    "chatbot_type": "sql_assistant",
+    "session_id": "optional-session-id",
+    "conversation_history": []
+  }
+
+Response Format:
+  {
+    "response": "✅ HIGH CONFIDENCE (85%) - Results are reliable\n\n
+                 📋 Validation: 10 results found | reasonable count\n\n
+                 🔍 SQL Query:\nSELECT * FROM bot_master WHERE STATUS='ACTIVE'\n\n
+                 📊 Results (10 rows):\n...",
+    "confidence_score": 0.85,
+    "session_id": "session-id",
+    "suggestions": ["View bot details", "Filter by location"]
+  }
+
+CONFIGURATION
+-------------
+Database Connection:
+  Host: localhost
+  Database: neo_db
+  User: configured in core/config.py
+  Connection Pool: pymysql
+
+LLM Configuration:
+  Provider Chain: Groq → OpenAI → Anthropic → Local
+  Primary Model: llama-3.3-70b-versatile
+  Temperature: 0.1 (deterministic SQL)
+  Max Tokens: 300
+
+Schema Files:
+  - data/database/schema.json (primary)
+  - data/database/schema_guide.md (documentation)
+
+LOGGING
+-------
+Log Level: INFO
+Log File: backend/logs/chatbot_YYYYMMDD.log
+Key Events:
+  - Intent classification
+  - Temporal scope detection
+  - Selected tables count
+  - Generated SQL query
+  - Execution results (row count)
+  - Auto-correction attempts
+  - Strategy confidence scores
+  - Query processing time
+
+Example Log Flow:
+  🔍 Processing SQL query: give me all active bots...
+  📚 Extracted context: 0 tables, 0 corrections
+  🕐 Temporal scope: current (confidence: 0.70)
+  📊 Intent: retrieve | Temporal: current
+  🔄 Trying strategy: direct
+  🤖 LLM detected 2 implicit JOINs
+  📋 Selected 8 relevant tables
+  📝 SQL Query: SELECT * FROM bot_master WHERE STATUS = 'active' LIMIT 100;
+  🔍 Executing SQL: SELECT * FROM bot_master WHERE STATUS = 'active'...
+  ✅ Query executed: 0 rows returned
+  🔧 0 results - attempting auto-correction for case sensitivity...
+  🔄 Retrying with corrected SQL: ...WHERE UPPER(STATUS) = UPPER('active')...
+  ✅ Auto-correction successful! Found 10 rows
+  ✅ Strategy direct confidence: 0.85 - 10 results | reasonable count
+  ⏱️ Query processed in 3.42s
+
+PERFORMANCE
+-----------
+Typical Response Time: 3-7 seconds
+Breakdown:
+  - Schema discovery: 0.5-1s
+  - LLM generation: 2-4s
+  - Query execution: 0.1-1s
+  - Validation: 0.1s
+  - Auto-correction (if needed): +1s
+
+Optimization:
+  - Schema caching
+  - Session query caching
+  - Early termination at high confidence
+
+SAFETY FEATURES
+---------------
+1. Dangerous Operation Blocking:
+   - DROP DATABASE/TABLE
+   - DELETE FROM
+   - TRUNCATE
+   - ALTER TABLE
+   - INSERT INTO
+   - UPDATE SET
+
+2. Execution Limits:
+   - 5 second timeout
+   - Result size caps
+   - Read-only operations only
+
+3. Validation:
+   - Schema existence checks
+   - SQL injection prevention
+   - Blacklist table avoidance
+
+LIMITATIONS
+-----------
+1. Read-only (no data modification)
+2. Query timeout at 5 seconds
+3. LLM dependent (requires API keys)
+4. Case-sensitive column names (use exact case)
+5. Cannot create complex multi-step procedures
+
+FUTURE ENHANCEMENTS
+-------------------
+1. Query optimization suggestions
+2. Index usage analysis
+3. Explain plan visualization
+4. Query history analytics
+5. Natural language result summarization
+6. Multi-database support
+7. Write operation approval workflow
+8. Advanced auto-correction (typos, abbreviations)
+9. Schema evolution tracking
+10. Query performance monitoring
+
+TROUBLESHOOTING
+---------------
+Issue: 0 results with valid query
+Fix: Auto-correction now handles case sensitivity automatically
+
+Issue: Invalid table names
+Fix: Check schema.json, ensure table exists
+
+Issue: Slow query performance
+Fix: Check MySQL indexes, optimize query, reduce LIMIT
+
+Issue: LLM generation fails
+Fix: Check API keys, verify provider status, use fallback
+
+Issue: Foreign key path not found
+Fix: Update schema.json with missing relationships
+
+MAINTENANCE
+-----------
+1. Update schema.json when database changes
+2. Monitor LLM costs (Groq/OpenAI usage)
+3. Review session cache size periodically
+4. Clear old logs (>30 days)
+5. Validate query patterns monthly
+6. Update temporal indicators as needed
+7. Review and improve auto-correction rules
+8. Audit dangerous operation patterns
+
+TESTING
+-------
+Test Cases:
+  1. Simple SELECT: "show me all bots"
+  2. WHERE filters: "bots with status active"
+  3. JOINs: "orders with their bot assignments"
+  4. Aggregations: "count of tasks per bot"
+  5. Historical: "all tasks performed till now"
+  6. Case sensitivity: "bots where status is Active"
+  7. Date ranges: "orders from last week"
+
+Validation:
+  - Check SQL correctness
+  - Verify results accuracy
+  - Confirm confidence scores
+  - Test auto-correction triggers
+  - Verify safety blocks
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================

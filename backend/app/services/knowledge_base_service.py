@@ -13,7 +13,8 @@ from pathlib import Path
 from .llm_service import LLMService
 from .vector_store_service import VectorStoreService
 from .rlhf_service import RLHFService
-from .diagnostic_support_service import DiagnosticSupportService
+#from .diagnostic_support_service import DiagnosticSupportService
+from ..services.diagnostic_service import DiagnosticService
 from .chat_history_service import ChatHistoryService
 from ..models.schemas import ChatRequest, ChatResponse, SourceDocument, ChatbotType, MessageRole
 from ..core.config import settings
@@ -32,7 +33,7 @@ class KnowledgeBaseService:
         self.llm_service = LLMService()
         self.vector_store = VectorStoreService()
         self.rlhf_service = RLHFService()
-        self.diagnostic_service = DiagnosticSupportService()  # Add diagnostic support
+        self.diagnostic_service = DiagnosticService()  # Add diagnostic support
         
         # Initialize chat history service
         try:

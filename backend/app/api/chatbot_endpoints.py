@@ -18,11 +18,11 @@ from ..models.schemas import (
     SystemHealthStatus
 )
 from ..services.knowledge_base_service import KnowledgeBaseService
-from ..services.sql_assistant_service import SQLAssistantService
+from ..services.sql_assistant import SQLAssistantService
 from ..services.diagnostic_service import DiagnosticService
 from ..services.agentic_service import get_agentic_service
 from ..services.semi_automated_diagnostic_service import SemiAutomatedDiagnosticService
-from app.core.config import settings
+from ..core.config import settings
 
 logger = logging.getLogger(__name__)
 

@@ -13,8 +13,8 @@ from pathlib import Path
 
 from .llm_service import LLMService
 from .rlhf_service import RLHFService
-from .diagnostic_support_service import DiagnosticSupportService
-from .sql_assistant_service import SQLAssistantService
+from .diagnostic import DiagnosticSupportService
+from .sql_assistant import SQLAssistantService
 from .intelligent_diagnostic_service import IntelligentDiagnosticService
 from .chat_history_service import ChatHistoryService
 from ..models.schemas import ChatRequest, ChatResponse, ChatbotType, DiagnosticIssue, SystemHealthStatus, SourceDocument
@@ -132,7 +132,7 @@ Be patient, clear, and supportive. Break down complex solutions into simple step
             logger.info(f"🔍 Processing diagnostic query: {chat_request.message[:50]}...")
             
             # First, search the diagnostic support CSV database
-            from app.services.diagnostic_support_service import DiagnosticSupportService
+            # Using already imported DiagnosticSupportService from top of file
             support_service = DiagnosticSupportService()
             
             matches = support_service.search_issue(

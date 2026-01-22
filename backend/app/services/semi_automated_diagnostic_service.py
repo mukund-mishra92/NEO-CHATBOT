@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 import re
 import pymysql
-from app.core.config import settings
+from ..core.config import settings
 
 logger = logging.getLogger(__name__)
 

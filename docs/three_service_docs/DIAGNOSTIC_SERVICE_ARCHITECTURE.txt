@@ -1,0 +1,499 @@
+================================================================================
+DIAGNOSTIC SERVICE - ARCHITECTURE DOCUMENTATION
+================================================================================
+Version: 2.0 (Modular Refactored)
+Last Updated: January 22, 2026
+Status: Production Ready
+Architecture: Hybrid - Intelligent + Semi-Automated Modes
+================================================================================
+
+OVERVIEW
+--------
+The Diagnostic Service provides two modes of operation for troubleshooting
+NEO ASRS system issues:
+1. Intelligent Mode: Autonomous diagnostic with SQL analysis
+2. Semi-Automated Mode: Guided workflow with predefined checks
+
+It combines SQL query capabilities with a knowledge base of known issues
+and solutions stored in CSV format.
+
+ARCHITECTURE TYPE
+-----------------
+Hybrid Diagnostic System
+- Modular design with 7 specialized components
+- SQL Assistant integration
+- Knowledge base (CSV) for known issues
+- Guided and autonomous modes
+
+FILE STRUCTURE
+--------------
+Core:
+  backend/app/services/diagnostic_service.py  # Main coordinator
+  
+Sub-Services:
+  backend/app/services/intelligent_diagnostic_service.py
+  backend/app/services/semi_automated_diagnostic_service.py
+  
+Modular Components:
+  backend/app/services/diagnostic/
+    __init__.py                    # Package exports
+    analyzer.py                    # Issue analysis logic
+    csv_loader.py                  # Load issues from CSV
+    executor.py                    # Execute diagnostic checks
+    issue_matcher.py               # Match symptoms to issues
+    recommender.py                 # Solution recommendation
+    sql_diagnostic.py              # SQL-based diagnostics
+    validator.py                   # Validate solutions
+
+Knowledge Base:
+  data/support/issues.csv          # Known issues database
+  data/support/support_logs/       # Historical diagnostics
+
+CORE COMPONENTS (Detailed)
+---------------------------
+
+1. DIAGNOSTIC SERVICE (Main Coordinator)
+   File: diagnostic_service.py
+   Purpose: Route requests to appropriate diagnostic mode
+   Modes:
+     - intelligent: Autonomous diagnostic flow
+     - semi_automated: Guided step-by-step workflow
+   
+   Key Methods:
+     - process_diagnostic(request) -> DiagnosticResponse
+     - route_to_service(mode) -> Service instance
+     - validate_prerequisites() -> Check system readiness
+
+2. INTELLIGENT DIAGNOSTIC SERVICE
+   File: intelligent_diagnostic_service.py
+   Purpose: Autonomous issue diagnosis and resolution
+   
+   Flow:
+     1. Analyze user description
+     2. Match to known issues (CSV lookup)
+     3. If no match: Use SQL Assistant to query system state
+     4. Identify potential root causes
+     5. Recommend solutions with confidence
+     6. Provide preventive measures
+   
+   Key Features:
+     - Natural language issue description
+     - Automatic SQL query generation
+     - Multi-source evidence gathering
+     - Confidence-based recommendations
+
+3. SEMI-AUTOMATED DIAGNOSTIC SERVICE
+   File: semi_automated_diagnostic_service.py
+   Purpose: Guide users through predefined diagnostic workflow
+   
+   Workflow Steps:
+     1. Collect basic information (bot_id, issue type)
+     2. Check system status (bot state, tasks, errors)
+     3. Run predefined SQL checks
+     4. Execute validation tests
+     5. Present findings with action items
+     6. Generate diagnostic report
+   
+   Advantages:
+     - Structured approach
+     - Ensures all checks are performed
+     - Suitable for less experienced users
+     - Comprehensive reporting
+
+4. ISSUE MATCHER
+   File: diagnostic/issue_matcher.py
+   Purpose: Match user symptoms to known issues
+   
+   Matching Algorithm:
+     - Keyword extraction from description
+     - Similarity scoring against issue database
+     - Category filtering (bot, system, network, etc.)
+     - Confidence threshold: 0.70
+   
+   Returns: List of matched issues with confidence scores
+
+5. SQL DIAGNOSTIC
+   File: diagnostic/sql_diagnostic.py
+   Purpose: Perform SQL-based system diagnostics
+   
+   Diagnostic Queries:
+     - Bot status checks: SELECT * FROM bot_master WHERE BOT_ID = ?
+     - Task status: SELECT * FROM task_detail WHERE BOT_ID = ?
+     - Error logs: SELECT * FROM error_log WHERE BOT_ID = ? AND TIMESTAMP > ?
+     - System health: Aggregate queries for overall status
+   
+   Integration: Uses SQL Assistant Service for query execution
+
+6. ANALYZER
+   File: diagnostic/analyzer.py
+   Purpose: Analyze collected data and identify root causes
+   
+   Analysis Types:
+     - State analysis: Bot in unexpected state
+     - Pattern analysis: Recurring errors
+     - Correlation analysis: Related system issues
+     - Temporal analysis: Time-based patterns
+   
+   Output: Root cause hypotheses with evidence
+
+7. RECOMMENDER
+   File: diagnostic/recommender.py
+   Purpose: Generate solution recommendations
+   
+   Recommendation Sources:
+     1. Known solutions from CSV database
+     2. Historical successful fixes
+     3. LLM-generated suggestions
+     4. Best practice guidelines
+   
+   Ranking Criteria:
+     - Match confidence
+     - Historical success rate
+     - Implementation complexity
+     - Risk level
+
+8. CSV LOADER
+   File: diagnostic/csv_loader.py
+   Purpose: Load and manage issue database
+   
+   CSV Format (issues.csv):
+     issue_id, category, symptom, root_cause, solution, severity, keywords
+   
+   Categories:
+     - bot_movement: Bot not moving, stuck, slow
+     - task_execution: Task failures, timeouts
+     - network: Communication issues
+     - system: General system errors
+     - hardware: Physical issues
+   
+   Caching: Loads once, cached in memory
+
+9. EXECUTOR
+   File: diagnostic/executor.py
+   Purpose: Execute diagnostic checks and validations
+   
+   Check Types:
+     - SQL query execution
+     - System command execution (safe)
+     - Configuration validation
+     - Service health checks
+   
+   Safety: All checks are read-only, no system modifications
+
+10. VALIDATOR
+    File: diagnostic/validator.py
+    Purpose: Validate diagnostic results and solutions
+    
+    Validations:
+      - Data completeness
+      - Result consistency
+      - Solution applicability
+      - Risk assessment
+
+PROCESSING FLOW - INTELLIGENT MODE
+-----------------------------------
+1. Receive diagnostic request with issue description
+2. Extract keywords and categorize issue
+3. Match to known issues in CSV database
+4. IF strong match (confidence >= 0.70):
+   a. Return known solution immediately
+   b. Provide confidence score
+   c. Add preventive tips
+5. ELSE (no strong match):
+   a. Analyze description for SQL diagnostic needs
+   b. Generate relevant SQL queries via SQL Assistant
+   c. Execute queries to gather system state
+   d. Analyze results for anomalies
+   e. Correlate findings with potential issues
+   f. Generate LLM-based diagnosis if needed
+   g. Recommend solutions with evidence
+6. Format response with:
+   - Issue summary
+   - Root cause analysis
+   - Step-by-step solutions
+   - Confidence score
+   - Preventive measures
+7. Log diagnostic session
+8. Return DiagnosticResponse
+
+PROCESSING FLOW - SEMI-AUTOMATED MODE
+--------------------------------------
+1. Initialize diagnostic session
+2. STEP 1: Collect Information
+   - Bot ID
+   - Issue type (movement, task, network, etc.)
+   - Symptom description
+   - Timestamp of occurrence
+3. STEP 2: System Status Check
+   - Query bot_master for bot state
+   - Check active tasks
+   - Review recent errors
+4. STEP 3: Predefined Checks
+   - Run category-specific SQL queries
+   - Execute validation tests
+   - Gather metrics
+5. STEP 4: Analysis
+   - Compare actual vs expected states
+   - Identify deviations
+   - Look for patterns
+6. STEP 5: Generate Report
+   - Findings summary
+   - Root cause hypothesis
+   - Recommended actions
+   - Next steps
+7. STEP 6: Solution Presentation
+   - Prioritized action items
+   - Implementation guide
+   - Rollback plan (if applicable)
+8. Log complete diagnostic workflow
+9. Return structured report
+
+KNOWN ISSUES DATABASE (CSV)
+----------------------------
+Location: data/support/issues.csv
+
+Sample Structure:
+  issue_id,category,symptom,root_cause,solution,severity,keywords
+  001,bot_movement,"Bot not moving",Path blocked,Clear path;Reset bot,high,"stuck,stopped,not moving"
+  002,task_execution,"Task timeout",Network latency,Check network;Increase timeout,medium,"timeout,slow,delayed"
+
+Fields:
+  - issue_id: Unique identifier
+  - category: Issue classification
+  - symptom: User-visible problem
+  - root_cause: Technical reason
+  - solution: Fix steps (semicolon-separated)
+  - severity: low, medium, high, critical
+  - keywords: Search terms (comma-separated)
+
+Usage:
+  - Quick lookup for common issues
+  - Pattern matching against symptoms
+  - Historical solution tracking
+
+SQL ASSISTANT INTEGRATION
+--------------------------
+Purpose: Leverage SQL query capabilities for diagnostics
+
+Integration Points:
+  1. System State Queries
+     - Current bot status
+     - Task assignments
+     - Error logs
+  
+  2. Historical Analysis
+     - Pattern detection in logs
+     - Performance trends
+     - Recurring issues
+  
+  3. Correlation Queries
+     - Related system events
+     - Multi-bot issues
+     - Infrastructure problems
+
+Usage Pattern:
+  diagnostic_service → sql_assistant.process_query()
+  - Converts diagnostic needs to SQL queries
+  - Executes safely with validation
+  - Returns structured results
+  - Handles errors gracefully
+
+INTEGRATION POINTS
+------------------
+API Endpoint: POST /api/diagnostic/diagnose
+
+Request Body (Intelligent Mode):
+  {
+    "mode": "intelligent",
+    "description": "Bot B001 is stuck near aisle 5",
+    "context": {
+      "bot_id": "B001",
+      "location": "aisle 5",
+      "timestamp": "2026-01-22T10:30:00"
+    }
+  }
+
+Request Body (Semi-Automated Mode):
+  {
+    "mode": "semi_automated",
+    "bot_id": "B001",
+    "issue_type": "bot_movement",
+    "step": "initial"  # or "status_check", "analysis", etc.
+  }
+
+Response Format:
+  {
+    "mode": "intelligent",
+    "issue_summary": "Bot movement obstruction detected",
+    "root_cause": "Physical path blockage at aisle 5",
+    "confidence": 0.85,
+    "solutions": [
+      {
+        "step": 1,
+        "action": "Inspect aisle 5 for physical obstructions",
+        "expected_outcome": "Clear path identified"
+      },
+      {
+        "step": 2,
+        "action": "Remove obstruction or reroute bot",
+        "expected_outcome": "Bot resumes movement"
+      }
+    ],
+    "preventive_measures": [
+      "Regular aisle inspections",
+      "Implement obstacle sensors"
+    ],
+    "evidence": [
+      "Bot status: STOPPED",
+      "Last position: aisle_5_section_3",
+      "No movement for 15 minutes"
+    ]
+  }
+
+CONFIGURATION
+-------------
+Diagnostic Settings:
+  - MAX_DIAGNOSTIC_TIME: 30 seconds
+  - SQL_QUERY_TIMEOUT: 5 seconds
+  - CONFIDENCE_THRESHOLD: 0.70
+  - MAX_RECOMMENDATIONS: 5
+
+CSV Database:
+  - PATH: data/support/issues.csv
+  - RELOAD_INTERVAL: 5 minutes (for updates)
+  - BACKUP_ENABLED: true
+
+Logging:
+  - DIAGNOSTIC_LOG_LEVEL: INFO
+  - SESSION_LOGGING: true
+  - ANONYMIZE_SENSITIVE_DATA: true
+
+LOGGING
+-------
+Log Level: INFO
+Log File: backend/logs/chatbot_YYYYMMDD.log
+
+Key Events:
+  - Diagnostic request received
+  - Issue matching results
+  - SQL query execution
+  - Root cause identified
+  - Solutions recommended
+  - Diagnostic completion time
+
+Example Log:
+  🔧 Diagnostic request: mode=intelligent, desc="Bot not moving..."
+  🔍 Matched 2 known issues: confidence=[0.85, 0.72]
+  📊 SQL diagnostic: bot_status=STOPPED, last_task=COMPLETED
+  ✅ Root cause: Path obstruction (confidence: 0.85)
+  💡 Recommended 3 solutions
+  ⏱️ Diagnostic completed in 4.2s
+
+PERFORMANCE
+-----------
+Typical Response Time:
+  - Intelligent Mode (known issue): 1-2 seconds
+  - Intelligent Mode (SQL required): 5-10 seconds
+  - Semi-Automated Mode: 3-7 seconds per step
+
+Optimization:
+  - CSV caching in memory
+  - SQL query optimization
+  - Parallel evidence gathering
+  - Early termination on high confidence
+
+CONFIDENCE SCORING
+------------------
+Factors:
+  - Issue match quality (0-40%)
+  - SQL evidence strength (0-30%)
+  - Solution success history (0-20%)
+  - Expert system rules (0-10%)
+
+Thresholds:
+  - High: >= 0.80 (Reliable diagnosis)
+  - Medium: 0.60-0.79 (Likely correct)
+  - Low: < 0.60 (Multiple possibilities)
+
+SAFETY FEATURES
+---------------
+1. Read-Only Operations
+   - No system modifications
+   - No bot command execution
+   - SQL queries are SELECT only
+
+2. Validation
+   - Input sanitization
+   - SQL injection prevention
+   - Command validation
+
+3. Approval Workflow (Future)
+   - High-risk solutions require approval
+   - Audit trail for all actions
+   - Rollback capability
+
+LIMITATIONS
+-----------
+1. Depends on issue database completeness
+2. Cannot execute corrective actions automatically
+3. Limited to predefined diagnostic workflows
+4. Requires manual solution implementation
+5. No real-time monitoring integration (yet)
+
+FUTURE ENHANCEMENTS
+-------------------
+1. Real-time system monitoring integration
+2. Automatic corrective action execution (with approval)
+3. Machine learning for pattern detection
+4. Predictive diagnostics (issues before they occur)
+5. Integration with ticketing system
+6. Mobile app for on-site diagnostics
+7. Visual diagnostic flowcharts
+8. Video/image capture for evidence
+9. Multi-language support
+10. Advanced root cause analysis (RCA) tools
+
+TROUBLESHOOTING
+---------------
+Issue: No known issues found
+Fix: Add more entries to issues.csv, improve keyword matching
+
+Issue: Low confidence scores
+Fix: Enhance SQL diagnostics, add more evidence sources
+
+Issue: Slow diagnostics
+Fix: Optimize SQL queries, improve caching
+
+Issue: Incorrect recommendations
+Fix: Review and update issue database, validate solutions
+
+MAINTENANCE
+-----------
+1. Regularly update issues.csv with new cases
+2. Review diagnostic accuracy monthly
+3. Update solution success rates
+4. Archive old diagnostic logs (>90 days)
+5. Validate SQL diagnostic queries
+6. Test both modes quarterly
+7. Update documentation with new patterns
+8. Train users on semi-automated workflow
+
+TESTING
+-------
+Test Scenarios:
+  1. Known Issue: "Bot not moving" → Matches CSV entry
+  2. Unknown Issue: Novel problem → Uses SQL diagnostics
+  3. Multi-Bot Issue: System-wide problem
+  4. Network Issue: Communication failures
+  5. Semi-Auto Flow: Complete workflow from start to finish
+
+Validation:
+  - Confidence scores accurate
+  - Solutions applicable
+  - Response time acceptable
+  - No false positives
+  - Proper error handling
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================

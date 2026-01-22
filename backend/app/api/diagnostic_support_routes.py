@@ -6,7 +6,7 @@ Provides troubleshooting and diagnostic support for NEO system issues
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
-from app.services.diagnostic_support_service import DiagnosticSupportService
+from ..services.diagnostic import DiagnosticSupportService
 import logging
 
 logger = logging.getLogger(__name__)

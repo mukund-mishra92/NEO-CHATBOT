@@ -1,0 +1,182 @@
+================================================================================
+KNOWLEDGE BASE SERVICE - ARCHITECTURE DOCUMENTATION
+================================================================================
+Version: 2.0
+Last Updated: January 22, 2026
+Status: Production Ready
+================================================================================
+
+OVERVIEW
+--------
+The Knowledge Base Service provides intelligent question-answering capabilities
+using document retrieval and LLM-based response generation. It searches across
+multiple document categories and uses vector embeddings for semantic search.
+
+ARCHITECTURE TYPE
+-----------------
+Retrieval-Augmented Generation (RAG) Pattern
+- Vector-based semantic search
+- Multi-category document retrieval
+- LLM response synthesis with context
+
+FILE LOCATION
+-------------
+Primary: backend/app/services/knowledge_base_service.py
+Dependencies:
+  - backend/app/services/vector_store_service.py
+  - backend/app/services/llm_service.py
+  - backend/app/services/chat_history_service.py
+  - backend/app/services/rlhf_service.py
+
+CORE COMPONENTS
+---------------
+
+1. KNOWLEDGE BASE SERVICE (Main Coordinator)
+   Purpose: Orchestrates query processing and response generation
+   Key Methods:
+     - process_query(chat_request) -> ChatResponse
+     - classify_query(query) -> str
+     - generate_response(query, context, classification)
+   
+2. VECTOR STORE SERVICE
+   Purpose: Manages document embeddings and semantic search
+   Key Methods:
+     - search(query, top_k) -> List[SearchResult]
+     - balanced_search(query) -> multi-category results
+   Storage: data/vector_store.json
+   
+3. LLM SERVICE
+   Purpose: Response generation via multiple LLM providers
+   Providers (Fallback Chain):
+     1. Groq (llama-3.3-70b-versatile) - Primary
+     2. OpenAI (gpt-4o-mini) - Fallback
+     3. Anthropic (claude) - Fallback
+     4. Local LLM (tinyllama) - Last resort
+
+QUERY CLASSIFICATION
+--------------------
+Types:
+  - SIMPLE_FACT: Direct factual queries
+  - COMPARISON: Comparing concepts/systems
+  - PROCEDURAL: Step-by-step instructions
+  - TROUBLESHOOTING: Problem-solving queries
+  - GENERAL: Conversational queries
+
+DOCUMENT CATEGORIES
+-------------------
+1. SOPs (Standard Operating Procedures)
+2. Manuals (System documentation)
+3. Training Documents
+4. Proposals
+5. System Information
+
+PROCESSING FLOW
+----------------
+1. Receive query from API endpoint
+2. Classify query type
+3. Perform vector search across categories
+4. Retrieve relevant document chunks
+5. Build context from search results
+6. Generate response using LLM with context
+7. Calculate confidence score
+8. Log interaction to history
+9. Record feedback for RLHF
+10. Return formatted response
+
+CONFIDENCE SCORING
+------------------
+Factors:
+  - Retrieval quality (0-40%)
+  - Context relevance (0-30%)
+  - Response coherence (0-30%)
+
+Thresholds:
+  - High: >= 0.75 (Reliable)
+  - Medium: 0.50-0.74 (Verify recommended)
+  - Low: < 0.50 (Needs improvement)
+
+INTEGRATION POINTS
+------------------
+API Endpoint: POST /api/chatbot/chat
+Request Body:
+  {
+    "message": "user query",
+    "chatbot_type": "knowledge_base",
+    "session_id": "optional-session-id",
+    "conversation_history": []
+  }
+
+Response Format:
+  {
+    "response": "AI generated answer",
+    "confidence_score": 0.75,
+    "session_id": "session-id",
+    "suggestions": ["related topics"]
+  }
+
+CONFIGURATION
+-------------
+Environment Variables:
+  - GROQ_API_KEY: Primary LLM provider
+  - OPENAI_API_KEY: Fallback LLM provider
+  - ANTHROPIC_API_KEY: Fallback LLM provider
+
+Settings (backend/app/core/config.py):
+  - VECTOR_STORE_PATH: data/vector_store.json
+  - MAX_SEARCH_RESULTS: 10
+  - SIMILARITY_THRESHOLD: 0.7
+
+LOGGING
+-------
+Log Level: INFO
+Log File: backend/logs/chatbot_YYYYMMDD.log
+Key Events:
+  - Query classification
+  - Search results count
+  - LLM provider used
+  - Response confidence
+  - Error conditions
+
+PERFORMANCE
+-----------
+Typical Response Time: 2-5 seconds
+Vector Search: < 1 second
+LLM Generation: 1-4 seconds (varies by provider)
+
+LIMITATIONS
+-----------
+1. Quality depends on document corpus
+2. Cannot access real-time data
+3. No database query capabilities
+4. Context window limits (varies by LLM)
+
+FUTURE ENHANCEMENTS
+-------------------
+1. Multi-language support
+2. Image/PDF direct processing
+3. Citation tracking
+4. Dynamic document updates
+5. Advanced query expansion
+
+TROUBLESHOOTING
+---------------
+Issue: Low confidence scores
+Fix: Improve document quality, add more training data
+
+Issue: Slow responses
+Fix: Check LLM provider status, use caching
+
+Issue: Irrelevant results
+Fix: Update vector embeddings, refine search logic
+
+MAINTENANCE
+-----------
+1. Regularly update document corpus
+2. Monitor LLM provider costs
+3. Review and label RLHF feedback
+4. Periodically rebuild vector store
+5. Clean up old logs (>30 days)
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================

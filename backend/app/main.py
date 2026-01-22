@@ -9,10 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import logging
 
-from app.api.chatbot_endpoints import router as chatbot_router
-from app.api.diagnostic_support_routes import router as diagnostic_router
-from app.core.config import settings
-from app.core.logging import setup_logging
+from .api.chatbot_endpoints import router as chatbot_router
+from .api.diagnostic_support_routes import router as diagnostic_router
+from .core.config import settings
+from .core.logging import setup_logging
 
 # Setup logging
 setup_logging()
