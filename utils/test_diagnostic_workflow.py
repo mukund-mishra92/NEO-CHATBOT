@@ -10,7 +10,7 @@ import json
 # Add parent directory to path
 sys.path.insert(0, 'backend')
 
-from app.services.diagnostic_support_service import DiagnosticSupportService
+from ..\backend\app.services.diagnostic_support_service import DiagnosticSupportService
 
 
 def test_solution_parsing():

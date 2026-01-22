@@ -13,7 +13,9 @@ from typing import Dict, List, Set, Any
 import logging
 
 # Add project root to path
-sys.path.append(str(Path(__file__).parent))
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from scripts.ingest_documents import DocumentProcessor
 from scripts.ingest_code import CodeProcessor
@@ -405,32 +407,34 @@ def main():
     
     # Load configuration
     try:
-        from ingestion_config import (
+        from scripts.ingestion_config import (
             DOCUMENTS_BASE_PATH,
             DOCUMENT_CATEGORIES,
             ENABLE_CODE_INGESTION,
-            CODE_REPOSITORIES
+            CODE_REPOSITORIES,
+            validate_paths
         )
-        logger.info("✅ Loaded configuration from ingestion_config.py")
-    except ImportError:
-        logger.warning("⚠️ Configuration file not found, using defaults")
-        # Default configuration
-        DOCUMENTS_BASE_PATH = 'app/modules/neo_chatbot/data/documents'
+        logger.info("✅ Loaded configuration from scripts/ingestion_config.py")
+        
+        # Validate paths before starting
+        if not validate_paths():
+            logger.error("❌ Path validation failed - please fix configuration")
+            return
+        
+    except ImportError as e:
+        logger.warning(f"⚠️ Configuration file not found: {e}")
+        logger.warning("   Using default paths from data/ folder")
+        # Default configuration for Neo-Chatbot structure
+        DOCUMENTS_BASE_PATH = 'data/documents'
         DOCUMENT_CATEGORIES = {
-            'proposals/type-1': 'proposals_sorting_conveyor',
-            'proposals/type-2': 'proposals_warehouse_automation',
-            'proposals/type-3': 'proposals_specialized_systems',
-            'support': 'technical_support',
+            'manuals': 'technical_manuals',
+            'proposals': 'project_proposals',
+            'sops': 'standard_operating_procedures',
+            'training_docs': 'training_documentation',
             '.': 'general_documentation'
         }
-        ENABLE_CODE_INGESTION = True
-        CODE_REPOSITORIES = [
-            {
-                'path': r'C:\Users\Balmukund.Mishra\Desktop\neo-fleet-manager-noon-min-2.0',
-                'category': 'neo-fleet-manager-code',
-                'enabled': True
-            }
-        ]
+        ENABLE_CODE_INGESTION = False
+        CODE_REPOSITORIES = []
     
     # Initialize system
     system = UnifiedIngestionSystem()

@@ -36,9 +36,9 @@ class DiagnosticSupportService:
         # Load support logs
         self._load_support_logs()
         
-        logger.info(f"✅ Diagnostic Support Service initialized")
-        logger.info(f"   Bot-level issues: {len(self.bot_level_issues)}")
-        logger.info(f"   Station-level issues: {len(self.station_level_issues)}")
+        logger.info(f"Diagnostic Support Service initialized")
+        logger.info(f"Bot-level issues: {len(self.bot_level_issues)}")
+        logger.info(f"Station-level issues: {len(self.station_level_issues)}")
     
     def _clean_text(self, text: str) -> str:
         """Remove special characters and clean text"""
