@@ -116,7 +116,10 @@ class LLMService:
         messages: List[Dict[str, str]], 
         system_prompt: Optional[str] = None,
         max_tokens: int = 1000,
-        temperature: float = 0.7
+        temperature: float = 0.7,
+        model_override: Optional[str] = None,
+        thinking_mode: Optional[str] = None,
+        reasoning_effort: Optional[str] = None
     ) -> str:
         """
         Generate response from LLM
@@ -126,24 +129,54 @@ class LLMService:
             system_prompt: System instructions for the LLM
             max_tokens: Maximum response length
             temperature: Creativity (0.0 = deterministic, 1.0 = creative)
+            model_override: Override the default model (e.g., "gpt-4o", "gpt-4o-mini")
             
         Returns:
             Generated response text
         """
+        provider_used = self.provider
         try:
+            # If model override is provided and it's OpenAI model, use OpenAI
+            if model_override and (model_override.startswith("gpt-") or model_override.startswith("o1")):
+                if self.openai_client:
+                    provider_used = f"openai({model_override})"
+                    return self._generate_openai(
+                        messages,
+                        system_prompt,
+                        max_tokens,
+                        temperature,
+                        model_override=model_override,
+                        thinking_mode=thinking_mode,
+                        reasoning_effort=reasoning_effort,
+                    )
+                else:
+                    logger.warning(f"⚠️ OpenAI model {model_override} requested but OpenAI not available")
+            
             if self.provider == "groq":
                 return self._generate_groq(messages, system_prompt, max_tokens, temperature)
             elif self.provider == "openai":
-                return self._generate_openai(messages, system_prompt, max_tokens, temperature)
+                provider_used = "openai"
+                return self._generate_openai(
+                    messages,
+                    system_prompt,
+                    max_tokens,
+                    temperature,
+                    model_override=model_override,
+                    thinking_mode=thinking_mode,
+                    reasoning_effort=reasoning_effort,
+                )
             elif self.provider == "anthropic":
+                provider_used = "anthropic"
                 return self._generate_anthropic(messages, system_prompt, max_tokens, temperature)
             elif self.provider == "local_llm":
+                provider_used = "local_llm"
                 return self._generate_local_llm(messages, system_prompt, max_tokens, temperature)
             else:
+                provider_used = "mock"
                 return self._generate_mock(messages)
                 
         except Exception as e:
-            logger.error(f"❌ Error with {self.provider} LLM: {e}")
+            logger.error(f"❌ Error with {provider_used} LLM: {e}")
             
             # Try fallback chain: OpenAI → Anthropic → Local LLM
             fallback_tried = []
@@ -218,7 +251,10 @@ class LLMService:
         messages: List[Dict[str, str]], 
         system_prompt: Optional[str],
         max_tokens: int,
-        temperature: float
+        temperature: float,
+        model_override: Optional[str] = None,
+        thinking_mode: Optional[str] = None,
+        reasoning_effort: Optional[str] = None
     ) -> str:
         """Generate response using OpenAI GPT"""
         full_messages = []
@@ -226,13 +262,47 @@ class LLMService:
             full_messages.append({"role": "system", "content": system_prompt})
         full_messages.extend(messages)
         
+        # Use model override if provided, otherwise use default
+        model = model_override if model_override else "gpt-4o-mini"
+        
+        # If the installed OpenAI client supports the Responses API, prefer it for
+        # reasoning/extended-thinking style controls (when requested).
+        # Fall back to chat.completions for compatibility.
+        wants_thinking = (thinking_mode or "").lower() in {"extended", "high"}
+        effort = reasoning_effort
+        if wants_thinking and not effort:
+            effort = "high"
+
+        try:
+            if wants_thinking and hasattr(self.openai_client, "responses"):
+                kwargs = {
+                    "model": model,
+                    "input": [
+                        {
+                            "role": "user",
+                            "content": [{"type": "input_text", "text": full_messages[-1]["content"]}],
+                        }
+                    ],
+                }
+                if effort:
+                    kwargs["reasoning"] = {"effort": effort}
+
+                response = self.openai_client.responses.create(**kwargs)
+                # Newer clients expose output_text for convenience
+                output_text = getattr(response, "output_text", None)
+                if output_text:
+                    return output_text
+
+        except Exception as e:
+            logger.warning(f"⚠️ OpenAI Responses API path failed, falling back to chat.completions: {e}")
+
         response = self.openai_client.chat.completions.create(
-            model="gpt-4o-mini",  # Fast and cost-effective
+            model=model,  # e.g., gpt-5.2
             messages=full_messages,
             max_tokens=max_tokens,
-            temperature=temperature
+            temperature=temperature,
         )
-        
+
         return response.choices[0].message.content
     
     def _generate_anthropic(

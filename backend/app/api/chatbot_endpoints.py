@@ -18,7 +18,7 @@ from ..models.schemas import (
     SystemHealthStatus
 )
 from ..services.knowledge_base_service import KnowledgeBaseService
-from ..services.sql_assistant import SQLAssistantService
+from ..services.sql_assistant import SQLAssistantService, SQLAssistantGPT4Service
 from ..services.diagnostic_service import DiagnosticService
 from ..services.agentic_service import get_agentic_service
 from ..services.semi_automated_diagnostic_service import SemiAutomatedDiagnosticService
@@ -31,7 +31,15 @@ router = APIRouter(prefix="/api/chatbot", tags=["NEO Chatbot"])
 
 # Initialize services
 kb_service = KnowledgeBaseService()
-sql_service = SQLAssistantService()
+
+# Initialize SQL Assistant based on mode
+if settings.SQL_ASSISTANT_MODE == "gpt4":
+    sql_service = SQLAssistantGPT4Service()
+    logger.info("✅ SQL Assistant Mode: GPT-4 Multi-Layer Architecture (NEW)")
+else:
+    sql_service = SQLAssistantService()
+    logger.info("✅ SQL Assistant Mode: Phase 3 Semantic Frame Architecture (LEGACY)")
+
 diagnostic_service = DiagnosticService()
 semi_auto_diagnostic = SemiAutomatedDiagnosticService()
 

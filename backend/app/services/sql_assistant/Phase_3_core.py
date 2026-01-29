@@ -34,7 +34,6 @@ from .query.base_table_resolver import BaseTableResolver
 # Intent & Context
 from .intent import IntentClassifier, TemporalClassifier
 from .context import SessionCache, ConversationContext
-from .schema.schema_repair import SchemaRepairService
 
 # Schema Graph
 from data.database.schema_graph_loader import SchemaGraphLoader
@@ -45,7 +44,7 @@ logger = logging.getLogger(__name__)
 class SQLAssistantService:
     """
     SQL Assistant – Phase 3
-    Semantic Frame → Base Table Resolver → Frame Validator → Schema Graph → SQL Builder → Execution
+    Semantic Frame → Schema Graph → SQL Builder → Execution
     """
 
     def __init__(self):
@@ -74,19 +73,19 @@ class SQLAssistantService:
 
         # Semantic frame & SQL builder
         self.semantic_extractor = SemanticFrameExtractor(self.llm_service)
-        self.frame_validator = SemanticFrameValidator(self.schema_parser)
         self.sql_builder = SQLTemplateBuilder()
 
-        # Schema graph & base table resolver
+        # Schema graph
         self.schema_graph = SchemaGraphLoader.load()
-        self.base_table_resolver = BaseTableResolver(
-            self.schema_parser,
-            self.schema_graph,
-        )
 
         # Execution & validation
         self.query_executor = QueryExecutor(self.db_config)
         self.query_validator = QueryValidator()
+        self.frame_validator = SemanticFrameValidator(self.schema_parser)
+        self.base_table_resolver = BaseTableResolver(
+            self.schema_parser,
+            self.schema_graph
+        )
 
         # Chat history
         try:
@@ -96,7 +95,6 @@ class SQLAssistantService:
 
         self.db_available = self.query_executor.test_connection()
         self.available_tables = self.schema_parser.get_available_tables()
-        self.schema_repair = SchemaRepairService(self.schema_graph)
 
         logger.info(
             f"✅ SQL Assistant (Phase 3) initialized | DB: {self.db_available} | Tables: {len(self.available_tables)}"
@@ -117,156 +115,83 @@ class SQLAssistantService:
                     chat_request.message,
                 )
 
-            # Context & intent (kept for future routing / learning)
-            self.conversation_context.extract_conversation_context(
+            # Context & intent (still useful for prompts / future routing)
+            context = self.conversation_context.extract_conversation_context(
                 chat_request.conversation_history or [],
                 chat_request.session_id,
             )
 
-            self.intent_classifier.classify_query_intent(chat_request.message)
-            self.temporal_classifier.classify_temporal_scope(chat_request.message)
+            intent_info = self.intent_classifier.classify_query_intent(
+                chat_request.message
+            )
+            temporal_info = self.temporal_classifier.classify_temporal_scope(
+                chat_request.message
+            )
 
             # -------------------------------------------------
-            # 🔥 PHASE 3 CORE FLOW WITH FALLBACK STRATEGY
+            # 🔥 PHASE 3 CORE FLOW
             # -------------------------------------------------
 
             schema_summary = self.schema_parser.get_schema_summary()
 
-            # 1️⃣ Semantic Frame Extraction (LLM – ONCE)
+            # 1️⃣ Semantic Frame Extraction
             frame = self.semantic_extractor.extract(
                 question=chat_request.message,
                 schema_summary=schema_summary,
             )
 
-            logger.info(f"🧠 Raw Semantic Frame: {frame.__dict__}")
+            # 🔥 NEW STEP
+            resolved_base = self.base_table_resolver.resolve(
+                frame,
+                chat_request.message
+            )
 
-            # 2️⃣ Try multiple base tables with JOIN path validation
-            max_attempts = 5  # Try up to 5 different base tables
-            attempt = 0
-            tried_tables = []
-            final_sql = None
-            successful_frame = None
+            
 
-            while attempt < max_attempts:
-                attempt += 1
-                
-                if attempt == 1:
-                    # First attempt: Use LLM's suggestion with base table resolver
-                    resolved_base = self.base_table_resolver.resolve(
-                        frame,
-                        chat_request.message,
-                    )
-                    if resolved_base != frame.base_table:
-                        logger.info(
-                            f"🔁 Attempt {attempt}: Base table corrected: {frame.base_table} → {resolved_base}"
-                        )
-                        frame.base_table = resolved_base
-                else:
-                    # Subsequent attempts: Try alternative base tables
-                    alternatives = self.base_table_resolver.get_alternative_base_tables(
-                        frame,
-                        chat_request.message,
-                        exclude_tables=tried_tables
-                    )
-                    
-                    if not alternatives:
-                        logger.warning("⚠️ No more alternative base tables to try")
-                        break
-                    
-                    # Try next best alternative
-                    next_table, score = alternatives[0]
-                    logger.info(f"🔁 Attempt {attempt}: Trying alternative base table: {next_table} (score: {score:.2f})")
-                    frame.base_table = next_table
-                
-                tried_tables.append(frame.base_table)
+            logger.info(f"🧠 Semantic Frame: {frame.__dict__}")
 
-                # 3️⃣ Validate & repair semantic frame
-                current_frame = self.frame_validator.validate_and_repair(frame)
-                logger.info(f"🧠 Attempt {attempt} Frame: base={current_frame.base_table}, dims={current_frame.dimensions}")
+            frame = self.semantic_extractor.extract(
+                question=chat_request.message,
+                schema_summary=schema_summary,
+            )
+            frame = self.frame_validator.validate_and_repair(frame)
 
-                # 4️⃣ Try to resolve JOIN paths
-                join_path_map = {}
-                all_paths_found = True
 
-                for dim_table in current_frame.dimensions:
-                    if dim_table == current_frame.base_table:
-                        continue  # no self join
+            # 2️⃣ Resolve JOIN paths (multi-level supported)
+            join_path_map = {}
 
-                    path = self.schema_graph.get_join_path(
-                        current_frame.base_table,
-                        dim_table,
-                    )
-
-                    if not path:
-                        logger.warning(
-                            f"⚠️ Attempt {attempt}: No JOIN path from {current_frame.base_table} to {dim_table}"
-                        )
-                        all_paths_found = False
-                        break
-
-                    join_path_map[dim_table] = path
-
-                # If all paths found, we can build SQL
-                if all_paths_found:
-                    logger.info(f"✅ Attempt {attempt}: All JOIN paths resolved successfully!")
-                    
-                    # 5️⃣ Deterministic SQL build
-                    final_sql = self.sql_builder.build(
-                        frame=current_frame,
-                        join_path_map=join_path_map,
-                        schema_graph=self.schema_graph,
-                    )
-                    
-                    successful_frame = current_frame
-                    logger.info(f"🧾 Final SQL (Attempt {attempt}): {final_sql}")
-                    break
-                else:
-                    logger.info(f"🔄 Attempt {attempt} failed, trying next base table...")
-
-            # If no successful attempt, raise error
-            if not final_sql or not successful_frame:
-                error_msg = (
-                    f"Could not resolve JOIN paths after {attempt} attempts. "
-                    f"Tried tables: {', '.join(tried_tables)}. "
-                    f"Required dimensions: {', '.join(frame.dimensions)}"
+            for dim_table in frame.dimensions:
+                path = self.schema_graph.get_join_path(
+                    frame.base_table, dim_table
                 )
-                raise ValueError(error_msg)
-
-            frame = successful_frame
-
-            # -------------------------------------------------
-        # 🔧 SCHEMA-GRAPH–DRIVEN REPAIR (Option A)
-        # -------------------------------------------------
-            unknown_tables = self.schema_validator.find_unknown_tables(final_sql)
-
-            if unknown_tables:
-                for bad_table in unknown_tables:
-                    replacement = self.schema_repair.repair_table(bad_table)
-
-                    if not replacement:
-                        raise ValueError(f"Unrepairable table: {bad_table}")
-
-                    logger.info(
-                        f"🔧 Repaired table: {bad_table} → {replacement}"
+                if not path:
+                    raise ValueError(
+                        f"No join path from {frame.base_table} to {dim_table}"
                     )
+                join_path_map[dim_table] = path
 
-                    final_sql = final_sql.replace(bad_table, replacement)
+            # 3️⃣ Deterministic SQL build
+            final_sql = self.sql_builder.build(
+                frame=frame,
+                join_path_map=join_path_map,
+                schema_graph=self.schema_graph,
+            )
 
-            logger.info(f"🧾 Final SQL (post-repair): {final_sql}")
+            logger.info(f"🧾 Final SQL: {final_sql}")
 
-            # 6️⃣ Validate SQL
+            # 4️⃣ Validate SQL
             tables_valid, _ = self.schema_validator.validate_sql_tables(final_sql)
             columns_valid, _ = self.schema_validator.validate_sql_columns(final_sql)
 
             if not tables_valid or not columns_valid:
                 raise ValueError("Generated SQL failed schema validation")
 
-            # 7️⃣ Execute
+            # 5️⃣ Execute
             results, error = self.query_executor.execute_query_safe(final_sql)
             if error:
                 raise RuntimeError(error)
 
-            # 8️⃣ Validate results & confidence
+            # 6️⃣ Validate results & confidence
             confidence, validation_msg = self.query_validator.validate_results(
                 results=results,
                 question=chat_request.message,

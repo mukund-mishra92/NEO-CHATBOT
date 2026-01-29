@@ -48,6 +48,32 @@ class Settings:
     LOCAL_LLM_ENABLED: bool = os.getenv("LOCAL_LLM_ENABLED", "true").lower() == "true"
     LOCAL_LLM_MODEL: str = os.getenv("LOCAL_LLM_MODEL", "tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf")
     LOCAL_LLM_MAX_TOKENS: int = int(os.getenv("LOCAL_LLM_MAX_TOKENS", "500"))
+    
+    # SQL Assistant Configuration
+    # Set to "gpt4" to use new GPT-4 multi-layer architecture
+    # Set to "phase3" to use legacy semantic frame architecture
+    SQL_ASSISTANT_MODE: str = os.getenv("SQL_ASSISTANT_MODE", "gpt4")  # "gpt4" or "phase3"
+
+    # SQL Assistant Model Selection
+    # Primary model for initial SQL generation
+    SQL_ASSISTANT_PRIMARY_MODEL: str = os.getenv("SQL_ASSISTANT_PRIMARY_MODEL", "gpt-5.2")
+    # Retry model for regeneration after validation failure (default: same as primary)
+    SQL_ASSISTANT_RETRY_MODEL: str = os.getenv("SQL_ASSISTANT_RETRY_MODEL", SQL_ASSISTANT_PRIMARY_MODEL)
+
+    # Determinism controls for SQL generation
+    # Keep these low (0.0-0.2) for stable SQL output.
+    SQL_ASSISTANT_PRIMARY_TEMPERATURE: float = float(os.getenv("SQL_ASSISTANT_PRIMARY_TEMPERATURE", "0.0"))
+    SQL_ASSISTANT_RETRY_TEMPERATURE: float = float(os.getenv("SQL_ASSISTANT_RETRY_TEMPERATURE", "0.0"))
+
+    # Extended thinking / reasoning mode for retries.
+    # Supported values: "off", "extended" (maps to higher reasoning effort when supported by the OpenAI client).
+    SQL_ASSISTANT_RETRY_THINKING_MODE: str = os.getenv("SQL_ASSISTANT_RETRY_THINKING_MODE", "extended")
+
+    # Schema context sizing for SQL generation prompts
+    SQL_ASSISTANT_SCHEMA_MAX_TABLES: int = int(os.getenv("SQL_ASSISTANT_SCHEMA_MAX_TABLES", "18"))
+    SQL_ASSISTANT_SCHEMA_MAX_COLUMNS_PER_TABLE: int = int(
+        os.getenv("SQL_ASSISTANT_SCHEMA_MAX_COLUMNS_PER_TABLE", "30")
+    )
     LOCAL_LLM_TEMPERATURE: float = float(os.getenv("LOCAL_LLM_TEMPERATURE", "0.3"))
     
     # Agentic AI Configuration (Multi-Agent System)

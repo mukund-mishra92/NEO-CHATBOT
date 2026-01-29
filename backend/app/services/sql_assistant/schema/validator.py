@@ -5,7 +5,7 @@ Validates SQL queries against database schema (tables, columns, values)
 
 import logging
 import re
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Set
 from difflib import get_close_matches
 
 logger = logging.getLogger(__name__)
@@ -28,6 +28,24 @@ class SchemaValidator:
         self.schema_parser = schema_parser
         self.query_executor = query_executor
         logger.info("✅ SchemaValidator initialized")
+
+    def extract_all_tables(self, sql: str) -> Set[str]:
+        """
+        Extract table names from entire SQL including subqueries.
+        """
+        sql = sql.lower()
+
+        patterns = [
+            r"\bfrom\s+([a-zA-Z0-9_]+)",
+            r"\bjoin\s+([a-zA-Z0-9_]+)"
+        ]
+
+        tables = set()
+        for pattern in patterns:
+            matches = re.findall(pattern, sql)
+            tables.update(matches)
+
+        return tables
     
     def extract_tables_from_sql(self, sql_query: str) -> List[str]:
         """Extract table names from SQL query"""
@@ -47,6 +65,13 @@ class SchemaValidator:
                 tables.append(table)
         
         return list(set(tables))
+    
+    def find_unknown_tables(self, sql: str) -> Set[str]:
+        all_tables = self.extract_all_tables(sql)
+        return {
+            t for t in all_tables
+            if not self.schema_parser.validate_table_exists(t)
+        }
     
     def extract_columns_from_sql(self, sql_query: str) -> Dict[str, List[str]]:
         """Extract columns referenced in SQL query grouped by table"""

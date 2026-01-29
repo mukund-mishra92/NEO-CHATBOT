@@ -165,6 +165,34 @@ class SchemaParser:
             logger.error(f"❌ Error adding column semantics for {table}: {e}")
             return f"Table: {table} (schema unavailable)"
     
+    def get_schema_summary(self) -> str:
+        """
+        Get a text summary of the database schema for LLM prompts
+        
+        Returns:
+            Formatted string with tables and their columns
+        """
+        try:
+            table_names = self.extract_table_names()
+            summary_parts = ["Database Schema:\n"]
+            
+            # Limit to reasonable number of tables to avoid token overflow
+            for table in table_names[:30]:
+                columns = self.get_table_columns(table)
+                if columns:
+                    column_list = ", ".join(columns[:15])  # Limit columns too
+                    if len(columns) > 15:
+                        column_list += f", ... ({len(columns)} total)"
+                    summary_parts.append(f"- {table}: {column_list}")
+            
+            if len(table_names) > 30:
+                summary_parts.append(f"\n... and {len(table_names) - 30} more tables")
+            
+            return "\n".join(summary_parts)
+        except Exception as e:
+            logger.error(f"❌ Error generating schema summary: {e}")
+            return "Database schema unavailable"
+    
     def get_schema_info(self) -> Dict[str, Any]:
         """
         Get comprehensive schema information
