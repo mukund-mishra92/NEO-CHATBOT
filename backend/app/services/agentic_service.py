@@ -7,8 +7,10 @@ Implements a two-agent verification system where:
 
 import logging
 import os
+import time
 from typing import Dict, Any, List, TypedDict, Annotated, Optional
 from operator import add
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 
 # LangChain imports - with error handling
 try:
@@ -68,6 +70,13 @@ class AgenticService:
         self.llm_service = LLMService()
         self.vector_store = VectorStoreService()
         
+        # Load timeout settings from config
+        from app.core.config import settings
+        self.max_iterations = settings.AGENTIC_MAX_ITERATIONS  # Default: 1 retry
+        self.timeout_seconds = settings.AGENTIC_TIMEOUT_SECONDS  # Default: 60 seconds
+        
+        logger.info(f"⚙️ Agentic config: max_iterations={self.max_iterations}, timeout={self.timeout_seconds}s")
+        
         # Check if dependencies are available
         if not LANGCHAIN_AVAILABLE or not LANGGRAPH_AVAILABLE:
             logger.error("❌ LangChain/LangGraph not available. Agentic mode will not work.")
@@ -108,7 +117,20 @@ class AgenticService:
     def _initialize_langchain_llm(self):
         """Initialize LangChain LLM wrapper based on available provider"""
         try:
-            # Try Groq first (fastest)
+            # Try OpenAI first (Most reliable and highest quality)
+            openai_key = os.getenv("OPENAI_API_KEY")
+            if openai_key:
+                from langchain_openai import ChatOpenAI
+                llm = ChatOpenAI(
+                    api_key=openai_key,
+                    model="gpt-4-turbo",  # Updated to GPT-4 Turbo
+                    temperature=0.7,
+                    max_tokens=2000
+                )
+                logger.info("✅ Using OpenAI LLM for agents (gpt-4-turbo)")
+                return llm
+            
+            # Fallback to Groq (fast inference backup)
             groq_key = os.getenv("GROQ_API_KEY") or os.getenv("GROK_API_KEY")
             if groq_key:
                 from langchain_groq import ChatGroq
@@ -118,20 +140,7 @@ class AgenticService:
                     temperature=0.7,
                     max_tokens=2000
                 )
-                logger.info("✅ Using Groq LLM for agents (llama-3.3-70b-versatile)")
-                return llm
-            
-            # Fallback to OpenAI
-            openai_key = os.getenv("OPENAI_API_KEY")
-            if openai_key:
-                from langchain_openai import ChatOpenAI
-                llm = ChatOpenAI(
-                    api_key=openai_key,
-                    model="gpt-4-turbo-preview",
-                    temperature=0.7,
-                    max_tokens=2000
-                )
-                logger.info("✅ Using OpenAI LLM for agents")
+                logger.info("✅ Using Groq LLM for agents (llama-3.3-70b-versatile) - BACKUP")
                 return llm
             
             # If no API available, use mock
@@ -560,6 +569,12 @@ Provide the improved version:"""),
             state["verification_notes"] = validation_result["notes"]
             state["messages"].append(AIMessage(content=f"[Verification Agent]: {verified_response}"))
             
+            # INCREMENT ITERATION COUNTER HERE (in node, not in routing function)
+            if not validation_result["passed"]:
+                current_iteration = state.get("iteration_count", 0)
+                state["iteration_count"] = current_iteration + 1
+                logger.info(f"❌ Verification failed - iteration now: {state['iteration_count']}")
+            
             if validation_result["passed"]:
                 logger.info(f"✅ Verification PASSED ({len(verified_response)} chars)")
             else:
@@ -683,20 +698,25 @@ Validate and return JSON:"""),
         Returns: "passed", "retry", or "max_iterations"
         """
         iteration_count = state.get("iteration_count", 0)
-        max_iterations = state.get("max_iterations", 2)  # Allow 2 retries
+        max_iterations = state.get("max_iterations", 1)  # Default to 1 retry for safety
         verification_passed = state.get("verification_passed", True)
+        
+        # Safety check: Force stop if iteration count is corrupted or excessive
+        if iteration_count > 10:  # Absolute safety limit
+            logger.error(f"🚨 SAFETY LIMIT: Iteration count {iteration_count} exceeds absolute limit - forcing stop")
+            return "max_iterations"
         
         if verification_passed:
             logger.info("✅ Verification passed - proceeding to finalize")
             return "passed"
         
-        if iteration_count >= max_iterations:
-            logger.warning(f"⚠️ Max iterations ({max_iterations}) reached - using current response")
+        # Check if we've exceeded max iterations
+        if iteration_count > max_iterations:
+            logger.warning(f"⚠️ Max iterations ({max_iterations}) exceeded (current: {iteration_count}) - forcing finalize")
             return "max_iterations"
         
-        # Increment iteration and retry
-        state["iteration_count"] = iteration_count + 1
-        logger.info(f"🔄 Verification failed - retry #{state['iteration_count']} (issues: {state.get('verification_issues', [])})")
+        # Continue retrying
+        logger.info(f"🔄 Retry attempt #{iteration_count} (max: {max_iterations}) - feedback sent to Response Agent")
         
         # Add feedback to messages for Response Agent to see
         issues_text = ", ".join(state.get("verification_issues", []))
@@ -813,22 +833,53 @@ Please regenerate the response addressing these issues:
                 "confidence_score": 0.0,
                 "needs_verification": True,
                 "iteration_count": 0,
-                "max_iterations": 2  # Allow up to 2 retries
+                "max_iterations": self.max_iterations  # Use config value for safety
             }
             
-            # Step 3: Run the agent workflow
+            # Step 3: Run the agent workflow with timeout protection
             if not self.graph:
                 logger.error("❌ Agent graph not available - falling back to error response")
                 return ChatResponse(
                     response="Agentic AI system is not properly initialized. Please check that LangChain and LangGraph are installed.",
-                    session_id=chat_request.session_id,
+                    session_id=chat_request.session_id or "default-session",  # Fix: Ensure session_id is never None
                     chatbot_type=chat_request.chatbot_type,
                     confidence_score=0.0,
                     source_documents=[],
                     metadata={"error": "Graph not initialized", "agent_workflow": "unavailable"}
                 )
             
-            final_state = self.graph.invoke(initial_state)
+            # Execute with timeout to prevent infinite loops
+            try:
+                logger.info(f"🚀 Starting agent workflow (timeout: {self.timeout_seconds}s, max_iterations: {self.max_iterations})")
+                start_time = time.time()
+                
+                # Run with timeout using ThreadPoolExecutor
+                with ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(self.graph.invoke, initial_state)
+                    try:
+                        final_state = future.result(timeout=self.timeout_seconds)
+                        elapsed = time.time() - start_time
+                        logger.info(f"✅ Agent workflow completed in {elapsed:.2f}s")
+                    except FutureTimeoutError:
+                        logger.error(f"❌ Agent workflow TIMEOUT after {self.timeout_seconds}s - forcing termination")
+                        return ChatResponse(
+                            response="I apologize, but the request took too long to process and was terminated to prevent system hang. Please try a simpler question or rephrase your query.",
+                            session_id=chat_request.session_id or "timeout-session",
+                            chatbot_type=chat_request.chatbot_type,
+                            confidence_score=0.0,
+                            source_documents=source_documents[:3] if source_documents else [],
+                            metadata={"error": "timeout", "timeout_seconds": self.timeout_seconds, "agent_workflow": "terminated"}
+                        )
+            except Exception as workflow_error:
+                logger.error(f"❌ Agent workflow execution error: {workflow_error}", exc_info=True)
+                return ChatResponse(
+                    response=f"I encountered an error during the agent workflow: {str(workflow_error)}",
+                    session_id=chat_request.session_id or "error-session",
+                    chatbot_type=chat_request.chatbot_type,
+                    confidence_score=0.0,
+                    source_documents=[],
+                    metadata={"error": str(workflow_error), "agent_workflow": "failed"}
+                )
             
             # Step 4: Extract final response
             final_response = final_state.get("verified_response") or final_state.get("initial_response", "No response generated")
@@ -837,7 +888,7 @@ Please regenerate the response addressing these issues:
             # Step 5: Build chat response with enhanced metadata
             response = ChatResponse(
                 response=final_response,
-                session_id=chat_request.session_id,
+                session_id=chat_request.session_id or "default-session",  # Fix: Ensure session_id is never None
                 chatbot_type=chat_request.chatbot_type,
                 confidence_score=confidence,
                 source_documents=source_documents,

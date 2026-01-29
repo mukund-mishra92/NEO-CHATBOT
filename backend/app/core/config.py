@@ -53,6 +53,8 @@ class Settings:
     # Agentic AI Configuration (Multi-Agent System)
     AGENTIC_MODE_ENABLED: bool = os.getenv("AGENTIC_MODE_ENABLED", "true").lower() == "true"
     AGENTIC_VERIFICATION_THRESHOLD: int = int(os.getenv("AGENTIC_VERIFICATION_THRESHOLD", "100"))
+    AGENTIC_MAX_ITERATIONS: int = int(os.getenv("AGENTIC_MAX_ITERATIONS", "1"))  # Max retry loops (default 1)
+    AGENTIC_TIMEOUT_SECONDS: int = int(os.getenv("AGENTIC_TIMEOUT_SECONDS", "60"))  # Max execution time
     
     # Vector Store Configuration
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")

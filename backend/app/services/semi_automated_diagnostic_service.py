@@ -27,7 +27,11 @@ class SemiAutomatedDiagnosticService:
     def __init__(self):
         self.bot_level_issues: List[Dict[str, Any]] = []
         self.station_level_issues: List[Dict[str, Any]] = []
-        self.support_logs_path = Path(__file__).parent.parent / "data" / "support" / "support_logs"
+        # Use absolute path from settings
+        self.support_logs_path = settings.SUPPORT_DIR / "support_logs"
+        
+        logger.info(f"📁 Support logs path: {self.support_logs_path}")
+        logger.info(f"📁 Path exists: {self.support_logs_path.exists()}")
         
         # Database config
         self.db_config = {
@@ -55,19 +59,33 @@ class SemiAutomatedDiagnosticService:
     def _load_support_logs(self):
         """Load support logs from CSV files"""
         try:
+            if not self.support_logs_path.exists():
+                logger.error(f"❌ Support logs path does not exist: {self.support_logs_path}")
+                return
+            
             # Bot Level
             bot_csv = self.support_logs_path / "NEO Support Logs(Bot Level).csv"
+            logger.info(f"📄 Loading bot-level CSV: {bot_csv}")
+            logger.info(f"📄 File exists: {bot_csv.exists()}")
+            
             if bot_csv.exists():
-                for encoding in ['latin1', 'utf-8', 'cp1252']:
+                for encoding in ['latin1', 'utf-8', 'cp1252', 'iso-8859-1']:
                     try:
+                        logger.info(f"  Trying encoding: {encoding}")
                         df = pd.read_csv(bot_csv, skiprows=1, encoding=encoding)
+                        logger.info(f"✅ Successfully loaded with {encoding}: {len(df)} rows")
                         break
-                    except UnicodeDecodeError:
+                    except UnicodeDecodeError as e:
+                        logger.warning(f"  Failed with {encoding}: {e}")
+                        continue
+                    except Exception as e:
+                        logger.error(f"  Error with {encoding}: {e}")
                         continue
                 
+                loaded_count = 0
                 for _, row in df.iterrows():
                     if pd.notna(row.iloc[0]):
-                        self.bot_level_issues.append({
+                        issue = {
                             'id': int(row.iloc[0]),
                             'problem': self._clean_text(str(row.iloc[1])),
                             'impact': self._clean_text(str(row.iloc[2])),  # Severity/Impact
@@ -76,21 +94,39 @@ class SemiAutomatedDiagnosticService:
                             'outcome': self._clean_text(str(row.iloc[5])),
                             'dev_escalation': self._clean_text(str(row.iloc[6])),
                             'type': 'BOT_LEVEL'
-                        })
+                        }
+                        # Only add if problem is not empty
+                        if issue['problem']:
+                            self.bot_level_issues.append(issue)
+                            loaded_count += 1
+                
+                logger.info(f"✅ Loaded {loaded_count} bot-level issues")
+            else:
+                logger.warning(f"⚠️ Bot-level CSV not found: {bot_csv}")
             
             # Station Level
             station_csv = self.support_logs_path / "NEO Support Logs(Station Level ).csv"
+            logger.info(f"📄 Loading station-level CSV: {station_csv}")
+            logger.info(f"📄 File exists: {station_csv.exists()}")
+            
             if station_csv.exists():
-                for encoding in ['latin1', 'utf-8', 'cp1252']:
+                for encoding in ['latin1', 'utf-8', 'cp1252', 'iso-8859-1']:
                     try:
+                        logger.info(f"  Trying encoding: {encoding}")
                         df = pd.read_csv(station_csv, skiprows=1, encoding=encoding)
+                        logger.info(f"✅ Successfully loaded with {encoding}: {len(df)} rows")
                         break
-                    except UnicodeDecodeError:
+                    except UnicodeDecodeError as e:
+                        logger.warning(f"  Failed with {encoding}: {e}")
+                        continue
+                    except Exception as e:
+                        logger.error(f"  Error with {encoding}: {e}")
                         continue
                 
+                loaded_count = 0
                 for _, row in df.iterrows():
                     if pd.notna(row.iloc[0]):
-                        self.station_level_issues.append({
+                        issue = {
                             'id': int(row.iloc[0]),
                             'problem': self._clean_text(str(row.iloc[1])),
                             'impact': self._clean_text(str(row.iloc[2])),
@@ -100,7 +136,15 @@ class SemiAutomatedDiagnosticService:
                             'outcome': self._clean_text(str(row.iloc[6])),
                             'dev_escalation': self._clean_text(str(row.iloc[7])),
                             'type': 'STATION_LEVEL'
-                        })
+                        }
+                        # Only add if problem is not empty
+                        if issue['problem']:
+                            self.station_level_issues.append(issue)
+                            loaded_count += 1
+                
+                logger.info(f"✅ Loaded {loaded_count} station-level issues")
+            else:
+                logger.warning(f"⚠️ Station-level CSV not found: {station_csv}")
         
         except Exception as e:
             logger.error(f"❌ Error loading support logs: {e}")

@@ -42,9 +42,11 @@ ENV/
 env.bak/
 venv.bak/
 .venv/
+NEO/
 
 # Environment variables
-.env
+backend/.env
+backend/.env.example
 .env.local
 .env.production
 .env.staging

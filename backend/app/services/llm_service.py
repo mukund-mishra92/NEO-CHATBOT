@@ -52,31 +52,31 @@ class LLMService:
         self.anthropic_client = None
         
         # Initialize ALL available clients (for fallback support)
-        # Try Groq first (Fast inference API)
-        if self.groq_api_key:
-            try:
-                from groq import Groq
-                self.groq_client = Groq(api_key=self.groq_api_key)
-                if not self.provider:  # Set as primary if no provider yet
-                    self.provider = "groq"
-                logger.info("✅ Groq (Fast Inference) client initialized")
-            except ImportError:
-                logger.warning("⚠️ Groq package not installed. Run: pip install groq")
-            except Exception as e:
-                logger.warning(f"⚠️ Groq initialization failed: {e}")
-        
-        # Initialize OpenAI (always initialize if key available, for fallback)
+        # Try OpenAI first (Most reliable, highest quality)
         if self.openai_api_key:
             try:
                 from openai import OpenAI
                 self.openai_client = OpenAI(api_key=self.openai_api_key)
-                if not self.provider:  # Set as primary only if no provider yet
+                if not self.provider:  # Set as primary if no provider yet
                     self.provider = "openai"
-                logger.info("✅ OpenAI client initialized")
+                logger.info("✅ OpenAI client initialized (PRIMARY)")
             except ImportError:
                 logger.warning("⚠️ OpenAI package not installed. Run: pip install openai")
             except Exception as e:
                 logger.warning(f"⚠️ OpenAI initialization failed: {e}")
+        
+        # Initialize Groq (secondary - fast inference backup)
+        if self.groq_api_key:
+            try:
+                from groq import Groq
+                self.groq_client = Groq(api_key=self.groq_api_key)
+                if not self.provider:  # Set as primary only if no provider yet
+                    self.provider = "groq"
+                logger.info("✅ Groq (Fast Inference) client initialized (BACKUP)")
+            except ImportError:
+                logger.warning("⚠️ Groq package not installed. Run: pip install groq")
+            except Exception as e:
+                logger.warning(f"⚠️ Groq initialization failed: {e}")
         
         # Initialize Anthropic (always initialize if key available, for fallback)
         if self.anthropic_api_key:
@@ -145,17 +145,17 @@ class LLMService:
         except Exception as e:
             logger.error(f"❌ Error with {self.provider} LLM: {e}")
             
-            # Try fallback chain: OpenAI → Anthropic → Local LLM
+            # Try fallback chain: Groq → Anthropic → Local LLM (OpenAI is primary, so fallback to others)
             fallback_tried = []
             
-            # Try OpenAI if available and not already using it
-            if self.openai_api_key and self.provider != "openai":
+            # Try Groq if available and not already using it
+            if self.groq_api_key and self.groq_client and self.provider != "groq":
                 try:
-                    fallback_tried.append("OpenAI")
-                    logger.info("🔄 Attempting fallback to OpenAI...")
-                    return self._generate_openai(messages, system_prompt, max_tokens, temperature)
-                except Exception as openai_error:
-                    logger.error(f"❌ OpenAI fallback failed: {openai_error}")
+                    fallback_tried.append("Groq")
+                    logger.info("🔄 Attempting fallback to Groq...")
+                    return self._generate_groq(messages, system_prompt, max_tokens, temperature)
+                except Exception as groq_error:
+                    logger.error(f"❌ Groq fallback failed: {groq_error}")
             
             # Try Anthropic if available and not already using it
             if self.anthropic_api_key and self.provider != "anthropic":
@@ -227,7 +227,7 @@ class LLMService:
         full_messages.extend(messages)
         
         response = self.openai_client.chat.completions.create(
-            model="gpt-4o-mini",  # Fast and cost-effective
+            model="gpt-4-turbo",  # High-quality GPT-4 Turbo model
             messages=full_messages,
             max_tokens=max_tokens,
             temperature=temperature
