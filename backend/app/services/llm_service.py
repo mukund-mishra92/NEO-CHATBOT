@@ -227,9 +227,10 @@ class LLMService:
         full_messages.extend(messages)
         
         response = self.openai_client.chat.completions.create(
-            model="gpt-4-turbo",  # High-quality GPT-4 Turbo model
+            #model="gpt-4-turbo",  # High-quality GPT-4 Turbo model
+            model = "gpt-5.2",
             messages=full_messages,
-            max_tokens=max_tokens,
+            max_completion_tokens=max_tokens,  # Use max_completion_tokens for newer models
             temperature=temperature
         )
         
@@ -455,6 +456,6 @@ How can I help you today?"""
             "is_mock": self.provider == "mock",
             "has_openai": self.openai_api_key is not None,
             "has_anthropic": self.anthropic_api_key is not None,
-            "model": "gpt-4o-mini" if self.provider == "openai" else "claude-3-5-sonnet" if self.provider == "anthropic" else "mock"
+            "model": "gpt-5.2" if self.provider == "openai" else "claude-3-5-sonnet" if self.provider == "anthropic" else "mock"
         }
 

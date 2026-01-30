@@ -325,6 +325,11 @@ class ChatHistoryService:
             if result:
                 # Update existing pattern
                 pattern_id, frequency, success_rate, avg_confidence = result
+                # Convert Decimal to float to avoid type errors
+                frequency = float(frequency)
+                success_rate = float(success_rate)
+                avg_confidence = float(avg_confidence)
+                
                 new_frequency = frequency + 1
                 new_success_rate = ((success_rate * frequency) + (1.0 if success else 0.0)) / new_frequency
                 new_avg_confidence = ((avg_confidence * frequency) + confidence) / new_frequency

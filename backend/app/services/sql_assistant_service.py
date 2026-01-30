@@ -8,6 +8,7 @@ import uuid
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 import os
+import json
 import pymysql
 import pandas as pd
 import re
@@ -48,7 +49,7 @@ class SQLAssistantService:
         
         # LLM-as-Judge configuration for self-improving queries
         self.max_refinement_iterations = 3  # Maximum number of self-refinement loops
-        self.judge_confidence_threshold = 0.90  # Stop iterating if judge confidence exceeds this
+        self.judge_confidence_threshold = 0.85  # Stop iterating if judge confidence exceeds this
         
         # Initialize vector store for SQL examples
         try:
@@ -67,6 +68,16 @@ class SQLAssistantService:
             logger.warning(f"⚠️ Chat history service unavailable: {e}")
             self.chat_history_service = None
         
+        # Initialize query classification service for learning from labeled data
+        try:
+            from .query_classification_service import QueryClassificationService
+            classification_storage = settings.DATA_DIR / "classification"
+            self.classification_service = QueryClassificationService(classification_storage)
+            logger.info("✅ Query classification service enabled")
+        except Exception as e:
+            logger.warning(f"⚠️ Query classification service unavailable: {e}")
+            self.classification_service = None
+        
         # Session-based query cache: stores successful queries per session
         self.session_query_cache: Dict[str, List[Dict[str, Any]]] = {}
         
@@ -79,10 +90,51 @@ class SQLAssistantService:
         # Load and cache available tables for validation
         self.available_tables = self._get_available_tables()
         logger.info(f"✅ Cached {len(self.available_tables)} available tables for validation")
+
+        # Load external SQL assistant configuration (entities, tables, joins, temporal rules)
+        self._load_sql_assistant_config()
         
         # Safe logging that handles None schema_parser
         table_count = len(self.schema_parser.get_table_names()) if self.schema_parser else 0
         logger.info(f"✅ SQL Assistant Service initialized | DB Available: {self.db_available} | Tables: {table_count}")
+
+    def _load_sql_assistant_config(self) -> None:
+        """Load SQL assistant domain configuration from config/sql_assistant_config.json.
+
+        This externalizes entity keywords, temporal indicators, entity→table mappings,
+        and predefined joins so they can be tuned without changing code.
+        """
+        # Default empty structures; code will fall back to built-in mappings if these stay empty
+        self.entity_keywords: Dict[str, List[str]] = {}
+        self.operation_keywords: Dict[str, List[str]] = {}
+        self.time_filter_keywords: List[str] = []
+        self.temporal_indicators: Dict[str, List[str]] = {}
+        self.entity_table_map_config: Dict[str, List[str]] = {}
+        self.predefined_joins_config: List[Dict[str, Any]] = []
+
+        try:
+            # BASE_DIR/config/sql_assistant_config.json → derive from DATA_DIR
+            config_dir = settings.DATA_DIR.parent / "config"
+            config_path = config_dir / "sql_assistant_config.json"
+
+            if not config_path.exists():
+                logger.info(f"ℹ️ SQL assistant config not found at {config_path}, using built-in defaults")
+                return
+
+            with open(config_path, "r", encoding="utf-8") as f:
+                cfg = json.load(f)
+
+            self.entity_keywords = cfg.get("entity_keywords", {}) or {}
+            self.operation_keywords = cfg.get("operation_keywords", {}) or {}
+            self.time_filter_keywords = cfg.get("time_filter_keywords", []) or []
+            self.temporal_indicators = cfg.get("temporal_indicators", {}) or {}
+            self.entity_table_map_config = cfg.get("entity_tables", {}) or {}
+            self.predefined_joins_config = cfg.get("predefined_joins", []) or []
+
+            logger.info(f"✅ Loaded SQL assistant config from {config_path}")
+
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to load SQL assistant config, using built-in defaults: {e}")
     
     def _load_schema_parser(self):
         """Load schema parser"""
@@ -252,6 +304,107 @@ class SQLAssistantService:
         """Check if a column exists in a specific table"""
         columns = self._get_table_columns(table_name)
         return column_name in columns
+
+    def _is_followup_execution_request(self, message: str) -> bool:
+        """
+        Detect if user wants to execute the previous query instead of generating a new one.
+        
+        CRITICAL: Must be PRECISE to avoid false positives!
+        False positive = treating new query as follow-up = wrong results
+        
+        Strategy:
+        1. Require EXPLICIT reference to previous query
+        2. Avoid triggering on phrases that could be new queries
+        3. Check context clues (no new table names, no new entities)
+        """
+        msg = message.lower().strip()
+        
+        # ❌ NEGATIVE INDICATORS - These mean it's a NEW query, NOT a follow-up
+        negative_indicators = [
+            "bot", "task", "order", "bin", "sku", "station",  # Entity mentions
+            "how many", "show me all", "list all", "get all",  # Query starters
+            "which", "what", "where", "when",  # Question words
+            "table", "column", "database",  # Schema references
+            "completed", "active", "running", "charging"  # Status mentions
+        ]
+        
+        # If message contains new query indicators, it's NOT a follow-up
+        has_new_query_indicators = any(indicator in msg for indicator in negative_indicators)
+        
+        # 🔍 STRONG POSITIVE INDICATORS - Explicit reference to previous query
+        # These are SAFE because they explicitly mention "previous/last/that query"
+        explicit_reference_patterns = [
+            "execute the previous",
+            "run the previous",
+            "execute previous",
+            "run previous",
+            "previous query",
+            "last query",
+            "that query",
+            "the previous sql",
+            "execute that query",
+            "run that query",
+            "fetch previous",
+            "previous sql"
+        ]
+        
+        for pattern in explicit_reference_patterns:
+            if pattern in msg:
+                logger.info(f"✅ Detected explicit follow-up reference: '{pattern}'")
+                return True
+        
+        # 🔍 MEDIUM INDICATORS - Context-dependent (need additional validation)
+        # Only trigger if message is SHORT and has NO new query indicators
+        contextual_patterns = [
+            "fetch the data",
+            "fetch data",
+            "execute it",
+            "run it",
+            "just fetch",
+            "just execute",
+            "just run",
+            "why dont you fetch",
+            "why don't you fetch",
+            "fetch that",
+            "run that",
+            "execute that",
+            "fetch it",
+            "already connected",
+            "you are connected"
+        ]
+        
+        # Only use contextual patterns if:
+        # 1. Message is short (< 15 words)
+        # 2. NO new query indicators present
+        # 3. Pattern is found
+        is_short_message = len(msg.split()) < 15
+        
+        if is_short_message and not has_new_query_indicators:
+            for pattern in contextual_patterns:
+                if pattern in msg:
+                    logger.info(f"✅ Detected contextual follow-up: '{pattern}' (short message, no new entities)")
+                    return True
+        
+        # 🔍 WEAK INDICATORS - Only use if very specific conditions
+        # Phrases like "give me the result" that could be ambiguous
+        weak_patterns = [
+            "give me the result",
+            "give the result",
+            "show results",
+            "give me output"
+        ]
+        
+        # Only use weak patterns if message is VERY short (< 8 words) AND matches exactly
+        is_very_short = len(msg.split()) < 8
+        
+        if is_very_short and not has_new_query_indicators:
+            for pattern in weak_patterns:
+                if msg == pattern or msg == pattern + ".":  # Exact match only!
+                    logger.info(f"✅ Detected weak follow-up (exact match): '{pattern}'")
+                    return True
+        
+        # Default: NOT a follow-up
+        return False
     
     def _extract_columns_from_sql(self, sql_query: str) -> Dict[str, List[str]]:
         """Extract columns referenced in SQL query grouped by table"""
@@ -308,6 +461,9 @@ class SQLAssistantService:
     
     def _validate_table_exists(self, table_name: str) -> bool:
         """Check if a table actually exists in the database schema"""
+        # INFORMATION_SCHEMA is a MySQL built-in system database - always valid
+        if table_name.upper() in ['INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS']:
+            return True
         return table_name in self.available_tables
     
     def _extract_tables_from_sql(self, sql_query: str) -> List[str]:
@@ -428,94 +584,26 @@ class SQLAssistantService:
         intent = 'retrieve'  # default
         if is_metadata_query:
             intent = 'metadata'
-        elif any(word in query_lower for word in ['how many', 'count', 'number of', 'total']):
-            intent = 'count'
-        elif any(word in query_lower for word in ['sum', 'total quantity', 'total amount']):
-            intent = 'aggregate'
-        elif any(word in query_lower for word in ['average', 'mean', 'avg']):
-            intent = 'aggregate'
-        elif any(word in query_lower for word in ['show', 'list', 'get', 'display', 'details']):
-            intent = 'retrieve'
-        
-        # Detect entities (domain concepts) - comprehensive mapping based on actual schema
+        else:
+            # Use external operation keyword config (from sql_assistant_config.json)
+            operation_keywords = getattr(self, "operation_keywords", None) or {}
+
+            # Assign intent based on the strongest matching operation
+            for op, keywords in operation_keywords.items():
+                if any(k in query_lower for k in keywords):
+                    if op == 'count':
+                        intent = 'count'
+                    elif op in ('sum', 'average'):
+                        intent = 'aggregate'
+                    break
+
+            if intent == 'retrieve' and any(word in query_lower for word in ['show', 'list', 'get', 'display', 'details']):
+                intent = 'retrieve'
+
+        # Detect entities (domain concepts) - loaded from sql_assistant_config.json
         entities = []
-        entity_map = {
-            # Bin and location management (14 tables)
-            'bin': ['bin', 'bins', 'location', 'locations', 'zone', 'zones', 'aisle', 'rack', 
-                   'bin_info', 'bin_configuration', 'bin_loading', 'bin_velocity', 'bin_mapping'],
-            
-            # Bot and robot operations (9 tables)
-            'bot': ['bot', 'bots', 'robot', 'robots', 'agv', 'charging', 'battery', 
-                   'bot_master', 'robot_charge', 'bot_velocity', 'bot_alarm'],
-            
-            # Order management (17 tables)
-            'order': ['order', 'orders', 'shipment', 'delivery', 'order_master', 
-                     'order_mapping', 'order_bin', 'order_detail', 'order_line'],
-            
-            # Wave operations (30 tables)
-            'wave': ['wave', 'waves', 'pick_wave', 'put_wave', 'wave_order', 
-                    'wave_station', 'wave_rule', 'wave_mapping', 'wave_detail'],
-            
-            # SKU and article management (13 tables)
-            'sku': ['sku', 'article', 'product', 'item', 'sku_master', 
-                   'article_proximity', 'sku_recommendations', 'sku_velocity'],
-            
-            # Inventory management (13 tables)
-            'inventory': ['inventory', 'stock', 'live_inventory', 'stock_audit', 
-                         'stock_location', 'stock_movement', 'inventory_master'],
-            
-            # Pick operations (11 tables)
-            'pick': ['pick', 'picks', 'picking', 'picker', 'pick_wave', 'pick_task', 
-                    'pick_station', 'pick_order', 'pick_detail', 'pick_bin'],
-            
-            # Put operations (12 tables)
-            'put': ['put', 'puts', 'putting', 'putaway', 'put_wave', 'put_task', 
-                   'put_station', 'put_order', 'put_detail', 'put_bin'],
-            
-            # Station operations (5 tables)
-            'station': ['station', 'stations', 'workstation', 'hw_station', 
-                       'station_master', 'station_pick', 'station_put', 'station_rule'],
-            
-            # Task management (13 tables)
-            'task': ['task', 'tasks', 'job', 'jobs', 'task_master', 'pick_task', 
-                    'put_task', 'maintenance_task', 'task_mapping'],
-            
-            # Alarms and errors (9 tables)
-            'alarm': ['alarm', 'alarms', 'alert', 'alerts', 'error', 'errors', 
-                     'alarm_master', 'bot_alarm', 'integration_error'],
-            
-            # Maintenance operations (5 tables)
-            'maintenance': ['maintenance', 'repair', 'service', 'maintenance_task', 
-                           'maintenance_log', 'maintenance_schedule'],
-            
-            # User management (4 tables)
-            'user': ['user', 'users', 'operator', 'picker', 'packer', 'user_master', 
-                    'user_rule', 'user_mapping'],
-            
-            # Dashboard and monitoring (28 tables)
-            'dashboard': ['dashboard', 'monitor', 'monitoring', 'dashboard_bot', 
-                         'dashboard_order', 'dashboard_inventory'],
-            
-            # Charging operations (4 tables)
-            'charging': ['charging', 'charge', 'battery', 'robot_charge', 
-                        'charging_station', 'charging_log'],
-            
-            # Conveyor systems (2 tables)
-            'conveyor': ['conveyor', 'conveyors', 'conveyor_system', 'conveyor_configuration'],
-            
-            # Logs and audit trail (38 tables)
-            'log': ['log', 'logs', 'history', 'audit', 'tracking', 'trace', 
-                   'alarm_log', 'charge_log', 'integration_log', 'bot_log'],
-            
-            # Master data tables (44 tables)
-            'master': ['master', 'config', 'configuration', 'setting', 'settings', 
-                      'rule', 'rules', 'mapping', 'api_master', 'zone_master'],
-            
-            # Analysis and velocity (7 tables)
-            'velocity': ['velocity', 'speed', 'frequency', 'analysis', 'bin_velocity', 
-                        'bot_velocity', 'sku_velocity', 'velocity_analysis'],
-        }
-        
+        entity_map = getattr(self, "entity_keywords", None) or {}
+
         for entity, keywords in entity_map.items():
             if any(kw in query_lower for kw in keywords):
                 entities.append(entity)
@@ -524,22 +612,16 @@ class SQLAssistantService:
         join_needed = len(entities) > 1 or any(phrase in query_lower for phrase in [
             'with', 'and', 'along with', 'including', 'details of'
         ])
-        
-        # Detect operations
-        operations = []
-        if 'count' in query_lower or 'how many' in query_lower:
-            operations.append('count')
-        if 'sum' in query_lower or 'total' in query_lower:
-            operations.append('sum')
-        if 'average' in query_lower or 'avg' in query_lower:
-            operations.append('average')
-        if 'group' in query_lower or 'by' in query_lower:
-            operations.append('group_by')
-        
-        # Detect time filter
-        time_filter = any(word in query_lower for word in [
-            'today', 'yesterday', 'week', 'month', 'year', 'recent', 'last', 'past'
-        ])
+
+        # Detect operations using configured keywords
+        operations: List[str] = []
+        for op, keywords in operation_keywords.items():
+            if any(k in query_lower for k in keywords):
+                operations.append(op)
+
+        # Detect time filter (loaded from sql_assistant_config.json)
+        time_filter_terms = getattr(self, "time_filter_keywords", None) or []
+        time_filter = any(word in query_lower for word in time_filter_terms)
         
         # Detect temporal scope (historical vs current)
         temporal_scope = self._classify_temporal_scope(query)
@@ -571,46 +653,11 @@ class SQLAssistantService:
             }
         """
         query_lower = query.lower()
-        
-        # Historical indicators - strong signals for log tables
-        historical_indicators = [
-            # Explicit log references
-            'check the log', 'from log', 'in the log', 'log table', 'historical',
-            
-            # Past tense and completion
-            'have done', 'has done', 'have performed', 'has performed', 
-            'have completed', 'has completed', 'was doing', 'were doing',
-            'did', 'performed', 'completed', 'finished',
-            
-            # Time range indicators
-            'till now', 'till today', 'till date', 'until now', 'up to now',
-            'since', 'from', 'between', 'in the past', 'previously',
-            'all the task performed', 'all task done', 'all tasks executed',
-            
-            # Aggregate history
-            'total', 'all time', 'ever', 'lifetime', 'complete history',
-            'how many times', 'number of times', 'count of',
-            
-            # Audit/tracking
-            'audit', 'track', 'trace', 'history of', 'record of'
-        ]
-        
-        # Current state indicators - signals for live tables
-        current_indicators = [
-            # Present tense
-            'is doing', 'are doing', 'is performing', 'are performing',
-            'is running', 'are running', 'is executing', 'are executing',
-            
-            # Current state
-            'current', 'currently', 'now', 'right now', 'at the moment',
-            'present', 'today', 'active', 'ongoing', 'in progress',
-            
-            # Assignment/allocation
-            'assigned to', 'allocated to', 'working on',
-            
-            # Latest/recent
-            'latest', 'most recent', 'newest', 'last assigned'
-        ]
+
+        # Load temporal indicators from sql_assistant_config.json
+        temporal_cfg = getattr(self, "temporal_indicators", None) or {}
+        historical_indicators = temporal_cfg.get('historical') or []
+        current_indicators = temporal_cfg.get('current') or []
         
         # Count matches
         historical_matches = [ind for ind in historical_indicators if ind in query_lower]
@@ -731,234 +778,8 @@ class SQLAssistantService:
         Returns:
             Dict mapping entity to list of relevant tables
         """
-        # Comprehensive entity to table mapping (based on actual schema - 162 tables)
-        entity_table_map = {
-            # Bin and location management (14 tables)
-            'bin': [
-                'bin_configuration',
-                'bin_info_master',
-                'live_inventory_master',
-                'order_bin_mapping',
-                'bin_velocity_scores',
-                'location_master',
-                'location_block_master',
-                'bin_loading_wave_order_master',
-                'order_bin_task_master',
-                'store_bin_master'
-            ],
-            
-            # Bot and robot operations (9 tables)
-            'bot': [
-                'bot_master',
-                'bot_master_log',
-                'bot_alarm_log',
-                'bot_charging_bit_log',
-                'dashboard_bot_master',
-                'robot_charge_log',
-                'dashboard_log_bot_charging',
-                'bot_manual_alarm_log'
-            ],
-            
-            # Order management (17 tables)
-            'order': [
-                'wms_to_wcs_order_line_request_data',
-                'order_bin_mapping',
-                'pick_wave_order_master',
-                'put_wave_order_master',
-                'bin_loading_wave_order_master',
-                'stock_audit_wave_order_master',
-                'order_bin_task_master',
-                'lpn_pick_wave_order_mapping',
-                'order_bin_mapping_log'
-            ],
-            
-            # Wave operations (29 tables)
-            'wave': [
-                'pick_wave_order_master',
-                'put_wave_order_master',
-                'bin_loading_wave_order_master',
-                'stock_audit_wave_order_master',
-                'pick_wave_wms_data',
-                'put_wave_wms_data',
-                'wave_station_rule_mapping',
-                'dashboard_log_wave_process',
-                'lpn_pick_wave_order_mapping',
-                'short_pick_wave_reason',
-                'short_put_wave_reason'
-            ],
-            
-            # SKU and article management (13 tables)
-            'sku': [
-                'sku_master',
-                'articles_registered',
-                'article_registered',
-                'article_proximity_score',
-                'sku_recommendations',
-                'sku_velocity_scores',
-                'sku_velocity_history',
-                'sku_batch_master',
-                'sku_ean_mapping',
-                'live_inventory_master'
-            ],
-            
-            # Inventory management (13 tables)
-            'inventory': [
-                'live_inventory_master',
-                'live_inventory_master_log',
-                'stock_audit_bin_data_push',
-                'stock_audit_bin_segments',
-                'stock_audit_list',
-                'stock_audit_wave_order_master',
-                'stock_audit_wave_wms_data',
-                'lpn_master_stock_audit'
-            ],
-            
-            # Pick operations (11 tables)
-            'pick': [
-                'pick_wave_order_master',
-                'station_pick_task_master',
-                'pick_wave_wms_data',
-                'lpn_pick_wave_order_mapping',
-                'pick_rule_master',
-                'recovery_pick_task_master',
-                'short_pick_wave_reason'
-            ],
-            
-            # Put/Putaway operations (7 tables)
-            'put': [
-                'put_wave_order_master',
-                'put_wave_wms_data',
-                'short_put_wave_reason',
-                'put_wave_order_master_archive',
-                'put_wave_wms_data_archive'
-            ],
-            
-            # Station operations (5 tables)
-            'station': [
-                'hw_station_master',
-                'station_pick_task_master',
-                'hw_charging_station_master',
-                'station_home_master',
-                'wave_station_rule_mapping'
-            ],
-            
-            # Task management (13 tables)
-            'task': [
-                'station_pick_task_master',
-                'maintenance_task_master',
-                'dashboard_log_maintenance_task_master',
-                'order_bin_task_master',
-                'recovery_pick_task_master',
-                'task_master',
-                'task_detail',
-                'dashboard_manual_task_master',
-                'mining_job_logs',
-                'velocity_calculation_jobs'
-            ],
-            
-            # Alarms and errors (9 tables)
-            'alarm': [
-                'alarm_master',
-                'bot_alarm_log',
-                'bot_manual_alarm_log',
-                'integration_error_logs',
-                'dashboard_log_error_api',
-                'maintenance_alarm_logs',
-                'manual_alarm_master',
-                'pseudo_bot_alarm_log'
-            ],
-            
-            # Maintenance operations (5 tables)
-            'maintenance': [
-                'maintenance_task_master',
-                'dashboard_log_maintenance_task_master',
-                'hw_maintenance_master',
-                'maintenance_alarm_logs',
-                'hw_maintenance_scanner_multiplexer_master'
-            ],
-            
-            # User management (4 tables)
-            'user': [
-                'dashboard_user_master',
-                'dashboard_user_role_setting_mapping',
-                'dashboard_log_user_login_attempts',
-                'dashboard_table_header_json_user_mapping'
-            ],
-            
-            # Dashboard and monitoring (28 tables - top 10 most relevant)
-            'dashboard': [
-                'dashboard_bot_master',
-                'dashboard_log_bot_charging',
-                'dashboard_log_maintenance_task_master',
-                'dashboard_log_wave_process',
-                'dashboard_log_error_api',
-                'dashboard_config',
-                'dashboard_user_master',
-                'dashboard_master_data',
-                'dashboard_menu_master',
-                'dashboard_access_master'
-            ],
-            
-            # Charging operations (4 tables)
-            'charging': [
-                'robot_charge_log',
-                'bot_charging_bit_log',
-                'dashboard_log_bot_charging',
-                'hw_charging_station_master'
-            ],
-            
-            # Conveyor systems (2 tables)
-            'conveyor': [
-                'hw_conveyor_master',
-                'hw_conveyor_mux_master'
-            ],
-            
-            # Logs and audit trail (38 tables - top 12 most relevant)
-            'log': [
-                'bot_alarm_log',
-                'bot_master_log',
-                'bot_charging_bit_log',
-                'robot_charge_log',
-                'live_inventory_master_log',
-                'order_bin_mapping_log',
-                'task_master_log',
-                'task_detail_log',
-                'mining_job_logs',
-                'sku_velocity_log',
-                'integration_error_logs',
-                'dashboard_log_wave_process'
-            ],
-            
-            # Master data tables (73 tables - top 15 most important)
-            'master': [
-                'bot_master',
-                'sku_master',
-                'bin_info_master',
-                'alarm_master',
-                'config_master',
-                'location_master',
-                'hw_station_master',
-                'api_master',
-                'task_master',
-                'maintenance_task_master',
-                'pick_rule_master',
-                'zone_master',
-                'category_master',
-                'sku_batch_master',
-                'store_bin_master'
-            ],
-            
-            # Velocity and analysis (7 tables)
-            'velocity': [
-                'sku_velocity_scores',
-                'bin_velocity_scores',
-                'sku_velocity_history',
-                'sku_velocity_log',
-                'sku_velocity_state',
-                'velocity_calculation_config',
-                'velocity_calculation_jobs'
-            ],
-        }
+        # Comprehensive entity to table mapping (loaded from sql_assistant_config.json)
+        entity_table_map = getattr(self, "entity_table_map_config", None) or {}
         
         result = {}
         for entity in entities:
@@ -966,6 +787,39 @@ class SQLAssistantService:
                 result[entity] = entity_table_map[entity]
         
         return result
+    
+    def _split_multi_part_question(self, message: str) -> List[str]:
+        """
+        Split a user message into independent analytical questions.
+        """
+        message = message.strip()
+
+        # Common separators users use
+        separators = [
+            "\n",
+            " also ",
+            " and ",
+            " along with ",
+            ". "
+        ]
+
+        parts = [message]
+        for sep in separators:
+            new_parts = []
+            for p in parts:
+                if sep in p.lower():
+                    new_parts.extend([x.strip() for x in p.split(sep) if x.strip()])
+                else:
+                    new_parts.append(p)
+            parts = new_parts
+
+        # Remove duplicates & very small fragments
+        final = []
+        for p in parts:
+            if len(p.split()) >= 4:
+                final.append(p)
+
+        return final
     
     def _get_join_paths(self, tables: List[str]) -> List[Dict[str, Any]]:
         """
@@ -983,92 +837,9 @@ class SQLAssistantService:
         """
         all_join_paths = []
         
-        # ========================================================================
         # TIER 1: EXPERIENCE-BASED PREDEFINED JOINS (Highest Confidence: 0.95)
-        # ========================================================================
-        # These are battle-tested JOIN patterns from production experience
-        predefined_relationships = [
-            {
-                'table1': 'wms_to_wcs_order_line_request_data',
-                'table2': 'sku_master',
-                'join_on': 'ARTICLE_ID = SKU_ID',
-                'description': 'Orders to SKU details',
-                'confidence': 0.95,
-                'source': 'predefined'
-            },
-            {
-                'table1': 'order_bin_mapping',
-                'table2': 'bin_info_master',
-                'join_on': 'BIN_ID = BIN_ID',
-                'description': 'Order-Bin mapping to bin details',
-                'confidence': 0.95,
-                'source': 'predefined'
-            },
-            {
-                'table1': 'bin_info_master',
-                'table2': 'bin_configuration',
-                'join_on': 'BIN_BARCODE = bin_id',
-                'description': 'Bin info to bin configuration',
-                'confidence': 0.95,
-                'source': 'predefined'
-            },
-            {
-                'table1': 'live_inventory_master',
-                'table2': 'sku_master',
-                'join_on': 'ARTICLE_ID = SKU_ID',
-                'description': 'Inventory to SKU details',
-                'confidence': 0.95,
-                'source': 'predefined'
-            },
-            {
-                'table1': 'bot_master',
-                'table2': 'bot_alarm_log',
-                'join_on': 'BOT_ID = BOT_ID',
-                'description': 'Bots to their alarms',
-                'confidence': 0.95,
-                'source': 'predefined'
-            },
-            {
-                'table1': 'dashboard_log_maintenance_task_master',
-                'table2': 'bot_master',
-                'join_on': 'MAINTENANCE_POINT_BOT_ID = BOT_ID',
-                'description': 'Maintenance tasks to bots',
-                'confidence': 0.95,
-                'source': 'predefined'
-            },
-            {
-                'table1': 'task_detail',
-                'table2': 'bot_master',
-                'join_on': 'BOT_ID = BOT_ID',
-                'description': 'Tasks to bots',
-                'confidence': 0.95,
-                'source': 'predefined'
-            },
-            {
-                'table1': 'task_detail_log',
-                'table2': 'bot_master',
-                'join_on': 'BOT_ID = BOT_ID',
-                'description': 'Historical tasks to bots',
-                'confidence': 0.95,
-                'source': 'predefined'
-            },
-            {
-                'table1': 'bin_info_master',
-                'table2': 'location_master',
-                'join_on': 'ZONE_ID = ZONE_ID',
-                'description': 'Bins to locations via zone',
-                'confidence': 0.90,
-                'source': 'predefined'
-            },
-            {
-                'table1': 'live_inventory_master',
-                'table2': 'bin_info_master',
-                'join_on': 'BIN_ID = BIN_ID',
-                'description': 'Inventory to bins',
-                'confidence': 0.95,
-                'source': 'predefined'
-            },
-        ]
+        # Battle-tested JOIN patterns from production experience (loaded from sql_assistant_config.json)
+        predefined_relationships = getattr(self, "predefined_joins_config", None) or []
         
         # Check predefined relationships
         for join in predefined_relationships:
@@ -1723,10 +1494,13 @@ class SQLAssistantService:
                 prompt_parts.append(f"  - {info}")
         
         if context['successful_queries']:
-            prompt_parts.append("\n✅ SUCCESSFUL QUERY PATTERNS IN THIS SESSION:")
+            prompt_parts.append("\n✅ SUCCESSFUL QUERY PATTERNS IN THIS SESSION (⚠️ REUSE THESE WHENEVER POSSIBLE!):")
+            prompt_parts.append("⚠️ CRITICAL: If the user asks a similar question, REUSE the same tables and logic that worked before!")
             for i, query_info in enumerate(context['successful_queries'][-2:], 1):
-                prompt_parts.append(f"  {i}. Q: {query_info['question'][:50]}...")
-                prompt_parts.append(f"     SQL: {query_info['sql'][:80]}...")
+                prompt_parts.append(f"  {i}. Q: {query_info['question'][:80]}")
+                prompt_parts.append(f"     SQL: {query_info['sql']}")
+                prompt_parts.append(f"     Result: {query_info.get('results_count', 0)} rows (✅ SUCCESSFUL)")
+            prompt_parts.append("\n  → If the current question is similar to any above, use the SAME approach!")
         
         if context['tables_used']:
             prompt_parts.append(f"\n📋 TABLES DISCUSSED: {', '.join(sorted(context['tables_used']))}")
@@ -2276,7 +2050,7 @@ Invalid filter values detected:
             response = self.llm_service.generate_response(
                 messages=[{"role": "user", "content": judge_prompt}],
                 system_prompt="You are an expert SQL quality judge. Be critical but constructive. Return valid JSON only.",
-                max_tokens=800,
+                max_tokens=600,
                 temperature=0.2
             )
             
@@ -2431,6 +2205,152 @@ Generate an IMPROVED SQL query that addresses the issues. Return ONLY the SQL qu
         
         try:
             logger.info(f"🔍 Processing SQL query: {chat_request.message[:50]}...")
+            sub_questions = self._split_multi_part_question(chat_request.message)
+            # MULTI-QUERY CASE
+            if len(sub_questions) > 1:
+                logger.info(f"🧩 Detected multi-part query: {len(sub_questions)} sub-questions")
+
+                responses = []
+
+                for sub_q in sub_questions:
+                    logger.info(f"➡️ Processing sub-question: {sub_q}")
+                    sub_request = ChatRequest(
+                        message=sub_q,
+                        session_id=chat_request.session_id,
+                        conversation_history=chat_request.conversation_history
+                    )
+
+                    sub_response = self.process_query(sub_request)
+                    responses.append(sub_response)
+                
+                # Create a unified, clean merged response
+                min_confidence = min(r.confidence_score for r in responses if r.confidence_score)
+                
+                # Confidence badge for overall response
+                if min_confidence >= 0.9:
+                    confidence_badge = f"🟢 **High Confidence** ({min_confidence * 100:.0f}%)"
+                elif min_confidence >= 0.75:
+                    confidence_badge = f"🟡 **Good Confidence** ({min_confidence * 100:.0f}%)"
+                else:
+                    confidence_badge = f"🟠 **Moderate Confidence** ({min_confidence * 100:.0f}%)"
+                
+                # Build unified response
+                response_parts = [
+                    f"**Your Question:** {chat_request.message}\n",
+                    f"{confidence_badge}\n",
+                    f"**Combined Results from {len(sub_questions)} queries:**\n"
+                ]
+                
+                # Add each sub-result in a clean, compact format
+                for idx, (sub_q, r) in enumerate(zip(sub_questions, responses), 1):
+                    if r and r.query_results:
+                        results = r.query_results
+                        if results and len(results) > 0:
+                            # Extract columns and values
+                            columns = list(results[0].keys())
+                            
+                            # For single-value results (like COUNT), show with column name
+                            if len(results) == 1 and len(columns) == 1:
+                                col_name = columns[0]
+                                value = results[0][col_name]
+                                response_parts.append(f"{idx}. **{sub_q.strip()}**")
+                                response_parts.append(f"   - `{col_name}`: **{value}**\n")
+                            elif len(results) == 1:
+                                # Single row with multiple columns - show as key-value pairs
+                                response_parts.append(f"{idx}. **{sub_q.strip()}**")
+                                for col in columns:
+                                    value = results[0][col]
+                                    response_parts.append(f"   - `{col}`: **{value}**")
+                                response_parts.append("")  # Blank line
+                            else:
+                                # For multi-row results, show as compact table
+                                response_parts.append(f"{idx}. **{sub_q.strip()}**\n")
+                                table = "| " + " | ".join(columns) + " |\n"
+                                table += "| " + " | ".join(["---"] * len(columns)) + " |\n"
+                                for row in results[:10]:  # Limit to 10 rows per sub-query
+                                    values = [str(row.get(col, '')) for col in columns]
+                                    table += "| " + " | ".join(values) + " |\n"
+                                if len(results) > 10:
+                                    table += f"\n*Showing first 10 of {len(results)} results*\n"
+                                response_parts.append(table)
+                        else:
+                            response_parts.append(f"{idx}. **{sub_q.strip()}**: No results found\n")
+                    else:
+                        # Show error details if available
+                        error_msg = "Error or no results"
+                        if r and hasattr(r, 'response') and r.response:
+                            # Extract error from response if it contains one
+                            if "❌" in r.response or "Error" in r.response:
+                                # Try to extract the actual error message
+                                lines = r.response.split('\n')
+                                for line in lines:
+                                    if "doesn't exist" in line or "Error" in line or "❌" in line:
+                                        error_msg = line.strip()
+                                        break
+                        response_parts.append(f"{idx}. **{sub_q.strip()}**: ❌ {error_msg}\n")
+                
+                # Add SQL queries used (collapsed at bottom)
+                response_parts.append("\n---\n**SQL Queries Used:**")
+                for idx, r in enumerate(responses, 1):
+                    if r and r.sql_query:
+                        response_parts.append(f"\n{idx}. ```sql\n{r.sql_query}\n```")
+                
+                merged_text = "\n".join(response_parts)
+                
+                return ChatResponse(
+                    response=merged_text,
+                    chatbot_type=ChatbotType.SQL_ASSISTANT,
+                    session_id=chat_request.session_id,
+                    confidence_score=min_confidence,
+                    sources=[],
+                    metadata={"multi_query": True, "sub_queries": len(sub_questions)}
+                )
+            # 🧠 FOLLOW-UP EXECUTION REQUEST (reuse last SQL)
+            if self._is_followup_execution_request(chat_request.message):
+                logger.info("🔄 Detected follow-up execution request!")
+                cached = self.session_query_cache.get(chat_request.session_id, [])
+                logger.info(f"📝 Session cache has {len(cached)} queries for session {chat_request.session_id}")
+                
+                if cached:
+                    last_query = cached[-1]["sql"]
+                    logger.info(f"♻️ Reusing last SQL: {last_query[:100]}...")
+                    results, error = self._execute_query_safe(last_query)
+
+                    if not error:
+                        logger.info(f"✅ Follow-up executed successfully: {len(results)} rows")
+                        return ChatResponse(
+                            response=self._format_results_with_confidence(
+                                results,
+                                last_query,
+                                chat_request.message,
+                                0.95,
+                                "Reused previous SQL as requested"
+                            ),
+                            chatbot_type=ChatbotType.SQL_ASSISTANT,
+                            session_id=chat_request.session_id,
+                            sql_query=last_query,
+                            query_results=results,
+                            confidence_score=0.95,
+                            metadata={"followup": True}
+                        )
+                    else:
+                        logger.error(f"❌ Follow-up execution failed: {error}")
+                else:
+                    logger.warning("⚠️ Follow-up requested but no cached queries found!")
+                    return ChatResponse(
+                        response="""I understand you want me to execute the previous query, but I don't have any cached queries in this session.
+
+This could happen if:
+1. This is a new session
+2. The previous query wasn't successfully generated
+3. Session expired
+
+Please ask your question again, and I'll execute it for you! 💡""",
+                        chatbot_type=ChatbotType.SQL_ASSISTANT,
+                        session_id=chat_request.session_id or str(uuid.uuid4()),
+                        confidence_score=0.0,
+                        sources=[]
+                    )
             
             if not self.db_available:
                 return self._create_error_response(
@@ -2526,6 +2446,80 @@ I'm here to help - just tell me what you need! 💡""",
                 chat_request.conversation_history,
                 chat_request.session_id
             )
+            
+            # 🔍 SMART CACHE: Check if we've answered a very similar question recently
+            cached_sql = self._check_similar_question_cache(query_to_process, chat_request.session_id)
+            if cached_sql:
+                logger.info(f"💾 Found similar question in session cache, reusing successful SQL")
+                
+                # Execute the cached query directly
+                results, error = self._execute_query_safe(cached_sql)
+                
+                if not error and results:
+                    confidence, validation_msg = self._validate_results(results, query_to_process, cached_sql)
+                    
+                    if confidence >= 0.75:
+                        response_text = self._format_results_with_confidence(
+                            results, 
+                            cached_sql, 
+                            original_message,
+                            confidence,
+                            validation_msg + " | ♻️ Reused successful query from session cache"
+                        )
+                        
+                        return ChatResponse(
+                            response=response_text,
+                            chatbot_type=ChatbotType.SQL_ASSISTANT,
+                            session_id=chat_request.session_id or str(uuid.uuid4()),
+                            sql_query=cached_sql,
+                            query_results=results[:100] if results else [],
+                            confidence_score=confidence,
+                            sources=[],
+                            metadata={'cache_hit': True, 'cache_type': 'session'}
+                        )
+            
+            # 🎯 CLASSIFICATION SERVICE: Check classified queries first (highest priority)
+            if self.classification_service:
+                classified_match = self.classification_service.find_similar_classified_query(
+                    query_to_process,
+                    similarity_threshold=0.85
+                )
+                
+                if classified_match:
+                    logger.info(f"🎓 Found similar CLASSIFIED query (verified correct by human)")
+                    
+                    # Use the SQL from classified query
+                    classified_sql = classified_match['generated_sql']
+                    
+                    # Execute it
+                    results, error = self._execute_query_safe(classified_sql)
+                    
+                    if not error and results:
+                        confidence = min(classified_match['similarity_score'] + 0.10, 0.98)  # Boost confidence
+                        validation_msg = f"Using human-verified correct query (similarity: {classified_match['similarity_score']:.0%})"
+                        
+                        response_text = self._format_results_with_confidence(
+                            results,
+                            classified_sql,
+                            original_message,
+                            confidence,
+                            validation_msg + " | ✅ Human-verified pattern"
+                        )
+                        
+                        return ChatResponse(
+                            response=response_text,
+                            chatbot_type=ChatbotType.SQL_ASSISTANT,
+                            session_id=chat_request.session_id or str(uuid.uuid4()),
+                            sql_query=classified_sql,
+                            query_results=results[:100] if results else [],
+                            confidence_score=confidence,
+                            sources=[],
+                            metadata={
+                                'cache_hit': True,
+                                'cache_type': 'classified',
+                                'similarity': classified_match['similarity_score']
+                            }
+                        )
             
             # Try up to 3 strategies to get confident results
             max_attempts = 3
@@ -2896,6 +2890,26 @@ I'm here to help - just tell me what you need! 💡""",
                         except Exception as e:
                             logger.warning(f"⚠️ Failed to log to chat history: {e}")
                     
+                    # Store in classification service for manual review and learning
+                    if self.classification_service:
+                        try:
+                            self.classification_service.store_query(
+                                session_id=chat_request.session_id or str(uuid.uuid4()),
+                                user_query=chat_request.message,
+                                generated_sql=sql_query,
+                                execution_status='success',
+                                rows_returned=len(results) if results else 0,
+                                confidence=best_confidence,
+                                tables_used=tables_used,
+                                metadata={
+                                    'intent': intent_info.get('intent'),
+                                    'entities': intent_info.get('entities'),
+                                    'refinement_iterations': len(refinement_history)
+                                }
+                            )
+                        except Exception as e:
+                            logger.warning(f"⚠️ Failed to store in classification service: {e}")
+                    
                     # Store successful query in session cache with sample data
                     self._store_successful_query(
                         chat_request.session_id or str(uuid.uuid4()),
@@ -3040,6 +3054,99 @@ I'm here to help - just tell me what you need! 💡""",
     # ========================================
     # NEW INTELLIGENT METHODS
     # ========================================
+    
+    def _check_similar_question_cache(self, question: str, session_id: Optional[str]) -> Optional[str]:
+        """
+        Check if we've answered a very similar question in this session.
+        Uses fuzzy matching to detect paraphrased questions.
+        
+        Args:
+            question: Current user question
+            session_id: Session identifier
+            
+        Returns:
+            SQL query from cache if similar question found, else None
+        """
+        if not session_id or session_id not in self.session_query_cache:
+            return None
+        
+        try:
+            from difflib import SequenceMatcher
+            
+            def similarity(a: str, b: str) -> float:
+                """Calculate similarity ratio between two strings"""
+                return SequenceMatcher(None, a.lower(), b.lower()).ratio()
+            
+            # Normalize current question
+            question_normalized = question.lower().strip()
+            
+            # Check last 5 successful queries in this session
+            recent_queries = self.session_query_cache[session_id][-5:]
+            
+            for cached_query in reversed(recent_queries):  # Most recent first
+                cached_question = cached_query['question'].lower().strip()
+                
+                # Calculate similarity
+                sim_score = similarity(question_normalized, cached_question)
+                
+                # High similarity threshold (85% match)
+                if sim_score >= 0.85:
+                    # SAFETY CHECK: Don't reuse if new query mentions additional columns
+                    # Extract potential column names mentioned in questions
+                    def extract_column_mentions(text: str) -> set:
+                        """Extract words that might be column names (status, name, id, etc.)"""
+                        column_indicators = ['status', 'name', 'type', 'count', 'total', 
+                                            'timestamp', 'date', 'time', 'quantity', 'price',
+                                            'description', 'location', 'category', 'value']
+                        words = text.lower().split()
+                        return set(w for w in words if w in column_indicators)
+                    
+                    current_columns = extract_column_mentions(question_normalized)
+                    cached_columns = extract_column_mentions(cached_question)
+                    
+                    # If current query mentions columns NOT in cached query, generate new SQL
+                    new_columns = current_columns - cached_columns
+                    if new_columns:
+                        logger.info(f"⚠️ Similar question but with additional columns: {new_columns}")
+                        logger.info(f"   Not reusing cache - will generate new SQL")
+                        continue  # Skip this cache entry, check next one
+                    
+                    logger.info(f"🎯 Found similar question (similarity: {sim_score:.0%})")
+                    logger.info(f"   Current: {question[:60]}...")
+                    logger.info(f"   Cached:  {cached_query['question'][:60]}...")
+                    return cached_query['sql']
+                
+                # Also check for key phrase matches (e.g., "completed at least one task")
+                key_phrases = [
+                    'completed atleast one task',
+                    'completed at least one task',
+                    'finished at least one task',
+                    'done at least one task',
+                    'completed one or more task',
+                    'finished one or more task'
+                ]
+                
+                current_has_phrase = any(phrase in question_normalized for phrase in key_phrases)
+                cached_has_phrase = any(phrase in cached_question for phrase in key_phrases)
+                
+                if current_has_phrase and cached_has_phrase:
+                    # Both questions are about "completed at least one task"
+                    # Check if they're asking about same entity (bot/robot/agent)
+                    entities = ['bot', 'robot', 'agent', 'agv']
+                    current_entity = any(ent in question_normalized for ent in entities)
+                    cached_entity = any(ent in cached_question for ent in entities)
+                    
+                    if current_entity and cached_entity:
+                        logger.info(f"🎯 Found semantically identical question (key phrase match)")
+                        logger.info(f"   Current: {question[:60]}...")
+                        logger.info(f"   Cached:  {cached_query['question'][:60]}...")
+                        return cached_query['sql']
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"❌ Error checking similar question cache: {e}")
+            return None
     
     def _find_closest_column_name(self, user_column: str, table_name: str) -> Optional[str]:
         """
@@ -3207,7 +3314,7 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
             response = self.llm_service.generate_response(
                 messages=messages,
                 system_prompt=system_prompt,
-                max_tokens=300,
+                max_tokens=800,
                 temperature=0.1
             )
             
@@ -3286,6 +3393,16 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
         Returns:
             Tuple of (confidence_score, validation_message)
         """
+        # ✅ METADATA QUERY SHORT-CIRCUIT (HIGHEST PRIORITY)
+        # information_schema queries are always reliable!
+        if "INFORMATION_SCHEMA" in sql_query.upper() or "information_schema" in sql_query.lower():
+            if results is not None and len(results) > 0:
+                logger.info(f"✅ INFORMATION_SCHEMA query - HIGH CONFIDENCE: {len(results)} results")
+                return 0.95, f"✅ Metadata query executed successfully - {len(results)} rows returned"
+            elif results is not None and len(results) == 0:
+                logger.info("✅ INFORMATION_SCHEMA query returned 0 rows (valid result)")
+                return 0.90, "✅ Metadata query executed successfully - 0 rows (empty result set)"
+        
         confidence = 0.5  # Base confidence
         messages = []
         
@@ -3405,7 +3522,80 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
         session_id: Optional[str],
         question: str
     ) -> ChatResponse:
-        """Create response when confidence is too low"""
+        """
+        Create response when confidence is too low
+        BUT STILL EXECUTE THE QUERY AND SHOW RESULTS!
+        User can see the data and decide if it's correct.
+        """
+        # ✅ ALWAYS TRY TO EXECUTE - Don't give up!
+        results = []
+        execution_error = None
+        
+        try:
+            if sql_query and sql_query != "Could not generate SQL":
+                results, execution_error = self._execute_query_safe(sql_query)
+                
+                # 📝 Store in session cache even if low confidence
+                # This allows follow-up "fetch the data" requests to work!
+                if not execution_error and results:
+                    session_key = session_id or str(uuid.uuid4())
+                    if session_key not in self.session_query_cache:
+                        self.session_query_cache[session_key] = []
+                    
+                    self.session_query_cache[session_key].append({
+                        'question': question,
+                        'sql': sql_query,
+                        'results_count': len(results),
+                        'sample_data': results[:5] if results else []
+                    })
+                    logger.info(f"📝 Cached low-confidence query for follow-up requests")
+        except Exception as e:
+            execution_error = str(e)
+            logger.error(f"❌ Error executing low-confidence query: {e}")
+        
+        # If we got results, SHOW THEM! Even with low confidence
+        if results and not execution_error:
+            # Format results table
+            result_table = ""
+            if results:
+                columns = list(results[0].keys())
+                result_table = "\n| " + " | ".join(columns) + " |\n"
+                result_table += "| " + " | ".join(["---"] * len(columns)) + " |\n"
+                for row in results[:20]:  # Show first 20 rows
+                    values = [str(row.get(col, '')) for col in columns]
+                    result_table += "| " + " | ".join(values) + " |\n"
+                if len(results) > 20:
+                    result_table += f"\n*Showing first 20 of {len(results)} results*\n"
+            
+            response_text = f"""⚠️ **Low Confidence Result** (50%)
+
+I executed the query but I'm not fully confident in the interpretation. Please verify the results match what you're looking for.
+
+**Your Question:** {question}
+
+**Generated SQL:**
+```sql
+{sql_query}
+```
+
+**Results:** Found {len(results)} row(s)
+{result_table}
+
+💡 **Note:** If these results look correct, you can continue asking follow-up questions. If not, please rephrase your question with more details.
+
+Was this what you were looking for?"""
+            
+            return ChatResponse(
+                response=response_text,
+                chatbot_type=ChatbotType.SQL_ASSISTANT,
+                session_id=session_id or str(uuid.uuid4()),
+                sql_query=sql_query,
+                query_results=results[:100],
+                confidence_score=0.5,
+                sources=[]
+            )
+        
+        # If execution failed or no results, provide helpful error message
         response_text = f"""I generated a SQL query for your question, but I'm not confident in the results.
 
 **Your Question:** {question}
@@ -3424,6 +3614,7 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
 1. Try rephrasing your question with more specific details
 2. Check if the data exists for the time period mentioned
 3. Review the SQL query above and run it manually if needed
+4. If the SQL looks correct, say "execute that query" or "fetch the data" to run it
 
 Would you like to try a different question?"""
         
@@ -3481,7 +3672,7 @@ Would you like to try a different question?"""
             # TIER 1: Try vector store if available
             if self.vector_store:
                 try:
-                    results = self.vector_store.search_sql_examples(query, top_k=top_k)
+                    results = self.vector_store.search(query, top_k=top_k)
                     if results and len(results) > 0:
                         logger.debug(f"✅ Found {len(results)} SQL examples via vector search")
                         return results

@@ -11,6 +11,7 @@ import logging
 
 from app.api.chatbot_endpoints import router as chatbot_router
 from app.api.diagnostic_support_routes import router as diagnostic_router
+from app.api.classification_routes import router as classification_router
 from app.core.config import settings
 from app.core.logging import setup_logging
 
@@ -37,6 +38,7 @@ app.add_middleware(
 # Include routers
 app.include_router(chatbot_router)  # Chatbot API routes (has /api/chatbot prefix)
 app.include_router(diagnostic_router)  # Diagnostic support routes (/api/diagnostic-support)
+app.include_router(classification_router)  # Query classification routes (/api/classification)
 
 def serve_html_file(filename: str, fallback_message: str = "Page not found"):
     """Helper function to serve HTML files"""
@@ -76,6 +78,26 @@ async def diagnostic_support_page():
     """Serve the diagnostic support UI"""
     return serve_html_file("diagnostic_support.html", "Diagnostic support UI not found")
 
+@app.get("/classification", response_class=HTMLResponse)
+async def classification_page():
+    """Serve the query classification UI"""
+    return serve_html_file("classification.html", "Classification UI not found")
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on startup"""
+    try:
+        from app.services.query_classification_service import QueryClassificationService
+        from app.api import classification_routes
+        
+        # Initialize classification service
+        classification_service = QueryClassificationService(settings.DATA_DIR / "classification")
+        classification_routes.init_classification_service(classification_service)
+        
+        logger.info("✅ Classification service initialized")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize classification service: {e}")
+
 if __name__ == "__main__":
     import uvicorn
     logger.info("🚀 Starting NEO Chatbot server...")
@@ -84,5 +106,14 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,
+        reload_excludes=[
+            "logs/**",
+            "**/*.log",
+            "**/*.jsonl",
+            "data/**",
+            "**/__pycache__/**",
+            "**/classification/**",
+            "**/rlhf/**"
+        ],  # Exclude logs, data files, and cache from reload
         log_level="info"
     )
