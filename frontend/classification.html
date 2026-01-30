@@ -368,7 +368,7 @@
                                           query.confidence >= 0.6 ? 'confidence-medium' : 'confidence-low';
                     
                     return `
-                        <div class="query-card" id="query-${query.query_id}">
+                        <div class="query-card" id="query-${query.query_id}" data-edit-mode="false">
                             <div class="query-header">
                                 <div class="query-id">${query.query_id}</div>
                                 <div class="confidence-badge ${confidenceClass}">
@@ -376,9 +376,16 @@
                                 </div>
                             </div>
                             
-                            <div class="query-text">"${query.user_query}"</div>
+                            <div class="query-text" id="query-text-${query.query_id}">
+                                <strong>User Query:</strong> "${query.user_query}"
+                            </div>
+                            <textarea class="notes-input" id="query-edit-${query.query_id}" 
+                                      style="display:none;" placeholder="Edit user query...">${query.user_query}</textarea>
                             
-                            <div class="sql-block">${escapeHtml(query.generated_sql)}</div>
+                            <div class="sql-block" id="sql-display-${query.query_id}">${escapeHtml(query.generated_sql)}</div>
+                            <textarea class="notes-input" id="sql-edit-${query.query_id}" 
+                                      style="display:none; font-family: 'Courier New', monospace;" 
+                                      placeholder="Edit SQL query..." rows="4">${query.generated_sql}</textarea>
                             
                             <div class="query-meta">
                                 <span>📅 ${new Date(query.timestamp).toLocaleString()}</span>
@@ -389,7 +396,10 @@
                             <textarea class="notes-input" id="notes-${query.query_id}" 
                                       placeholder="Optional notes about this query..."></textarea>
                             
-                            <div class="classification-controls">
+                            <div class="classification-controls" id="controls-${query.query_id}">
+                                <button class="btn btn-info" onclick="toggleEdit('${query.query_id}')">
+                                    ✏️ Edit
+                                </button>
                                 <button class="btn btn-success" onclick="classify('${query.query_id}', 'correct')">
                                     ✅ Correct
                                 </button>
@@ -398,6 +408,14 @@
                                 </button>
                                 <button class="btn btn-warning" onclick="classify('${query.query_id}', 'needs_review')">
                                     ⏳ Needs Review
+                                </button>
+                            </div>
+                            <div class="classification-controls" id="edit-controls-${query.query_id}" style="display:none;">
+                                <button class="btn btn-success" onclick="saveEdit('${query.query_id}')">
+                                    💾 Save Changes
+                                </button>
+                                <button class="btn btn-danger" onclick="cancelEdit('${query.query_id}')">
+                                    ❌ Cancel
                                 </button>
                             </div>
                         </div>
@@ -409,6 +427,74 @@
                 console.error('Error loading queries:', error);
                 queriesList.innerHTML = '<div class="empty-state"><h3>Error loading queries</h3></div>';
             }
+        }
+
+        // Toggle edit mode
+        function toggleEdit(queryId) {
+            const card = document.getElementById(`query-${queryId}`);
+            const isEditMode = card.getAttribute('data-edit-mode') === 'true';
+            
+            if (!isEditMode) {
+                // Switch to edit mode
+                document.getElementById(`query-text-${queryId}`).style.display = 'none';
+                document.getElementById(`query-edit-${queryId}`).style.display = 'block';
+                document.getElementById(`sql-display-${queryId}`).style.display = 'none';
+                document.getElementById(`sql-edit-${queryId}`).style.display = 'block';
+                document.getElementById(`controls-${queryId}`).style.display = 'none';
+                document.getElementById(`edit-controls-${queryId}`).style.display = 'flex';
+                card.setAttribute('data-edit-mode', 'true');
+            }
+        }
+
+        // Save edited query
+        async function saveEdit(queryId) {
+            const newQuery = document.getElementById(`query-edit-${queryId}`).value;
+            const newSQL = document.getElementById(`sql-edit-${queryId}`).value;
+            const notes = document.getElementById(`notes-${queryId}`).value;
+
+            try {
+                const response = await fetch(`${API_BASE}/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query_id: queryId,
+                        user_query: newQuery,
+                        generated_sql: newSQL,
+                        notes: notes || null
+                    })
+                });
+
+                if (response.ok) {
+                    showToast('✅ Query updated successfully');
+                    
+                    // Update display
+                    document.getElementById(`query-text-${queryId}`).innerHTML = 
+                        `<strong>User Query:</strong> "${escapeHtml(newQuery)}"`;
+                    document.getElementById(`sql-display-${queryId}`).textContent = newSQL;
+                    
+                    // Exit edit mode
+                    cancelEdit(queryId);
+                } else {
+                    showToast('❌ Failed to update query');
+                }
+            } catch (error) {
+                console.error('Error updating:', error);
+                showToast('❌ Error updating query');
+            }
+        }
+
+        // Cancel edit mode
+        function cancelEdit(queryId) {
+            const card = document.getElementById(`query-${queryId}`);
+            document.getElementById(`query-text-${queryId}`).style.display = 'block';
+            document.getElementById(`query-edit-${queryId}`).style.display = 'none';
+            document.getElementById(`sql-display-${queryId}`).style.display = 'block';
+            document.getElementById(`sql-edit-${queryId}`).style.display = 'none';
+            document.getElementById(`controls-${queryId}`).style.display = 'flex';
+            document.getElementById(`edit-controls-${queryId}`).style.display = 'none';
+            card.setAttribute('data-edit-mode', 'false');
         }
 
         // Classify a query

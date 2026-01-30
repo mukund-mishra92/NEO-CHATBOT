@@ -36,6 +36,13 @@ class ClassifyQueryRequest(BaseModel):
     corrected_sql: Optional[str] = Field(None, description="Corrected SQL if incorrect")
 
 
+class UpdateQueryRequest(BaseModel):
+    query_id: str = Field(..., description="ID of query to update")
+    user_query: Optional[str] = Field(None, description="Updated user query text")
+    generated_sql: Optional[str] = Field(None, description="Updated SQL query")
+    notes: Optional[str] = Field(None, description="Update notes")
+
+
 class QueryResponse(BaseModel):
     query_id: str
     timestamp: str
@@ -124,6 +131,39 @@ async def classify_query(request: ClassifyQueryRequest):
         raise
     except Exception as e:
         logger.error(f"❌ Error classifying query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/update")
+async def update_query(request: UpdateQueryRequest):
+    """
+    Update a query's text or SQL before classification
+    
+    Allows editing queries for corrections/improvements
+    """
+    try:
+        if not classification_service:
+            raise HTTPException(status_code=500, detail="Classification service not initialized")
+        
+        success = classification_service.update_query(
+            query_id=request.query_id,
+            user_query=request.user_query,
+            generated_sql=request.generated_sql,
+            notes=request.notes
+        )
+        
+        if not success:
+            raise HTTPException(status_code=404, detail="Query not found or update failed")
+        
+        return {
+            "success": True,
+            "message": f"Query {request.query_id} updated successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Error updating query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

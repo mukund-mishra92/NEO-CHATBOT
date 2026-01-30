@@ -35,14 +35,37 @@ class VectorStoreService:
         """Load vector store from disk"""
         try:
             if os.path.exists(self.storage_path):
-                with open(self.storage_path, 'r', encoding='utf-8') as f:
-                    self.documents = json.load(f)
-                logger.info(f"📂 Loaded {len(self.documents)} documents from vector store")
+                # Add timeout protection for large files
+                import signal
+                
+                def timeout_handler(signum, frame):
+                    raise TimeoutError("Vector store loading timed out")
+                
+                # Set 5 second timeout (Unix/Linux only, Windows will skip)
+                try:
+                    signal.signal(signal.SIGALRM, timeout_handler)
+                    signal.alarm(5)
+                except (AttributeError, ValueError):
+                    # Windows doesn't support SIGALRM, skip timeout
+                    pass
+                
+                try:
+                    with open(self.storage_path, 'r', encoding='utf-8') as f:
+                        self.documents = json.load(f)
+                    logger.info(f"📂 Loaded {len(self.documents)} documents from vector store")
+                except TimeoutError:
+                    logger.warning(f"⚠️ Vector store loading timed out - starting with empty store")
+                    self.documents = []
+                finally:
+                    try:
+                        signal.alarm(0)  # Cancel alarm
+                    except (AttributeError, ValueError):
+                        pass
             else:
                 logger.info("📂 No existing vector store found - starting fresh")
                 self.documents = []
         except Exception as e:
-            logger.error(f"❌ Error loading vector store: {e}")
+            logger.warning(f"⚠️ Error loading vector store (non-critical): {e}")
             self.documents = []
     
     def save_store(self):

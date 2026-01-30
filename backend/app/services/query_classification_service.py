@@ -101,7 +101,7 @@ class QueryClassificationService:
             
             # Append to file
             with open(self.queries_file, "a", encoding="utf-8") as f:
-                f.write(json.dumps(query_record) + "\n")
+                f.write(json.dumps(query_record, ensure_ascii=False) + "\n")
             
             logger.debug(f"📝 Stored query {query_id} for classification")
             return query_id
@@ -162,7 +162,7 @@ class QueryClassificationService:
             # Write back to file
             with open(self.queries_file, "w", encoding="utf-8") as f:
                 for query in queries:
-                    f.write(json.dumps(query) + "\n")
+                    f.write(json.dumps(query, ensure_ascii=False) + "\n")
             
             # Reload cache
             self._load_classified_queries()
@@ -176,6 +176,71 @@ class QueryClassificationService:
             
         except Exception as e:
             logger.error(f"❌ Error classifying query: {e}")
+            return False
+    
+    def update_query(
+        self,
+        query_id: str,
+        user_query: Optional[str] = None,
+        generated_sql: Optional[str] = None,
+        notes: Optional[str] = None
+    ) -> bool:
+        """
+        Update a query's text or SQL before classification
+        
+        Args:
+            query_id: ID of query to update
+            user_query: New user query text (optional)
+            generated_sql: New SQL query (optional)
+            notes: Update notes (optional)
+            
+        Returns:
+            True if update succeeded
+        """
+        try:
+            # Read all queries
+            queries = []
+            with open(self.queries_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    if line.strip():
+                        queries.append(json.loads(line))
+            
+            # Find and update the query
+            updated = False
+            for query in queries:
+                if query['query_id'] == query_id:
+                    if user_query is not None:
+                        query['user_query'] = user_query
+                    if generated_sql is not None:
+                        query['generated_sql'] = generated_sql
+                    if notes is not None:
+                        if 'update_notes' not in query['metadata']:
+                            query['metadata']['update_notes'] = []
+                        query['metadata']['update_notes'].append({
+                            'timestamp': datetime.now().isoformat(),
+                            'note': notes
+                        })
+                    query['metadata']['last_updated'] = datetime.now().isoformat()
+                    updated = True
+                    break
+            
+            if not updated:
+                logger.warning(f"Query {query_id} not found")
+                return False
+            
+            # Write back to file
+            with open(self.queries_file, "w", encoding="utf-8") as f:
+                for query in queries:
+                    f.write(json.dumps(query, ensure_ascii=False) + "\n")
+            
+            # Reload cache
+            self._load_classified_queries()
+            
+            logger.info(f"✅ Query {query_id} updated successfully")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Error updating query: {e}")
             return False
     
     def find_similar_classified_query(
