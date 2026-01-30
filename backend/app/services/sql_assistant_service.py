@@ -179,6 +179,115 @@ class SQLAssistantService:
             logger.error(f"❌ Error getting schema for {table_name}: {e}")
             return ""
     
+    def _extract_enum_values_from_schema(self, table_name: str) -> Dict[str, List[str]]:
+        """Extract ENUM values from schema for a table.
+        
+        Returns dict mapping column_name -> list of allowed enum values.
+        Example: {'STATUS': ['ENABLED', 'DISABLED'], 'BATTERY_HEALTH': ['GOOD', 'AVERAGE', 'CRITICAL']}
+        """
+        enum_constraints = {}
+        
+        if not self.schema_parser or table_name not in self.schema_parser.tables:
+            return enum_constraints
+        
+        for col in self.schema_parser.tables[table_name]:
+            col_type = col.get('type', '')
+            
+            # Match enum('value1','value2',...)
+            enum_match = re.match(r"enum\(([^)]+)\)", col_type, re.IGNORECASE)
+            if enum_match:
+                # Extract values between quotes
+                enum_values_str = enum_match.group(1)
+                enum_values = re.findall(r"'([^']+)'", enum_values_str)
+                
+                if enum_values:
+                    enum_constraints[col['field']] = enum_values
+                    logger.debug(f"📋 {table_name}.{col['field']}: {enum_values}")
+        
+        return enum_constraints
+    
+    def _extract_tables_from_intent(self, intent_info: Dict[str, Any]) -> List[str]:
+        """Extract table names from classified intent."""
+        tables = []
+        
+        # Get tables for identified entities
+        entity_tables = self._get_tables_for_entities(intent_info.get('entities', []))
+        for entity, table_list in entity_tables.items():
+            tables.extend(table_list)
+        
+        return list(set(tables))  # Remove duplicates
+    
+    def _build_schema_constraints(self, detected_tables: List[str], intent_info: Dict[str, Any]) -> str:
+        """Build BINDING schema constraints for LLM prompt.
+        
+        This forces the LLM to choose from allowed tables, columns, and enum values
+        BEFORE generating SQL, making it schema-driven rather than reactive.
+        
+        Args:
+            detected_tables: List of table names detected from user query
+            intent_info: Parsed intent information with entities
+            
+        Returns:
+            Formatted constraint block for system prompt
+        """
+        if not detected_tables:
+            return ""
+        
+        constraints = ["\n" + "="*80]
+        constraints.append("🔒 BINDING SCHEMA CONSTRAINTS (YOU MUST FOLLOW THESE)")
+        constraints.append("="*80)
+        constraints.append("\n⚠️ CRITICAL: You MUST ONLY use tables, columns, and values listed below.")
+        constraints.append("Guessing column names or enum values will cause query failure.\n")
+        
+        # 1. ALLOWED TABLES
+        constraints.append(f"📊 ALLOWED TABLES FOR THIS QUERY: {len(detected_tables)}")
+        for table in detected_tables[:10]:  # Limit to avoid token bloat
+            constraints.append(f"  ✓ {table}")
+        
+        constraints.append("\n" + "-"*80)
+        
+        # 2. ALLOWED COLUMNS & ENUM VALUES PER TABLE
+        for table in detected_tables[:5]:  # Detail for top 5 tables
+            if not self.schema_parser or table not in self.schema_parser.tables:
+                continue
+            
+            columns = self.schema_parser.tables[table]
+            enum_constraints = self._extract_enum_values_from_schema(table)
+            
+            constraints.append(f"\n🗂️  TABLE: {table}")
+            
+            # Primary key identification
+            pk_cols = [c['field'] for c in columns if c.get('key') == 'PRI']
+            if pk_cols:
+                constraints.append(f"   Primary Key: {', '.join(pk_cols)}")
+            
+            # Column list
+            constraints.append(f"   Allowed Columns ({len(columns)}):")
+            
+            for col in columns[:20]:  # Limit columns shown
+                col_name = col['field']
+                col_type = col['type']
+                
+                # Highlight enum columns with their allowed values
+                if col_name in enum_constraints:
+                    values_str = ', '.join(f"'{v}'" for v in enum_constraints[col_name])
+                    constraints.append(f"     • {col_name} ({col_type}) → ONLY: [{values_str}]")
+                else:
+                    constraints.append(f"     • {col_name} ({col_type})")
+            
+            if len(columns) > 20:
+                constraints.append(f"     ... and {len(columns) - 20} more columns")
+        
+        if len(detected_tables) > 5:
+            constraints.append(f"\n   ... and {len(detected_tables) - 5} more tables available")
+        
+        constraints.append("\n" + "="*80)
+        constraints.append("⚠️ DO NOT use any columns or values NOT listed above!")
+        constraints.append("⚠️ If you need a column not listed, ASK USER for clarification first.")
+        constraints.append("="*80 + "\n")
+        
+        return "\n".join(constraints)
+    
     def _get_distinct_column_values(self, table_name: str, column_name: str, limit: int = 50) -> List[str]:
         """Query database to get actual distinct values for a column"""
         try:
@@ -582,12 +691,13 @@ class SQLAssistantService:
         
         # Detect intent
         intent = 'retrieve'  # default
+        
+        # Use external operation keyword config (from sql_assistant_config.json)
+        operation_keywords = getattr(self, "operation_keywords", None) or {}
+        
         if is_metadata_query:
             intent = 'metadata'
         else:
-            # Use external operation keyword config (from sql_assistant_config.json)
-            operation_keywords = getattr(self, "operation_keywords", None) or {}
-
             # Assign intent based on the strongest matching operation
             for op, keywords in operation_keywords.items():
                 if any(k in query_lower for k in keywords):
@@ -1601,11 +1711,17 @@ class SQLAssistantService:
     
     def _get_system_prompt(self, query: str, context: Optional[Dict[str, Any]] = None) -> str:
         """Generate system prompt with intelligent schema and conversation context"""
+        # Classify query intent for guidance FIRST (needed for constraints)
+        intent_info = self._classify_query_intent(query)
+        
         # Get intelligent schema with JOIN hints and semantic info
         schema = self._get_relevant_schema(query)
         
-        # Classify query intent for guidance
-        intent_info = self._classify_query_intent(query)
+        # 🔒 NEW: Extract detected tables for binding schema constraints
+        detected_tables = self._extract_tables_from_intent(intent_info)
+        
+        # 🔒 NEW: Build BINDING schema constraints (forces LLM to choose from allowed options)
+        schema_constraints = self._build_schema_constraints(detected_tables, intent_info)
         
         # Build context prompt if available
         context_prompt = ""
@@ -1671,6 +1787,8 @@ class SQLAssistantService:
 
 {context_prompt}
 
+{schema_constraints}
+
 {temporal_guidance}
 
 ⚠️⚠️⚠️ CRITICAL: ONLY USE TABLES THAT EXIST ⚠️⚠️⚠️
@@ -1685,9 +1803,13 @@ If you're unsure, use the schema provided which contains only valid tables.
 IMPORTANT KEY TABLE SCHEMAS:
 
 bot_master:
-  - Columns: BOT_ID, BOT_NUMBER, STATUS, MODEL, BATTERY_LEVEL, IS_ACTIVE, etc.
+  - ⚠️ CRITICAL: NO BOT_NUMBER COLUMN EXISTS!
+  - Primary identifier: BOT_ID (varchar, e.g., 'BOT_001', 'BOT_032')
+  - Actual columns: BOT_MASTER_ID, BOT_ID, STATUS, COUNTER, AUTO_MANUAL, BATTERY, BATTERY_HEALTH, 
+    IP, PORT, GRIDX, GRIDY, GRIDZ, LOAD_CONDITION, UPDATED_TIMESTAMP, ALARM, etc.
   - ⚠️ Use 'STATUS' NOT 'bot_status'
-  - ⚠️ STATUS values: Check actual data, NOT 'active'/'inactive'
+  - ⚠️ STATUS values: 'ENABLED', 'DISABLED' (NOT 'active'/'inactive')
+  - ⚠️ For bot lookups by number: Use BOT_ID with pattern matching (e.g., WHERE BOT_ID LIKE '%32%')
   
 task_master:
   - Columns: TASK_ID, STATUS, BOT_ID, PRIORITY, etc.
@@ -1744,9 +1866,11 @@ CRITICAL TABLE RELATIONSHIPS:
 
 6. BOT INFORMATION & COUNTS:
    - ⚠️ ALWAYS START WITH: bot_master (main bot registry)
-   - Key columns: BOT_ID (varchar, primary key), BOT_IP, BOT_TYPE, STATUS, IS_ACTIVE
+   - Key columns: BOT_ID (varchar, primary key), IP, PORT, STATUS, GRIDX, GRIDY, GRIDZ, BATTERY, BATTERY_HEALTH
+   - ⚠️ NO BOT_NUMBER COLUMN! Bot identifier is BOT_ID (e.g., 'BOT_001', 'BOT_032')
    - For bot counts: SELECT COUNT(*) FROM bot_master
-   - For active bots: WHERE IS_ACTIVE = 1 or STATUS = 'ACTIVE'
+   - For enabled bots: WHERE STATUS = 'ENABLED' (enum: 'ENABLED', 'DISABLED')
+   - For bot location: Use GRIDX, GRIDY, GRIDZ columns
    - Related tables: dashboard_bot_master, bot_master_log, bot_alarm_log
    - ⚠️ CRITICAL: Use bot_master as starting point for ALL bot queries (counts, status, lists)
 
@@ -1777,11 +1901,17 @@ EXAMPLE QUERIES:
 -- Count total bots:
 SELECT COUNT(*) AS total_bots FROM bot_master;
 
--- Count active bots:
-SELECT COUNT(*) AS active_bots FROM bot_master WHERE IS_ACTIVE = 1;
+-- Count enabled bots:
+SELECT COUNT(*) AS enabled_bots FROM bot_master WHERE STATUS = 'ENABLED';
 
--- List all bots with status:
-SELECT BOT_ID, BOT_IP, BOT_TYPE, STATUS, IS_ACTIVE 
+-- Find bot by number (e.g., bot 32):
+SELECT BOT_ID, STATUS, GRIDX, GRIDY, GRIDZ, IP, PORT, BATTERY, UPDATED_TIMESTAMP
+FROM bot_master
+WHERE BOT_ID LIKE '%32%' OR BOT_ID = 'BOT_032' OR BOT_ID = '32'
+LIMIT 10;
+
+-- List all bots with status and location:
+SELECT BOT_ID, IP, STATUS, GRIDX, GRIDY, GRIDZ, BATTERY, BATTERY_HEALTH
 FROM bot_master 
 ORDER BY BOT_ID 
 LIMIT 100;
