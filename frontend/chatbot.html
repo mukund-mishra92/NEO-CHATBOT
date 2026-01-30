@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEO Chatbot - AI Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .chat-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .chatbot-selector {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .chatbot-btn {
+            padding: 10px 20px;
+            border: 2px solid #dee2e6;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chatbot-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .chatbot-btn:hover:not(.active) {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .chat-main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            line-height: 1.6;
+        }
+
+        .message-content h1,
+        .message-content h2,
+        .message-content h3 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .message-content h1 {
+            font-size: 1.3em;
+            color: #2c3e50;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .message-content h2 {
+            font-size: 1.2em;
+            color: #34495e;
+        }
+
+        .message-content h3 {
+            font-size: 1.1em;
+            color: #34495e;
+        }
+
+        .message-content strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .message-content ul {
+            margin: 10px 0;
+            padding-left: 0;
+        }
+
+        .message-content li {
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 5px;
+        }
+
+        .message-content code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+
+        .message-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .message-content table th {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .message-content table td {
+            padding: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .message-content table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: white;
+        }
+
+        .chat-input-area {
+            padding: 20px 30px;
+            background: white;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .send-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .upload-btn {
+            padding: 15px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: #218838;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-left: 2px solid #e9ecef;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card h4 {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 20px;
+            font-weight: 600;
+            color: #667eea;
+            margin: 0;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 15px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 70%;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .source-tag {
+            display: inline-block;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 5px 5px 5px 0;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+
+        .sql-code {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+
+        .action-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #5568d3;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: #adb5bd;
+        }
+
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .suggestion-chip {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .suggestion-chip:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .file-upload-area {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .file-upload-area.active {
+            display: block;
+        }
+
+        .file-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <div class="chat-header">
+            <div>
+                <h1><i class="fas fa-robot"></i> NEO AI Assistant</h1>
+                <small>Powered by Falcon AI</small>
+            </div>
+            <button class="back-btn" onclick="window.location.href='/'">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+        </div>
+
+        <!-- Chatbot Type Selector -->
+        <div class="chatbot-selector">
+            <span style="font-weight: 600; color: #6c757d;">Choose Assistant:</span>
+            <button class="chatbot-btn active" data-type="knowledge_base">
+                <i class="fas fa-book"></i> Knowledge Base
+            </button>
+            <button class="chatbot-btn" data-type="sql_assistant">
+                <i class="fas fa-database"></i> SQL Assistant
+            </button>
+            <button class="chatbot-btn" data-type="diagnostic">
+                <i class="fas fa-stethoscope"></i> Diagnostic Support
+            </button>
+            <button class="chatbot-btn" data-type="semi_auto_diagnostic">
+                <i class="fas fa-tools"></i> Semi-Auto Diagnostic
+            </button>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-main">
+            <!-- Messages Area -->
+            <div class="chat-messages scrollbar-hide" id="chatMessages">
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState">
+                    <i class="fas fa-comments"></i>
+                    <h3>Welcome to NEO AI Assistant!</h3>
+                    <p>I'm here to help you with documentation, SQL queries, and system diagnostics.</p>
+                    <p style="margin-top: 10px; font-size: 14px;">Select an assistant type above and start chatting!</p>
+                    
+                    <div class="suggestion-chips" id="suggestionChips">
+                        <!-- Dynamic suggestions based on chatbot type -->
+                    </div>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="message assistant">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="typing-indicator" id="typingIndicator">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar scrollbar-hide">
+                <h3><i class="fas fa-history"></i> Session Controls</h3>
+                
+                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h4 style="color: white;">Current Session</h4>
+                    <p style="font-size: 13px; word-break: break-all;" id="currentSessionId">No active session</p>
+                    <small style="opacity: 0.8;">Session memory active</small>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="btn btn-success btn-sm flex-fill" onclick="createNewSession()" title="Start fresh conversation">
+                        <i class="fas fa-plus"></i> New Session
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="viewSessionHistory()" title="View conversation history">
+                        <i class="fas fa-history"></i> History
+                    </button>
+                </div>
+
+                <hr>
+
+                <h3><i class="fas fa-chart-line"></i> Chat Statistics</h3>
+                
+                <div class="stat-card">
+                    <h4>Messages in Session</h4>
+                    <p id="messageCount">0</p>
+                </div>
+
+                <div class="stat-card">
+                    <h4>Active Assistant</h4>
+                    <p style="font-size: 16px;" id="activeAssistant">Knowledge Base</p>
+                </div>
+
+                <button class="btn btn-outline-danger btn-sm w-100 mt-3" onclick="clearChat()">
+                    <i class="fas fa-trash"></i> Clear Chat
+                </button>
+
+                <hr>
+
+                <h3><i class="fas fa-lightbulb"></i> Quick Actions</h3>
+                
+                <div class="file-upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display: none;">
+                    <button class="btn btn-success btn-sm w-100 mb-2" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-upload"></i> Upload Document
+                    </button>
+                    <small class="text-muted">Supported: PDF, DOCX, TXT</small>
+                </div>
+
+                <button class="btn btn-outline-primary btn-sm w-100 mt-2" onclick="viewSystemHealth()">
+                    <i class="fas fa-heartbeat"></i> System Health
+                </button>
+
+                <button class="btn btn-outline-info btn-sm w-100 mt-2" onclick="viewStatistics()">
+                    <i class="fas fa-chart-bar"></i> View Statistics
+                </button>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="messageInput" 
+                    placeholder="Type your message here..."
+                    onkeypress="handleKeyPress(event)"
+                >
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentChatbotType = 'knowledge_base';
+        let sessionId = null;
+        let messageCount = 0;
+
+        // Suggestions for each chatbot type
+        const suggestions = {
+            knowledge_base: [
+                "What is NEO warehouse system?",
+                "Tell me about order management features",
+                "How does the mining engine work?",
+                "Explain the recommendation system"
+            ],
+            sql_assistant: [
+                "Show me top 10 customers by revenue",
+                "Get recent orders from last 7 days",
+                "Find products with low stock",
+                "Show order trends by month"
+            ],
+            diagnostic: [
+                "Scheduler is not running",
+                "Database connection error",
+                "Mining job failed",
+                "System performance is slow"
+            ],
+            semi_auto_diagnostic: [
+                "Bot is not moving",
+                "Station showing error",
+                "Conveyor belt stopped",
+                "Data synchronization issue"
+            ]
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSuggestions();
+            
+            // Chatbot type selector
+            document.querySelectorAll('.chatbot-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.chatbot-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentChatbotType = this.dataset.type;
+                    document.getElementById('activeAssistant').textContent = this.textContent.trim();
+                    updateSuggestions();
+                    
+                    // Reset semi-auto diagnostic session when switching
+                    semiAutoDiagSession = null;
+                    
+                    // Show upload area only for knowledge base
+                    const uploadArea = document.getElementById('uploadArea');
+                    if (currentChatbotType === 'knowledge_base') {
+                        uploadArea.classList.add('active');
+                    } else {
+                        uploadArea.classList.remove('active');
+                    }
+                });
+            });
+
+            // File upload handler
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+        });
+
+        function updateSuggestions() {
+            const chipsContainer = document.getElementById('suggestionChips');
+            chipsContainer.innerHTML = '';
+            
+            suggestions[currentChatbotType].forEach(text => {
+                const chip = document.createElement('div');
+                chip.className = 'suggestion-chip';
+                chip.textContent = text;
+                chip.onclick = () => {
+                    document.getElementById('messageInput').value = text;
+                    sendMessage();
+                };
+                chipsContainer.appendChild(chip);
+            });
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // Global variable for semi-auto diagnostic session
+        let semiAutoDiagSession = null;
+        let semiAutoDiagPending = null;
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Create session if it doesn't exist
+            if (!sessionId) {
+                await createNewSession();
+            }
+
+            // Hide empty state
+            document.getElementById('emptyState').style.display = 'none';
+
+            // Add user message
+            addMessage('user', message);
+            input.value = '';
+
+            // Show typing indicator
+            document.getElementById('typingIndicator').classList.add('active');
+
+            // Disable send button
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+
+            try {
+                // Check if semi-automated diagnostic
+                if (currentChatbotType === 'semi_auto_diagnostic') {
+                    await handleSemiAutoDiagnostic(message);
+                } else {
+                    // Regular chatbot handling
+                    const response = await fetch('/api/chatbot/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            chatbot_type: currentChatbotType,
+                            session_id: sessionId,
+                            conversation_history: []
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    // Update session ID (should stay same now)
+                    if (data.session_id && data.session_id !== sessionId) {
+                        sessionId = data.session_id;
+                        document.getElementById('currentSessionId').textContent = sessionId;
+                    }
+
+                    // Add assistant response
+                    addMessage('assistant', data.response, data);
+
+                    // Update message count
+                    messageCount++;
+                    document.getElementById('messageCount').textContent = messageCount;
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('assistant', '❌ Sorry, I encountered an error. Please try again.', {});
+            } finally {
+                // Hide typing indicator
+                document.getElementById('typingIndicator').classList.remove('active');
+                
+                // Enable send button
+                sendBtn.disabled = false;
+                
+                // Focus input
+                input.focus();
+            }
+        }
+
+        async function handleSemiAutoDiagnostic(message) {
+            if (!semiAutoDiagSession) {
+                // If a pending classification exists, treat new message as a new issue
+                if (semiAutoDiagPending && semiAutoDiagPending.message !== message) {
+                    semiAutoDiagPending = null;
+                }
+
+                // Classify issue type first
+                await classifyAndConfirmIssueType(message);
+            } else {
+                try {
+                    const followupResponse = await fetch(`/api/chatbot/diagnostic/followup?session_id=${encodeURIComponent(semiAutoDiagSession.session_id)}&question=${encodeURIComponent(message)}`, {
+                        method: 'POST'
+                    });
+                    const followupData = await followupResponse.json();
+
+                    if (followupData.answer) {
+                        addMessage('assistant', followupData.answer, followupData);
+                        messageCount++;
+                        document.getElementById('messageCount').textContent = messageCount;
+                    } else if (followupData.error) {
+                        addMessage('assistant', `❌ ${followupData.error}`);
+                    } else {
+                        addMessage('assistant', '❌ Unable to process your question. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Follow-up error:', error);
+                    addMessage('assistant', '❌ Failed to process your follow-up question. Please try again.');
+                }
+            }
+        }
+
+        async function classifyAndConfirmIssueType(message) {
+            try {
+                const response = await fetch(`/api/chatbot/diagnostic/classify?problem_description=${encodeURIComponent(message)}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                const predictedType = data.predicted_type || 'BOT_LEVEL';
+                semiAutoDiagPending = {
+                    message,
+                    predictedType
+                };
+
+                const html = `
+                    <div style="border-left: 4px solid #667eea; padding-left: 15px; margin-bottom: 10px;">
+                        <p style="margin: 0 0 6px 0;"><strong>Detected Category:</strong> ${predictedType}</p>
+                        <p style="margin: 0 0 10px 0; color: #666;">Is this correct?</p>
+                        <div class="action-buttons" style="margin-top: 8px;">
+                            <button class="action-btn" style="background: #28a745;" onclick="confirmCategory('${predictedType}')"><i class="fas fa-check"></i> Yes</button>
+                            <button class="action-btn" style="background: #dc3545;" onclick="showCategorySelection()"><i class="fas fa-times"></i> No</button>
+                        </div>
+                    </div>
+                `;
+
+                addMessage('assistant', html);
+                messageCount++;
+                document.getElementById('messageCount').textContent = messageCount;
+            } catch (error) {
+                console.error('Classification error:', error);
+                addMessage('assistant', '❌ Failed to classify the issue type. Please try again.');
+            }
+        }
+
+        function showCategorySelection() {
+            const html = `
+                <div style="border-left: 4px solid #ffc107; padding-left: 15px; margin-bottom: 10px;">
+                    <p style="margin: 0 0 6px 0;"><strong>Please select the correct category:</strong></p>
+                    <div class="action-buttons" style="margin-top: 8px;">
+                        <button class="action-btn" onclick="confirmCategory('BOT_LEVEL')"><i class="fas fa-robot"></i> BOT_LEVEL</button>
+                        <button class="action-btn" onclick="confirmCategory('STATION_LEVEL')"><i class="fas fa-warehouse"></i> STATION_LEVEL</button>
+                    </div>
+                </div>
+            `;
+            addMessage('assistant', html);
+            messageCount++;
+            document.getElementById('messageCount').textContent = messageCount;
+        }
+
+        async function confirmCategory(selectedType) {
+            if (!semiAutoDiagPending) {
+                addMessage('assistant', '❌ No pending issue to classify. Please describe your problem again.');
+                return;
+            }
+
+            await proceedDiagnosisWithType(semiAutoDiagPending.message, selectedType);
+            semiAutoDiagPending = null;
+        }
+
+        async function proceedDiagnosisWithType(message, issueType) {
+            const response = await fetch(`/api/chatbot/diagnostic/start?problem_description=${encodeURIComponent(message)}&issue_type=${encodeURIComponent(issueType)}`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+
+            if (data.matched_cases && data.matched_cases.length > 0) {
+                semiAutoDiagSession = data;
+                displayDiagnosticCase(data.current_case, data.total_matches);
+            } else {
+                addMessage('assistant', '❌ No matching cases found. Please provide more details or contact support.');
+            }
+        }
+
+        function displayDiagnosticCase(caseData, totalMatches) {
+            const impactColor = caseData.impact.toLowerCase().includes('high') ? '#dc3545' :
+                               caseData.impact.toLowerCase().includes('medium') ? '#ffc107' : '#28a745';
+            
+            let html = `
+                <div style="border-left: 4px solid ${impactColor}; padding-left: 15px; margin-bottom: 15px;">
+                    <h3 style="margin: 0 0 10px 0; color: #667eea;">Case ${caseData.case_number} - ${caseData.type}</h3>
+                    ${caseData.assistant_summary ? `<p style="margin: 8px 0; color: #444;"><strong>Summary:</strong> ${caseData.assistant_summary}</p>` : ''}
+                    <p style="margin: 5px 0;"><strong style="color: ${impactColor};">Impact:</strong> ${caseData.impact}</p>
+                    <p style="margin: 5px 0;"><strong>Problem:</strong> ${caseData.problem}</p>
+                    <p style="margin: 10px 0 15px 0;"><strong>Solution:</strong> ${caseData.solution}</p>
+            `;
+            
+            if (caseData.sql_query) {
+                html += `
+                    <div style="background: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 13px; margin: 10px 0;">
+                        ${caseData.sql_query}
+                    </div>
+                    <p style="margin: 5px 0; font-size: 0.9em; color: #666;"><strong>Expected:</strong> ${caseData.expected_outcome}</p>
+                    <div class="action-buttons" style="margin-top: 15px;">
+                        <button class="action-btn" onclick="runSQLAuditInline()"><i class="fas fa-play"></i> Run SQL Audit</button>
+                        <button class="action-btn" style="background: #28a745;" onclick="markSolutionWorked()"><i class="fas fa-check"></i> This Solved It</button>
+                        <button class="action-btn" style="background: #dc3545;" onclick="tryNextSolution()"><i class="fas fa-times"></i> Not Correct</button>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="action-buttons" style="margin-top: 15px;">
+                        <button class="action-btn" style="background: #28a745;" onclick="markSolutionWorked()"><i class="fas fa-check"></i> This Solved It</button>
+                        <button class="action-btn" style="background: #dc3545;" onclick="tryNextSolution()"><i class="fas fa-times"></i> Not Correct</button>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            
+            addMessage('assistant', html);
+            messageCount++;
+            document.getElementById('messageCount').textContent = messageCount;
+        }
+
+        async function runSQLAuditInline() {
+            const sqlQuery = semiAutoDiagSession.current_case.sql_query;
+            
+            addMessage('assistant', '🔍 Running SQL audit...');
+            
+            try {
+                const response = await fetch(`/api/chatbot/diagnostic/audit-sql?sql_query=${encodeURIComponent(sqlQuery)}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    let html = `<div style="background: #d4edda; padding: 10px; border-radius: 5px; border-left: 4px solid #28a745; margin: 10px 0;">
+                        <strong>✅ Audit Complete:</strong> ${result.row_count} row(s) found
+                    </div>`;
+                    
+                    if (result.data && result.data.length > 0) {
+                        html += '<table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9em;">';
+                        html += '<thead><tr style="background: #667eea; color: white;">';
+                        result.columns.forEach(col => {
+                            html += `<th style="padding: 8px; text-align: left;">${col}</th>`;
+                        });
+                        html += '</tr></thead><tbody>';
+                        
+                        result.data.slice(0, 3).forEach((row, idx) => {
+                            html += `<tr style="background: ${idx % 2 ? '#f8f9fa' : 'white'};">`;
+                            result.columns.forEach(col => {
+                                html += `<td style="padding: 8px; border-bottom: 1px solid #dee2e6;">${row[col]}</td>`;
+                            });
+                            html += '</tr>';
+                        });
+                        html += '</tbody></table>';
+                        
+                        if (result.row_count > 3) {
+                            html += `<p style="font-size: 0.85em; color: #666;">Showing 3 of ${result.row_count} rows</p>`;
+                        }
+                    }
+                    
+                    addMessage('assistant', html);
+                } else {
+                    addMessage('assistant', `❌ SQL Audit Failed: ${result.error}`);
+                }
+            } catch (error) {
+                addMessage('assistant', `❌ Error running SQL audit: ${error.message}`);
+            }
+        }
+
+        async function markSolutionWorked() {
+            try {
+                const response = await fetch('/api/chatbot/diagnostic/feedback', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        session_data: semiAutoDiagSession,
+                        is_correct: true
+                    })
+                });
+                
+                const result = await response.json();
+                addMessage('assistant', '✅ <strong>Problem Resolved Successfully!</strong><br>Great! The solution worked. Diagnosis session ended.');
+                semiAutoDiagSession = null;
+            } catch (error) {
+                addMessage('assistant', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function tryNextSolution() {
+            try {
+                const response = await fetch('/api/chatbot/diagnostic/feedback', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        session_data: semiAutoDiagSession,
+                        is_correct: false
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'next_suggestion') {
+                    semiAutoDiagSession.current_case_index = result.current_case_index;
+                    semiAutoDiagSession.current_case = result.current_case;
+                    addMessage('assistant', '🔄 Trying next possible cause...');
+                    displayDiagnosticCase(result.current_case, semiAutoDiagSession.total_matches);
+                } else if (result.status === 'exhausted') {
+                    addMessage('assistant', '⚠️ <strong>All Known Solutions Tried</strong><br>Manual investigation required. Consider escalating to development team.');
+                    semiAutoDiagSession = null;
+                }
+            } catch (error) {
+                addMessage('assistant', `❌ Error: ${error.message}`);
+            }
+        }
+
+        function addMessage(type, content, data = {}) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            let iconClass = 'robot';
+            if (type === 'user') {
+                iconClass = 'user';
+            } else if (type === 'system') {
+                iconClass = 'info-circle';
+                messageDiv.style.opacity = '0.8';
+                messageDiv.style.fontStyle = 'italic';
+            }
+
+            let messageHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-${iconClass}"></i>
+                </div>
+                <div class="message-content">
+                    ${formatMessage(content, data)}
+                </div>
+            `;
+
+            messageDiv.innerHTML = messageHTML;
+            messagesContainer.insertBefore(messageDiv, messagesContainer.querySelector('.message.assistant:last-child'));
+
+            // Add RLHF feedback buttons for all chatbot types (not for system messages)
+            if (type === 'assistant') {
+                addFeedbackButtons(messageDiv, data);
+            }
+
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function formatMessage(content, data) {
+            // Convert markdown to HTML
+            let html = convertMarkdownToHTML(content);
+
+            // Add confidence badge if available
+            if (data.confidence_score) {
+                const confidence = (data.confidence_score * 100).toFixed(0);
+                html += `<span class="confidence-badge">${confidence}% Confident</span>`;
+            }
+
+            // Add source documents if available
+            if (data.source_documents && data.source_documents.length > 0) {
+                html += '<div style="margin-top: 10px;">';
+                data.source_documents.forEach(doc => {
+                    html += `<span class="source-tag"><i class="fas fa-file"></i> ${doc.filename || 'Document'}</span>`;
+                });
+                html += '</div>';
+            }
+
+            // Add suggested actions if available
+            if (data.suggested_actions && data.suggested_actions.length > 0) {
+                html += '<div class="action-buttons">';
+                data.suggested_actions.forEach(action => {
+                    html += `<button class="action-btn" onclick="executeSuggestedAction('${action}')">${action}</button>`;
+                });
+                html += '</div>';
+            }
+
+            return html;
+        }
+
+        function convertMarkdownToHTML(text) {
+            if (!text) return '';
+            
+            let html = text;
+            
+            // Convert headers (must be done before bold to avoid conflicts)
+            html = html.replace(/^### (.*?)$/gm, '<h3 style="font-weight: 600; font-size: 1.1em; margin: 15px 0 10px 0; color: #333;">$1</h3>');
+            html = html.replace(/^## (.*?)$/gm, '<h2 style="font-weight: 600; font-size: 1.2em; margin: 20px 0 10px 0; color: #333;">$1</h2>');
+            html = html.replace(/^# (.*?)$/gm, '<h1 style="font-weight: 700; font-size: 1.3em; margin: 20px 0 10px 0; color: #333;">$1</h1>');
+            
+            // Convert **bold** text
+            html = html.replace(/\*\*([^*]+)\*\*/g, '<strong style="font-weight: 600; color: #2c3e50;">$1</strong>');
+            
+            // Convert *italic* text
+            html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            
+            // Convert [Document Name] references to styled badges
+            html = html.replace(/\[([^\]]+)\]/g, '<span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; font-weight: 500;">📄 $1</span>');
+            
+            // Convert bullet points with • symbol
+            html = html.replace(/^[•·]\s*(.+)$/gm, '<li style="margin-left: 20px; margin-bottom: 5px;">$1</li>');
+            
+            // Convert numbered lists (1. 2. 3.)
+            html = html.replace(/^(\d+)\.\s+(.+)$/gm, '<div style="margin-left: 20px; margin-bottom: 8px;"><strong style="color: #667eea;">$1.</strong> $2</div>');
+            
+            // Wrap consecutive <li> items in <ul>
+            html = html.replace(/(<li[^>]*>.*?<\/li>\s*)+/g, function(match) {
+                return '<ul style="list-style: none; padding-left: 0; margin: 10px 0;">' + match + '</ul>';
+            });
+            
+            // Convert line breaks
+            html = html.replace(/\n\n/g, '<br><br>');
+            html = html.replace(/\n/g, '<br>');
+            
+            // Convert inline code `code`
+            html = html.replace(/`([^`]+)`/g, '<code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 0.9em; color: #d63384;">$1</code>');
+            
+            // Add spacing after headers
+            html = html.replace(/<\/(h[1-3])>/g, '</$1><br>');
+            
+            return html;
+        }
+
+        function executeSuggestedAction(action) {
+            document.getElementById('messageInput').value = action;
+            sendMessage();
+        }
+
+        function clearChat() {
+            if (confirm('Are you sure you want to clear the chat history? (Session will remain active)')) {
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.querySelectorAll('.message:not(:last-child)').forEach(msg => msg.remove());
+                document.getElementById('emptyState').style.display = 'block';
+                messageCount = 0;
+                document.getElementById('messageCount').textContent = '0';
+                
+                // Keep session active, just clear UI
+                // Don't reset sessionId - continue conversation
+            }
+        }
+
+        async function createNewSession() {
+            try {
+                // Determine session type based on current chatbot
+                const sessionTypeMap = {
+                    'knowledge_base': 'knowledge_base',
+                    'sql_assistant': 'sql_assistant',
+                    'diagnostic': 'diagnostic',
+                    'semi_auto_diagnostic': 'semi_auto_diagnostic'
+                };
+                
+                const sessionType = sessionTypeMap[currentChatbotType] || 'general';
+                
+                const response = await fetch(`/api/chatbot/session/new?session_type=${sessionType}`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) throw new Error('Failed to create session');
+                
+                const data = await response.json();
+                sessionId = data.session_id;
+                
+                // Update UI
+                document.getElementById('currentSessionId').textContent = sessionId;
+                
+                // Clear chat display
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.querySelectorAll('.message:not(:last-child)').forEach(msg => msg.remove());
+                document.getElementById('emptyState').style.display = 'block';
+                messageCount = 0;
+                document.getElementById('messageCount').textContent = '0';
+                
+                // Reset semi-auto diagnostic session
+                semiAutoDiagSession = null;
+                
+                // Show success notification
+                addMessage('system', `✨ New session started: ${sessionId}`);
+                
+                console.log('✅ New session created:', sessionId);
+            } catch (error) {
+                console.error('❌ Error creating session:', error);
+                alert('Failed to create new session. Please try again.');
+            }
+        }
+
+        async function viewSessionHistory() {
+            if (!sessionId) {
+                alert('No active session. Start a conversation to view history.');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/chatbot/session/${sessionId}/history`);
+                if (!response.ok) throw new Error('Failed to fetch history');
+                
+                const data = await response.json();
+                
+                let historyHTML = `<h3>Session History</h3>`;
+                historyHTML += `<p><strong>Session ID:</strong> ${data.session_id}</p>`;
+                historyHTML += `<p><strong>Messages:</strong> ${data.message_count}</p>`;
+                historyHTML += '<hr><div style="max-height: 400px; overflow-y: auto;">';
+                
+                data.messages.forEach(msg => {
+                    const roleIcon = msg.role === 'user' ? '👤' : (msg.role === 'assistant' ? '🤖' : 'ℹ️');
+                    
+                    // Parse timestamp properly
+                    let timeStr = 'Unknown';
+                    try {
+                        const timestamp = msg.timestamp;
+                        if (timestamp) {
+                            const date = new Date(timestamp);
+                            if (!isNaN(date.getTime())) {
+                                timeStr = date.toLocaleString();
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Error parsing timestamp:', msg.timestamp);
+                    }
+                    
+                    historyHTML += `
+                        <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                                ${roleIcon} <strong>${msg.role.toUpperCase()}</strong> - ${timeStr}
+                            </div>
+                            <div>${msg.content.substring(0, 200)}${msg.content.length > 200 ? '...' : ''}</div>
+                        </div>
+                    `;
+                });
+                
+                historyHTML += '</div>';
+                
+                // Show in modal or alert
+                const modalHTML = `
+                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;" onclick="this.remove()">
+                        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
+                            ${historyHTML}
+                            <button onclick="this.closest('div[style*=fixed]').remove()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer;">Close</button>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                
+            } catch (error) {
+                console.error('❌ Error fetching history:', error);
+                alert('Failed to fetch session history.');
+            }
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('category', 'uploaded');
+
+            try {
+                const response = await fetch('/api/chatbot/upload-document', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                alert(`✅ ${data.message || 'Document uploaded successfully!'}`);
+                
+                // Clear file input
+                event.target.value = '';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error uploading document. Please try again.');
+            }
+        }
+
+        async function viewSystemHealth() {
+            try {
+                const response = await fetch('/api/chatbot/system-health');
+                const data = await response.json();
+                
+                let statusHTML = '<h3>System Health Status</h3><hr>';
+                statusHTML += `<p><strong>Overall:</strong> <span style="color: ${data.overall_status === 'healthy' ? 'green' : 'red'}">${data.overall_status.toUpperCase()}</span></p>`;
+                statusHTML += '<h4>Components:</h4><ul>';
+                
+                for (const [component, status] of Object.entries(data.components)) {
+                    statusHTML += `<li><strong>${component}:</strong> ${status}</li>`;
+                }
+                statusHTML += '</ul>';
+                
+                addMessage('assistant', statusHTML, {});
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error fetching system health.');
+            }
+        }
+
+        async function viewStatistics() {
+            try {
+                const response = await fetch('/api/chatbot/statistics');
+                const data = await response.json();
+                
+                let statsHTML = '<h3>Chatbot Statistics</h3><hr>';
+                statsHTML += `<p><strong>Total Documents:</strong> ${data.knowledge_base.total_documents}</p>`;
+                statsHTML += `<p><strong>Total Issues:</strong> ${data.diagnostic.total_issues}</p>`;
+                statsHTML += `<p><strong>Active Sessions:</strong> ${data.total_sessions}</p>`;
+                
+                addMessage('assistant', statsHTML, {});
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error fetching statistics.');
+            }
+        }
+
+        // Feedback System Functions
+        function addFeedbackButtons(messageDiv, data) {
+            const feedbackId = 'feedback-' + Date.now();
+            const feedbackHTML = `
+                <div class="feedback-section" id="${feedbackId}" style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 10px; border: 1px solid #e0e0e0;">
+                    <div class="feedback-quick-actions" style="margin-bottom: 8px;">
+                        <small style="color: #666; display: block; margin-bottom: 8px; font-weight: 500;">Was this response helpful?</small>
+                        <button class="btn btn-sm btn-outline-success" onclick="showDetailedFeedback('${feedbackId}', 'positive', ${JSON.stringify(data).replace(/"/g, '&quot;')})" style="margin-right: 8px;">
+                            <i class="fas fa-thumbs-up"></i> Yes
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="showDetailedFeedback('${feedbackId}', 'negative', ${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                            <i class="fas fa-thumbs-down"></i> No
+                        </button>
+                    </div>
+                    <div class="feedback-detailed" style="display: none; margin-top: 12px;">
+                        <div style="margin-bottom: 10px;">
+                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Rating (1-5 stars):</label>
+                            <div class="star-rating" style="display: flex; gap: 5px;">
+                                ${[1,2,3,4,5].map(star => `
+                                    <i class="fas fa-star rating-star" data-rating="${star}" 
+                                       onclick="selectRating('${feedbackId}', ${star})"
+                                       style="cursor: pointer; color: #ddd; font-size: 18px; transition: color 0.2s;"></i>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Comments (optional):</label>
+                            <textarea class="feedback-comment" placeholder="Tell us how we can improve..." 
+                                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; resize: vertical; min-height: 60px;"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-sm btn-primary" onclick="submitDetailedFeedback('${feedbackId}', ${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                                <i class="fas fa-paper-plane"></i> Submit Feedback
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="cancelDetailedFeedback('${feedbackId}')">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const contentDiv = messageDiv.querySelector('.message-content');
+            contentDiv.insertAdjacentHTML('beforeend', feedbackHTML);
+        }
+
+        function showDetailedFeedback(feedbackId, feedbackType, data) {
+            const feedbackSection = document.getElementById(feedbackId);
+            const quickActions = feedbackSection.querySelector('.feedback-quick-actions');
+            const detailedSection = feedbackSection.querySelector('.feedback-detailed');
+            
+            // Store feedback type for later submission
+            feedbackSection.dataset.feedbackType = feedbackType;
+            feedbackSection.dataset.data = JSON.stringify(data);
+            
+            // Set default rating based on feedback type
+            const defaultRating = feedbackType === 'positive' ? 4 : 2;
+            selectRating(feedbackId, defaultRating);
+            
+            // Show detailed feedback form
+            quickActions.style.display = 'none';
+            detailedSection.style.display = 'block';
+        }
+
+        function selectRating(feedbackId, rating) {
+            const feedbackSection = document.getElementById(feedbackId);
+            const stars = feedbackSection.querySelectorAll('.rating-star');
+            
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.style.color = '#ffc107'; // Gold color for selected stars
+                } else {
+                    star.style.color = '#ddd'; // Gray for unselected
+                }
+            });
+            
+            feedbackSection.dataset.rating = rating;
+        }
+
+        function cancelDetailedFeedback(feedbackId) {
+            const feedbackSection = document.getElementById(feedbackId);
+            const quickActions = feedbackSection.querySelector('.feedback-quick-actions');
+            const detailedSection = feedbackSection.querySelector('.feedback-detailed');
+            
+            quickActions.style.display = 'block';
+            detailedSection.style.display = 'none';
+            
+            // Reset form
+            feedbackSection.querySelector('.feedback-comment').value = '';
+            selectRating(feedbackId, 0);
+        }
+
+        async function submitDetailedFeedback(feedbackId, data) {
+            try {
+                const feedbackSection = document.getElementById(feedbackId);
+                const feedbackType = feedbackSection.dataset.feedbackType;
+                const rating = parseInt(feedbackSection.dataset.rating) || 3;
+                const comment = feedbackSection.querySelector('.feedback-comment').value.trim();
+                
+                // Get the user question from previous message
+                const userQuestion = document.querySelector('.message.user:last-of-type .message-content')?.textContent || '';
+                const botResponse = feedbackSection.closest('.message-content').textContent.split('Was this response helpful?')[0].trim();
+                
+                // Determine chatbot type from current active tab
+                const activeButton = document.querySelector('.chatbot-btn.active');
+                let activeChatbot = activeButton?.dataset?.type || 'knowledge_base';
+                
+                // Map UI type to backend RLHF type
+                const chatbotTypeMapping = {
+                    'diagnostic': 'diagnostic_support',
+                    'sql_assistant': 'sql_assistant',
+                    'knowledge_base': 'knowledge_base'
+                };
+                activeChatbot = chatbotTypeMapping[activeChatbot] || activeChatbot;
+                
+                // Build metadata based on chatbot type and available data
+                const metadata = {
+                    session_id: sessionId,
+                    chat_id: data.chat_id,  // Add chat_id for database linking
+                    confidence: data.confidence_score || data.confidence
+                };
+                
+                // Add chatbot-specific metadata
+                if (data.sql_query) {
+                    metadata.sql_query = data.sql_query;
+                    metadata.tables_used = extractTablesFromSQL(data.sql_query);
+                }
+                if (data.sources) {
+                    metadata.sources = data.sources;
+                }
+                if (data.suggested_actions) {
+                    metadata.suggested_actions = data.suggested_actions;
+                }
+                
+                // Send RLHF feedback
+                const response = await fetch('/api/chatbot/rlhf/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chatbot_type: activeChatbot,
+                        query: userQuestion,
+                        response: botResponse,
+                        feedback_type: feedbackType,
+                        rating: rating,
+                        comment: comment || null,
+                        metadata: metadata
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // Show thank you message
+                    feedbackSection.innerHTML = `
+                        <div style="padding: 12px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; text-align: center;">
+                            <i class="fas fa-check-circle" style="color: #28a745; font-size: 20px;"></i>
+                            <p style="margin: 8px 0 0 0; color: #155724; font-size: 14px; font-weight: 500;">
+                                Thank you for your detailed feedback!
+                            </p>
+                            <small style="color: #155724; font-size: 12px;">
+                                Your input helps us improve continuously. Reward score: ${result.reward_score?.toFixed(2) || 'N/A'}
+                            </small>
+                        </div>
+                    `;
+                    
+                    // Show toast notification
+                    showToast(`✅ Feedback recorded with ${rating} ${rating === 1 ? 'star' : 'stars'}! Learning from your input...`);
+                } else {
+                    throw new Error(result.error || 'Failed to record feedback');
+                }
+            } catch (error) {
+                console.error('Error sending feedback:', error);
+                showToast('❌ Error recording feedback. Please try again.');
+            }
+        }
+
+        // Legacy function for backward compatibility
+        async function sendFeedback(feedbackType, data, button) {
+            // Redirect to detailed feedback
+            const feedbackSection = button.closest('.feedback-section');
+            if (feedbackSection && feedbackSection.id) {
+                showDetailedFeedback(feedbackSection.id, feedbackType, data);
+            }
+        }
+
+        function extractTablesFromSQL(sql) {
+            if (!sql) return [];
+            const tables = [];
+            
+            // Extract FROM tables
+            const fromMatches = sql.match(/FROM\s+([a-zA-Z_][a-zA-Z0-9_]*)/gi);
+            if (fromMatches) {
+                tables.push(...fromMatches.map(m => m.replace(/FROM\s+/i, '').trim()));
+            }
+            
+            // Extract JOIN tables
+            const joinMatches = sql.match(/JOIN\s+([a-zA-Z_][a-zA-Z0-9_]*)/gi);
+            if (joinMatches) {
+                tables.push(...joinMatches.map(m => m.replace(/JOIN\s+/i, '').trim()));
+            }
+            
+            return [...new Set(tables)]; // Remove duplicates
+        }
+
+        function showToast(message) {
+            // Simple toast notification
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #333;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Add CSS animations for toast
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
