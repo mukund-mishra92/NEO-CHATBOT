@@ -2,6 +2,7 @@
 Diagnostic Support API Endpoints
 Provides troubleshooting and diagnostic support for NEO system issues
 Includes Interactive Diagnostic Chat for step-by-step guided resolution
+Includes Semi-Auto SOP Diagnostic Workflow (based on semi-auto-diag.py)
 """
 
 from fastapi import APIRouter, HTTPException, Query
@@ -9,6 +10,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from app.services.diagnostic_support_service import DiagnosticSupportService
 from app.services.interactive_diagnostic_service import get_interactive_diagnostic_service
+from app.services.semi_auto_sop_service import get_sop_service
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,6 +19,7 @@ router = APIRouter(prefix="/api/diagnostic-support", tags=["Diagnostic Support"]
 # Initialize diagnostic services
 diagnostic_service = DiagnosticSupportService()
 interactive_service = get_interactive_diagnostic_service()
+sop_service = get_sop_service()
 
 
 class DiagnosticQuery(BaseModel):
@@ -29,6 +32,28 @@ class InteractiveChatRequest(BaseModel):
     """Request model for interactive diagnostic chat"""
     message: str = Field(..., description="User's message")
     session_id: Optional[str] = Field(None, description="Existing session ID for continuation")
+
+
+class SOPStartRequest(BaseModel):
+    """Request model for starting SOP workflow"""
+    problem_description: str = Field(..., description="User's problem description")
+
+
+class SOPSelectRequest(BaseModel):
+    """Request model for selecting SOP problem"""
+    session_id: str = Field(..., description="Session ID")
+    s_no: float = Field(..., description="S.No. of selected problem")
+
+
+class SOPStepInputRequest(BaseModel):
+    """Request model for submitting step observation"""
+    session_id: str = Field(..., description="Session ID")
+    user_input: str = Field(..., description="User observation/output")
+
+
+class SOPResolutionRequest(BaseModel):
+    """Request model for resolution status"""
+    session_id: str = Field(..., description="Session ID")
 
 
 class SymptomAnalysisRequest(BaseModel):
@@ -146,6 +171,257 @@ async def get_chat_history(session_id: str):
         raise
     except Exception as e:
         logger.error(f"Error getting history: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================================
+# SEMI-AUTO SOP DIAGNOSTIC WORKFLOW ENDPOINTS
+# Based on semi-auto-diag.py functionality
+# ========================================
+
+@router.post("/sop/start", response_model=DiagnosticResponse)
+async def start_sop_workflow(request: SOPStartRequest):
+    """
+    🔧 Start Semi-Auto SOP Diagnostic Workflow
+    
+    This endpoint initiates a step-by-step SOP diagnostic workflow.
+    Features:
+    - TF-IDF based problem matching from SOP Excel
+    - Priority-ordered step execution
+    - Automatic SQL query execution
+    - Interactive resolution confirmation
+    
+    **Parameters:**
+    - **problem_description**: User's problem description
+    
+    **Returns:**
+    - Session with matched SOP or candidates for selection
+    """
+    try:
+        result = sop_service.start_workflow(request.problem_description)
+        
+        if not result.get("success", False):
+            raise HTTPException(status_code=400, detail=result.get("error", "Failed to start workflow"))
+        
+        return DiagnosticResponse(
+            success=True,
+            message=result.get("message", "SOP workflow started"),
+            data=result
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error starting SOP workflow: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/sop/select", response_model=DiagnosticResponse)
+async def select_sop_problem(request: SOPSelectRequest):
+    """
+    Select a specific SOP problem from candidates
+    
+    When match confidence is low, user selects the correct problem.
+    
+    **Parameters:**
+    - **session_id**: Session ID from start endpoint
+    - **s_no**: S.No. of selected problem
+    
+    **Returns:**
+    - Updated session with first step execution
+    """
+    try:
+        result = sop_service.select_problem(request.session_id, request.s_no)
+        
+        if not result.get("success", False):
+            raise HTTPException(status_code=400, detail=result.get("error", "Failed to select problem"))
+        
+        return DiagnosticResponse(
+            success=True,
+            message="Problem selected, workflow started",
+            data=result
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error selecting SOP problem: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/sop/step-input", response_model=DiagnosticResponse)
+async def submit_sop_step_input(request: SOPStepInputRequest):
+    """
+    Submit observation/output for a manual SOP step
+    
+    For non-SQL steps, user provides their observation after performing the action.
+    
+    **Parameters:**
+    - **session_id**: Session ID
+    - **user_input**: User's observation or command output
+    
+    **Returns:**
+    - Updated session awaiting resolution confirmation
+    """
+    try:
+        result = sop_service.submit_step_input(request.session_id, request.user_input)
+        
+        if not result.get("success", False):
+            raise HTTPException(status_code=400, detail=result.get("error", "Failed to submit input"))
+        
+        return DiagnosticResponse(
+            success=True,
+            message="Observation recorded",
+            data=result
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error submitting step input: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/sop/resolved", response_model=DiagnosticResponse)
+async def mark_sop_resolved(request: SOPResolutionRequest):
+    """
+    Mark the SOP workflow as resolved
+    
+    User confirms that the issue has been resolved.
+    
+    **Parameters:**
+    - **session_id**: Session ID
+    
+    **Returns:**
+    - Final session state marked as resolved
+    """
+    try:
+        result = sop_service.mark_resolved(request.session_id)
+        
+        if not result.get("success", False):
+            raise HTTPException(status_code=400, detail=result.get("error", "Failed to mark resolved"))
+        
+        return DiagnosticResponse(
+            success=True,
+            message="Issue marked as resolved",
+            data=result
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error marking resolved: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/sop/not-resolved", response_model=DiagnosticResponse)
+async def mark_sop_not_resolved(request: SOPResolutionRequest):
+    """
+    Mark step as not resolved and continue to next step
+    
+    User indicates the current step did not resolve the issue.
+    
+    **Parameters:**
+    - **session_id**: Session ID
+    
+    **Returns:**
+    - Updated session with next step execution
+    """
+    try:
+        result = sop_service.mark_not_resolved(request.session_id)
+        
+        if not result.get("success", False):
+            raise HTTPException(status_code=400, detail=result.get("error", "Failed to continue"))
+        
+        return DiagnosticResponse(
+            success=True,
+            message="Continuing to next step",
+            data=result
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error marking not resolved: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/sop/session/{session_id}", response_model=DiagnosticResponse)
+async def get_sop_session(session_id: str):
+    """
+    Get SOP workflow session details
+    
+    **Parameters:**
+    - **session_id**: Session ID
+    
+    **Returns:**
+    - Full session state including messages and progress
+    """
+    try:
+        session = sop_service.get_session(session_id)
+        
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        return DiagnosticResponse(
+            success=True,
+            message="Session retrieved",
+            data=session
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting SOP session: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/sop/session/{session_id}", response_model=DiagnosticResponse)
+async def reset_sop_session(session_id: str):
+    """
+    Reset/delete an SOP workflow session
+    
+    **Parameters:**
+    - **session_id**: Session ID
+    
+    **Returns:**
+    - Confirmation of reset
+    """
+    try:
+        result = sop_service.reset_session(session_id)
+        
+        return DiagnosticResponse(
+            success=True,
+            message="Session reset",
+            data=result
+        )
+    
+    except Exception as e:
+        logger.error(f"Error resetting SOP session: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/sop/problems", response_model=DiagnosticResponse)
+async def get_all_sop_problems():
+    """
+    Get all SOP problem statements
+    
+    Useful for manual problem selection or browsing.
+    
+    **Returns:**
+    - List of all problem statements with S.No. and Impact
+    """
+    try:
+        problems = sop_service.get_all_problems()
+        
+        return DiagnosticResponse(
+            success=True,
+            message=f"Retrieved {len(problems)} problems",
+            data={"problems": problems, "count": len(problems)}
+        )
+    
+    except Exception as e:
+        logger.error(f"Error getting SOP problems: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

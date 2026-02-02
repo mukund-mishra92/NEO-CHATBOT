@@ -836,7 +836,8 @@
 
         // Global variable for semi-auto diagnostic session
         let semiAutoDiagSession = null;
-        let semiAutoDiagPending = null;
+        let sopSessionId = null;
+        let sopCurrentStatus = null;
 
         async function sendMessage() {
             const input = document.getElementById('messageInput');
@@ -914,241 +915,715 @@
         }
 
         async function handleSemiAutoDiagnostic(message) {
-            if (!semiAutoDiagSession) {
-                // If a pending classification exists, treat new message as a new issue
-                if (semiAutoDiagPending && semiAutoDiagPending.message !== message) {
-                    semiAutoDiagPending = null;
-                }
-
-                // Classify issue type first
-                await classifyAndConfirmIssueType(message);
+            // NEW SOP-based workflow (like semi-auto-diag.py)
+            // No category classification - directly match against SOP using TF-IDF
+            
+            if (sopCurrentStatus === 'awaiting_step_input' && sopSessionId) {
+                // User is providing step observation
+                await submitSOPStepInput(message);
             } else {
-                try {
-                    const followupResponse = await fetch(`/api/chatbot/diagnostic/followup?session_id=${encodeURIComponent(semiAutoDiagSession.session_id)}&question=${encodeURIComponent(message)}`, {
-                        method: 'POST'
-                    });
-                    const followupData = await followupResponse.json();
-
-                    if (followupData.answer) {
-                        addMessage('assistant', followupData.answer, followupData);
-                        messageCount++;
-                        document.getElementById('messageCount').textContent = messageCount;
-                    } else if (followupData.error) {
-                        addMessage('assistant', `❌ ${followupData.error}`);
-                    } else {
-                        addMessage('assistant', '❌ Unable to process your question. Please try again.');
-                    }
-                } catch (error) {
-                    console.error('Follow-up error:', error);
-                    addMessage('assistant', '❌ Failed to process your follow-up question. Please try again.');
-                }
+                // Start new SOP workflow or submit new issue
+                await startSOPWorkflow(message);
             }
         }
 
-        async function classifyAndConfirmIssueType(message) {
+        // SOP Workflow Card ID for updating in place
+        let sopWorkflowCardId = null;
+        let sopStepsCompleted = [];
+
+        async function startSOPWorkflow(message) {
             try {
-                const response = await fetch(`/api/chatbot/diagnostic/classify?problem_description=${encodeURIComponent(message)}`, {
-                    method: 'POST'
+                const response = await fetch('/api/diagnostic-support/sop/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ problem_description: message })
                 });
                 const data = await response.json();
-
-                const predictedType = data.predicted_type || 'BOT_LEVEL';
-                semiAutoDiagPending = {
-                    message,
-                    predictedType
-                };
-
-                const html = `
-                    <div style="border-left: 4px solid #667eea; padding-left: 15px; margin-bottom: 10px;">
-                        <p style="margin: 0 0 6px 0;"><strong>Detected Category:</strong> ${predictedType}</p>
-                        <p style="margin: 0 0 10px 0; color: #666;">Is this correct?</p>
-                        <div class="action-buttons" style="margin-top: 8px;">
-                            <button class="action-btn" style="background: #28a745;" onclick="confirmCategory('${predictedType}')"><i class="fas fa-check"></i> Yes</button>
-                            <button class="action-btn" style="background: #dc3545;" onclick="showCategorySelection()"><i class="fas fa-times"></i> No</button>
-                        </div>
-                    </div>
-                `;
-
-                addMessage('assistant', html);
-                messageCount++;
-                document.getElementById('messageCount').textContent = messageCount;
+                
+                if (!data.success) {
+                    addSOPMessage(`Error: ${data.message || data.detail || 'Failed to start SOP workflow'}`);
+                    return;
+                }
+                
+                const result = data.data;
+                sopSessionId = result.session_id;
+                sopCurrentStatus = result.status;
+                sopStepsCompleted = [];
+                
+                // Handle different states
+                if (result.status === 'needs_selection' && result.candidates) {
+                    showSOPProblemSelection(result.candidates);
+                } else {
+                    // Create unified workflow card
+                    createSOPWorkflowCard(result);
+                }
+                
             } catch (error) {
-                console.error('Classification error:', error);
-                addMessage('assistant', '❌ Failed to classify the issue type. Please try again.');
+                console.error('SOP start error:', error);
+                addSOPMessage('Error: Failed to start SOP workflow. Please try again.');
             }
         }
 
-        function showCategorySelection() {
-            const html = `
-                <div style="border-left: 4px solid #ffc107; padding-left: 15px; margin-bottom: 10px;">
-                    <p style="margin: 0 0 6px 0;"><strong>Please select the correct category:</strong></p>
-                    <div class="action-buttons" style="margin-top: 8px;">
-                        <button class="action-btn" onclick="confirmCategory('BOT_LEVEL')"><i class="fas fa-robot"></i> BOT_LEVEL</button>
-                        <button class="action-btn" onclick="confirmCategory('STATION_LEVEL')"><i class="fas fa-warehouse"></i> STATION_LEVEL</button>
+        function addSOPMessage(content) {
+            // Add a simple SOP message without feedback buttons
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">${content}</div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function createSOPWorkflowCard(result) {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Remove existing workflow card if any
+            if (sopWorkflowCardId) {
+                const existing = document.getElementById(sopWorkflowCardId);
+                if (existing) existing.remove();
+            }
+            
+            sopWorkflowCardId = 'sop-workflow-' + Date.now();
+            
+            const cardDiv = document.createElement('div');
+            cardDiv.id = sopWorkflowCardId;
+            cardDiv.className = 'message assistant';
+            
+            // Parse messages to build workflow card
+            let problemStatement = '';
+            let impact = '';
+            let currentSteps = [];
+            let lastStepIndex = -1;
+            
+            for (const msg of result.messages || []) {
+                if (msg.role === 'assistant') {
+                    const content = msg.content || '';
+                    
+                    // Extract problem statement
+                    const matchedSOP = content.match(/Matched SOP:\s*\*\*(.+?)\*\*/);
+                    if (matchedSOP) problemStatement = matchedSOP[1];
+                    
+                    // Also check for "Selected SOP:" format
+                    const selectedSOP = content.match(/Selected SOP:\s*\*\*(.+?)\*\*/);
+                    if (selectedSOP) problemStatement = selectedSOP[1];
+                    
+                    const impactMatch = content.match(/Impact:\s*\*\*(.+?)\*\*/);
+                    if (impactMatch) impact = impactMatch[1];
+                    
+                    // Extract priority steps - matches **Priority X:** format from backend
+                    const priorityMatch = content.match(/\*\*Priority\s*(\d+):\*\*\s*(.+)/);
+                    if (priorityMatch) {
+                        lastStepIndex = currentSteps.length;
+                        currentSteps.push({
+                            priority: parseInt(priorityMatch[1]),
+                            description: priorityMatch[2].replace(/\*\*/g, '').trim(),
+                            sql: null,
+                            instruction: null,
+                            result: null,
+                            stepType: 'pending'
+                        });
+                    }
+                    
+                    // Capture SQL code blocks
+                    const sqlMatch = content.match(/```sql\s*([\s\S]+?)```/);
+                    if (sqlMatch && currentSteps.length > 0) {
+                        currentSteps[currentSteps.length - 1].sql = sqlMatch[1].trim();
+                        currentSteps[currentSteps.length - 1].stepType = 'SQL';
+                    }
+                    
+                    // Capture manual step instructions
+                    if (msg.extra && msg.extra.type === 'manual_step' && currentSteps.length > 0) {
+                        currentSteps[currentSteps.length - 1].instruction = msg.extra.instruction;
+                        currentSteps[currentSteps.length - 1].stepType = 'STEP';
+                    }
+                    
+                    // Also parse instruction from content
+                    const actionMatch = content.match(/\*\*Action:\*\*\s*(.+?)(?:\n|$)/);
+                    if (actionMatch && currentSteps.length > 0) {
+                        currentSteps[currentSteps.length - 1].instruction = actionMatch[1].trim();
+                        currentSteps[currentSteps.length - 1].stepType = 'STEP';
+                    }
+                    
+                    // Handle SQL results
+                    if (msg.extra && msg.extra.type === 'sql_result') {
+                        if (currentSteps.length > 0) {
+                            currentSteps[currentSteps.length - 1].result = msg.extra;
+                        }
+                    }
+                }
+            }
+            
+            // Build unified workflow card HTML
+            const impactColor = impact.toLowerCase().includes('high') ? '#dc3545' : 
+                               impact.toLowerCase().includes('medium') ? '#ffc107' : '#28a745';
+            
+            // Check if awaiting step input
+            const awaitingInput = result.awaiting_step_input || result.requires_manual_input;
+            
+            let cardHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="sop-workflow-card" style="background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        
+                        <!-- Header -->
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                <strong style="font-size: 1.15em;">SOP Diagnostic Workflow</strong>
+                            </div>
+                            <div style="font-size: 0.95em; opacity: 0.95;">
+                                <strong>Problem:</strong> ${problemStatement || 'Diagnosing...'}
+                            </div>
+                            ${impact ? `<div style="margin-top: 5px;"><span style="background: ${impactColor}; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">${impact} Impact</span></div>` : ''}
+                        </div>
+                        
+                        <!-- Steps Container -->
+                        <div id="sop-steps-container" style="padding: 15px 20px;">
+                            <div style="font-weight: 600; color: #333; margin-bottom: 12px; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">
+                                Diagnostic Steps
+                            </div>
+            `;
+            
+            // Render steps
+            for (let idx = 0; idx < currentSteps.length; idx++) {
+                const step = currentSteps[idx];
+                const isLast = idx === currentSteps.length - 1;
+                cardHTML += renderSOPStep(step, isLast && (result.pending_resolution || awaitingInput));
+            }
+            
+            cardHTML += `
+                        </div>
+                        
+                        <!-- Resolution/Input Area -->
+                        <div id="sop-resolution-area" style="padding: 0 20px 20px 20px;">
+                            ${awaitingInput ? getSOPInputAreaHTML() : (result.pending_resolution ? getSOPResolutionButtonsHTML() : '')}
+                        </div>
                     </div>
                 </div>
             `;
-            addMessage('assistant', html);
+            
+            cardDiv.innerHTML = cardHTML;
+            messagesContainer.appendChild(cardDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
             messageCount++;
             document.getElementById('messageCount').textContent = messageCount;
+        }
+
+        function renderSOPStep(step, isActive) {
+            const hasResult = step.result && (step.result.rows?.length > 0 || step.result.error);
+            const isManualStep = step.stepType === 'STEP' || step.instruction;
+            
+            // Determine status
+            let statusText = '';
+            let stepBg = '#f5f5f5';
+            let borderColor = '#e0e0e0';
+            let statusColor = '#666';
+            
+            if (hasResult) {
+                statusText = 'COMPLETED';
+                stepBg = '#e8f5e9';
+                borderColor = '#4caf50';
+                statusColor = '#2e7d32';
+            } else if (isActive) {
+                statusText = isManualStep ? 'ACTION REQUIRED' : 'IN PROGRESS';
+                stepBg = isManualStep ? '#fff8e1' : '#e3f2fd';
+                borderColor = isManualStep ? '#ffa000' : '#1976d2';
+                statusColor = isManualStep ? '#e65100' : '#1565c0';
+            } else {
+                statusText = 'PENDING';
+            }
+            
+            let html = `
+                <div class="sop-step" style="background: ${stepBg}; border-left: 4px solid ${borderColor}; padding: 12px 15px; margin-bottom: 10px; border-radius: 0 8px 8px 0; transition: all 0.3s ease;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <div style="font-weight: 600; color: #333;">
+                            Step ${step.priority}: ${step.description}
+                        </div>
+                        <span style="font-size: 0.7em; font-weight: 600; color: ${statusColor}; background: ${statusColor}15; padding: 2px 8px; border-radius: 4px; white-space: nowrap;">
+                            ${statusText}
+                        </span>
+                    </div>
+            `;
+            
+            // Show SQL if present
+            if (step.sql) {
+                html += `
+                    <div style="margin: 8px 0;">
+                        <div style="font-size: 0.8em; color: #666; margin-bottom: 4px;">SQL Query:</div>
+                        <code style="background: #263238; color: #80cbc4; padding: 10px 14px; border-radius: 6px; display: block; font-size: 0.85em; overflow-x: auto; white-space: pre-wrap; word-break: break-all;">${step.sql}</code>
+                    </div>
+                `;
+            }
+            
+            // Show manual step instruction if present
+            if (isManualStep && step.instruction && isActive) {
+                html += `
+                    <div style="margin: 10px 0; background: #fff3e0; border: 1px solid #ffcc80; border-radius: 6px; padding: 12px;">
+                        <div style="font-size: 0.8em; color: #e65100; font-weight: 600; margin-bottom: 6px;">ACTION REQUIRED:</div>
+                        <div style="color: #333; line-height: 1.5;">${step.instruction}</div>
+                    </div>
+                `;
+            }
+            
+            // Add SQL result if present
+            if (step.result) {
+                html += renderSOPStepResult(step.result);
+            }
+            
+            html += `
+                </div>
+            `;
+            
+            return html;
+        }
+
+        function getSOPInputAreaHTML() {
+            return `
+                <div style="background: #fff8e1; border: 1px solid #ffcc80; padding: 15px; border-radius: 10px;">
+                    <div style="font-weight: 600; color: #e65100; margin-bottom: 10px;">Enter your observation or result:</div>
+                    <textarea id="sopStepInput" placeholder="Describe what you observed after performing the step..." 
+                              style="width: 100%; min-height: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95em; resize: vertical; box-sizing: border-box;"></textarea>
+                    <button onclick="submitSOPObservation()" 
+                            style="margin-top: 10px; width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                        Submit Observation
+                    </button>
+                </div>
+            `;
+        }
+
+        async function submitSOPObservation() {
+            const input = document.getElementById('sopStepInput');
+            if (!input || !input.value.trim()) {
+                alert('Please enter your observation');
+                return;
+            }
+            
+            const observation = input.value.trim();
+            await submitSOPStepInput(observation);
+        }
+
+        function renderSOPStepResult(extra) {
+            let html = '';
+            if (extra.error) {
+                html = `<div style="background: #ffebee; padding: 8px 12px; border-radius: 6px; margin-top: 10px; font-size: 0.9em;">
+                    <strong style="color: #c62828;">Error:</strong> ${extra.error}
+                </div>`;
+            } else if (extra.rows && extra.rows.length > 0) {
+                const keys = Object.keys(extra.rows[0]);
+                html = `<div style="margin-top: 10px;">
+                    <div style="background: #c8e6c9; padding: 6px 12px; border-radius: 6px 6px 0 0; font-size: 0.85em; color: #2e7d32;">
+                        <strong>Result:</strong> ${extra.rows.length} row(s)
+                    </div>
+                    <div style="overflow-x: auto; background: white; border: 1px solid #c8e6c9; border-top: none; border-radius: 0 0 6px 6px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
+                            <thead><tr style="background: #667eea; color: white;">`;
+                keys.forEach(k => { html += `<th style="padding: 8px 10px; text-align: left; white-space: nowrap;">${k}</th>`; });
+                html += `</tr></thead><tbody>`;
+                extra.rows.slice(0, 5).forEach((row, idx) => {
+                    html += `<tr style="background: ${idx % 2 ? '#fafafa' : 'white'};">`;
+                    keys.forEach(k => { html += `<td style="padding: 6px 10px; border-bottom: 1px solid #eee;">${row[k] ?? ''}</td>`; });
+                    html += '</tr>';
+                });
+                html += `</tbody></table></div>`;
+                if (extra.rows.length > 5) {
+                    html += `<div style="font-size: 0.8em; color: #666; padding: 5px 0;">Showing 5 of ${extra.rows.length} rows</div>`;
+                }
+                html += '</div>';
+            } else if (extra.sql) {
+                // Show SQL that was executed
+                html = `<div style="margin-top: 8px;">
+                    <code style="background: #263238; color: #80cbc4; padding: 8px 12px; border-radius: 6px; display: block; font-size: 0.85em; overflow-x: auto;">${extra.sql}</code>
+                </div>`;
+                if (extra.rows !== undefined) {
+                    html += `<div style="background: #fff3e0; padding: 6px 12px; border-radius: 6px; margin-top: 6px; font-size: 0.85em; color: #e65100;">
+                        <strong>No rows returned</strong>
+                    </div>`;
+                }
+            } else {
+                html = `<div style="background: #fff3e0; padding: 6px 12px; border-radius: 6px; margin-top: 8px; font-size: 0.85em; color: #e65100;">
+                    <strong>0 rows returned</strong>
+                </div>`;
+            }
+            return html;
+        }
+
+        function getSOPResolutionButtonsHTML() {
+            return `
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 12px;">Did this step resolve the issue?</div>
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="markSOPResolved()" style="background: linear-gradient(135deg, #4caf50 0%, #43a047 100%); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(76,175,80,0.3); transition: all 0.2s;">
+                            Yes, Resolved
+                        </button>
+                        <button onclick="markSOPNotResolved()" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(255,152,0,0.3); transition: all 0.2s;">
+                            Not Yet, Try Next Step
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateSOPWorkflowCard(result) {
+            // Update existing card with new step data
+            if (!sopWorkflowCardId) {
+                createSOPWorkflowCard(result);
+                return;
+            }
+            
+            const card = document.getElementById(sopWorkflowCardId);
+            if (!card) {
+                createSOPWorkflowCard(result);
+                return;
+            }
+            
+            const stepsContainer = card.querySelector('#sop-steps-container');
+            const resolutionArea = card.querySelector('#sop-resolution-area');
+            
+            // Check if awaiting input
+            const awaitingInput = result.awaiting_step_input || result.requires_manual_input;
+            
+            // Parse new messages and add steps
+            let lastStep = null;
+            for (const msg of result.messages || []) {
+                if (msg.role === 'assistant') {
+                    const content = msg.content || '';
+                    const priorityMatch = content.match(/\*\*Priority\s*(\d+):\*\*\s*(.+)/);
+                    
+                    if (priorityMatch) {
+                        lastStep = {
+                            priority: parseInt(priorityMatch[1]),
+                            description: priorityMatch[2].replace(/\*\*/g, '').trim(),
+                            sql: null,
+                            instruction: null,
+                            result: null,
+                            stepType: 'pending'
+                        };
+                    }
+                    
+                    // Capture SQL
+                    const sqlMatch = content.match(/```sql\s*([\s\S]+?)```/);
+                    if (sqlMatch && lastStep) {
+                        lastStep.sql = sqlMatch[1].trim();
+                        lastStep.stepType = 'SQL';
+                    }
+                    
+                    // Capture manual step instruction
+                    if (msg.extra?.type === 'manual_step' && lastStep) {
+                        lastStep.instruction = msg.extra.instruction;
+                        lastStep.stepType = 'STEP';
+                    }
+                    
+                    // Also parse from content
+                    const actionMatch = content.match(/\*\*Action:\*\*\s*(.+?)(?:\n|$)/);
+                    if (actionMatch && lastStep) {
+                        lastStep.instruction = actionMatch[1].trim();
+                        lastStep.stepType = 'STEP';
+                    }
+                    
+                    // Capture SQL result
+                    if (msg.extra?.type === 'sql_result' && lastStep) {
+                        lastStep.result = msg.extra;
+                    }
+                }
+            }
+            
+            // Add step if we found one
+            const isActive = result.pending_resolution || awaitingInput;
+            if (lastStep) {
+                const stepHTML = renderSOPStep(lastStep, isActive);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = stepHTML;
+                stepsContainer.appendChild(tempDiv.firstElementChild);
+            }
+            
+            // Update resolution area
+            if (result.pending_resolution) {
+                resolutionArea.innerHTML = getSOPResolutionButtonsHTML();
+            } else if (result.awaiting_step_input || result.requires_manual_input) {
+                resolutionArea.innerHTML = getSOPInputAreaHTML();
+            } else if (result.status === 'completed') {
+                resolutionArea.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%); padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #a5d6a7;">
+                        <div style="font-weight: 700; color: #2e7d32; font-size: 1.2em; margin-bottom: 6px;">ALL STEPS COMPLETED</div>
+                        <div style="color: #388e3c;">If the issue persists, please escalate to support.</div>
+                    </div>
+                `;
+            }
+            
+            // Scroll to bottom
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        }
+
+        function showSOPProblemSelection(candidates) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'message assistant';
+            
+            let html = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; padding: 15px 20px;">
+                            <div style="font-weight: 600; font-size: 1.1em; margin-bottom: 4px;">Low Match Confidence</div>
+                            <div style="font-size: 0.9em; opacity: 0.9;">Please select the correct problem from the options below:</div>
+                        </div>
+                        <div style="padding: 15px 20px;">
+            `;
+            
+            candidates.forEach((c, idx) => {
+                const score = (c.score * 100).toFixed(0);
+                const scoreColor = score >= 50 ? '#4caf50' : score >= 30 ? '#ff9800' : '#f44336';
+                html += `
+                    <div class="sop-problem-option" onclick="selectSOPProblem(this, ${c['S.No.']})" 
+                         style="padding: 14px 16px; background: white; border: 2px solid #e0e0e0; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 24px; height: 24px; border: 2px solid #667eea; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;" class="sop-radio">
+                            <div style="width: 12px; height: 12px; background: transparent; border-radius: 50%; transition: all 0.2s;" class="sop-radio-inner"></div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #333;">${c['Problem Statement']}</div>
+                            <div style="font-size: 0.85em; color: #666; margin-top: 3px;">S.No. ${c['S.No.']}</div>
+                        </div>
+                        <div style="background: ${scoreColor}20; color: ${scoreColor}; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">
+                            ${score}%
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <div style="padding: 0 20px 20px 20px;">
+                            <button id="sopSelectBtn" onclick="confirmSOPSelection()" disabled
+                                    style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: not-allowed; font-size: 1rem; font-weight: 600; opacity: 0.5; transition: all 0.2s;">
+                                Select Problem
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            cardDiv.innerHTML = html;
+            messagesContainer.appendChild(cardDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            messageCount++;
+            document.getElementById('messageCount').textContent = messageCount;
+        }
+
+        let selectedSOPSNo = null;
+        
+        function selectSOPProblem(elem, sNo) {
+            // Remove selection from all
+            document.querySelectorAll('.sop-problem-option').forEach(el => {
+                el.style.background = 'white';
+                el.style.borderColor = '#e0e0e0';
+                el.querySelector('.sop-radio-inner').style.background = 'transparent';
+            });
+            // Add selection to clicked
+            elem.style.background = '#f3e5f5';
+            elem.style.borderColor = '#667eea';
+            elem.querySelector('.sop-radio-inner').style.background = '#667eea';
+            selectedSOPSNo = sNo;
+            
+            // Enable button
+            const btn = document.getElementById('sopSelectBtn');
+            btn.disabled = false;
+            btn.style.cursor = 'pointer';
+            btn.style.opacity = '1';
+        }
+
+        async function confirmSOPSelection() {
+            if (!selectedSOPSNo || !sopSessionId) return;
+            
+            document.getElementById('typingIndicator').classList.add('active');
+            
+            try {
+                const response = await fetch('/api/diagnostic-support/sop/select', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sopSessionId,
+                        s_no: selectedSOPSNo
+                    })
+                });
+                const data = await response.json();
+                
+                document.getElementById('typingIndicator').classList.remove('active');
+                
+                if (data.success) {
+                    const result = data.data;
+                    sopCurrentStatus = result.status;
+                    // Create the workflow card with selected problem
+                    createSOPWorkflowCard(result);
+                } else {
+                    addSOPMessage(`Error: ${data.message || 'Failed to select problem'}`);
+                }
+            } catch (error) {
+                document.getElementById('typingIndicator').classList.remove('active');
+                addSOPMessage('Connection error. Please try again.');
+            }
+            
+            selectedSOPSNo = null;
+        }
+
+        async function submitSOPStepInput(userInput) {
+            document.getElementById('typingIndicator').classList.add('active');
+            
+            try {
+                const response = await fetch('/api/diagnostic-support/sop/step-input', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sopSessionId,
+                        user_input: userInput
+                    })
+                });
+                const data = await response.json();
+                
+                document.getElementById('typingIndicator').classList.remove('active');
+                
+                if (data.success) {
+                    const result = data.data;
+                    sopCurrentStatus = result.status;
+                    
+                    // Always update workflow card after step input
+                    updateSOPWorkflowCard(result);
+                } else {
+                    addSOPMessage(`Error: ${data.message || 'Failed to submit observation'}`);
+                }
+            } catch (error) {
+                document.getElementById('typingIndicator').classList.remove('active');
+                addSOPMessage('Connection error. Please try again.');
+            }
+        }
+
+        function showSOPResolutionButtons() {
+            // This is now handled within the workflow card
+            // Keeping for backward compatibility
+        }
+
+        async function markSOPResolved() {
+            if (!sopSessionId) return;
+            
+            document.getElementById('typingIndicator').classList.add('active');
+            
+            try {
+                const response = await fetch('/api/diagnostic-support/sop/resolved', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sopSessionId })
+                });
+                const data = await response.json();
+                
+                document.getElementById('typingIndicator').classList.remove('active');
+                
+                if (data.success) {
+                    // Update workflow card to show completion
+                    if (sopWorkflowCardId) {
+                        const card = document.getElementById(sopWorkflowCardId);
+                        if (card) {
+                            const resolutionArea = card.querySelector('#sop-resolution-area');
+                            if (resolutionArea) {
+                                resolutionArea.innerHTML = `
+                                    <div style="background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%); padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #a5d6a7;">
+                                        <div style="font-weight: 700; color: #2e7d32; font-size: 1.3em; margin-bottom: 6px;">ISSUE RESOLVED</div>
+                                        <div style="color: #388e3c;">Workflow completed successfully</div>
+                                    </div>
+                                `;
+                            }
+                        }
+                    }
+                    sopSessionId = null;
+                    sopCurrentStatus = null;
+                    semiAutoDiagSession = null;
+                    sopWorkflowCardId = null;
+                }
+            } catch (error) {
+                document.getElementById('typingIndicator').classList.remove('active');
+                addSOPMessage('Connection error. Please try again.');
+            }
+        }
+
+        async function markSOPNotResolved(){
+            if (!sopSessionId) return;
+            
+            document.getElementById('typingIndicator').classList.add('active');
+            
+            try {
+                const response = await fetch('/api/diagnostic-support/sop/not-resolved', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sopSessionId })
+                });
+                const data = await response.json();
+                
+                document.getElementById('typingIndicator').classList.remove('active');
+                
+                if (data.success) {
+                    const result = data.data;
+                    sopCurrentStatus = result.status;
+                    
+                    // Update workflow card with new step
+                    updateSOPWorkflowCard(result);
+                    
+                    if (result.status === 'completed') {
+                        sopSessionId = null;
+                        sopCurrentStatus = null;
+                        semiAutoDiagSession = null;
+                        sopWorkflowCardId = null;
+                    }
+                }
+            } catch (error) {
+                document.getElementById('typingIndicator').classList.remove('active');
+                addSOPMessage('Connection error. Please try again.');
+            }
+        }
+
+        // Keep old functions as stubs for compatibility (deprecated)
+        async function classifyAndConfirmIssueType(message) {
+            // DEPRECATED - redirect to new SOP workflow
+            await startSOPWorkflow(message);
+        }
+
+        function showCategorySelection() {
+            // DEPRECATED - no longer used
         }
 
         async function confirmCategory(selectedType) {
-            if (!semiAutoDiagPending) {
-                addMessage('assistant', '❌ No pending issue to classify. Please describe your problem again.');
-                return;
-            }
-
-            await proceedDiagnosisWithType(semiAutoDiagPending.message, selectedType);
-            semiAutoDiagPending = null;
+            // DEPRECATED - no longer used
         }
 
         async function proceedDiagnosisWithType(message, issueType) {
-            const response = await fetch(`/api/chatbot/diagnostic/start?problem_description=${encodeURIComponent(message)}&issue_type=${encodeURIComponent(issueType)}`, {
-                method: 'POST'
-            });
-            const data = await response.json();
-
-            if (data.matched_cases && data.matched_cases.length > 0) {
-                semiAutoDiagSession = data;
-                displayDiagnosticCase(data.current_case, data.total_matches);
-            } else {
-                addMessage('assistant', '❌ No matching cases found. Please provide more details or contact support.');
-            }
+            // DEPRECATED - redirect to new SOP workflow
+            await startSOPWorkflow(message);
         }
 
         function displayDiagnosticCase(caseData, totalMatches) {
-            const impactColor = caseData.impact.toLowerCase().includes('high') ? '#dc3545' :
-                               caseData.impact.toLowerCase().includes('medium') ? '#ffc107' : '#28a745';
-            
-            let html = `
-                <div style="border-left: 4px solid ${impactColor}; padding-left: 15px; margin-bottom: 15px;">
-                    <h3 style="margin: 0 0 10px 0; color: #667eea;">Case ${caseData.case_number} - ${caseData.type}</h3>
-                    ${caseData.assistant_summary ? `<p style="margin: 8px 0; color: #444;"><strong>Summary:</strong> ${caseData.assistant_summary}</p>` : ''}
-                    <p style="margin: 5px 0;"><strong style="color: ${impactColor};">Impact:</strong> ${caseData.impact}</p>
-                    <p style="margin: 5px 0;"><strong>Problem:</strong> ${caseData.problem}</p>
-                    <p style="margin: 10px 0 15px 0;"><strong>Solution:</strong> ${caseData.solution}</p>
-            `;
-            
-            if (caseData.sql_query) {
-                html += `
-                    <div style="background: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 13px; margin: 10px 0;">
-                        ${caseData.sql_query}
-                    </div>
-                    <p style="margin: 5px 0; font-size: 0.9em; color: #666;"><strong>Expected:</strong> ${caseData.expected_outcome}</p>
-                    <div class="action-buttons" style="margin-top: 15px;">
-                        <button class="action-btn" onclick="runSQLAuditInline()"><i class="fas fa-play"></i> Run SQL Audit</button>
-                        <button class="action-btn" style="background: #28a745;" onclick="markSolutionWorked()"><i class="fas fa-check"></i> This Solved It</button>
-                        <button class="action-btn" style="background: #dc3545;" onclick="tryNextSolution()"><i class="fas fa-times"></i> Not Correct</button>
-                    </div>
-                `;
-            } else {
-                html += `
-                    <div class="action-buttons" style="margin-top: 15px;">
-                        <button class="action-btn" style="background: #28a745;" onclick="markSolutionWorked()"><i class="fas fa-check"></i> This Solved It</button>
-                        <button class="action-btn" style="background: #dc3545;" onclick="tryNextSolution()"><i class="fas fa-times"></i> Not Correct</button>
-                    </div>
-                `;
-            }
-            
-            html += '</div>';
-            
-            addMessage('assistant', html);
-            messageCount++;
-            document.getElementById('messageCount').textContent = messageCount;
+            // DEPRECATED - no longer used
         }
 
         async function runSQLAuditInline() {
-            const sqlQuery = semiAutoDiagSession.current_case.sql_query;
-            
-            addMessage('assistant', '🔍 Running SQL audit...');
-            
-            try {
-                const response = await fetch(`/api/chatbot/diagnostic/audit-sql?sql_query=${encodeURIComponent(sqlQuery)}`, {
-                    method: 'POST'
-                });
-                const result = await response.json();
-                
-                if (result.success) {
-                    let html = `<div style="background: #d4edda; padding: 10px; border-radius: 5px; border-left: 4px solid #28a745; margin: 10px 0;">
-                        <strong>✅ Audit Complete:</strong> ${result.row_count} row(s) found
-                    </div>`;
-                    
-                    if (result.data && result.data.length > 0) {
-                        html += '<table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9em;">';
-                        html += '<thead><tr style="background: #667eea; color: white;">';
-                        result.columns.forEach(col => {
-                            html += `<th style="padding: 8px; text-align: left;">${col}</th>`;
-                        });
-                        html += '</tr></thead><tbody>';
-                        
-                        result.data.slice(0, 3).forEach((row, idx) => {
-                            html += `<tr style="background: ${idx % 2 ? '#f8f9fa' : 'white'};">`;
-                            result.columns.forEach(col => {
-                                html += `<td style="padding: 8px; border-bottom: 1px solid #dee2e6;">${row[col]}</td>`;
-                            });
-                            html += '</tr>';
-                        });
-                        html += '</tbody></table>';
-                        
-                        if (result.row_count > 3) {
-                            html += `<p style="font-size: 0.85em; color: #666;">Showing 3 of ${result.row_count} rows</p>`;
-                        }
-                    }
-                    
-                    addMessage('assistant', html);
-                } else {
-                    addMessage('assistant', `❌ SQL Audit Failed: ${result.error}`);
-                }
-            } catch (error) {
-                addMessage('assistant', `❌ Error running SQL audit: ${error.message}`);
-            }
+            // DEPRECATED - SQL is now auto-executed in SOP workflow
+            addMessage('assistant', 'ℹ️ SQL queries are now automatically executed in the SOP workflow.');
         }
 
         async function markSolutionWorked() {
-            try {
-                const response = await fetch('/api/chatbot/diagnostic/feedback', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        session_data: semiAutoDiagSession,
-                        is_correct: true
-                    })
-                });
-                
-                const result = await response.json();
-                addMessage('assistant', '✅ <strong>Problem Resolved Successfully!</strong><br>Great! The solution worked. Diagnosis session ended.');
-                semiAutoDiagSession = null;
-            } catch (error) {
-                addMessage('assistant', `❌ Error: ${error.message}`);
-            }
+            // DEPRECATED - use markSOPResolved instead
+            await markSOPResolved();
         }
 
         async function tryNextSolution() {
-            try {
-                const response = await fetch('/api/chatbot/diagnostic/feedback', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        session_data: semiAutoDiagSession,
-                        is_correct: false
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.status === 'next_suggestion') {
-                    semiAutoDiagSession.current_case_index = result.current_case_index;
-                    semiAutoDiagSession.current_case = result.current_case;
-                    addMessage('assistant', '🔄 Trying next possible cause...');
-                    displayDiagnosticCase(result.current_case, semiAutoDiagSession.total_matches);
-                } else if (result.status === 'exhausted') {
-                    addMessage('assistant', '⚠️ <strong>All Known Solutions Tried</strong><br>Manual investigation required. Consider escalating to development team.');
-                    semiAutoDiagSession = null;
-                }
-            } catch (error) {
-                addMessage('assistant', `❌ Error: ${error.message}`);
-            }
+            // DEPRECATED - use markSOPNotResolved instead
+            await markSOPNotResolved();
         }
 
         function addMessage(type, content, data = {}) {
