@@ -22,7 +22,8 @@ from ..services.knowledge_base_service import KnowledgeBaseService
 from ..services.sql_assistant_integrated import SQLAssistantService
 from ..services.diagnostic_service import DiagnosticService
 from ..services.agentic_service import get_agentic_service
-from ..services.semi_automated_diagnostic_service import SemiAutomatedDiagnosticService
+# NOTE: Old SemiAutomatedDiagnosticService has been replaced with SemiAutoSOPService
+# New SOP-based endpoints are in diagnostic_support_routes.py under /api/diagnostic-support/sop/*
 from app.core.config import settings
 from ..utils.session_manager import get_session_manager, SessionType
 
@@ -35,7 +36,7 @@ router = APIRouter(prefix="/api/chatbot", tags=["NEO Chatbot"])
 kb_service = KnowledgeBaseService()
 sql_service = SQLAssistantService()
 diagnostic_service = DiagnosticService()
-semi_auto_diagnostic = SemiAutomatedDiagnosticService()
+# NOTE: semi_auto_diagnostic removed - use /api/diagnostic-support/sop/* endpoints instead
 session_manager = get_session_manager()
 
 # Initialize agentic service if enabled
@@ -717,170 +718,113 @@ async def submit_feedback(
 
 
 # ============================================================
-# SEMI-AUTOMATED DIAGNOSTIC ENDPOINTS
+# SEMI-AUTOMATED DIAGNOSTIC ENDPOINTS (DEPRECATED)
 # ============================================================
+# NOTE: These endpoints have been replaced with the new SOP-based workflow.
+# Use the new endpoints at /api/diagnostic-support/sop/* instead:
+#   POST /api/diagnostic-support/sop/start - Start SOP workflow
+#   POST /api/diagnostic-support/sop/select - Select problem from candidates
+#   POST /api/diagnostic-support/sop/step-input - Submit step observation
+#   POST /api/diagnostic-support/sop/resolved - Mark as resolved
+#   POST /api/diagnostic-support/sop/not-resolved - Continue to next step
+#   GET  /api/diagnostic-support/sop/session/{session_id} - Get session
+#   DELETE /api/diagnostic-support/sop/session/{session_id} - Reset session
+#   GET  /api/diagnostic-support/sop/problems - Get all SOP problems
+
 
 @router.post("/diagnostic/start")
-async def start_diagnosis(problem_description: str, issue_type: str = None):
+async def start_diagnosis_deprecated(problem_description: str, issue_type: str = None):
     """
-    Start semi-automated diagnosis
+    DEPRECATED - Use /api/diagnostic-support/sop/start instead.
     
-    Args:
-        problem_description: User's problem description
-    
-    Returns:
-        Session data with matched cases
+    This endpoint is deprecated and will be removed in a future version.
+    Please migrate to the new SOP-based workflow endpoints.
     """
-    try:
-        result = semi_auto_diagnostic.start_diagnosis(problem_description, issue_type=issue_type)
-        return result
-    except Exception as e:
-        logger.error(f"❌ Error starting diagnosis: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(
+        status_code=410,
+        detail="This endpoint is deprecated. Use POST /api/diagnostic-support/sop/start instead."
+    )
 
 
 @router.post("/diagnostic/classify")
-async def classify_diagnostic_issue(problem_description: str):
+async def classify_diagnostic_issue_deprecated(problem_description: str):
     """
-    Classify issue type as BOT_LEVEL or STATION_LEVEL
+    DEPRECATED - Classification is now handled automatically in the new SOP workflow.
     """
-    try:
-        result = semi_auto_diagnostic.classify_issue_type(problem_description)
-        return result
-    except Exception as e:
-        logger.error(f"❌ Error classifying issue type: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(
+        status_code=410,
+        detail="This endpoint is deprecated. The new SOP workflow handles classification automatically."
+    )
 
 
 @router.post("/diagnostic/audit-sql")
-async def audit_with_sql(sql_query: str):
+async def audit_with_sql_deprecated(sql_query: str):
     """
-    Execute SQL audit query
-    
-    Args:
-        sql_query: SQL query to execute
-    
-    Returns:
-        Query results and analysis
+    DEPRECATED - SQL execution is now automatic in the new SOP workflow.
     """
-    try:
-        result = semi_auto_diagnostic.execute_sql_audit(sql_query)
-        return result
-    except Exception as e:
-        logger.error(f"❌ Error executing SQL audit: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(
+        status_code=410,
+        detail="This endpoint is deprecated. SQL queries are executed automatically in the new SOP workflow."
+    )
 
 
 @router.post("/diagnostic/analyze-results")
-async def analyze_audit_results(case: Dict[str, Any], sql_results: Dict[str, Any], session_id: str = None):
+async def analyze_audit_results_deprecated(case: Dict[str, Any], sql_results: Dict[str, Any], session_id: str = None):
     """
-    Analyze SQL audit results against expected outcome
-    
-    Args:
-        case: Current diagnostic case
-        sql_results: Results from SQL audit
-        session_id: Optional session ID to store results in context
-    
-    Returns:
-        Analysis with recommendations
+    DEPRECATED - Result analysis is now integrated in the SOP workflow.
     """
-    try:
-        analysis = semi_auto_diagnostic.analyze_sql_results(case, sql_results)
-        
-        # Store SQL results in session if session_id provided
-        if session_id:
-            sql_results['analysis'] = analysis.get('interpretation', '')
-            semi_auto_diagnostic.update_sql_results(session_id, sql_results)
-        
-        return analysis
-    except Exception as e:
-        logger.error(f"❌ Error analyzing results: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(
+        status_code=410,
+        detail="This endpoint is deprecated. Use the new SOP workflow at /api/diagnostic-support/sop/*"
+    )
 
 
 @router.post("/diagnostic/feedback")
-async def handle_diagnostic_feedback(
+async def handle_diagnostic_feedback_deprecated(
     session_id: str,
     is_correct: bool,
     user_comment: str = None
 ):
     """
-    Handle user feedback on diagnostic suggestion
-    
-    Args:
-        session_id: Session ID from start_diagnosis
-        is_correct: Whether the solution worked
-        user_comment: Optional user feedback
-    
-    Returns:
-        Next suggestion or resolution status
+    DEPRECATED - Use /api/diagnostic-support/sop/resolved or /api/diagnostic-support/sop/not-resolved instead.
     """
-    try:
-        result = semi_auto_diagnostic.handle_user_feedback(
-            session_id, is_correct, user_comment
-        )
-        return result
-    except Exception as e:
-        logger.error(f"❌ Error handling feedback: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(
+        status_code=410,
+        detail="This endpoint is deprecated. Use POST /api/diagnostic-support/sop/resolved or /api/diagnostic-support/sop/not-resolved instead."
+    )
 
 
 @router.post("/diagnostic/followup")
-async def handle_followup_question(session_id: str, question: str):
+async def handle_followup_question_deprecated(session_id: str, question: str):
     """
-    Handle follow-up questions within a diagnostic session
-    
-    Args:
-        session_id: Session ID from start_diagnosis
-        question: User's follow-up question
-    
-    Returns:
-        Contextual answer based on conversation history
+    DEPRECATED - Follow-up is now handled through the step-input endpoint.
     """
-    try:
-        result = semi_auto_diagnostic.handle_followup_question(session_id, question)
-        return result
-    except Exception as e:
-        logger.error(f"❌ Error handling follow-up: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(
+        status_code=410,
+        detail="This endpoint is deprecated. Use POST /api/diagnostic-support/sop/step-input instead."
+    )
 
 
 @router.get("/diagnostic/session/{session_id}")
-async def get_session_info(session_id: str):
+async def get_session_info_deprecated(session_id: str):
     """
-    Get complete session information including conversation history
-    
-    Args:
-        session_id: Session ID
-    
-    Returns:
-        Session data with full conversation history
+    DEPRECATED - Use GET /api/diagnostic-support/sop/session/{session_id} instead.
     """
-    try:
-        result = semi_auto_diagnostic.get_session_history(session_id)
-        return result
-    except Exception as e:
-        logger.error(f"❌ Error getting session info: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(
+        status_code=410,
+        detail="This endpoint is deprecated. Use GET /api/diagnostic-support/sop/session/{session_id} instead."
+    )
 
 
 @router.post("/diagnostic/summary")
-async def get_diagnostic_summary(session_id: str):
+async def get_diagnostic_summary_deprecated(session_id: str):
     """
-    Get session summary in concise format
-    
-    Args:
-        session_id: Session ID
-    
-    Returns:
-        Formatted summary
+    DEPRECATED - Session details available via GET /api/diagnostic-support/sop/session/{session_id}
     """
-    try:
-        summary = semi_auto_diagnostic.get_session_summary(session_id)
-        return {"summary": summary, "session_id": session_id}
-    except Exception as e:
-        logger.error(f"❌ Error getting summary: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(
+        status_code=410,
+        detail="This endpoint is deprecated. Use GET /api/diagnostic-support/sop/session/{session_id} instead."
+    )
 
 
 # ========================================
