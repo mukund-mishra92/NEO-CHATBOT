@@ -15,9 +15,17 @@ from ..services.nl_to_sql_generator import NLToSQLGenerator
 
 router = APIRouter(prefix="/api/table-priority", tags=["table-priority"])
 
+# Get project root directory (3 levels up from this file)
+PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
+
+# Get OpenAI config from environment
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+SQL_MODEL = os.getenv("SQL_GENERATION_MODEL", "gpt-4o")
+SCHEMA_CSV_PATH = os.getenv("NEO_SCHEMA_CSV_PATH", str(PROJECT_ROOT / "data" / "database" / "Table_information.csv"))
+
 # Storage paths
-VALIDATIONS_FILE = Path("data/database/table_priority_validations.jsonl")
-PRIORITIES_FILE = Path("data/database/table_priority_settings.json")
+VALIDATIONS_FILE = PROJECT_ROOT / "data" / "database" / "table_priority_validations.jsonl"
+PRIORITIES_FILE = PROJECT_ROOT / "data" / "database" / "table_priority_settings.json"
 
 # Ensure directory exists
 VALIDATIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -152,8 +160,16 @@ async def test_query(request: TestQueryRequest):
         if not query:
             raise HTTPException(status_code=400, detail="Query cannot be empty")
         
-        # Initialize SQL generator
-        generator = NLToSQLGenerator()
+        # Check if API key is available
+        if not OPENAI_API_KEY:
+            raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+        
+        # Initialize SQL generator with API key and model
+        generator = NLToSQLGenerator(
+            api_key=OPENAI_API_KEY,
+            model=SQL_MODEL,
+            schema_csv_path=SCHEMA_CSV_PATH
+        )
         
         # Get ranked tables (top 8)
         ranked_tables = generator.get_ranked_tables_for_query(query, top_k=8)
