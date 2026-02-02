@@ -6,6 +6,7 @@ Stores all chat interactions and provides analytics for system improvement
 import logging
 import uuid
 import json
+import time
 import pymysql
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Tuple
@@ -31,9 +32,55 @@ class ChatHistoryService:
         self._ensure_tables_exist()
         logger.info("✅ Chat History Service initialized")
     
-    def _get_connection(self):
-        """Get database connection"""
-        return pymysql.connect(**self.db_config)
+    def _get_connection(self, retry_attempts: int = 3, connect_timeout: int = 20):
+        """Get database connection with retry logic for slow remote servers
+        
+        Args:
+            retry_attempts: Number of connection attempts (default: 3)
+            connect_timeout: Connection timeout in seconds (default: 20)
+            
+        Returns:
+            pymysql.Connection object
+            
+        Raises:
+            pymysql.err.OperationalError: If all connection attempts fail
+        """
+        last_error = None
+        
+        for attempt in range(1, retry_attempts + 1):
+            try:
+                if attempt > 1:
+                    logger.info(f"🔄 DB connection attempt {attempt}/{retry_attempts}...")
+                
+                conn = pymysql.connect(
+                    host=self.db_config['host'],
+                    port=self.db_config['port'],
+                    user=self.db_config['user'],
+                    password=self.db_config['password'],
+                    database=self.db_config['database'],
+                    charset='utf8mb4',
+                    connect_timeout=connect_timeout,
+                    read_timeout=30,
+                    write_timeout=30
+                )
+                
+                if attempt > 1:
+                    logger.info(f"✅ DB connection successful on attempt {attempt}")
+                
+                return conn
+                
+            except Exception as e:
+                last_error = e
+                if attempt < retry_attempts:
+                    wait_time = 1.0 * attempt  # Incremental backoff: 1s, 2s, 3s
+                    logger.warning(f"⚠️ DB connection failed (attempt {attempt}/{retry_attempts}): {e}")
+                    logger.info(f"⏳ Waiting {wait_time}s before retry...")
+                    time.sleep(wait_time)
+                else:
+                    logger.error(f"❌ All {retry_attempts} connection attempts failed")
+        
+        # All attempts failed
+        raise last_error
     
     def _ensure_tables_exist(self):
         """Create chat history tables if they don't exist"""

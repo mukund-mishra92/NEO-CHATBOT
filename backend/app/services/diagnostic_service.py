@@ -13,7 +13,7 @@ from pathlib import Path
 from .llm_service import LLMService
 from .rlhf_service import RLHFService
 from .diagnostic_support_service import DiagnosticSupportService
-from .sql_assistant_service import SQLAssistantService
+from .sql_assistant_integrated import SQLAssistantService
 from .intelligent_diagnostic_service import IntelligentDiagnosticService
 from ..models.schemas import ChatRequest, ChatResponse, ChatbotType, DiagnosticIssue, SystemHealthStatus
 from ..utils.session_manager import get_session_manager, SessionType

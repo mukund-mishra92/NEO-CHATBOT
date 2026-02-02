@@ -12,6 +12,8 @@ import logging
 from app.api.chatbot_endpoints import router as chatbot_router
 from app.api.diagnostic_support_routes import router as diagnostic_router
 from app.api.classification_routes import router as classification_router
+from app.api.schema_management_routes import router as schema_router
+from app.api.table_priority_routes import router as table_priority_router
 from app.core.config import settings
 from app.core.logging import setup_logging
 
@@ -39,6 +41,8 @@ app.add_middleware(
 app.include_router(chatbot_router)  # Chatbot API routes (has /api/chatbot prefix)
 app.include_router(diagnostic_router)  # Diagnostic support routes (/api/diagnostic-support)
 app.include_router(classification_router)  # Query classification routes (/api/classification)
+app.include_router(schema_router)  # Schema management routes (/api/schema)
+app.include_router(table_priority_router)  # Table priority validation routes (/api/table-priority)
 
 def serve_html_file(filename: str, fallback_message: str = "Page not found"):
     """Helper function to serve HTML files"""
@@ -82,6 +86,16 @@ async def diagnostic_support_page():
 async def classification_page():
     """Serve the query classification UI"""
     return serve_html_file("classification.html", "Classification UI not found")
+
+@app.get("/schema", response_class=HTMLResponse)
+async def schema_management_page():
+    """Serve the schema management UI"""
+    return serve_html_file("schema_management.html", "Schema Management UI not found")
+
+@app.get("/table_priority_analyzer", response_class=HTMLResponse)
+async def table_priority_analyzer_page():
+    """Serve the table priority validator UI"""
+    return serve_html_file("table_priority_validator.html", "Table Priority Analyzer UI not found")
 
 @app.on_event("startup")
 async def startup_event():

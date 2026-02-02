@@ -123,7 +123,7 @@ class AgenticService:
                 from langchain_openai import ChatOpenAI
                 llm = ChatOpenAI(
                     api_key=openai_key,
-                    model="gpt-4-turbo",  # Updated to GPT-4 Turbo
+                    model="gpt-5.2",  # Updated to GPT-5.2
                     temperature=0.7,
                     max_tokens=2000
                 )

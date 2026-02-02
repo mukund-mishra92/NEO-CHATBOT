@@ -10,7 +10,7 @@ from pathlib import Path
 
 from .llm_service import LLMService
 from .vector_store_service import VectorStoreService
-from .sql_assistant_service import SQLAssistantService
+from .sql_assistant_integrated import SQLAssistantService
 from .diagnostic_support_service import DiagnosticSupportService
 from ..models.schemas import ChatRequest, ChatResponse, ChatbotType
 from ..utils.session_manager import get_session_manager, SessionType

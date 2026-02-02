@@ -162,7 +162,7 @@ class VisionLLMService:
                 image_url = image_data
             
             response = self.openai_client.chat.completions.create(
-                model="gpt-4o",  # GPT-4 with vision
+                model="gpt-5.2",  # GPT-5.2 with vision
                 max_tokens=max_tokens,
                 messages=[
                     {

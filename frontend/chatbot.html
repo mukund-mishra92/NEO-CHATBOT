@@ -53,6 +53,81 @@
         .back-btn:hover {
             background: rgba(255,255,255,0.3);
         }
+        
+        .header-tools {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .tools-dropdown {
+            position: relative;
+        }
+        
+        .tools-toggle {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .tools-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tools-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            min-width: 200px;
+            z-index: 1000;
+        }
+        
+        .tools-menu.show {
+            display: block;
+        }
+        
+        .tools-menu-item {
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .tools-menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .tools-menu-item:hover {
+            background: #f8f9fa;
+            padding-left: 25px;
+        }
+        
+        .tools-menu-item i {
+            font-size: 16px;
+            width: 20px;
+        }
+        
+        .tool-schema { color: #17a2b8; }
+        .tool-priority { color: #6f42c1; }
+        .tool-classification { color: #28a745; }
 
         .chatbot-selector {
             background: #f8f9fa;
@@ -508,9 +583,31 @@
                 <h1><i class="fas fa-robot"></i> NEO AI Assistant</h1>
                 <small>Powered by Falcon AI</small>
             </div>
-            <button class="back-btn" onclick="window.location.href='/'">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
-            </button>
+            <div class="header-tools">
+                <div class="tools-dropdown">
+                    <button class="tools-toggle" onclick="toggleToolsMenu()">
+                        <i class="fas fa-tools"></i> Management Tools
+                        <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                    </button>
+                    <div class="tools-menu" id="toolsMenu">
+                        <a class="tools-menu-item" href="/schema">
+                            <i class="fas fa-table tool-schema"></i>
+                            <span>Schema Manager</span>
+                        </a>
+                        <a class="tools-menu-item" href="/table_priority_analyzer">
+                            <i class="fas fa-layer-group tool-priority"></i>
+                            <span>Priority Analyzer</span>
+                        </a>
+                        <a class="tools-menu-item" href="/classification">
+                            <i class="fas fa-graduation-cap tool-classification"></i>
+                            <span>Query Classification</span>
+                        </a>
+                    </div>
+                </div>
+                <button class="back-btn" onclick="window.location.href='/'">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+            </div>
         </div>
 
         <!-- Chatbot Type Selector -->
@@ -527,9 +624,6 @@
             </button>
             <button class="chatbot-btn" data-type="diagnostic">
                 <i class="fas fa-stethoscope"></i> Diagnostic Support
-            </button>
-            <button class="chatbot-btn" onclick="window.location.href='/classification'" style="margin-left: auto; border-color: #28a745;">
-                <i class="fas fa-graduation-cap"></i> Query Classification
             </button>
         </div>
 
@@ -644,6 +738,20 @@
         let currentChatbotType = 'knowledge_base';
         let sessionId = null;
         let messageCount = 0;
+        
+        // Toggle management tools dropdown
+        function toggleToolsMenu() {
+            const menu = document.getElementById('toolsMenu');
+            menu.classList.toggle('show');
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.tools-dropdown');
+            if (dropdown && !dropdown.contains(event.target)) {
+                document.getElementById('toolsMenu').classList.remove('show');
+            }
+        });
 
         // Suggestions for each chatbot type
         const suggestions = {
