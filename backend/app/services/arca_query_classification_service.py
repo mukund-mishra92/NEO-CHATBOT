@@ -1,11 +1,11 @@
 """
 Query Classification Service
-
+ 
 Stores all user queries with generated SQL and allows manual classification
 for building a training dataset. Uses classified queries to improve future
 query generation through pattern matching.
 """
-
+ 
 import json
 import logging
 from datetime import datetime
@@ -13,45 +13,45 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from difflib import SequenceMatcher
 import re
-
+ 
 logger = logging.getLogger(__name__)
-
-
+ 
+ 
 class QueryClassificationService:
     """
     Service for storing, classifying, and learning from SQL queries.
-    
+   
     Features:
     - Stores all user queries with generated SQL
     - Manual classification (correct/incorrect/needs_review)
     - Similarity matching for reusing proven queries
     - Pattern learning from successful queries
     """
-    
+   
     def __init__(self, storage_path: Path):
         """
         Initialize the query classification service
-        
+       
         Args:
             storage_path: Path to directory for storing classification data
         """
         self.storage_path = storage_path
         self.storage_path.mkdir(parents=True, exist_ok=True)
-        
+       
         # File paths
         self.queries_file = self.storage_path / "classified_queries.jsonl"
         self.patterns_file = self.storage_path / "learned_patterns.json"
-        
+       
         # In-memory cache for fast lookup
         self.classified_queries_cache = []
         self.patterns_cache = {}
-        
+       
         # Load existing data
         self._load_classified_queries()
         self._load_patterns()
-        
+       
         logger.info(f"✅ Query Classification Service initialized | {len(self.classified_queries_cache)} classified queries")
-    
+   
     def store_query(
         self,
         session_id: str,
@@ -65,7 +65,7 @@ class QueryClassificationService:
     ) -> str:
         """
         Store a query with its generated SQL for later classification
-        
+       
         Args:
             session_id: Session identifier
             user_query: User's natural language question
@@ -75,13 +75,13 @@ class QueryClassificationService:
             confidence: System confidence score
             tables_used: List of tables used in query
             metadata: Additional metadata
-            
+           
         Returns:
             Query ID for reference
         """
         try:
             query_id = f"{session_id}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
-            
+           
             query_record = {
                 "query_id": query_id,
                 "timestamp": datetime.now().isoformat(),
@@ -98,20 +98,21 @@ class QueryClassificationService:
                 "corrected_sql": None,
                 "metadata": metadata or {}
             }
-            
+           
             # Append to file
             with open(self.queries_file, "a", encoding="utf-8") as f:
                 f.write(json.dumps(query_record, ensure_ascii=False) + "\n")
-
+           
+            # Also update in-memory cache so new queries appear immediately
             self.classified_queries_cache.append(query_record)
-            
-            logger.debug(f"📝 Stored query {query_id} for classification")
+           
+            logger.info(f"📝 Stored query {query_id} for classification (cache now has {len(self.classified_queries_cache)} queries)")
             return query_id
-            
+           
         except Exception as e:
             logger.error(f"❌ Error storing query: {e}")
             return ""
-    
+   
     def classify_query(
         self,
         query_id: str,
@@ -121,13 +122,13 @@ class QueryClassificationService:
     ) -> bool:
         """
         Manually classify a query as correct/incorrect/needs_review
-        
+       
         Args:
             query_id: ID of query to classify
             classification: 'correct', 'incorrect', or 'needs_review'
             notes: Optional notes about the classification
             corrected_sql: If incorrect, provide corrected SQL
-            
+           
         Returns:
             True if classification succeeded
         """
@@ -137,14 +138,14 @@ class QueryClassificationService:
             if classification not in valid_classifications:
                 logger.error(f"Invalid classification: {classification}")
                 return False
-            
+           
             # Read all queries
             queries = []
             with open(self.queries_file, "r", encoding="utf-8") as f:
                 for line in f:
                     if line.strip():
                         queries.append(json.loads(line))
-            
+           
             # Find and update the query
             updated = False
             for query in queries:
@@ -156,30 +157,30 @@ class QueryClassificationService:
                         query['corrected_sql'] = corrected_sql
                     updated = True
                     break
-            
+           
             if not updated:
                 logger.warning(f"Query {query_id} not found")
                 return False
-            
+           
             # Write back to file
             with open(self.queries_file, "w", encoding="utf-8") as f:
                 for query in queries:
                     f.write(json.dumps(query, ensure_ascii=False) + "\n")
-            
+           
             # Reload cache
             self._load_classified_queries()
-            
+           
             # If classified as correct, learn patterns
             if classification == 'correct':
                 self._learn_from_correct_query(query)
-            
+           
             logger.info(f"✅ Query {query_id} classified as: {classification}")
             return True
-            
+           
         except Exception as e:
             logger.error(f"❌ Error classifying query: {e}")
             return False
-    
+   
     def update_query(
         self,
         query_id: str,
@@ -189,13 +190,13 @@ class QueryClassificationService:
     ) -> bool:
         """
         Update a query's text or SQL before classification
-        
+       
         Args:
             query_id: ID of query to update
             user_query: New user query text (optional)
             generated_sql: New SQL query (optional)
             notes: Update notes (optional)
-            
+           
         Returns:
             True if update succeeded
         """
@@ -206,7 +207,7 @@ class QueryClassificationService:
                 for line in f:
                     if line.strip():
                         queries.append(json.loads(line))
-            
+           
             # Find and update the query
             updated = False
             for query in queries:
@@ -225,26 +226,26 @@ class QueryClassificationService:
                     query['metadata']['last_updated'] = datetime.now().isoformat()
                     updated = True
                     break
-            
+           
             if not updated:
                 logger.warning(f"Query {query_id} not found")
                 return False
-            
+           
             # Write back to file
             with open(self.queries_file, "w", encoding="utf-8") as f:
                 for query in queries:
                     f.write(json.dumps(query, ensure_ascii=False) + "\n")
-            
+           
             # Reload cache
             self._load_classified_queries()
-            
+           
             logger.info(f"✅ Query {query_id} updated successfully")
             return True
-            
+           
         except Exception as e:
             logger.error(f"❌ Error updating query: {e}")
             return False
-    
+   
     def find_similar_classified_query(
         self,
         user_query: str,
@@ -252,34 +253,34 @@ class QueryClassificationService:
     ) -> Optional[Dict[str, Any]]:
         """
         Find a similar query that has been classified as 'correct'
-        
+       
         Args:
             user_query: Current user query
             similarity_threshold: Minimum similarity score (0.0-1.0)
-            
+           
         Returns:
             Best matching classified query or None
         """
         try:
             best_match = None
             best_score = 0.0
-            
+           
             query_normalized = user_query.lower().strip()
-            
+           
             # Search through correct queries only
             for query in self.classified_queries_cache:
                 if query['classification'] != 'correct':
                     continue
-                
+               
                 stored_query = query['user_query'].lower().strip()
-                
+               
                 # Calculate similarity
                 score = self._calculate_similarity(query_normalized, stored_query)
-                
+               
                 if score > best_score and score >= similarity_threshold:
                     best_score = score
                     best_match = query
-            
+           
             if best_match:
                 logger.info(f"🎯 Found similar classified query (similarity: {best_score:.0%})")
                 logger.info(f"   Current: {user_query[:60]}...")
@@ -288,48 +289,78 @@ class QueryClassificationService:
                     **best_match,
                     'similarity_score': best_score
                 }
-            
+           
             return None
-            
+           
         except Exception as e:
             logger.error(f"❌ Error finding similar query: {e}")
             return None
-    
+   
     def get_unclassified_queries(self, limit: int = 50) -> List[Dict[str, Any]]:
         """
         Get queries awaiting classification
-        
+       
         Args:
             limit: Maximum number of queries to return
-            
+           
         Returns:
             List of unclassified queries
         """
         try:
             unclassified = [
-                q for q in self.classified_queries_cache 
+                q for q in self.classified_queries_cache
                 if q['classification'] == 'unclassified'
             ]
-            
+           
             # Sort by timestamp (newest first)
             unclassified.sort(key=lambda x: x['timestamp'], reverse=True)
-            
+           
             return unclassified[:limit]
-            
+           
         except Exception as e:
             logger.error(f"❌ Error getting unclassified queries: {e}")
             return []
-    
+   
+    def get_high_confidence_queries(self, min_confidence: float = 0.5, limit: int = 50) -> List[Dict[str, Any]]:
+        """
+        Get queries with confidence score >= min_confidence threshold
+       
+        Shows all high-confidence queries regardless of manual classification status.
+        This is useful for review and learning from system-generated SQL.
+       
+        Args:
+            min_confidence: Minimum confidence score (default 0.5 = 50%)
+            limit: Maximum number of queries to return
+           
+        Returns:
+            List of high-confidence queries sorted by confidence (descending) then timestamp (newest first)
+        """
+        try:
+            high_confidence = [
+                q for q in self.classified_queries_cache
+                if q.get('confidence', 0) >= min_confidence
+            ]
+           
+            # Sort by confidence (highest first), then by timestamp (newest first)
+            high_confidence.sort(key=lambda x: (-x.get('confidence', 0), x['timestamp']), reverse=True)
+           
+            logger.info(f"Found {len(high_confidence)} queries with confidence >= {min_confidence:.0%}")
+            return high_confidence[:limit]
+           
+        except Exception as e:
+            logger.error(f"❌ Error getting high confidence queries: {e}")
+            return []
+   
     def get_classification_stats(self) -> Dict[str, Any]:
         """
         Get statistics about classified queries
-        
+       
         Returns:
             Dict with classification statistics
         """
         try:
             total = len(self.classified_queries_cache)
-            
+           
             stats = {
                 'total_queries': total,
                 'correct': 0,
@@ -338,37 +369,37 @@ class QueryClassificationService:
                 'unclassified': 0,
                 'accuracy': 0.0
             }
-            
+           
             for query in self.classified_queries_cache:
                 classification = query['classification']
                 if classification in stats:
                     stats[classification] += 1
-            
+           
             # Calculate accuracy
             classified_total = stats['correct'] + stats['incorrect']
             if classified_total > 0:
                 stats['accuracy'] = stats['correct'] / classified_total
-            
+           
             return stats
-            
+           
         except Exception as e:
             logger.error(f"❌ Error getting stats: {e}")
             return {}
-    
+   
     def export_training_dataset(self, output_path: Path) -> bool:
         """
         Export classified queries as training dataset
-        
+       
         Args:
             output_path: Path to save dataset
-            
+           
         Returns:
             True if export succeeded
         """
         try:
             # Get all classified queries (correct and incorrect with corrections)
             training_data = []
-            
+           
             for query in self.classified_queries_cache:
                 if query['classification'] == 'correct':
                     training_data.append({
@@ -386,41 +417,46 @@ class QueryClassificationService:
                         'classification': 'corrected',
                         'notes': query.get('classification_notes')
                     })
-            
+           
             # Save to file
             with open(output_path, "w", encoding="utf-8") as f:
                 json.dump(training_data, f, indent=2)
-            
+           
             logger.info(f"✅ Exported {len(training_data)} training examples to {output_path}")
             return True
-            
+           
         except Exception as e:
             logger.error(f"❌ Error exporting training data: {e}")
             return False
-    
+   
     # ========================================
     # PRIVATE METHODS
     # ========================================
-    
+   
     def _load_classified_queries(self):
         """Load classified queries into memory cache"""
         try:
             if not self.queries_file.exists():
                 logger.info("📁 No classified queries file found - will create on first store")
                 return
-            
+           
             self.classified_queries_cache = []
-            with open(self.queries_file, "r", encoding="utf-8") as f:
+            with open(self.queries_file, "r", encoding="utf-8-sig") as f:
                 for line in f:
-                    if line.strip():
-                        self.classified_queries_cache.append(json.loads(line))
-            
+                    line = line.strip()
+                    if line:  # Skip empty lines
+                        try:
+                            self.classified_queries_cache.append(json.loads(line))
+                        except json.JSONDecodeError as json_error:
+                            logger.error(f"⚠️ Skipping invalid JSON line: {json_error}")
+                            continue
+           
             logger.info(f"✅ Loaded {len(self.classified_queries_cache)} classified queries")
-            
+           
         except Exception as e:
             logger.error(f"❌ Error loading classified queries: {e}")
             self.classified_queries_cache = []
-    
+   
     def _load_patterns(self):
         """Load learned patterns"""
         try:
@@ -431,25 +467,25 @@ class QueryClassificationService:
                     'common_joins': []
                 }
                 return
-            
+           
             with open(self.patterns_file, "r", encoding="utf-8") as f:
                 self.patterns_cache = json.load(f)
-            
+           
             logger.info(f"✅ Loaded learned patterns")
-            
+           
         except Exception as e:
             logger.error(f"❌ Error loading patterns: {e}")
             self.patterns_cache = {}
-    
+   
     def _save_patterns(self):
         """Save learned patterns to file"""
         try:
             with open(self.patterns_file, "w", encoding="utf-8") as f:
                 json.dump(self.patterns_cache, f, indent=2)
-            
+           
         except Exception as e:
             logger.error(f"❌ Error saving patterns: {e}")
-    
+   
     def _learn_from_correct_query(self, query: Dict[str, Any]):
         """Learn patterns from a correctly classified query"""
         try:
@@ -457,42 +493,42 @@ class QueryClassificationService:
             user_query = query['user_query'].lower()
             sql = query['generated_sql']
             tables = query['tables_used']
-            
+           
             # Pattern 1: Entity to Table mapping
             entities = self._extract_entities(user_query)
             for entity in entities:
                 if entity not in self.patterns_cache['entity_table_patterns']:
                     self.patterns_cache['entity_table_patterns'][entity] = {}
-                
+               
                 for table in tables:
                     if table not in self.patterns_cache['entity_table_patterns'][entity]:
                         self.patterns_cache['entity_table_patterns'][entity][table] = 0
                     self.patterns_cache['entity_table_patterns'][entity][table] += 1
-            
+           
             # Pattern 2: Intent to SQL pattern
             intent = self._detect_intent(user_query)
             if intent:
                 if intent not in self.patterns_cache['intent_sql_patterns']:
                     self.patterns_cache['intent_sql_patterns'][intent] = []
-                
+               
                 self.patterns_cache['intent_sql_patterns'][intent].append({
                     'query': user_query[:100],
                     'sql_pattern': self._extract_sql_pattern(sql),
                     'tables': tables
                 })
-            
+           
             # Save updated patterns
             self._save_patterns()
-            
+           
             logger.debug(f"📚 Learned patterns from query: {query['query_id']}")
-            
+           
         except Exception as e:
             logger.error(f"❌ Error learning from query: {e}")
-    
+   
     def _calculate_similarity(self, str1: str, str2: str) -> float:
         """Calculate similarity between two strings"""
         return SequenceMatcher(None, str1, str2).ratio()
-    
+   
     def _extract_entities(self, query: str) -> List[str]:
         """Extract entities from query"""
         entities = []
@@ -503,13 +539,13 @@ class QueryClassificationService:
             'order': ['order', 'shipment', 'delivery'],
             'sku': ['sku', 'article', 'product', 'item']
         }
-        
+       
         for entity, keywords in entity_keywords.items():
             if any(kw in query for kw in keywords):
                 entities.append(entity)
-        
+       
         return entities
-    
+   
     def _detect_intent(self, query: str) -> Optional[str]:
         """Detect query intent"""
         if any(word in query for word in ['count', 'how many', 'number of']):
@@ -520,9 +556,9 @@ class QueryClassificationService:
             return 'historical'
         elif any(word in query for word in ['current', 'active', 'running']):
             return 'current_state'
-        
+       
         return None
-    
+   
     def _extract_sql_pattern(self, sql: str) -> str:
         """Extract SQL pattern by removing specific values"""
         # Replace string literals with placeholder
@@ -530,3 +566,5 @@ class QueryClassificationService:
         # Replace numbers with placeholder
         pattern = re.sub(r'\b\d+\b', '?', pattern)
         return pattern[:200]  # Truncate for storage
+ 
+ 
