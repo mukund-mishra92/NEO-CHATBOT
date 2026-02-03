@@ -1020,7 +1020,10 @@ RULES:
                         logger.warning(f"⚠️ Failed to log to chat history: {e}")
                 
                 # Store in classification file (if high confidence)
-                if self.classification_service and confidence >= 0.85:
+                ## execution_status='success'
+                ## we can use above condition on execution status 
+                ## if we need to store all sucesfully executed query to be stored.
+                if self.classification_service and confidence >= 0.35:
                     try:
                         self.classification_service.store_query(
                             query=question,

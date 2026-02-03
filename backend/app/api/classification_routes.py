@@ -43,15 +43,28 @@ class UpdateQueryRequest(BaseModel):
     notes: Optional[str] = Field(None, description="Update notes")
 
 
+# class QueryResponse(BaseModel):
+#     query_id: str
+#     timestamp: str
+#     user_query: str
+#     generated_sql: str
+#     classification: str
+#     rows_returned: int
+#     confidence: float
+#     tables_used: List[str]
+
 class QueryResponse(BaseModel):
     query_id: str
     timestamp: str
     user_query: str
     generated_sql: str
     classification: str
-    rows_returned: int
+    rows_returned: Optional[int] = None
     confidence: float
     tables_used: List[str]
+    execution_status: Optional[str] = None
+    session_id: Optional[str] = None
+    metadata: Optional[dict] = None
 
 
 class StatsResponse(BaseModel):
