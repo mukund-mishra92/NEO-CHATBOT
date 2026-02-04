@@ -1,0 +1,291 @@
+{
+  "config_version": "1.1",
+  "generated_on": "2026-01-29",
+  "purpose": "SQL Assistant configuration for NEO ASRS (intent classification + table hints + join hints).",
+  "entity_keywords": {
+    "bot": ["bot", "robots", "robot", "neo bot", "agv", "carrier"],
+    "station": ["station", "pick station", "put station", "workstation"],
+    "ptl": ["ptl", "put to light", "pick to light", "light", "bay", "slot"],
+    "bin": ["bin", "tote", "tray", "container", "bin barcode", "bin id"],
+    "inventory": ["inventory", "stock", "qty", "quantity", "available", "reserved"],
+    "sku": ["sku", "article", "item", "product"],
+    "batch": ["batch", "lot"],
+    "order": ["order", "wms order", "customer order", "shipment"],
+    "wave": ["wave", "pick wave", "put wave", "wave id"],
+    "task": ["task", "job", "mission", "pick task", "put task"],
+    "location": ["location", "slot location", "cell", "address", "location id"],
+    "aisle": ["aisle"],
+    "tower": ["tower"],
+    "zone": ["zone", "pick zone"],
+    "alarm": ["alarm", "fault", "error", "exception", "issue", "warning"],
+    "charging": ["charging", "charger", "dock", "battery", "charge"],
+    "performance": ["throughput", "kpi", "productivity", "cycle time", "latency", "rate"]
+  },
+  "operation_keywords": {
+    "count": ["count", "how many", "number of", "total"],
+    "sum": ["sum", "total qty", "total quantity"],
+    "avg": ["avg", "average", "mean"],
+    "min": ["min", "minimum", "lowest"],
+    "max": ["max", "maximum", "highest"],
+    "latest": ["latest", "last", "most recent", "newest"],
+    "oldest": ["oldest", "first", "earliest"],
+    "group_by": ["group by", "breakdown", "split by", "by station", "by bot", "by sku"],
+    "trend": ["trend", "over time", "day wise", "hour wise", "time series"],
+    "compare": ["compare", "vs", "difference between"]
+  },
+  "time_filter_keywords": [
+    "today",
+    "yesterday",
+    "current",
+    "now",
+    "latest",
+    "last hour",
+    "last 24 hours",
+    "last 7 days",
+    "last week",
+    "this week",
+    "last month",
+    "this month",
+    "between",
+    "from",
+    "to",
+    "since",
+    "before",
+    "after",
+    "date",
+    "timestamp"
+  ],
+  "temporal_indicators": {
+    "current": ["current", "now", "live", "active", "running", "present", "in progress", "open"],
+    "historical": ["history", "historical", "log", "past", "previous", "completed", "closed", "archive"]
+  },
+
+  "entity_tables": {
+    "bot": ["bot_master", "bot_master_log", "bot_alarm_log"],
+    "station": ["hw_station_master", "station_pick_task_master"],
+    "ptl": ["hw_ptl_master", "lpn_master"],
+    "bin": ["bin_info_master", "store_bin_master"],
+    "inventory": ["live_inventory_master"],
+    "sku": ["sku_master", "sku_batch_master"],
+    "order": ["wms_to_wcs_order_request_data", "wms_to_wcs_order_line_request_data", "order_bin_mapping"],
+    "wave": ["wave_master", "pick_wave_wms_data", "put_wave_order_master"],
+    "task": ["task_master", "task_detail_log"],
+    "location": ["location_master"]
+  },
+
+  "table_groups": {
+    "masters": [
+      "bot_master",
+      "hw_station_master",
+      "hw_ptl_master",
+      "bin_info_master",
+      "location_master",
+      "sku_master",
+      "sku_batch_master",
+      "wave_master"
+    ],
+    "transactions": [
+      "wms_to_wcs_order_request_data",
+      "wms_to_wcs_order_line_request_data",
+      "order_bin_mapping",
+      "pick_wave_wms_data",
+      "put_wave_order_master",
+      "station_pick_task_master",
+      "store_bin_master",
+      "live_inventory_master",
+      "task_master",
+      "task_detail_log",
+      "lpn_master"
+    ],
+    "logs": ["bot_master_log", "bot_alarm_log"]
+  },
+
+  "join_key_catalog": {
+    "BOT_ID": ["bot_master", "bot_master_log", "bot_alarm_log"],
+    "STATION_ID": ["hw_station_master", "station_pick_task_master", "order_bin_mapping"],
+    "PTL_ID": ["hw_ptl_master", "lpn_master"],
+    "BIN_ID": ["bin_info_master", "store_bin_master", "live_inventory_master", "order_bin_mapping", "put_wave_order_master"],
+    "LOCATION_ID": ["location_master", "store_bin_master"],
+    "ORDER_ID": ["wms_to_wcs_order_request_data", "wms_to_wcs_order_line_request_data", "order_bin_mapping"],
+    "WAVE_ID": ["wave_master", "pick_wave_wms_data", "put_wave_order_master", "station_pick_task_master"],
+    "SKU_ID": ["sku_master", "sku_batch_master"],
+    "BATCH_ID": ["sku_batch_master"]
+  },
+
+  "predefined_joins": [
+    {
+      "table1": "bot_alarm_log",
+      "table2": "bot_master",
+      "join_on": "bot_alarm_log.BOT_ID = bot_master.BOT_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.95,
+      "description": "Bot alarms linked to bot master."
+    },
+    {
+      "table1": "bot_master_log",
+      "table2": "bot_master",
+      "join_on": "bot_master_log.BOT_ID = bot_master.BOT_ID",
+      "relationship_type": "history_ref",
+      "confidence": 0.9,
+      "description": "Bot history snapshots linked to bot master."
+    },
+
+    {
+      "table1": "station_pick_task_master",
+      "table2": "hw_station_master",
+      "join_on": "station_pick_task_master.STATION_ID = hw_station_master.STATION_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "Station pick tasks mapped to station master."
+    },
+    {
+      "table1": "station_pick_task_master",
+      "table2": "wave_master",
+      "join_on": "station_pick_task_master.WAVE_ID = wave_master.WAVE_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "Station pick tasks mapped to wave master."
+    },
+
+    {
+      "table1": "store_bin_master",
+      "table2": "bin_info_master",
+      "join_on": "store_bin_master.BIN_ID = bin_info_master.BIN_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "Bin storage mapping linked to bin master."
+    },
+    {
+      "table1": "store_bin_master",
+      "table2": "location_master",
+      "join_on": "store_bin_master.LOCATION_ID = location_master.LOCATION_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "Bin storage mapping linked to location master."
+    },
+    {
+      "table1": "live_inventory_master",
+      "table2": "bin_info_master",
+      "join_on": "live_inventory_master.BIN_ID = bin_info_master.BIN_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "Live inventory per bin."
+    },
+    {
+      "table1": "live_inventory_master",
+      "table2": "sku_batch_master",
+      "join_on": "live_inventory_master.ARTICLE_ID = sku_batch_master.SKU_ID AND live_inventory_master.BATCH_ID = sku_batch_master.BATCH_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "Live inventory references SKU+Batch (article/batch)."
+    },
+    {
+      "table1": "sku_batch_master",
+      "table2": "sku_master",
+      "join_on": "sku_batch_master.SKU_ID = sku_master.SKU_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "SKU batch references SKU master."
+    },
+
+    {
+      "table1": "wms_to_wcs_order_line_request_data",
+      "table2": "wms_to_wcs_order_request_data",
+      "join_on": "wms_to_wcs_order_line_request_data.ORDER_ID = wms_to_wcs_order_request_data.ORDER_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.95,
+      "description": "Order lines belong to order header."
+    },
+    {
+      "table1": "wms_to_wcs_order_line_request_data",
+      "table2": "sku_batch_master",
+      "join_on": "wms_to_wcs_order_line_request_data.ARTICLE_ID = sku_batch_master.SKU_ID AND wms_to_wcs_order_line_request_data.BATCH_ID = sku_batch_master.BATCH_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "Order lines reference SKU+Batch (article/batch)."
+    },
+    {
+      "table1": "order_bin_mapping",
+      "table2": "wms_to_wcs_order_request_data",
+      "join_on": "order_bin_mapping.ORDER_ID = wms_to_wcs_order_request_data.ORDER_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.95,
+      "description": "Order-bin mapping linked to order header."
+    },
+    {
+      "table1": "order_bin_mapping",
+      "table2": "bin_info_master",
+      "join_on": "order_bin_mapping.BIN_ID = bin_info_master.BIN_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.95,
+      "description": "Order-bin mapping linked to bin master."
+    },
+    {
+      "table1": "order_bin_mapping",
+      "table2": "hw_station_master",
+      "join_on": "order_bin_mapping.STATION_ID = hw_station_master.STATION_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.9,
+      "description": "If station is stored in mapping, link it to station master."
+    },
+
+    {
+      "table1": "pick_wave_wms_data",
+      "table2": "wave_master",
+      "join_on": "pick_wave_wms_data.WAVE_ID = wave_master.WAVE_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "Pick wave WMS data linked to wave master."
+    },
+    {
+      "table1": "pick_wave_wms_data",
+      "table2": "sku_batch_master",
+      "join_on": "pick_wave_wms_data.SKU_ID = sku_batch_master.SKU_ID AND pick_wave_wms_data.BATCH_ID = sku_batch_master.BATCH_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.9,
+      "description": "Pick wave data linked to SKU+Batch where available."
+    },
+
+    {
+      "table1": "put_wave_order_master",
+      "table2": "wave_master",
+      "join_on": "put_wave_order_master.WAVE_ID = wave_master.WAVE_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "Put wave orders linked to wave master."
+    },
+    {
+      "table1": "put_wave_order_master",
+      "table2": "bin_info_master",
+      "join_on": "put_wave_order_master.BIN_ID = bin_info_master.BIN_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "Put wave orders linked to bin master."
+    },
+
+    {
+      "table1": "lpn_master",
+      "table2": "hw_ptl_master",
+      "join_on": "lpn_master.PTL_ID = hw_ptl_master.PTL_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.99,
+      "description": "LPN/Light allocations linked to PTL master."
+    },
+
+    {
+      "table1": "task_detail_log",
+      "table2": "task_master",
+      "join_on": "task_detail_log.TASK_ID = task_master.TASK_ID",
+      "relationship_type": "fk_or_master_ref",
+      "confidence": 0.9,
+      "description": "Task detail logs linked to task master."
+    }
+  ],
+
+  "safety": {
+    "allowed_statement_types": ["SELECT"],
+    "blocked_keywords": ["INSERT", "UPDATE", "DELETE", "DROP", "TRUNCATE", "ALTER", "CREATE", "GRANT", "REVOKE"],
+    "max_rows_default": 200,
+    "require_time_filter_for_logs": true
+  }
+}

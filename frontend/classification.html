@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Classification Tool - NEO Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-card .label {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .queries-list {
+            padding: 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .query-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .query-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .query-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .query-id {
+            font-size: 0.85rem;
+            color: #666;
+            font-family: monospace;
+        }
+
+        .confidence-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .confidence-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .confidence-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .confidence-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .query-text {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .sql-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .query-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .classification-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .notes-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: inherit;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            opacity: 0.3;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Query Classification Tool</h1>
+            <p>Review and classify SQL queries to improve system accuracy</p>
+        </div>
+
+        <div class="stats" id="stats">
+            <!-- Stats will be loaded here -->
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="loadUnclassified()">
+                🔄 Refresh Queries
+            </button>
+            <button class="btn btn-info" onclick="exportDataset()">
+                📥 Export Training Dataset
+            </button>
+        </div>
+
+        <div class="queries-list" id="queriesList">
+            <!-- Queries will be loaded here -->
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <div id="toastMessage"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api/classification';
+
+        // Load stats on page load
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const stats = await response.json();
+
+                const statsHtml = `
+                    <div class="stat-card">
+                        <div class="number">${stats.total_queries}</div>
+                        <div class="label">Total Queries</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.correct}</div>
+                        <div class="label">✅ Correct</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.incorrect}</div>
+                        <div class="label">❌ Incorrect</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.needs_review}</div>
+                        <div class="label">⏳ Needs Review</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.unclassified}</div>
+                        <div class="label">📋 Unclassified</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${(stats.accuracy * 100).toFixed(1)}%</div>
+                        <div class="label">Accuracy</div>
+                    </div>
+                `;
+
+                document.getElementById('stats').innerHTML = statsHtml;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load unclassified queries
+        async function loadUnclassified() {
+            const queriesList = document.getElementById('queriesList');
+            queriesList.innerHTML = '<div class="loading"><div class="spinner"></div>Loading queries...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/unclassified?limit=50`);
+                const queries = await response.json();
+
+                if (queries.length === 0) {
+                    queriesList.innerHTML = `
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <h3>All caught up!</h3>
+                            <p>No queries awaiting classification</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const queriesHtml = queries.map(query => {
+                    const confidenceClass = query.confidence >= 0.8 ? 'confidence-high' :
+                                          query.confidence >= 0.6 ? 'confidence-medium' : 'confidence-low';
+                    
+                    return `
+                        <div class="query-card" id="query-${query.query_id}" data-edit-mode="false">
+                            <div class="query-header">
+                                <div class="query-id">${query.query_id}</div>
+                                <div class="confidence-badge ${confidenceClass}">
+                                    Confidence: ${(query.confidence * 100).toFixed(0)}%
+                                </div>
+                            </div>
+                            
+                            <div class="query-text" id="query-text-${query.query_id}">
+                                <strong>User Query:</strong> "${query.user_query}"
+                            </div>
+                            <textarea class="notes-input" id="query-edit-${query.query_id}" 
+                                      style="display:none;" placeholder="Edit user query...">${query.user_query}</textarea>
+                            
+                            <div class="sql-block" id="sql-display-${query.query_id}">${escapeHtml(query.generated_sql)}</div>
+                            <textarea class="notes-input" id="sql-edit-${query.query_id}" 
+                                      style="display:none; font-family: 'Courier New', monospace;" 
+                                      placeholder="Edit SQL query..." rows="4">${query.generated_sql}</textarea>
+                            
+                            <div class="query-meta">
+                                <span>📅 ${new Date(query.timestamp).toLocaleString()}</span>
+                                <span>📊 ${query.rows_returned} rows</span>
+                                <span>🏷️ Tables: ${query.tables_used.join(', ')}</span>
+                            </div>
+                            
+                            <textarea class="notes-input" id="notes-${query.query_id}" 
+                                      placeholder="Optional notes about this query..."></textarea>
+                            
+                            <div class="classification-controls" id="controls-${query.query_id}">
+                                <button class="btn btn-info" onclick="toggleEdit('${query.query_id}')">
+                                    ✏️ Edit
+                                </button>
+                                <button class="btn btn-success" onclick="classify('${query.query_id}', 'correct')">
+                                    ✅ Correct
+                                </button>
+                                <button class="btn btn-danger" onclick="classify('${query.query_id}', 'incorrect')">
+                                    ❌ Incorrect
+                                </button>
+                                <button class="btn btn-warning" onclick="classify('${query.query_id}', 'needs_review')">
+                                    ⏳ Needs Review
+                                </button>
+                            </div>
+                            <div class="classification-controls" id="edit-controls-${query.query_id}" style="display:none;">
+                                <button class="btn btn-success" onclick="saveEdit('${query.query_id}')">
+                                    💾 Save Changes
+                                </button>
+                                <button class="btn btn-danger" onclick="cancelEdit('${query.query_id}')">
+                                    ❌ Cancel
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                queriesList.innerHTML = queriesHtml;
+            } catch (error) {
+                console.error('Error loading queries:', error);
+                queriesList.innerHTML = '<div class="empty-state"><h3>Error loading queries</h3></div>';
+            }
+        }
+
+        // Toggle edit mode
+        function toggleEdit(queryId) {
+            const card = document.getElementById(`query-${queryId}`);
+            const isEditMode = card.getAttribute('data-edit-mode') === 'true';
+            
+            if (!isEditMode) {
+                // Switch to edit mode
+                document.getElementById(`query-text-${queryId}`).style.display = 'none';
+                document.getElementById(`query-edit-${queryId}`).style.display = 'block';
+                document.getElementById(`sql-display-${queryId}`).style.display = 'none';
+                document.getElementById(`sql-edit-${queryId}`).style.display = 'block';
+                document.getElementById(`controls-${queryId}`).style.display = 'none';
+                document.getElementById(`edit-controls-${queryId}`).style.display = 'flex';
+                card.setAttribute('data-edit-mode', 'true');
+            }
+        }
+
+        // Save edited query
+        async function saveEdit(queryId) {
+            const newQuery = document.getElementById(`query-edit-${queryId}`).value;
+            const newSQL = document.getElementById(`sql-edit-${queryId}`).value;
+            const notes = document.getElementById(`notes-${queryId}`).value;
+
+            try {
+                const response = await fetch(`${API_BASE}/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query_id: queryId,
+                        user_query: newQuery,
+                        generated_sql: newSQL,
+                        notes: notes || null
+                    })
+                });
+
+                if (response.ok) {
+                    showToast('✅ Query updated successfully');
+                    
+                    // Update display
+                    document.getElementById(`query-text-${queryId}`).innerHTML = 
+                        `<strong>User Query:</strong> "${escapeHtml(newQuery)}"`;
+                    document.getElementById(`sql-display-${queryId}`).textContent = newSQL;
+                    
+                    // Exit edit mode
+                    cancelEdit(queryId);
+                } else {
+                    showToast('❌ Failed to update query');
+                }
+            } catch (error) {
+                console.error('Error updating:', error);
+                showToast('❌ Error updating query');
+            }
+        }
+
+        // Cancel edit mode
+        function cancelEdit(queryId) {
+            const card = document.getElementById(`query-${queryId}`);
+            document.getElementById(`query-text-${queryId}`).style.display = 'block';
+            document.getElementById(`query-edit-${queryId}`).style.display = 'none';
+            document.getElementById(`sql-display-${queryId}`).style.display = 'block';
+            document.getElementById(`sql-edit-${queryId}`).style.display = 'none';
+            document.getElementById(`controls-${queryId}`).style.display = 'flex';
+            document.getElementById(`edit-controls-${queryId}`).style.display = 'none';
+            card.setAttribute('data-edit-mode', 'false');
+        }
+
+        // Classify a query
+        async function classify(queryId, classification) {
+            const notes = document.getElementById(`notes-${queryId}`).value;
+
+            try {
+                const response = await fetch(`${API_BASE}/classify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query_id: queryId,
+                        classification: classification,
+                        notes: notes || null
+                    })
+                });
+
+                if (response.ok) {
+                    showToast(`✅ Query classified as: ${classification}`);
+                    
+                    // Remove the card
+                    const card = document.getElementById(`query-${queryId}`);
+                    card.style.opacity = '0';
+                    setTimeout(() => card.remove(), 300);
+                    
+                    // Reload stats
+                    loadStats();
+                } else {
+                    showToast('❌ Failed to classify query');
+                }
+            } catch (error) {
+                console.error('Error classifying:', error);
+                showToast('❌ Error classifying query');
+            }
+        }
+
+        // Export training dataset
+        async function exportDataset() {
+            try {
+                const response = await fetch(`${API_BASE}/export`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(`✅ Dataset exported to: ${result.path}`);
+                } else {
+                    showToast('❌ Export failed');
+                }
+            } catch (error) {
+                console.error('Error exporting:', error);
+                showToast('❌ Error exporting dataset');
+            }
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize on page load
+        window.onload = () => {
+            loadStats();
+            loadUnclassified();
+        };
+    </script>
+</body>
+</html>
