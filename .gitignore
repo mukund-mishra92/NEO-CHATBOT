@@ -1,14 +1,14 @@
 # Log files
-*.log
-logs/
-*.log.*
-log_*.txt
-mining_logs/
-association_logs/
-debug.log
-error.log
-access.log
-app.log
+# *.log
+# logs/
+# *.log.*
+# log_*.txt
+# mining_logs/
+# association_logs/
+# debug.log
+# error.log
+# access.log
+# app.log
 
 # Python cache and compiled files
 __pycache__/
@@ -105,17 +105,17 @@ ehthumbs.db
 Thumbs.db
 
 # Backup files
-*.bak
+#*.bak
 *.backup
 *.old
 
 # Large data files (uncomment if you have large datasets)
-# *.parquet
-# *.xlsx
-# *.xls
-# data/
+*.parquet
+*.xlsx
+*.xls
+data/
 
-app/modules/neo_chatbot/data/**
+# app/modules/neo_chatbot/data/**
 
 # Local LLM models (large binary files - download separately)
 app/modules/neo_chatbot/data/models/*.gguf
