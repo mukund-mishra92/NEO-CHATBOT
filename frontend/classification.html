@@ -114,6 +114,73 @@
             color: white;
         }
 
+        .btn-execute {
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-execute:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .query-results {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .query-results.show {
+            display: block;
+        }
+
+        .results-summary {
+            color: #28a745;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .results-error {
+            color: #dc3545;
+            font-weight: 600;
+            padding: 10px;
+            background: #f8d7da;
+            border-radius: 4px;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .results-table thead {
+            background: #f0f0f0;
+        }
+
+        .results-table th, .results-table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+
+        .results-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .results-table tbody tr:hover {
+            background: #e9ecef;
+        }
+
         .queries-list {
             padding: 30px;
             max-height: 600px;
@@ -190,82 +257,9 @@
         .query-meta {
             display: flex;
             gap: 20px;
-            align-items: center;
             font-size: 0.85rem;
             color: #666;
             margin-bottom: 15px;
-        }
-
-        .btn-execute {
-            background: #17a2b8;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            margin-left: auto;
-        }
-
-        .btn-execute:hover {
-            background: #138496;
-        }
-
-        .query-results {
-            margin: 15px 0;
-            display: none;
-        }
-
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .results-table th {
-            background: #f8f9fa;
-            padding: 10px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        .results-table td {
-            padding: 8px 10px;
-            border-bottom: 1px solid #f1f3f5;
-        }
-
-        .results-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .results-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .results-summary {
-            color: #666;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
-            padding: 8px 12px;
-            background: #e7f3ff;
-            border-radius: 4px;
-            border-left: 3px solid #17a2b8;
-        }
-
-        .results-error {
-            color: #721c24;
-            background: #f8d7da;
-            border-left: 3px solid #dc3545;
-            padding: 10px 12px;
-            border-radius: 4px;
-            font-size: 0.85rem;
         }
 
         .classification-controls {
@@ -373,7 +367,7 @@
     </div>
 
     <script>
-        // Dynamically use the current host (works for both localhost and IP address)
+        // Dynamically construct the API base URL to work from any host (localhost or IP address)
         const API_BASE = `${window.location.protocol}//${window.location.host}/api/classification`;
 
         // Load stats on page load
@@ -415,13 +409,13 @@
             }
         }
 
-        // Load high-confidence queries (confidence >= 50%)
+        // Load unclassified queries
         async function loadUnclassified() {
             const queriesList = document.getElementById('queriesList');
             queriesList.innerHTML = '<div class="loading"><div class="spinner"></div>Loading queries...</div>';
 
             try {
-                const response = await fetch(`${API_BASE}/high-confidence?min_confidence=0.5&limit=50`);
+                const response = await fetch(`${API_BASE}/unclassified?limit=50`);
                 const queries = await response.json();
 
                 if (queries.length === 0) {
@@ -431,7 +425,7 @@
                                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                             </svg>
                             <h3>All caught up!</h3>
-                            <p>No queries with confidence >= 50%</p>
+                            <p>No queries awaiting classification</p>
                         </div>
                     `;
                     return;
@@ -463,7 +457,7 @@
                             
                             <div class="query-meta">
                                 <span>📅 ${new Date(query.timestamp).toLocaleString()}</span>
-                                <span>📊 ${query.rows_returned || 0} rows</span>
+                                <span>📊 ${query.rows_returned} rows</span>
                                 <span>🏷️ Tables: ${query.tables_used.join(', ')}</span>
                                 <button class="btn-execute" onclick="executeQuery('${query.query_id}', \`${escapeForJs(query.generated_sql)}\`)">
                                     ▶️ Execute
@@ -545,7 +539,9 @@
                     })
                 });
 
-                if (response.ok) {
+                const result = await response.json();
+
+                if (response.ok && result.success) {
                     showToast('✅ Query updated successfully');
                     
                     // Update display
@@ -555,8 +551,11 @@
                     
                     // Exit edit mode
                     cancelEdit(queryId);
+                    
+                    // Reload queries to ensure consistency
+                    setTimeout(() => loadQueries(), 300);
                 } else {
-                    showToast('❌ Failed to update query');
+                    showToast(`❌ Failed to update query: ${result.message || 'Unknown error'}`);
                 }
             } catch (error) {
                 console.error('Error updating:', error);
@@ -576,83 +575,16 @@
             card.setAttribute('data-edit-mode', 'false');
         }
 
-        // Classify a query
-        async function classify(queryId, classification) {
-            const notes = document.getElementById(`notes-${queryId}`).value;
-
-            try {
-                const response = await fetch(`${API_BASE}/classify`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        query_id: queryId,
-                        classification: classification,
-                        notes: notes || null
-                    })
-                });
-
-                if (response.ok) {
-                    showToast(`✅ Query classified as: ${classification}`);
-                    
-                    // Remove the card
-                    const card = document.getElementById(`query-${queryId}`);
-                    card.style.opacity = '0';
-                    setTimeout(() => card.remove(), 300);
-                    
-                    // Reload stats
-                    loadStats();
-                } else {
-                    showToast('❌ Failed to classify query');
-                }
-            } catch (error) {
-                console.error('Error classifying:', error);
-                showToast('❌ Error classifying query');
-            }
+        // Escape string for JavaScript template literals
+        function escapeForJs(text) {
+            return text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
         }
 
-        // Export training dataset
-        async function exportDataset() {
-            try {
-                const response = await fetch(`${API_BASE}/export`, {
-                    method: 'POST'
-                });
-                const result = await response.json();
-                
-                if (result.success) {
-                    showToast(`✅ Dataset exported to: ${result.path}`);
-                } else {
-                    showToast('❌ Export failed');
-                }
-            } catch (error) {
-                console.error('Error exporting:', error);
-                showToast('❌ Error exporting dataset');
-            }
-        }
-
-        // Show toast notification
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            toastMessage.textContent = message;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // Escape HTML
+        // Escape HTML to prevent XSS
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
-        }
-
-        // Escape for JavaScript string
-        function escapeForJs(text) {
-            return text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
         }
 
         // Execute SQL query
@@ -711,47 +643,85 @@
             }
         }
 
+        // Classify a query
+        async function classify(queryId, classification) {
+            const notes = document.getElementById(`notes-${queryId}`).value;
+
+            try {
+                const response = await fetch(`${API_BASE}/classify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query_id: queryId,
+                        classification: classification,
+                        notes: notes || null
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showToast(`✅ Query classified as: ${classification}`);
+                    
+                    // Remove the card with animation
+                    const card = document.getElementById(`query-${queryId}`);
+                    if (card) {
+                        card.style.opacity = '0';
+                        setTimeout(() => card.remove(), 300);
+                    }
+                    
+                    // Reload stats and queries to ensure consistency
+                    await loadStats();
+                    
+                    // Reload queries after a short delay to ensure backend has updated
+                    setTimeout(() => loadQueries(), 500);
+                } else {
+                    showToast(`❌ Failed to classify query: ${result.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error classifying:', error);
+                showToast('❌ Error classifying query');
+            }
+        }
+
+        // Export training dataset
+        async function exportDataset() {
+            try {
+                const response = await fetch(`${API_BASE}/export`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(`✅ Dataset exported to: ${result.path}`);
+                } else {
+                    showToast('❌ Export failed');
+                }
+            } catch (error) {
+                console.error('Error exporting:', error);
+                showToast('❌ Error exporting dataset');
+            }
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         // Initialize on page load
-        let autoRefreshInterval = null;
-        let lastQueryCount = 0;
-        
         window.onload = () => {
             loadStats();
             loadUnclassified();
-            startAutoRefresh();
         };
-        
-        // Auto-refresh functionality for real-time updates
-        function startAutoRefresh() {
-            if (autoRefreshInterval) return;
-            
-            autoRefreshInterval = setInterval(async () => {
-                try {
-                    // Check for new queries
-                    const response = await fetch(`${API_BASE}/stats`);
-                    const stats = await response.json();
-                    
-                    if (stats.total_queries !== lastQueryCount) {
-                        lastQueryCount = stats.total_queries;
-                        loadStats();
-                        loadUnclassified();
-                        showToast('🔄 New queries detected - refreshed!');
-                    }
-                } catch (error) {
-                    console.error('Auto-refresh error:', error);
-                }
-            }, 3000); // Check every 3 seconds
-            
-            console.log('🔄 Auto-refresh started (3s interval)');
-        }
-        
-        function stopAutoRefresh() {
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshInterval = null;
-                console.log('⏸️ Auto-refresh stopped');
-            }
-        }
     </script>
 </body>
 </html>
