@@ -1,0 +1,581 @@
+{
+  "entity_keywords": {
+    "bin": [
+      "bin",
+      "bins",
+      "location",
+      "locations",
+      "zone",
+      "zones",
+      "aisle",
+      "rack",
+      "bin_info",
+      "bin_configuration",
+      "bin_loading",
+      "bin_velocity",
+      "bin_mapping"
+    ],
+    "bot": [
+      "bot",
+      "bots",
+      "robot",
+      "robots",
+      "agv",
+      "charging",
+      "battery",
+      "bot_master",
+      "robot_charge",
+      "bot_velocity",
+      "bot_alarm"
+    ],
+    "order": [
+      "order",
+      "orders",
+      "shipment",
+      "delivery",
+      "order_master",
+      "order_mapping",
+      "order_bin",
+      "order_detail",
+      "order_line"
+    ],
+    "wave": [
+      "wave",
+      "waves",
+      "pick_wave",
+      "put_wave",
+      "wave_order",
+      "wave_station",
+      "wave_rule",
+      "wave_mapping",
+      "wave_detail"
+    ],
+    "sku": [
+      "sku",
+      "article",
+      "product",
+      "item",
+      "sku_master",
+      "article_proximity",
+      "sku_recommendations",
+      "sku_velocity"
+    ],
+    "inventory": [
+      "inventory",
+      "stock",
+      "live_inventory",
+      "stock_audit",
+      "stock_location",
+      "stock_movement",
+      "inventory_master"
+    ],
+    "pick": [
+      "pick",
+      "picks",
+      "picking",
+      "picker",
+      "pick_wave",
+      "pick_task",
+      "pick_station",
+      "pick_order",
+      "pick_detail",
+      "pick_bin"
+    ],
+    "put": [
+      "put",
+      "puts",
+      "putting",
+      "putaway",
+      "put_wave",
+      "put_task",
+      "put_station",
+      "put_order",
+      "put_detail",
+      "put_bin"
+    ],
+    "station": [
+      "station",
+      "stations",
+      "workstation",
+      "hw_station",
+      "station_master",
+      "station_pick",
+      "station_put",
+      "station_rule"
+    ],
+    "task": [
+      "task",
+      "tasks",
+      "job",
+      "jobs",
+      "task_master",
+      "pick_task",
+      "put_task",
+      "maintenance_task",
+      "task_mapping"
+    ],
+    "alarm": [
+      "alarm",
+      "alarms",
+      "alert",
+      "alerts",
+      "error",
+      "errors",
+      "alarm_master",
+      "bot_alarm",
+      "integration_error"
+    ],
+    "maintenance": [
+      "maintenance",
+      "repair",
+      "service",
+      "maintenance_task",
+      "maintenance_log",
+      "maintenance_schedule"
+    ],
+    "user": [
+      "user",
+      "users",
+      "operator",
+      "picker",
+      "packer",
+      "user_master",
+      "user_rule",
+      "user_mapping"
+    ],
+    "dashboard": [
+      "dashboard",
+      "monitor",
+      "monitoring",
+      "dashboard_bot",
+      "dashboard_order",
+      "dashboard_inventory"
+    ],
+    "charging": [
+      "charging",
+      "charge",
+      "battery",
+      "robot_charge",
+      "charging_station",
+      "charging_log"
+    ],
+    "conveyor": [
+      "conveyor",
+      "conveyors",
+      "conveyor_system",
+      "conveyor_configuration"
+    ],
+    "log": [
+      "log",
+      "logs",
+      "history",
+      "audit",
+      "tracking",
+      "trace",
+      "alarm_log",
+      "charge_log",
+      "integration_log",
+      "bot_log"
+    ],
+    "master": [
+      "master",
+      "config",
+      "configuration",
+      "setting",
+      "settings",
+      "rule",
+      "rules",
+      "mapping",
+      "api_master",
+      "zone_master"
+    ],
+    "velocity": [
+      "velocity",
+      "speed",
+      "frequency",
+      "analysis",
+      "bin_velocity",
+      "bot_velocity",
+      "sku_velocity",
+      "velocity_analysis"
+    ]
+  },
+  "operation_keywords": {
+    "count": [
+      "how many",
+      "count",
+      "number of",
+      "total"
+    ],
+    "sum": [
+      "sum",
+      "total quantity",
+      "total amount"
+    ],
+    "average": [
+      "average",
+      "mean",
+      "avg"
+    ],
+    "group_by": [
+      "group",
+      "by"
+    ]
+  },
+  "time_filter_keywords": [
+    "today",
+    "yesterday",
+    "week",
+    "month",
+    "year",
+    "recent",
+    "last",
+    "past"
+  ],
+  "temporal_indicators": {
+    "historical": [
+      "check the log",
+      "from log",
+      "in the log",
+      "log table",
+      "historical",
+      "have done",
+      "has done",
+      "have performed",
+      "has performed",
+      "have completed",
+      "has completed",
+      "was doing",
+      "were doing",
+      "did",
+      "performed",
+      "completed",
+      "finished",
+      "till now",
+      "till today",
+      "till date",
+      "until now",
+      "up to now",
+      "since",
+      "from",
+      "between",
+      "in the past",
+      "previously",
+      "all the task performed",
+      "all task done",
+      "all tasks executed",
+      "total",
+      "all time",
+      "ever",
+      "lifetime",
+      "complete history",
+      "how many times",
+      "number of times",
+      "count of",
+      "audit",
+      "track",
+      "trace",
+      "history of",
+      "record of"
+    ],
+    "current": [
+      "is doing",
+      "are doing",
+      "is performing",
+      "are performing",
+      "is running",
+      "are running",
+      "is executing",
+      "are executing",
+      "current",
+      "currently",
+      "now",
+      "right now",
+      "at the moment",
+      "present",
+      "today",
+      "active",
+      "ongoing",
+      "in progress",
+      "assigned to",
+      "allocated to",
+      "working on",
+      "latest",
+      "most recent",
+      "newest",
+      "last assigned"
+    ]
+  },
+  "entity_tables": {
+    "bin": [
+      "bin_configuration",
+      "bin_info_master",
+      "live_inventory_master",
+      "order_bin_mapping",
+      "bin_velocity_scores",
+      "location_master",
+      "location_block_master",
+      "bin_loading_wave_order_master",
+      "order_bin_task_master",
+      "store_bin_master"
+    ],
+    "bot": [
+      "bot_master",
+      "bot_master_log",
+      "bot_alarm_log",
+      "bot_charging_bit_log",
+      "dashboard_bot_master",
+      "robot_charge_log",
+      "dashboard_log_bot_charging",
+      "bot_manual_alarm_log"
+    ],
+    "order": [
+      "wms_to_wcs_order_line_request_data",
+      "order_bin_mapping",
+      "pick_wave_order_master",
+      "put_wave_order_master",
+      "bin_loading_wave_order_master",
+      "stock_audit_wave_order_master",
+      "order_bin_task_master",
+      "lpn_pick_wave_order_mapping",
+      "order_bin_mapping_log"
+    ],
+    "wave": [
+      "pick_wave_order_master",
+      "put_wave_order_master",
+      "bin_loading_wave_order_master",
+      "stock_audit_wave_order_master",
+      "pick_wave_wms_data",
+      "put_wave_wms_data",
+      "wave_station_rule_mapping",
+      "dashboard_log_wave_process",
+      "lpn_pick_wave_order_mapping",
+      "short_pick_wave_reason",
+      "short_put_wave_reason"
+    ],
+    "sku": [
+      "sku_master",
+      "articles_registered",
+      "article_registered",
+      "article_proximity_score",
+      "sku_recommendations",
+      "sku_velocity_scores",
+      "sku_velocity_history",
+      "sku_batch_master",
+      "sku_ean_mapping",
+      "live_inventory_master"
+    ],
+    "inventory": [
+      "live_inventory_master",
+      "live_inventory_master_log",
+      "stock_audit_bin_data_push",
+      "stock_audit_bin_segments",
+      "stock_audit_list",
+      "stock_audit_wave_order_master",
+      "stock_audit_wave_wms_data",
+      "lpn_master_stock_audit"
+    ],
+    "pick": [
+      "pick_wave_order_master",
+      "station_pick_task_master",
+      "pick_wave_wms_data",
+      "lpn_pick_wave_order_mapping",
+      "pick_rule_master",
+      "recovery_pick_task_master",
+      "short_pick_wave_reason"
+    ],
+    "put": [
+      "put_wave_order_master",
+      "put_wave_wms_data",
+      "short_put_wave_reason",
+      "put_wave_order_master_archive",
+      "put_wave_wms_data_archive"
+    ],
+    "station": [
+      "hw_station_master",
+      "station_pick_task_master",
+      "hw_charging_station_master",
+      "station_home_master",
+      "wave_station_rule_mapping"
+    ],
+    "task": [
+      "station_pick_task_master",
+      "maintenance_task_master",
+      "dashboard_log_maintenance_task_master",
+      "order_bin_task_master",
+      "recovery_pick_task_master",
+      "task_master",
+      "task_detail",
+      "dashboard_manual_task_master",
+      "mining_job_logs",
+      "velocity_calculation_jobs"
+    ],
+    "alarm": [
+      "alarm_master",
+      "bot_alarm_log",
+      "bot_manual_alarm_log",
+      "integration_error_logs",
+      "dashboard_log_error_api",
+      "maintenance_alarm_logs",
+      "manual_alarm_master",
+      "pseudo_bot_alarm_log"
+    ],
+    "maintenance": [
+      "maintenance_task_master",
+      "dashboard_log_maintenance_task_master",
+      "hw_maintenance_master",
+      "maintenance_alarm_logs",
+      "hw_maintenance_scanner_multiplexer_master"
+    ],
+    "user": [
+      "dashboard_user_master",
+      "dashboard_user_role_setting_mapping",
+      "dashboard_log_user_login_attempts",
+      "dashboard_table_header_json_user_mapping"
+    ],
+    "dashboard": [
+      "dashboard_bot_master",
+      "dashboard_log_bot_charging",
+      "dashboard_log_maintenance_task_master",
+      "dashboard_log_wave_process",
+      "dashboard_log_error_api",
+      "dashboard_config",
+      "dashboard_user_master",
+      "dashboard_master_data",
+      "dashboard_menu_master",
+      "dashboard_access_master"
+    ],
+    "charging": [
+      "robot_charge_log",
+      "bot_charging_bit_log",
+      "dashboard_log_bot_charging",
+      "hw_charging_station_master"
+    ],
+    "conveyor": [
+      "hw_conveyor_master",
+      "hw_conveyor_mux_master"
+    ],
+    "log": [
+      "bot_alarm_log",
+      "bot_master_log",
+      "bot_charging_bit_log",
+      "robot_charge_log",
+      "live_inventory_master_log",
+      "order_bin_mapping_log",
+      "task_master_log",
+      "task_detail_log",
+      "mining_job_logs",
+      "sku_velocity_log",
+      "integration_error_logs",
+      "dashboard_log_wave_process"
+    ],
+    "master": [
+      "bot_master",
+      "sku_master",
+      "bin_info_master",
+      "alarm_master",
+      "config_master",
+      "location_master",
+      "hw_station_master",
+      "api_master",
+      "task_master",
+      "maintenance_task_master",
+      "pick_rule_master",
+      "zone_master",
+      "category_master",
+      "sku_batch_master",
+      "store_bin_master"
+    ],
+    "velocity": [
+      "sku_velocity_scores",
+      "bin_velocity_scores",
+      "sku_velocity_history",
+      "sku_velocity_log",
+      "sku_velocity_state",
+      "velocity_calculation_config",
+      "velocity_calculation_jobs"
+    ]
+  },
+  "predefined_joins": [
+    {
+      "table1": "wms_to_wcs_order_line_request_data",
+      "table2": "sku_master",
+      "join_on": "ARTICLE_ID = SKU_ID",
+      "description": "Orders to SKU details",
+      "confidence": 0.95,
+      "source": "predefined"
+    },
+    {
+      "table1": "order_bin_mapping",
+      "table2": "bin_info_master",
+      "join_on": "BIN_ID = BIN_ID",
+      "description": "Order-Bin mapping to bin details",
+      "confidence": 0.95,
+      "source": "predefined"
+    },
+    {
+      "table1": "bin_info_master",
+      "table2": "bin_configuration",
+      "join_on": "BIN_BARCODE = bin_id",
+      "description": "Bin info to bin configuration",
+      "confidence": 0.95,
+      "source": "predefined"
+    },
+    {
+      "table1": "live_inventory_master",
+      "table2": "sku_master",
+      "join_on": "ARTICLE_ID = SKU_ID",
+      "description": "Inventory to SKU details",
+      "confidence": 0.95,
+      "source": "predefined"
+    },
+    {
+      "table1": "bot_master",
+      "table2": "bot_alarm_log",
+      "join_on": "BOT_ID = BOT_ID",
+      "description": "Bots to their alarms",
+      "confidence": 0.95,
+      "source": "predefined"
+    },
+    {
+      "table1": "dashboard_log_maintenance_task_master",
+      "table2": "bot_master",
+      "join_on": "MAINTENANCE_POINT_BOT_ID = BOT_ID",
+      "description": "Maintenance tasks to bots",
+      "confidence": 0.95,
+      "source": "predefined"
+    },
+    {
+      "table1": "task_detail",
+      "table2": "bot_master",
+      "join_on": "BOT_ID = BOT_ID",
+      "description": "Tasks to bots",
+      "confidence": 0.95,
+      "source": "predefined"
+    },
+    {
+      "table1": "task_detail_log",
+      "table2": "bot_master",
+      "join_on": "BOT_ID = BOT_ID",
+      "description": "Historical tasks to bots",
+      "confidence": 0.95,
+      "source": "predefined"
+    },
+    {
+      "table1": "bin_info_master",
+      "table2": "location_master",
+      "join_on": "ZONE_ID = ZONE_ID",
+      "description": "Bins to locations via zone",
+      "confidence": 0.9,
+      "source": "predefined"
+    },
+    {
+      "table1": "live_inventory_master",
+      "table2": "bin_info_master",
+      "join_on": "BIN_ID = BIN_ID",
+      "description": "Inventory to bins",
+      "confidence": 0.95,
+      "source": "predefined"
+    }
+  ]
+}
