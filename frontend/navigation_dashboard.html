@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Warehouse Optimization System - Main Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .dashboard-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            height: 100%;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        .card-text {
+            min-height: 60px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="fas fa-warehouse me-3"></i>
+                        Warehouse Optimization System
+                    </h1>
+                    <p class="lead mb-4">
+                        Advanced analytics and optimization tools for modern warehouse management
+                    </p>
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h3 class="h5">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Real-time Analytics
+                            </h3>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 class="h5">
+                                <i class="fas fa-robot me-2"></i>
+                                AI-Powered Insights
+                            </h3>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 class="h5">
+                                <i class="fas fa-cogs me-2"></i>
+                                Process Optimization
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="container my-5">
+        <!-- Navigation Cards -->
+        <div class="row g-4">
+            <!-- SKU Association Mining -->
+            <div class="col-lg-6">
+                <div class="card dashboard-card border-primary h-100" onclick="navigateTo('/association-mining')">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon text-primary">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h3 class="card-title text-primary mb-3">SKU Association Mining</h3>
+                        <p class="card-text text-muted">
+                            Discover hidden patterns and relationships between products using advanced association rule mining algorithms. 
+                            Optimize product placement and cross-selling strategies.
+                        </p>
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <div class="h5 text-primary mb-1">
+                                    <i class="fas fa-search-plus"></i>
+                                </div>
+                                <small>Pattern Discovery</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="h5 text-primary mb-1">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <small>Analytics</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="h5 text-primary mb-1">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <small>Scheduling</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-lg">
+                            <i class="fas fa-arrow-right me-2"></i>
+                            Start Association Mining
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bin Velocity Analysis -->
+            <div class="col-lg-6">
+                <div class="card dashboard-card border-success h-100" onclick="navigateTo('/velocity-analysis')">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon text-success">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <h3 class="card-title text-success mb-3">Bin Velocity Analysis</h3>
+                        <p class="card-text text-muted">
+                            Analyze SKU movement patterns and optimize bin assignments based on velocity calculations. 
+                            Improve warehouse efficiency and reduce picking times.
+                        </p>
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <div class="h5 text-success mb-1">
+                                    <i class="fas fa-shipping-fast"></i>
+                                </div>
+                                <small>Velocity Tracking</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="h5 text-success mb-1">
+                                    <i class="fas fa-warehouse"></i>
+                                </div>
+                                <small>Bin Optimization</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="h5 text-success mb-1">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <small>Real-time Updates</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-success btn-lg">
+                            <i class="fas fa-arrow-right me-2"></i>
+                            Start Velocity Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Insights Row -->
+        <div class="row g-4 mt-4">
+            <!-- AI Insights Dashboard -->
+            <div class="col-lg-12">
+                <div class="card dashboard-card border-warning h-100" onclick="navigateTo('/ai-insights')">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon text-warning">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="card-title text-warning mb-3">AI Insights Dashboard</h3>
+                        <p class="card-text text-muted">
+                            Harness the power of artificial intelligence for advanced warehouse analytics. Get predictive insights, 
+                            demand forecasting, inventory optimization recommendations, and automated pattern recognition.
+                        </p>
+                        <div class="row text-center mb-3">
+                            <div class="col-md-3">
+                                <div class="h5 text-warning mb-1">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <small>Order Patterns</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="h5 text-warning mb-1">
+                                    <i class="fas fa-cubes"></i>
+                                </div>
+                                <small>Inventory Optimization</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="h5 text-warning mb-1">
+                                    <i class="fas fa-crystal-ball"></i>
+                                </div>
+                                <small>Demand Forecasting</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="h5 text-warning mb-1">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <small>Smart Recommendations</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-warning btn-lg">
+                            <i class="fas fa-arrow-right me-2"></i>
+                            Open AI Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEO Chatbot -->
+        <div class="row g-4 mt-4">
+            <div class="col-lg-12">
+                <div class="card dashboard-card border-info h-100" onclick="navigateTo('/chatbot')">
+                    <div class="card-body text-center p-4 position-relative">
+                        <!-- NEW Badge -->
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-success" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                                <i class="fas fa-star me-1"></i>NEW
+                            </span>
+                        </div>
+                        
+                        <div class="feature-icon text-info">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3 class="card-title text-info mb-3">NEO AI Assistant</h3>
+                        <p class="card-text text-muted">
+                            Meet NEO - Your intelligent warehouse assistant! Chat naturally to query data, get diagnostic support, 
+                            generate SQL queries, and get instant answers from documentation. Powered by advanced AI 
+                            to make warehouse management effortless.
+                        </p>
+                        <div class="row text-center mb-3">
+                            <div class="col-md-3">
+                                <div class="h5 text-info mb-1">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <small>Knowledge Base</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="h5 text-info mb-1">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <small>SQL Assistant</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="h5 text-info mb-1">
+                                    <i class="fas fa-stethoscope"></i>
+                                </div>
+                                <small>Diagnostics</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="h5 text-info mb-1">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <small>AI-Powered</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-info btn-lg">
+                            <i class="fas fa-comments me-2"></i>
+                            Launch Chatbot
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status Overview -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-server me-2"></i>
+                            System Status Overview
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="card border-0">
+                                    <div class="card-body">
+                                        <i class="fas fa-database text-primary mb-2" style="font-size: 2rem;"></i>
+                                        <h6>Database</h6>
+                                        <span class="badge bg-success" id="dbStatus">Connected</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card border-0">
+                                    <div class="card-body">
+                                        <i class="fas fa-cogs text-warning mb-2" style="font-size: 2rem;"></i>
+                                        <h6>API Services</h6>
+                                        <span class="badge bg-success" id="apiStatus">Running</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card border-0">
+                                    <div class="card-body">
+                                        <i class="fas fa-calendar-check text-info mb-2" style="font-size: 2rem;"></i>
+                                        <h6>Scheduler</h6>
+                                        <span class="badge bg-warning" id="schedulerStatus">Monitoring</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card border-0">
+                                    <div class="card-body">
+                                        <i class="fas fa-chart-line text-success mb-2" style="font-size: 2rem;"></i>
+                                        <h6>Analytics</h6>
+                                        <span class="badge bg-success" id="analyticsStatus">Active</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Configuration -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-database me-2"></i>
+                            Database Configuration
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label for="dbHost" class="form-label">Host</label>
+                                <input type="text" class="form-control" id="dbHost" value="localhost" placeholder="localhost">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="dbPort" class="form-label">Port</label>
+                                <input type="number" class="form-control" id="dbPort" value="3306" placeholder="3306">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="dbUser" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="dbUser" value="root" placeholder="root">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="dbPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="dbPassword" placeholder="Password">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="dbName" class="form-label">Database</label>
+                                <input type="text" class="form-control" id="dbName" value="neo" placeholder="neo">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button class="btn btn-success w-100" onclick="saveDbConfig()">
+                                    <i class="fas fa-save me-2"></i>
+                                    Save Config
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Status message for save config -->
+                        <div id="saveConfigStatus" class="mt-3" style="display: none;">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="saveConfigMessage">Status message...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bolt me-2"></i>
+                            Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-primary w-100 mb-2" onclick="testDatabaseConnection()">
+                                    <i class="fas fa-plug me-2"></i>
+                                    Test Database
+                                </button>
+                                <!-- Status message for test database -->
+                                <div id="testDbStatus" class="mt-2" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <small id="testDbMessage">Testing...</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-info w-100 mb-2" onclick="viewSystemLogs()">
+                                    <i class="fas fa-file-alt me-2"></i>
+                                    View Logs
+                                </button>
+                                <!-- Status message for logs -->
+                                <div id="logsStatus" class="mt-2" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <small id="logsMessage">Loading logs...</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-warning w-100 mb-2" onclick="checkSchedulerStatus()">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Scheduler Status
+                                </button>
+                                <!-- Status message for scheduler -->
+                                <div id="schedulerStatus" class="mt-2" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <small id="schedulerMessage">Checking...</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-success w-100 mb-2" onclick="refreshStatus()">
+                                    <i class="fas fa-sync-alt me-2"></i>
+                                    Refresh Status
+                                </button>
+                                <!-- Status message for refresh -->
+                                <div id="refreshStatusMsg" class="mt-2" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <small id="refreshMessage">Refreshing...</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Second Row: Advanced Tools -->
+                        <div class="row mt-3">
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-purple w-100 mb-2" onclick="navigateTo('/table_priority_analyzer')" style="border-color: #667eea; color: #667eea;">
+                                    <i class="fas fa-layer-group me-2"></i>
+                                    Table Priority Analyzer
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-secondary w-100 mb-2" onclick="navigateTo('/schema')">
+                                    <i class="fas fa-database me-2"></i>
+                                    Schema Management
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-secondary w-100 mb-2" onclick="navigateTo('/classification')">
+                                    <i class="fas fa-tags me-2"></i>
+                                    Query Classification
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-secondary w-100 mb-2" onclick="alert('System Diagnostics coming soon!')">
+                                    <i class="fas fa-wrench me-2"></i>
+                                    System Diagnostics
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navigation function
+        function navigateTo(path) {
+            window.location.href = path;
+        }
+
+        // Quick action functions
+        function showStatus(statusId, messageId, message, type = 'info') {
+            const statusDiv = document.getElementById(statusId);
+            const messageSpan = document.getElementById(messageId);
+            const alertDiv = statusDiv.querySelector('.alert');
+            
+            // Update message
+            messageSpan.textContent = message;
+            
+            // Update alert type
+            alertDiv.className = `alert alert-${type}`;
+            
+            // Show the status div
+            statusDiv.style.display = 'block';
+            
+            // Auto-hide after 5 seconds for success/error messages
+            if (type !== 'info') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function testDatabaseConnection() {
+            const badge = document.getElementById('dbStatus');
+            badge.className = 'badge bg-warning';
+            badge.textContent = 'Testing...';
+            
+            // Show testing status
+            showStatus('testDbStatus', 'testDbMessage', 'Testing database connection...', 'info');
+            
+            // Get current form values
+            const config = {
+                host: document.getElementById('dbHost').value || 'localhost',
+                port: parseInt(document.getElementById('dbPort').value) || 3306,
+                user: document.getElementById('dbUser').value || 'root',
+                password: document.getElementById('dbPassword').value || '',
+                database: document.getElementById('dbName').value || 'neo'
+            };
+            
+            fetch('/api/test-db-connection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    badge.className = 'badge bg-success';
+                    badge.textContent = 'Connected';
+                    
+                    // Build details message
+                    let details = `✅ Database connection successful!\n\n`;
+                    details += `MySQL Version: ${data.mysql_version}\n`;
+                    details += `Tables Status:\n`;
+                    for (const [table, info] of Object.entries(data.tables)) {
+                        if (info.exists) {
+                            details += `• ${table}: ✅ ${info.count.toLocaleString()} records\n`;
+                        } else {
+                            details += `• ${table}: ❌ Not found\n`;
+                        }
+                    }
+                    
+                    showStatus('testDbStatus', 'testDbMessage', details, 'success');
+                } else {
+                    badge.className = 'badge bg-danger';
+                    badge.textContent = 'Failed';
+                    showStatus('testDbStatus', 'testDbMessage', `❌ Database connection failed! Error: ${data.error || 'Unknown error'}`, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                badge.className = 'badge bg-danger';
+                badge.textContent = 'Error';
+                showStatus('testDbStatus', 'testDbMessage', `❌ Error testing database connection: ${error.message}`, 'danger');
+            });
+        }
+
+        function viewSystemLogs() {
+            // Open logs viewer in new tab
+            showStatus('logsStatus', 'logsMessage', '📄 Opening system logs viewer...', 'info');
+            
+            // Open logs page in new tab
+            window.open('/logs', '_blank');
+            
+            // Update status after a short delay
+            setTimeout(() => {
+                showStatus('logsStatus', 'logsMessage', '✅ System logs viewer opened in new tab', 'success');
+            }, 1000);
+        }
+
+        function checkSchedulerStatus() {
+            showStatus('schedulerStatus', 'schedulerMessage', 'Checking scheduler status...', 'info');
+            
+            fetch('/api/scheduler-status')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('schedulerStatus');
+                if (data.running) {
+                    badge.className = 'badge bg-success';
+                    badge.textContent = 'Running';
+                    showStatus('schedulerStatus', 'schedulerMessage', '✅ Scheduler is running normally', 'success');
+                } else {
+                    badge.className = 'badge bg-warning';
+                    badge.textContent = 'Stopped';
+                    showStatus('schedulerStatus', 'schedulerMessage', '⚠️ Scheduler is currently stopped', 'warning');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showStatus('schedulerStatus', 'schedulerMessage', '❌ Error checking scheduler status: ' + error.message, 'danger');
+            });
+        }
+
+        function refreshStatus() {
+            // Refresh all status indicators
+            showStatus('refreshStatusMsg', 'refreshMessage', '🔄 Refreshing all status indicators...', 'info');
+            testDatabaseConnection();
+            checkSchedulerStatus();
+            
+            // Show completion message
+            setTimeout(() => {
+                showStatus('refreshStatusMsg', 'refreshMessage', '✅ Status refresh completed!', 'success');
+            }, 2000);
+        }
+
+        function saveDbConfig() {
+            showStatus('saveConfigStatus', 'saveConfigMessage', 'Saving database configuration...', 'info');
+            
+            // Get form values
+            const config = {
+                host: document.getElementById('dbHost').value || 'localhost',
+                port: parseInt(document.getElementById('dbPort').value) || 3306,
+                user: document.getElementById('dbUser').value || 'root',
+                password: document.getElementById('dbPassword').value || '',
+                database: document.getElementById('dbName').value || 'neo'
+            };
+            
+            // Validate required fields
+            if (!config.host || !config.user || !config.database) {
+                showStatus('saveConfigStatus', 'saveConfigMessage', '❌ Please fill in all required fields (Host, User, Database)', 'danger');
+                return;
+            }
+            
+            fetch('/api/save-db-config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showStatus('saveConfigStatus', 'saveConfigMessage', '✅ Database configuration saved successfully!', 'success');
+                    // Also update the database status badge
+                    const badge = document.getElementById('dbStatus');
+                    badge.className = 'badge bg-warning';
+                    badge.textContent = 'Updated';
+                } else {
+                    showStatus('saveConfigStatus', 'saveConfigMessage', `❌ Failed to save configuration: ${data.error}`, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showStatus('saveConfigStatus', 'saveConfigMessage', `❌ Error saving configuration: ${error.message}`, 'danger');
+            });
+        }
+
+        // Initialize page
+        window.onload = function() {
+            // Auto-refresh status without alerts
+            console.log('🚀 Initializing dashboard... Version: 2025-11-04-v3');
+            console.log('⏰ Page loaded at:', new Date().toISOString());
+            
+            // Load current database configuration
+            loadCurrentDbConfig();
+            
+            // Test connection silently
+            testDatabaseConnectionSilent();
+        };
+
+        function loadCurrentDbConfig() {
+            fetch('/api/db-config', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success || data.host) {
+                    // Populate form fields with current config
+                    document.getElementById('dbHost').value = data.host || 'localhost';
+                    document.getElementById('dbPort').value = data.port || 3306;
+                    document.getElementById('dbUser').value = data.user || 'root';
+                    document.getElementById('dbName').value = data.database || 'neo';
+                    // Don't populate password for security
+                    console.log('✅ Loaded current database configuration');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading database config:', error);
+            });
+        }
+
+        function testDatabaseConnectionSilent() {
+            console.log('🔧 Starting silent database connection test...');
+            
+            fetch('/api/test-db-connection', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache'
+                },
+                body: JSON.stringify({})  // Send proper empty JSON object
+            })
+            .then(response => {
+                console.log('📡 Database test response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('📋 Database test response data:', data);
+                const badge = document.getElementById('dbStatus');
+                
+                if (!badge) {
+                    console.error('❌ Database status badge element not found!');
+                    return;
+                }
+                
+                if (data.success) {
+                    badge.className = 'badge bg-success';
+                    badge.textContent = 'Connected';
+                    console.log('✅ Database connection successful - badge updated');
+                } else {
+                    badge.className = 'badge bg-danger';
+                    badge.textContent = 'Failed';
+                    console.log('❌ Database connection failed:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('💥 Error testing database connection:', error);
+                const badge = document.getElementById('dbStatus');
+                if (badge) {
+                    badge.className = 'badge bg-warning';
+                    badge.textContent = 'Error';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
