@@ -274,8 +274,11 @@ class SQLAssistantService:
                 # Boost confidence by 10% for cached queries
                 confidence = min(0.98, cached.get('confidence', 0.8) + 0.10)
                 
+                # Apply entity substitution (e.g., BOT-0007 → BOT-0021)
+                sql = self._substitute_entities_in_sql(cached['sql'], cached['question'], question)
+                
                 return (
-                    cached['sql'],
+                    sql,
                     confidence,
                     {
                         'source': 'session_cache',
@@ -286,6 +289,110 @@ class SQLAssistantService:
                 )
         
         return None
+    
+    # ========================================
+    # ENTITY SUBSTITUTION FOR CLASSIFIED QUERIES
+    # ========================================
+    
+    def _extract_entities_from_question(self, question: str) -> Dict[str, str]:
+        """
+        Extract entity values from question text using regex patterns.
+        
+        Returns:
+            Dict mapping entity types to their values (e.g., {'BOT_ID': 'BOT-0021'})
+        """
+        entities = {}
+        
+        # BOT_ID extraction (e.g., "bot 21" → "BOT-0021", "BOT-0007" → "BOT-0007")
+        bot_canon_re = re.compile(r"\bBOT-\d{4}\b", re.IGNORECASE)
+        bot_num_re = re.compile(r"\b(?:bot|b)\s*[-_ ]?\s*(\d{1,4})\b", re.IGNORECASE)
+        
+        # Check for canonical format first (BOT-0008)
+        m = bot_canon_re.search(question)
+        if m:
+            entities['BOT_ID'] = m.group(0).upper()
+        else:
+            # Try to extract number (e.g., "bot 8", "bot21", "b21")
+            m = bot_num_re.search(question)
+            if m:
+                n = int(m.group(1))
+                entities['BOT_ID'] = f"BOT-{n:04d}"  # Normalize to BOT-0008
+        
+        # STATION_ID extraction
+        station_num_re = re.compile(r"\b(?:station|stn|st)\s*[-_ ]?\s*(\d{1,4})\b", re.IGNORECASE)
+        m = station_num_re.search(question)
+        if m:
+            entities['STATION_ID'] = f"STATION-{int(m.group(1)):04d}"
+        
+        # WAVE_ID extraction
+        wave_num_re = re.compile(r"\b(?:wave|wv)\s*[-_ ]?\s*(\d{1,6})\b", re.IGNORECASE)
+        m = wave_num_re.search(question)
+        if m:
+            entities['WAVE_ID'] = f"WAVE-{int(m.group(1)):06d}"
+        
+        # BIN_ID extraction
+        bin_num_re = re.compile(r"\b(?:bin|bn)\s*[-_ ]?\s*(\d{1,10})\b", re.IGNORECASE)
+        m = bin_num_re.search(question)
+        if m:
+            entities['BIN_ID'] = str(int(m.group(1)))
+        
+        return entities
+    
+    def _substitute_entities_in_sql(self, sql: str, original_question: str, current_question: str) -> str:
+        """
+        Substitute entity values in SQL query when current question has different entities.
+        
+        Example:
+            Original Q: "What is the position of bot 7?"
+            Current Q:  "What is the position of bot 21?"
+            SQL before: WHERE bm.BOT_ID = 'BOT-0007'
+            SQL after:  WHERE bm.BOT_ID = 'BOT-0021'
+        
+        Args:
+            sql: Original SQL query from classified query
+            original_question: Original question that generated the SQL
+            current_question: Current user question
+        
+        Returns:
+            Modified SQL with substituted entity values
+        """
+        # Extract entities from both questions
+        original_entities = self._extract_entities_from_question(original_question)
+        current_entities = self._extract_entities_from_question(current_question)
+        
+        # If no entities found in either question, return original SQL
+        if not original_entities and not current_entities:
+            return sql
+        
+        # Substitute each entity type
+        modified_sql = sql
+        substitutions_made = []
+        
+        for entity_type in ['BOT_ID', 'STATION_ID', 'WAVE_ID', 'BIN_ID']:
+            original_value = original_entities.get(entity_type)
+            current_value = current_entities.get(entity_type)
+            
+            # Only substitute if both questions have this entity type and values differ
+            if original_value and current_value and original_value != current_value:
+                # Replace in SQL (case-insensitive, handle quotes)
+                patterns = [
+                    (f"= '{original_value}'", f"= '{current_value}'"),
+                    (f'= "{original_value}"', f'= "{current_value}"'),
+                    (f"= {original_value}", f"= {current_value}"),
+                    (f"IN ('{original_value}')", f"IN ('{current_value}')"),
+                ]
+                
+                for old_pattern, new_pattern in patterns:
+                    if old_pattern in modified_sql:
+                        modified_sql = modified_sql.replace(old_pattern, new_pattern)
+                        substitutions_made.append(f"{entity_type}: {original_value} → {current_value}")
+        
+        if substitutions_made:
+            logger.info(f"🔄 Entity substitution applied: {', '.join(substitutions_made)}")
+            logger.info(f"   Original SQL: {sql[:100]}...")
+            logger.info(f"   Modified SQL: {modified_sql[:100]}...")
+        
+        return modified_sql
     
     # ========================================
     # STEP 2: CHECK CLASSIFIED QUERIES
@@ -330,6 +437,9 @@ class SQLAssistantService:
                     sql = query_record.get('sql') or query_record.get('generated_sql', '')
                     if not sql:
                         continue
+                    
+                    # Apply entity substitution (e.g., BOT-0007 → BOT-0021)
+                    sql = self._substitute_entities_in_sql(sql, user_query, question)
                     
                     return (
                         sql,
@@ -1073,50 +1183,67 @@ RULES:
         """Format query results into readable response"""
         response_parts = []
         
-        # Add source information
+        # Add source information (without emojis)
         source = metadata.get('source', 'generated')
-        if source == 'session_cache':
-            response_parts.append("💾 *Retrieved from session cache*\n")
-        elif source == 'classified_queries':
-            response_parts.append("📚 *Retrieved from classified queries*\n")
-        elif source == 'chat_history':
-            response_parts.append("📊 *Retrieved from chat history*\n")
-        elif source == 'nl_to_sql_generator':
-            response_parts.append("🤖 *Generated with nl_to_sql_generator*\n")
-        elif source == 'llm_fallback':
-            response_parts.append("🔄 *Generated with LLM fallback*\n")
+        source_display = {
+            'session_cache': 'Retrieved from session cache',
+            'classified_queries': 'Retrieved from classified queries',
+            'chat_history': 'Retrieved from chat history',
+            'nl_to_sql_generator': 'Generated with NL-to-SQL',
+            'llm_fallback': 'Generated with LLM'
+        }.get(source, 'Generated')
+        response_parts.append(f"*{source_display}*\n")
         
-        # Add results
+        # Add results in table format
         if not results:
             response_parts.append("No results found for your query.")
-        elif len(results) <= 10:
-            # Show all results for small datasets
-            response_parts.append(f"**Found {len(results)} result(s):**\n")
-            for i, row in enumerate(results, 1):
-                response_parts.append(f"\n**Result {i}:**")
-                for key, value in row.items():
-                    response_parts.append(f"  • {key}: {value}")
         else:
-            # Show summary for large datasets
-            response_parts.append(f"**Found {len(results)} results** (showing first 5):\n")
-            for i, row in enumerate(results[:5], 1):
-                response_parts.append(f"\n**Result {i}:**")
-                for key, value in row.items():
-                    response_parts.append(f"  • {key}: {value}")
-            response_parts.append(f"\n... and {len(results) - 5} more results")
+            # Show appropriate number of results
+            display_limit = min(len(results), 200)
+            display_results = results[:display_limit]
+            
+            response_parts.append(f"**Found {len(results)} result(s)** (showing first {display_limit}):\n")
+            
+            # Create markdown table
+            if display_results:
+                columns = list(display_results[0].keys())
+                
+                # Table header
+                header = "| " + " | ".join(columns) + " |"
+                separator = "| " + " | ".join(["---"] * len(columns)) + " |"
+                
+                table_rows = [header, separator]
+                
+                # Table data rows
+                for row in display_results:
+                    values = []
+                    for col in columns:
+                        val = row.get(col, '')
+                        # Handle None and format values
+                        if val is None:
+                            val = ''
+                        else:
+                            val = str(val)
+                            # Truncate long values
+                            if len(val) > 50:
+                                val = val[:47] + '...'
+                        values.append(val)
+                    table_rows.append("| " + " | ".join(values) + " |")
+                
+                response_parts.append("\n".join(table_rows))
         
         # Add SQL query
         response_parts.append(f"\n\n**SQL Query:**\n```sql\n{sql_query}\n```")
         
-        # Add confidence
-        response_parts.append(f"\n*Confidence: {confidence:.0%}*")
+        # Add confidence (formatted percentage)
+        response_parts.append(f"\n**Confidence:** {confidence:.0%}")
         
         return "\n".join(response_parts)
     
     def _create_error_response(self, error_message: str, session_id: Optional[str]) -> ChatResponse:
         """Create error response"""
         return ChatResponse(
-            response=f"❌ {error_message}",
+            response=f"**Error:** {error_message}",
             chatbot_type=ChatbotType.SQL_ASSISTANT,
             session_id=session_id or str(uuid.uuid4()),
             sources=[],

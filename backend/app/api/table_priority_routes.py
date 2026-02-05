@@ -332,3 +332,47 @@ async def get_validation_rules_endpoint():
             "success": False,
             "error": str(e)
         }
+
+
+@router.get("/all-tables")
+async def get_all_tables():
+    """
+    Get all available tables from schema for search/manual selection
+    """
+    try:
+        # Check if API key is available
+        if not OPENAI_API_KEY:
+            raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+        
+        # Initialize SQL generator
+        generator = NLToSQLGenerator(
+            api_key=OPENAI_API_KEY,
+            model=SQL_MODEL,
+            schema_csv_path=SCHEMA_CSV_PATH
+        )
+        
+        # Get all tables from schema
+        all_tables = []
+        if hasattr(generator, 'schema_df') and generator.schema_df is not None:
+            for _, row in generator.schema_df.iterrows():
+                all_tables.append({
+                    'table_name': row.get('Table_name', ''),
+                    'category': row.get('Table_category', ''),
+                    'description': row.get('Table_description', ''),
+                    'columns': row.get('Table_columns(Data type)', '')
+                })
+        
+        # Sort alphabetically by table name
+        all_tables.sort(key=lambda x: x['table_name'].lower())
+        
+        return {
+            "success": True,
+            "tables": all_tables,
+            "count": len(all_tables)
+        }
+    
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }

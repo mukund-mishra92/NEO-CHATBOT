@@ -87,6 +87,8 @@ async def chat(request: ChatRequest):
         
         # STEP 2: Get conversation history for context
         conversation_history = session_manager.get_conversation_history(session_id)
+        # Ensure services receive server-side history even if client sends none
+        request.conversation_history = conversation_history
         
         # STEP 2.5: CHECK IF USER IS ASKING ABOUT SESSION/CONVERSATION HISTORY
         # This must be handled BEFORE routing to any service!
@@ -184,6 +186,8 @@ def _is_session_query(message: str) -> bool:
         'what we covered',
         'what have we covered',
         'tell me what we discussed',
+        'what we have discussed',
+        'tell me what we have discussed',
         'remind me what we talked',
         'previous questions',
         'earlier in the conversation',

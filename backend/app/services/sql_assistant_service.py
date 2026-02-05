@@ -23,6 +23,29 @@ from ..utils.session_manager import get_session_manager, SessionType
 logger = logging.getLogger(__name__)
 
 
+def extract_explicit_tables(question: str, available_tables: set) -> set:
+    """
+    Detect tables explicitly mentioned by the user.
+    """
+    q = question.lower()
+    return {t for t in available_tables if t.lower() in q}
+
+
+def extract_tables_from_sql(sql: str) -> set:
+    """
+    Extract table names from SQL (FROM / JOIN).
+    """
+    if not sql:
+        return set()
+
+    tables = set()
+    tokens = sql.replace("\n", " ").split()
+    for i, tok in enumerate(tokens):
+        if tok.upper() in ("FROM", "JOIN") and i + 1 < len(tokens):
+            tables.add(tokens[i + 1].strip(","))
+    return tables
+
+
 class SQLAssistantService:
     """
     Service for SQL query generation, execution, and validation
@@ -99,6 +122,7 @@ class SQLAssistantService:
         # Safe logging that handles None schema_parser
         table_count = len(self.schema_parser.get_table_names()) if self.schema_parser else 0
         logger.info(f"✅ SQL Assistant Service initialized | DB Available: {self.db_available} | Tables: {table_count}")
+
     
     def _load_schema_parser(self):
         """Load schema parser"""
@@ -1702,7 +1726,12 @@ class SQLAssistantService:
         
         # Process conversation history
         for msg in conversation_history[-10:]:  # Last 10 messages for context
-            content = msg.content.lower() if hasattr(msg, 'content') else str(msg).lower()
+            if isinstance(msg, dict):
+                content = str(msg.get('content', '')).lower()
+            elif hasattr(msg, 'content'):
+                content = str(msg.content).lower()
+            else:
+                content = str(msg).lower()
             
             # Extract table names mentioned
             if self.schema_parser:
@@ -1800,6 +1829,7 @@ class SQLAssistantService:
             'sql': sql,
             'results_count': results_count,
             'sample_data': sample_data[:3] if sample_data else [],  # Store first 3 rows
+            'forced_tables': list(extract_explicit_tables(question, self.available_tables)),
             'timestamp': pd.Timestamp.now().isoformat()
         })
         
@@ -2588,9 +2618,17 @@ I'm here to help - just tell me what you need! 💡""",
             else:
                 query_to_process = original_message
             
+            # Detect explicit table intent early
+            explicit_tables = extract_explicit_tables(query_to_process, self.available_tables)
+            logger.info(f"🔍 Explicit tables detected: {explicit_tables}")
+            
             # Extract conversation context and corrections
+            conversation_history = chat_request.conversation_history
+            if not conversation_history and session_id:
+                conversation_history = self.session_manager.get_conversation_history(session_id)
+
             conversation_context = self._extract_conversation_context(
-                chat_request.conversation_history,
+                conversation_history,
                 chat_request.session_id
             )
             
@@ -2768,7 +2806,8 @@ I'm here to help - just tell me what you need! 💡""",
                     confidence, validation_msg = self._validate_results(
                         current_results, 
                         chat_request.message, 
-                        current_sql
+                        current_sql,
+                        explicit_tables
                     )
                     
                     logger.info(f"📊 Validation: confidence={confidence:.2f}, msg={validation_msg}")
@@ -3358,7 +3397,8 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
         self, 
         results: List[Dict[str, Any]], 
         question: str, 
-        sql_query: str
+        sql_query: str,
+        explicit_tables: Optional[set] = None
     ) -> Tuple[float, str]:
         """
         Validate query results and calculate confidence score
@@ -3366,6 +3406,15 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
         Returns:
             Tuple of (confidence_score, validation_message)
         """
+        # Check explicit table constraint FIRST
+        if explicit_tables:
+            sql_tables = extract_tables_from_sql(sql_query)
+            if not explicit_tables.issubset(sql_tables):
+                return (
+                    0.2,
+                    f"SQL violates explicit table constraint: expected {explicit_tables}, got {sql_tables}"
+                )
+        
         confidence = 0.5  # Base confidence
         messages = []
         
@@ -3427,16 +3476,15 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
     ) -> str:
         """Format results with confidence indicators"""
         
-        # Confidence badge
+        # Confidence badge (without emojis)
         if confidence >= 0.9:
-            confidence_badge = f"🟢 **High Confidence** ({confidence * 100:.0f}%)"
+            confidence_badge = f"**High Confidence:** {confidence * 100:.0f}%"
         elif confidence >= 0.75:
-            confidence_badge = f"🟡 **Good Confidence** ({confidence * 100:.0f}%)"
+            confidence_badge = f"**Good Confidence:** {confidence * 100:.0f}%"
         else:
-            confidence_badge = f"🟠 **Moderate Confidence** ({confidence * 100:.0f}%)"
+            confidence_badge = f"**Moderate Confidence:** {confidence * 100:.0f}%"
         
         response_parts = [
-            f"**Query:** {question}\n",
             f"{confidence_badge}\n",
             f"**Found {len(results)} result(s):**\n"
         ]
@@ -3444,21 +3492,32 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
         # Format results as markdown table
         if results:
             columns = list(results[0].keys())
+            display_limit = min(len(results), 200)
             
             # Table header
             table = "| " + " | ".join(columns) + " |\n"
             table += "| " + " | ".join(["---"] * len(columns)) + " |\n"
             
-            # Table rows (show first 20)
-            display_results = results[:20]
+            # Table rows
+            display_results = results[:display_limit]
             for row in display_results:
-                values = [str(row.get(col, '')) for col in columns]
+                values = []
+                for col in columns:
+                    val = row.get(col, '')
+                    if val is None:
+                        val = ''
+                    else:
+                        val = str(val)
+                        # Truncate long values
+                        if len(val) > 50:
+                            val = val[:47] + '...'
+                    values.append(val)
                 table += "| " + " | ".join(values) + " |\n"
             
             response_parts.append(table)
             
-            if len(results) > 20:
-                response_parts.append(f"\n*Showing first 20 of {len(results)} results*")
+            if len(results) > display_limit:
+                response_parts.append(f"\n*Showing first {display_limit} of {len(results)} results*")
         
         # Add SQL query used
         response_parts.append(f"\n**SQL Query:**\n```sql\n{sql_query}\n```")

@@ -538,3 +538,426 @@ FROM live_inventory_master;...
 2026-02-05 14:59:11 - app.services.query_classification_service - INFO - Found 1620 queries with confidence >= 50%
 2026-02-05 14:59:11 - app.services.query_classification_service - INFO - Found 1620 queries with confidence >= 50%
 2026-02-05 14:59:15 - app.services.query_classification_service - INFO - Found 1620 queries with confidence >= 50%
+2026-02-05 15:52:31 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 15:52:31 - app.services.query_classification_service - INFO - ✅ Loaded 1620 classified queries
+2026-02-05 15:52:31 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 15:52:31 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1620 classified queries
+2026-02-05 15:52:31 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 15:53:41 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 15:53:41 - app.services.query_classification_service - INFO - ✅ Loaded 1620 classified queries
+2026-02-05 15:53:41 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 15:53:41 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1620 classified queries
+2026-02-05 15:53:41 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 15:57:10 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 15:57:10 - app.services.query_classification_service - INFO - ✅ Loaded 1620 classified queries
+2026-02-05 15:57:10 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 15:57:10 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1620 classified queries
+2026-02-05 15:57:10 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:00:23 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:00:23 - app.services.query_classification_service - INFO - ✅ Loaded 1620 classified queries
+2026-02-05 16:00:23 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:00:23 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1620 classified queries
+2026-02-05 16:00:23 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:01:37 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:01:37 - app.services.query_classification_service - INFO - ✅ Loaded 1620 classified queries
+2026-02-05 16:01:37 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:01:37 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1620 classified queries
+2026-02-05 16:01:37 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:03:19 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:03:19 - app.services.query_classification_service - INFO - ✅ Loaded 1620 classified queries
+2026-02-05 16:03:19 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:03:19 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1620 classified queries
+2026-02-05 16:03:19 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:04:09 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:04:09 - app.services.query_classification_service - INFO - ✅ Loaded 1620 classified queries
+2026-02-05 16:04:09 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:04:09 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1620 classified queries
+2026-02-05 16:04:09 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:06:36 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:06:36 - app.services.query_classification_service - INFO - ✅ Loaded 1620 classified queries
+2026-02-05 16:06:36 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:06:36 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1620 classified queries
+2026-02-05 16:06:36 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:06:49 - app.utils.session_manager - INFO - 🆕 New session created: fb5cbaaa-ffd (type: knowledge_base)
+2026-02-05 16:06:49 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: fb5cbaaa-ffd (type: knowledge_base)
+2026-02-05 16:06:49 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo?...
+2026-02-05 16:06:49 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-05 16:06:49 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo?...
+2026-02-05 16:06:49 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-02-05 16:06:50 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-02-05 16:06:52 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-05 16:06:52 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-05 16:06:52 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_444ee78b2bff49e3' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: ef672773-45ec-415e-9090-c1d411a43030
+2026-02-05 16:06:52 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-02-05 16:06:52 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.71, session=fb5cbaaa-ffd
+2026-02-05 16:07:45 - app.utils.session_manager - INFO - 🆕 New session created: 1256dc6c-e8a (type: sql_assistant)
+2026-02-05 16:07:45 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 1256dc6c-e8a (type: sql_assistant)
+2026-02-05 16:07:45 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the unique skus available...
+2026-02-05 16:07:45 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: give me all the unique skus available...
+2026-02-05 16:07:45 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-05 16:07:45 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-05 16:07:46 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-05 16:07:46 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-05 16:07:46 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-05 16:07:46 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-05 16:07:52 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 72.00%)
+2026-02-05 16:07:52 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT DISTINCT
+  lim.ARTICLE_ID AS sku
+FROM live_inventory_master AS lim
+WHERE lim.IS_ACTIVE = 1
+  ...
+2026-02-05 16:07:52 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-05 16:07:52 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=72.00%, validation=95.00%, combined=81.20%
+2026-02-05 16:07:52 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (81.20%) - Using result
+2026-02-05 16:07:52 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-05 16:07:53 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-05 16:07:53 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-05 16:07:53 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-05 16:07:53 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 72a06875-fd3c-4c22-9b00-3c1fba5c8081
+2026-02-05 16:07:54 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 72a06875-fd3c-4c22-9b00-3c1fba5c8081
+2026-02-05 16:07:54 - app.services.query_classification_service - INFO - 📝 Stored query 1256dc6c-e8a_20260205160754199986 for classification (cache now has 1621 queries)
+2026-02-05 16:07:54 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 81.20%)
+2026-02-05 16:07:54 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.81, session=1256dc6c-e8a
+2026-02-05 16:08:38 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the unique skus registered....
+2026-02-05 16:08:38 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: give me all the unique skus available
+USER: give me all the unique skus available
+ASSISTANT: 🤖...
+2026-02-05 16:08:38 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: give me all the unique skus registered....
+2026-02-05 16:08:38 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-05 16:08:38 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-05 16:08:38 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-05 16:08:38 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-05 16:08:38 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-05 16:08:38 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-05 16:08:42 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 86.00%)
+2026-02-05 16:08:42 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT ar.SKU_ID AS sku_id,
+       ar.SKU_NAME AS sku_name
+FROM article_registered ar
+GROUP BY ar.SK...
+2026-02-05 16:08:43 - app.services.sql_assistant_integrated - ERROR - ❌ Database error: (1146, "Table 'neo.article_registered' doesn't exist")
+2026-02-05 16:08:43 - app.services.sql_assistant_integrated - WARNING - ⚠️ Execution error on attempt 1: (1146, "Table 'neo.article_registered' doesn't exist")
+2026-02-05 16:08:43 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-05 16:08:47 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 78.00%)
+2026-02-05 16:08:47 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT ar.SKU_ID AS sku_id,
+       ar.SKU_NAME AS sku_name
+FROM article_registered ar
+ORDER BY ar.SK...
+2026-02-05 16:08:48 - app.services.sql_assistant_integrated - ERROR - ❌ Database error: (1146, "Table 'neo.article_registered' doesn't exist")
+2026-02-05 16:08:48 - app.services.sql_assistant_integrated - WARNING - ⚠️ Execution error on attempt 2: (1146, "Table 'neo.article_registered' doesn't exist")
+2026-02-05 16:08:48 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-05 16:08:54 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 62.00%)
+2026-02-05 16:08:54 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT DISTINCT
+  sm.SKU_ID   AS sku_id,
+  sm.SKU_NAME AS sku_name
+FROM sku_master sm
+ORDER BY sm.SK...
+2026-02-05 16:08:54 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-05 16:08:54 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=62.00%, validation=95.00%, combined=75.20%
+2026-02-05 16:08:54 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (75.20%) - Using result
+2026-02-05 16:08:54 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-05 16:08:54 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-05 16:08:54 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-05 16:08:54 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 2)
+2026-02-05 16:08:54 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: c9a90da2-1b4a-41e5-a28e-662478b5172f
+2026-02-05 16:08:54 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: c9a90da2-1b4a-41e5-a28e-662478b5172f
+2026-02-05 16:08:54 - app.services.query_classification_service - INFO - 📝 Stored query 1256dc6c-e8a_20260205160854253905 for classification (cache now has 1622 queries)
+2026-02-05 16:08:54 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 75.20%)
+2026-02-05 16:08:54 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=1256dc6c-e8a
+2026-02-05 16:10:09 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=can u tell me what we have discussed so far?...
+2026-02-05 16:10:09 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: give me all the unique skus registered.
+USER: give me all the unique skus registered.
+ASSISTAN...
+2026-02-05 16:10:09 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: can u tell me what we have discussed so far?...
+2026-02-05 16:10:09 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-05 16:10:09 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-05 16:10:09 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-05 16:10:10 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-05 16:10:10 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-05 16:10:10 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-05 16:10:18 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 42.00%)
+2026-02-05 16:10:18 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  'wms_to_wcs_order_request_data' AS source_table,
+  o.WMS_ORDER_REQUEST_DATA_ID AS record_id...
+2026-02-05 16:10:19 - app.services.sql_assistant_integrated - ERROR - ❌ Database error: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-05 16:10:19 - app.services.sql_assistant_integrated - WARNING - ⚠️ Execution error on attempt 1: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-05 16:10:19 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-05 16:10:28 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 72.00%)
+2026-02-05 16:10:28 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID AS record_id,
+  o.GLN,
+  o.ORDER_ID,
+  o.PICK_ORDER_ID,
+  o.PAR...
+2026-02-05 16:10:29 - app.services.sql_assistant_integrated - ERROR - ❌ Database error: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-05 16:10:29 - app.services.sql_assistant_integrated - WARNING - ⚠️ Execution error on attempt 2: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-05 16:10:29 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-05 16:10:38 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 46.00%)
+2026-02-05 16:10:38 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID AS record_id,
+  o.GLN,
+  o.ORDER_ID,
+  o.PICK_ORDER_ID,
+  o.PAR...
+2026-02-05 16:10:38 - app.services.sql_assistant_integrated - ERROR - ❌ Database error: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-05 16:10:38 - app.services.sql_assistant_integrated - WARNING - ⚠️ Execution error on attempt 3: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-05 16:10:38 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-05 16:10:38 - app.services.sql_assistant_integrated - ERROR - ❌ Database error: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-05 16:10:38 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=1256dc6c-e8a
+2026-02-05 16:11:16 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo?...
+2026-02-05 16:11:16 - app.api.chatbot_endpoints - INFO - 📚 Context summary: ASSISTANT: 🤖 *Generated with nl_to_sql_generator*
+
+**Found 200 results** (showing first 5):
+
+
+**Resu...
+2026-02-05 16:11:16 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-05 16:11:16 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo?...
+2026-02-05 16:11:16 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-02-05 16:11:17 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-02-05 16:11:18 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-05 16:11:18 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-05 16:11:18 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_80b23279724e46e7' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 539acca8-4fd4-43ef-80e8-2afa7b0b3340
+2026-02-05 16:11:18 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-02-05 16:11:18 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.71, session=1256dc6c-e8a
+2026-02-05 16:11:34 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=can u tell me what we have discussed so far?...
+2026-02-05 16:11:34 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: what is neo?
+USER: what is neo?
+ASSISTANT: NEO is a cutting-edge Automated Storage and Retriev...
+2026-02-05 16:11:34 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-05 16:11:34 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: can u tell me what we have discussed so far?...
+2026-02-05 16:11:34 - app.services.knowledge_base_service - INFO - 📊 Query classified as: EXPLORATORY
+2026-02-05 16:11:36 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 2 categories
+2026-02-05 16:11:37 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-05 16:11:37 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-05 16:11:39 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_3fc8352a4386415c' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 652f90fa-7748-4438-8b29-3612f05614e5
+2026-02-05 16:11:39 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-02-05 16:11:39 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.47, session=1256dc6c-e8a
+2026-02-05 16:14:07 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=can you analyse and tell me what are the key diffe...
+2026-02-05 16:14:07 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: can u tell me what we have discussed so far?
+USER: can u tell me what we have discussed so far...
+2026-02-05 16:14:07 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: can you analyse and tell me what are the key diffe...
+2026-02-05 16:14:07 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-05 16:14:07 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-05 16:14:07 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-05 16:14:07 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-05 16:14:07 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-05 16:14:07 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-05 16:14:13 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 22.00%)
+2026-02-05 16:14:13 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT 'Need the two previous SQL queries or at least the two table names to compare. In this chat I...
+2026-02-05 16:14:13 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-05 16:14:13 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=22.00%, validation=95.00%, combined=51.20%
+2026-02-05 16:14:13 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (51.20%) - Retrying with feedback
+2026-02-05 16:14:13 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-05 16:14:18 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 62.00%)
+2026-02-05 16:14:18 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT 'Need the two previous SQL queries (or at least the two table names) to compare their key dif...
+2026-02-05 16:14:18 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-05 16:14:18 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=62.00%, validation=95.00%, combined=75.20%
+2026-02-05 16:14:18 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (75.20%) - Using result
+2026-02-05 16:14:18 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-05 16:14:18 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-05 16:14:18 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-05 16:14:18 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 3)
+2026-02-05 16:14:18 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 8435ee43-bf26-4591-98c6-f5b426536167
+2026-02-05 16:14:18 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 8435ee43-bf26-4591-98c6-f5b426536167
+2026-02-05 16:14:18 - app.services.query_classification_service - INFO - 📝 Stored query 1256dc6c-e8a_20260205161418237126 for classification (cache now has 1623 queries)
+2026-02-05 16:14:18 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 75.20%)
+2026-02-05 16:14:18 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=1256dc6c-e8a
+2026-02-05 16:17:18 - app.services.query_classification_service - INFO - Found 1620 queries with confidence >= 50%
+2026-02-05 16:17:22 - app.services.query_classification_service - INFO - Found 1620 queries with confidence >= 50%
+2026-02-05 16:21:57 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:21:57 - app.services.query_classification_service - INFO - ✅ Loaded 1623 classified queries
+2026-02-05 16:21:57 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:21:57 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1623 classified queries
+2026-02-05 16:21:57 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:22:35 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:22:35 - app.services.query_classification_service - INFO - ✅ Loaded 1623 classified queries
+2026-02-05 16:22:35 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:22:35 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1623 classified queries
+2026-02-05 16:22:35 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:23:12 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:23:12 - app.services.query_classification_service - INFO - ✅ Loaded 1623 classified queries
+2026-02-05 16:23:12 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:23:12 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1623 classified queries
+2026-02-05 16:23:12 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:23:12 - app.services.query_classification_service - INFO - Found 1623 queries with confidence >= 50%
+2026-02-05 16:25:38 - app.services.query_classification_service - INFO - Found 1623 queries with confidence >= 50%
+2026-02-05 16:25:41 - app.services.query_classification_service - INFO - Found 1623 queries with confidence >= 50%
+2026-02-05 16:27:03 - app.services.query_classification_service - INFO - Found 1623 queries with confidence >= 50%
+2026-02-05 16:29:17 - app.utils.session_manager - INFO - 🆕 New session created: 84dfa8f0-19e (type: sql_assistant)
+2026-02-05 16:29:17 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 84dfa8f0-19e (type: sql_assistant)
+2026-02-05 16:29:17 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the skus registerd...
+2026-02-05 16:29:17 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: give me all the skus registerd...
+2026-02-05 16:29:17 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-05 16:29:17 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-05 16:29:17 - app.services.sql_assistant_integrated - INFO - 📚 CLASSIFIED QUERY HIT! Similarity: 86.96%
+2026-02-05 16:29:17 - app.services.sql_assistant_integrated - INFO -    Classified Q: give me all the unique skus registered.
+2026-02-05 16:29:17 - app.services.sql_assistant_integrated - INFO -    Current Q: give me all the skus registerd
+2026-02-05 16:29:17 - app.services.sql_assistant_integrated - INFO - ✨ Using classified query (confidence: 93.70%)
+2026-02-05 16:29:17 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-05 16:29:19 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-05 16:29:19 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-05 16:29:19 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-05 16:29:19 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 96f2c48e-2b28-4581-827f-069a86a06101
+2026-02-05 16:29:19 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 96f2c48e-2b28-4581-827f-069a86a06101
+2026-02-05 16:29:19 - app.services.query_classification_service - INFO - 📝 Stored query 84dfa8f0-19e_20260205162919202693 for classification (cache now has 1624 queries)
+2026-02-05 16:29:19 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 93.70%)
+2026-02-05 16:29:19 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.94, session=84dfa8f0-19e
+2026-02-05 16:30:22 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=ok, what are the skus currently available in the i...
+2026-02-05 16:30:22 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: give me all the skus registerd
+USER: give me all the skus registerd
+ASSISTANT: 📚 *Retrieved fr...
+2026-02-05 16:30:22 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: ok, what are the skus currently available in the i...
+2026-02-05 16:30:22 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-05 16:30:22 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-05 16:30:22 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-05 16:30:22 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-05 16:30:22 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-05 16:30:22 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-05 16:30:29 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 74.00%)
+2026-02-05 16:30:29 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  lim.ARTICLE_ID AS sku,
+  SUM(COALESCE(lim.QUANTITY, 0)) AS total_quantity,
+  SUM(COALESCE(l...
+2026-02-05 16:30:29 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-05 16:30:29 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=74.00%, validation=95.00%, combined=82.40%
+2026-02-05 16:30:29 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (82.40%) - Using result
+2026-02-05 16:30:29 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-05 16:30:29 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-05 16:30:29 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-05 16:30:29 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 2)
+2026-02-05 16:30:29 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 1c7fe72f-c123-4504-8121-a27a7a096142
+2026-02-05 16:30:29 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 1c7fe72f-c123-4504-8121-a27a7a096142
+2026-02-05 16:30:29 - app.services.query_classification_service - INFO - 📝 Stored query 84dfa8f0-19e_20260205163029616286 for classification (cache now has 1625 queries)
+2026-02-05 16:30:29 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 82.40%)
+2026-02-05 16:30:29 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.82, session=84dfa8f0-19e
+2026-02-05 16:32:00 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=now, can you tell me how many unique skus availabl...
+2026-02-05 16:32:00 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: ok, what are the skus currently available in the inventory
+USER: ok, what are the skus current...
+2026-02-05 16:32:00 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: now, can you tell me how many unique skus availabl...
+2026-02-05 16:32:00 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-05 16:32:00 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-05 16:32:00 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-05 16:32:00 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-05 16:32:00 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-05 16:32:00 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-05 16:32:08 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 56.00%)
+2026-02-05 16:32:08 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  COUNT(DISTINCT CASE
+    WHEN lim.QUANTITY > 0 THEN lim.ARTICLE_ID
+  END) AS unique_skus_wit...
+2026-02-05 16:32:08 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-05 16:32:08 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=56.00%, validation=95.00%, combined=71.60%
+2026-02-05 16:32:08 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (71.60%) - Retrying with feedback
+2026-02-05 16:32:08 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-05 16:32:14 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 78.00%)
+2026-02-05 16:32:14 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  COUNT(DISTINCT CASE WHEN lim.QUANTITY > 0 THEN lim.ARTICLE_ID END) AS unique_skus_with_posi...
+2026-02-05 16:32:14 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-05 16:32:14 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=78.00%, validation=95.00%, combined=84.80%
+2026-02-05 16:32:14 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (84.80%) - Using result
+2026-02-05 16:32:14 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-05 16:32:14 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-05 16:32:14 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-05 16:32:14 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 3)
+2026-02-05 16:32:14 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 366a018b-aea6-4d01-96b8-b77274f941ff
+2026-02-05 16:32:14 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 366a018b-aea6-4d01-96b8-b77274f941ff
+2026-02-05 16:32:14 - app.services.query_classification_service - INFO - 📝 Stored query 84dfa8f0-19e_20260205163214372543 for classification (cache now has 1626 queries)
+2026-02-05 16:32:14 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 84.80%)
+2026-02-05 16:32:14 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.85, session=84dfa8f0-19e
+2026-02-05 16:33:14 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=no, i meant, can ypu give me total number of uniqu...
+2026-02-05 16:33:14 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: now, can you tell me how many unique skus available in the both the cases discussed above.
+USE...
+2026-02-05 16:33:14 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: no, i meant, can ypu give me total number of uniqu...
+2026-02-05 16:33:14 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-05 16:33:14 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-05 16:33:15 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-05 16:33:15 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-05 16:33:15 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-05 16:33:15 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-05 16:33:22 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 62.00%)
+2026-02-05 16:33:22 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  COUNT(DISTINCT ARTICLE_ID) AS unique_skus
+FROM live_inventory_master;...
+2026-02-05 16:33:22 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-05 16:33:22 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=62.00%, validation=95.00%, combined=75.20%
+2026-02-05 16:33:22 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (75.20%) - Using result
+2026-02-05 16:33:22 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-05 16:33:22 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-05 16:33:22 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-05 16:33:22 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 4)
+2026-02-05 16:33:22 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 16a908e2-69fc-40f7-bc0a-0f51fd7e011a
+2026-02-05 16:33:22 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 16a908e2-69fc-40f7-bc0a-0f51fd7e011a
+2026-02-05 16:33:22 - app.services.query_classification_service - INFO - 📝 Stored query 84dfa8f0-19e_20260205163322955130 for classification (cache now has 1627 queries)
+2026-02-05 16:33:22 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 75.20%)
+2026-02-05 16:33:22 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=84dfa8f0-19e
+2026-02-05 16:36:18 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:36:18 - app.services.query_classification_service - INFO - ✅ Loaded 1627 classified queries
+2026-02-05 16:36:18 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:36:18 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1627 classified queries
+2026-02-05 16:36:18 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:36:18 - app.services.query_classification_service - INFO - Found 1627 queries with confidence >= 50%
+2026-02-05 16:39:49 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:39:49 - app.services.query_classification_service - INFO - ✅ Loaded 1627 classified queries
+2026-02-05 16:39:49 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:39:49 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1627 classified queries
+2026-02-05 16:39:49 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:40:30 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:40:30 - app.services.query_classification_service - INFO - ✅ Loaded 1627 classified queries
+2026-02-05 16:40:30 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:40:30 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1627 classified queries
+2026-02-05 16:40:30 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:41:10 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:41:11 - app.services.query_classification_service - INFO - ✅ Loaded 1627 classified queries
+2026-02-05 16:41:11 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:41:11 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1627 classified queries
+2026-02-05 16:41:11 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:41:11 - app.services.query_classification_service - INFO - Found 1627 queries with confidence >= 50%
+2026-02-05 16:41:14 - app.services.query_classification_service - INFO - Found 1627 queries with confidence >= 50%
+2026-02-05 16:41:49 - app.utils.session_manager - INFO - 🆕 New session created: 2a56edc3-b80 (type: sql_assistant)
+2026-02-05 16:41:49 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 2a56edc3-b80 (type: sql_assistant)
+2026-02-05 16:41:49 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=what is the current position of Bot 21?...
+2026-02-05 16:41:49 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: what is the current position of Bot 21?...
+2026-02-05 16:41:49 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-05 16:41:49 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-05 16:41:49 - app.services.sql_assistant_integrated - INFO - 📚 CLASSIFIED QUERY HIT! Similarity: 94.74%
+2026-02-05 16:41:49 - app.services.sql_assistant_integrated - INFO -    Classified Q: what is the current position of bot 7
+2026-02-05 16:41:49 - app.services.sql_assistant_integrated - INFO -    Current Q: what is the current position of Bot 21?
+2026-02-05 16:41:49 - app.services.sql_assistant_integrated - INFO - ✨ Using classified query (confidence: 94.47%)
+2026-02-05 16:41:49 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-05 16:41:50 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-05 16:41:50 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-05 16:41:50 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-05 16:41:50 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 7123593c-f2c9-446d-8f5f-8492d2d5f8e1
+2026-02-05 16:41:50 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 7123593c-f2c9-446d-8f5f-8492d2d5f8e1
+2026-02-05 16:41:50 - app.services.query_classification_service - INFO - 📝 Stored query 2a56edc3-b80_20260205164150878760 for classification (cache now has 1628 queries)
+2026-02-05 16:41:50 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 94.47%)
+2026-02-05 16:41:50 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.94, session=2a56edc3-b80
+2026-02-05 16:48:15 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:48:15 - app.services.query_classification_service - INFO - ✅ Loaded 1628 classified queries
+2026-02-05 16:48:15 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:48:15 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1628 classified queries
+2026-02-05 16:48:15 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:49:03 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:49:03 - app.services.query_classification_service - INFO - ✅ Loaded 1628 classified queries
+2026-02-05 16:49:03 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:49:03 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1628 classified queries
+2026-02-05 16:49:03 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:49:48 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\5.Neo_Chatbot_Deployment_Feb5\NEO-CHATBOT\backend\logs\chatbot_20260205.log
+2026-02-05 16:49:48 - app.services.query_classification_service - INFO - ✅ Loaded 1628 classified queries
+2026-02-05 16:49:48 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-05 16:49:48 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1628 classified queries
+2026-02-05 16:49:48 - app.main - INFO - ✅ Classification service initialized
+2026-02-05 16:49:48 - app.services.query_classification_service - INFO - ✅ Loaded 1628 classified queries
+2026-02-05 16:49:48 - app.services.query_classification_service - INFO - ✅ Query 1256dc6c-e8a_20260205161418237126 classified as: incorrect
+2026-02-05 16:49:49 - app.services.query_classification_service - INFO - ✅ Loaded 1628 classified queries
+2026-02-05 16:49:49 - app.services.query_classification_service - INFO - ✅ Query 1256dc6c-e8a_20260205161418237126 classified as: incorrect
+2026-02-05 16:49:49 - app.services.query_classification_service - INFO - Found 1628 queries with confidence >= 50%
+2026-02-05 16:49:52 - app.services.query_classification_service - INFO - Found 1628 queries with confidence >= 50%
+2026-02-05 16:49:59 - app.services.query_classification_service - INFO - Found 1628 queries with confidence >= 50%
+2026-02-05 16:50:03 - app.services.query_classification_service - INFO - Found 1628 queries with confidence >= 50%
+2026-02-05 16:51:54 - app.services.query_classification_service - INFO - ✅ Loaded 1628 classified queries
+2026-02-05 16:51:54 - app.services.query_classification_service - INFO - ✅ Query 1256dc6c-e8a_20260205160854253905 classified as: correct
+2026-02-05 16:52:00 - app.services.query_classification_service - INFO - ✅ Loaded 1628 classified queries
+2026-02-05 16:52:00 - app.services.query_classification_service - INFO - ✅ Query 58aa3cbb-7a6_20260205145513434926 classified as: correct
+2026-02-05 16:52:05 - app.services.query_classification_service - INFO - ✅ Loaded 1628 classified queries
+2026-02-05 16:52:05 - app.services.query_classification_service - INFO - ✅ Query 1256dc6c-e8a_20260205160754199986 classified as: correct
