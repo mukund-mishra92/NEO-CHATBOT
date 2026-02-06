@@ -157,9 +157,17 @@
             border-color: #667eea;
         }
 
-        .chatbot-btn:hover:not(.active) {
+        .chatbot-btn:hover:not(.active):not(.disabled) {
             background: #f8f9fa;
             border-color: #667eea;
+        }
+
+        .chatbot-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: #e9ecef;
+            color: #adb5bd;
         }
 
         .chat-main {
@@ -622,7 +630,7 @@
             <button class="chatbot-btn" data-type="semi_auto_diagnostic">
                 <i class="fas fa-tools"></i> Semi-Auto Diagnostic
             </button>
-            <button class="chatbot-btn" data-type="diagnostic">
+            <button class="chatbot-btn disabled" data-type="diagnostic" disabled>
                 <i class="fas fa-stethoscope"></i> Diagnostic Support
             </button>
         </div>
@@ -634,9 +642,9 @@
                 <!-- Empty State -->
                 <div class="empty-state" id="emptyState">
                     <i class="fas fa-comments"></i>
-                    <h3>Welcome to NEO AI Assistant!</h3>
+                    <h3>Welcome to NEO AI Assistant</h3>
                     <p>I'm here to help you with documentation, SQL queries, and system diagnostics.</p>
-                    <p style="margin-top: 10px; font-size: 14px;">Select an assistant type above and start chatting!</p>
+                    <p style="margin-top: 10px; font-size: 14px;">Select an assistant type above and start chatting</p>
                     
                     <div class="suggestion-chips" id="suggestionChips">
                         <!-- Dynamic suggestions based on chatbot type -->
@@ -788,6 +796,18 @@
             // Chatbot type selector
             document.querySelectorAll('.chatbot-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
+                    // Prevent clicking disabled buttons
+                    if (this.classList.contains('disabled') || this.disabled) {
+                        return;
+                    }
+                    
+                    // Clear messages when switching assistants
+                    const messagesContainer = document.getElementById('chatMessages');
+                    messagesContainer.querySelectorAll('.message:not(:last-child)').forEach(msg => msg.remove());
+                    document.getElementById('emptyState').style.display = 'block';
+                    messageCount = 0;
+                    document.getElementById('messageCount').textContent = '0';
+                    
                     document.querySelectorAll('.chatbot-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     currentChatbotType = this.dataset.type;
@@ -796,6 +816,9 @@
                     
                     // Reset semi-auto diagnostic session when switching
                     semiAutoDiagSession = null;
+                    sopSessionId = null;
+                    sopCurrentStatus = null;
+                    sopWorkflowCardId = null;
                     
                     // Show upload area only for knowledge base
                     const uploadArea = document.getElementById('uploadArea');
@@ -1625,7 +1648,7 @@
 
         async function runSQLAuditInline() {
             // DEPRECATED - SQL is now auto-executed in SOP workflow
-            addMessage('assistant', 'ℹ️ SQL queries are now automatically executed in the SOP workflow.');
+            addMessage('assistant', 'SQL queries are now automatically executed in the SOP workflow.');
         }
 
         async function markSolutionWorked() {
@@ -1917,11 +1940,11 @@
                 semiAutoDiagSession = null;
                 
                 // Show success notification
-                addMessage('system', `✨ New session started: ${sessionId}`);
+                addMessage('system', `New session started: ${sessionId}`);
                 
-                console.log('✅ New session created:', sessionId);
+                console.log('New session created:', sessionId);
             } catch (error) {
-                console.error('❌ Error creating session:', error);
+                console.error('Error creating session:', error);
                 alert('Failed to create new session. Please try again.');
             }
         }
@@ -1938,13 +1961,26 @@
                 
                 const data = await response.json();
                 
-                let historyHTML = `<h3>Session History</h3>`;
-                historyHTML += `<p><strong>Session ID:</strong> ${data.session_id}</p>`;
-                historyHTML += `<p><strong>Messages:</strong> ${data.message_count}</p>`;
-                historyHTML += '<hr><div style="max-height: 400px; overflow-y: auto;">';
+                let historyHTML = `
+                    <h3 style="margin-bottom: 20px; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                        <i class="fas fa-history"></i> Conversation History
+                    </h3>
+                `;
+                historyHTML += `
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <p style="margin: 0;"><strong>Session ID:</strong> ${data.session_id}</p>
+                        <p style="margin: 5px 0 0 0;"><strong>Total Messages:</strong> ${data.message_count}</p>
+                    </div>
+                `;
+                historyHTML += '<div style="max-height: 450px; overflow-y: auto; padding-right: 10px;">';
                 
-                data.messages.forEach(msg => {
-                    const roleIcon = msg.role === 'user' ? '👤' : (msg.role === 'assistant' ? '🤖' : 'ℹ️');
+                data.messages.forEach((msg, index) => {
+                    const isUser = msg.role === 'user';
+                    const bgColor = isUser ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f8f9fa';
+                    const textColor = isUser ? 'white' : '#333';
+                    const iconClass = isUser ? 'fa-user' : 'fa-robot';
+                    const iconBg = isUser ? '#764ba2' : '#28a745';
+                    const align = isUser ? 'flex-end' : 'flex-start';
                     
                     // Parse timestamp properly
                     let timeStr = 'Unknown';
@@ -1961,30 +1997,39 @@
                     }
                     
                     historyHTML += `
-                        <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-                                ${roleIcon} <strong>${msg.role.toUpperCase()}</strong> - ${timeStr}
+                        <div style="display: flex; justify-content: ${align}; margin-bottom: 20px; animation: slideIn 0.3s ease;">
+                            <div style="max-width: 75%; display: flex; gap: 10px; flex-direction: ${isUser ? 'row-reverse' : 'row'};">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: ${iconBg}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas ${iconClass}" style="color: white; font-size: 16px;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="background: ${bgColor}; color: ${textColor}; padding: 12px 16px; border-radius: 15px; ${isUser ? 'border-bottom-right-radius: 4px;' : 'border-bottom-left-radius: 4px;'} box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                        <div style="word-wrap: break-word; line-height: 1.5;">${msg.content.length > 300 ? msg.content.substring(0, 300) + '...' : msg.content}</div>
+                                    </div>
+                                    <div style="font-size: 11px; color: #999; margin-top: 5px; ${isUser ? 'text-align: right;' : 'text-align: left;'}">
+                                        <i class="fas fa-clock"></i> ${timeStr}
+                                    </div>
+                                </div>
                             </div>
-                            <div>${msg.content.substring(0, 200)}${msg.content.length > 200 ? '...' : ''}</div>
                         </div>
                     `;
                 });
                 
                 historyHTML += '</div>';
                 
-                // Show in modal or alert
+                // Show in modal
                 const modalHTML = `
-                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;" onclick="this.remove()">
-                        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
+                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(2px);" onclick="this.remove()">
+                        <div style="background: white; padding: 30px; border-radius: 20px; max-width: 700px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);" onclick="event.stopPropagation()">
                             ${historyHTML}
-                            <button onclick="this.closest('div[style*=fixed]').remove()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer;">Close</button>
+                            <button onclick="this.closest('div[style*=fixed]').remove()" style="margin-top: 20px; width: 100%; padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(102,126,234,0.3)';" onmouseout="this.style.transform=''; this.style.boxShadow='';">Close</button>
                         </div>
                     </div>
                 `;
                 document.body.insertAdjacentHTML('beforeend', modalHTML);
                 
             } catch (error) {
-                console.error('❌ Error fetching history:', error);
+                console.error('Error fetching history:', error);
                 alert('Failed to fetch session history.');
             }
         }
@@ -2004,13 +2049,13 @@
                 });
 
                 const data = await response.json();
-                alert(`✅ ${data.message || 'Document uploaded successfully!'}`);
+                alert(`${data.message || 'Document uploaded successfully!'}`);
                 
                 // Clear file input
                 event.target.value = '';
             } catch (error) {
                 console.error('Error:', error);
-                alert('❌ Error uploading document. Please try again.');
+                alert('Error uploading document. Please try again.');
             }
         }
 
@@ -2220,13 +2265,13 @@
                     `;
                     
                     // Show toast notification
-                    showToast(`✅ Feedback recorded with ${rating} ${rating === 1 ? 'star' : 'stars'}! Learning from your input...`);
+                    showToast(`Feedback recorded with ${rating} ${rating === 1 ? 'star' : 'stars'}! Learning from your input...`);
                 } else {
                     throw new Error(result.error || 'Failed to record feedback');
                 }
             } catch (error) {
                 console.error('Error sending feedback:', error);
-                showToast('❌ Error recording feedback. Please try again.');
+                showToast('Error recording feedback. Please try again.');
             }
         }
 

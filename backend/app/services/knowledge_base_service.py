@@ -99,18 +99,13 @@ Always prioritize clarity and user understanding."""
         try:
             logger.info(f"🔍 Processing knowledge base query: {chat_request.message[:50]}...")
             
-            # Step 1: Get or create session
+            # Step 1: Get session for context (already created/managed by endpoint)
             session_id = chat_request.session_id
-            if not session_id or not self.session_manager.get_session(session_id):
-                session_id = self.session_manager.create_session(
-                    session_type=SessionType.KNOWLEDGE_BASE,
-                    initial_message=chat_request.message
-                )
-                logger.info(f"🆕 Created new Knowledge Base session: {session_id}")
+            if session_id:
+                # Session is already managed by endpoint, just get context
+                conversation_history = self.session_manager.get_context_for_llm(session_id, max_messages=10)
             else:
-                # Add user message to existing session
-                self.session_manager.add_message(session_id, 'user', chat_request.message)
-            
+                conversation_history = []
             # Check if vector store has documents
             if len(self.vector_store.documents) == 0:
                 return self._handle_empty_knowledge_base(chat_request)
@@ -121,11 +116,10 @@ Always prioritize clarity and user understanding."""
                 logger.info("🔧 Detected troubleshooting query, checking diagnostic database...")
                 diagnostic_result = self._handle_diagnostic_query(chat_request)
                 if diagnostic_result:
-                    # Add assistant response to session
-                    self.session_manager.add_message(session_id, 'assistant', diagnostic_result.response)
+                    # Just return - endpoint handles session management
                     return diagnostic_result
             
-            # Step 3: Classify query type for adaptive response strategy
+            # Step 3: Classify query type
             query_type = self._classify_query(chat_request.message)
             logger.info(f"📊 Query classified as: {query_type}")
             
@@ -149,7 +143,8 @@ Always prioritize clarity and user understanding."""
             source_documents = self._extract_source_documents(filtered_results)
             
             # Step 7: Get conversation history for context
-            conversation_history = self.session_manager.get_context_for_llm(session_id, max_messages=10)
+            if not conversation_history:
+                conversation_history = self.session_manager.get_context_for_llm(session_id, max_messages=10) if session_id else []
             
             # Step 8: Generate response using LLM with adaptive strategy
             messages = self._build_adaptive_messages(chat_request, context, query_type, conversation_history)
@@ -167,17 +162,7 @@ Always prioritize clarity and user understanding."""
             # Format response based on query type
             response_text = self._format_adaptive_response(response_text, query_type)
             
-            # Step 9: Add assistant response to session
-            self.session_manager.add_message(
-                session_id, 
-                'assistant', 
-                response_text,
-                metadata={
-                    'query_type': query_type,
-                    'source_count': len(source_documents),
-                    'sources': [doc.document_name for doc in source_documents[:3]]
-                }
-            )
+            # Note: Session message management is handled by the endpoint, not here
             
             # Calculate confidence based on source relevance
             confidence = self._calculate_confidence(filtered_results)

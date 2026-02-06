@@ -112,35 +112,17 @@ Be patient, clear, and supportive. Break down complex solutions into simple step
         try:
             logger.info(f"🔍 Processing intelligent diagnostic query: {chat_request.message[:50]}...")
             
-            # Step 1: Get or create session
+            # Step 1: Get session for context (managed by endpoint)
             session_id = chat_request.session_id
-            if not session_id or not self.session_manager.get_session(session_id):
-                session_id = self.session_manager.create_session(
-                    session_type=SessionType.DIAGNOSTIC,
-                    initial_message=chat_request.message
-                )
-                logger.info(f"🆕 Created new Diagnostic session: {session_id}")
+            if session_id:
+                conversation_history = self.session_manager.get_conversation_history(session_id)
             else:
-                # Add user message to existing session
-                self.session_manager.add_message(session_id, 'user', chat_request.message)
-            
-            # Step 2: Get conversation history for context
-            conversation_history = self.session_manager.get_conversation_history(session_id)
+                conversation_history = []
             
             # Step 3: Use LLM service for diagnosis with context
             response = self._diagnose_with_llm(chat_request, conversation_history)
             
-            # Step 4: Add response to session with metadata
-            self.session_manager.add_message(
-                session_id,
-                'assistant',
-                response.response,
-                metadata={
-                    'confidence': response.confidence_score,
-                    'analysis_type': 'intelligent',
-                    'chatbot_type': 'diagnostic'
-                }
-            )
+            # Note: Session management is handled by the endpoint
             
             # Update session ID in response
             response.session_id = session_id

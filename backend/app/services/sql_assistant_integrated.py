@@ -210,6 +210,140 @@ class SQLAssistantService:
             logger.error(f"❌ Error getting available tables: {e}")
             return set()
     
+    def _extract_tables_from_sql(self, sql: str) -> List[str]:
+        """Extract table names from SQL query"""
+        import re
+        tables = []
+        
+        # Pattern to find table names after FROM and JOIN
+        # Matches: FROM table_name, FROM table_name alias, JOIN table_name, etc.
+        patterns = [
+            r'FROM\s+`?(\w+)`?(?:\s+(?:AS\s+)?\w+)?',
+            r'JOIN\s+`?(\w+)`?(?:\s+(?:AS\s+)?\w+)?',
+        ]
+        
+        sql_upper = sql.upper()
+        sql_clean = sql  # Keep original case for table name extraction
+        
+        for pattern in patterns:
+            matches = re.finditer(pattern, sql_clean, re.IGNORECASE)
+            for match in matches:
+                table_name = match.group(1)
+                if table_name.upper() not in ['SELECT', 'WHERE', 'ON', 'AND', 'OR']:
+                    tables.append(table_name)
+        
+        return list(set(tables))  # Remove duplicates
+    
+    def _get_table_columns_list(self, table_name: str) -> List[str]:
+        """Get list of column names for a table"""
+        try:
+            if self.schema_parser and table_name in self.schema_parser.tables:
+                return [col['field'] for col in self.schema_parser.tables[table_name]]
+            return []
+        except Exception:
+            return []
+    
+    def _get_table_columns_from_db(self, table_name: str) -> List[str]:
+        """Query actual database for table columns"""
+        try:
+            conn = pymysql.connect(**self.db_config, connect_timeout=5)
+            try:
+                with conn.cursor() as cursor:
+                    cursor.execute(f"DESCRIBE `{table_name}`")
+                    columns = [row[0] for row in cursor.fetchall()]
+                    return columns
+            finally:
+                conn.close()
+        except Exception as e:
+            logger.debug(f"Could not get columns for {table_name}: {e}")
+            return []
+    
+    def _find_similar_table(self, table_name: str) -> Optional[str]:
+        """Find similar table name in schema if exact match fails"""
+        if not self.schema_parser:
+            return None
+        
+        table_lower = table_name.lower()
+        available_tables = self.schema_parser.get_table_names()
+        
+        # Check for exact match first
+        for t in available_tables:
+            if t.lower() == table_lower:
+                return t
+        
+        # Check for partial matches
+        for t in available_tables:
+            # Check if table name is contained in schema table or vice versa
+            if table_lower in t.lower() or t.lower() in table_lower:
+                return t
+            # Check for underscored versions (WMS_ORDER_REQUEST_DATA -> wms_to_wcs_order_request_data)
+            table_parts = set(table_lower.split('_'))
+            schema_parts = set(t.lower().split('_'))
+            overlap = len(table_parts & schema_parts)
+            if overlap >= 3:  # At least 3 matching parts
+                return t
+        
+        return None
+    
+    def _enhance_error_feedback(self, error: str, sql: str) -> str:
+        """Enhance error feedback with actual schema information"""
+        enhanced = f"ERROR: {error}\n\n"
+        
+        # Extract tables from failed SQL
+        tables = self._extract_tables_from_sql(sql)
+        
+        if tables:
+            enhanced += "CORRECT TABLE COLUMNS (from database):\n"
+            for table in tables:
+                # Try direct from DB first
+                columns = self._get_table_columns_from_db(table)
+                
+                if not columns:
+                    # Try to find similar table name
+                    similar_table = self._find_similar_table(table)
+                    if similar_table:
+                        columns = self._get_table_columns_from_db(similar_table)
+                        if columns:
+                            enhanced += f"\nNOTE: You used '{table}' but correct name is '{similar_table}'!\n"
+                            table = similar_table
+                
+                if columns:
+                    enhanced += f"\n{table} columns:\n  {', '.join(columns)}\n"
+            
+            enhanced += "\nCRITICAL: Use ONLY the exact table names and columns listed above."
+        
+        return enhanced
+    
+    def _auto_correct_sql_tables(self, sql: str) -> Tuple[str, List[str]]:
+        """
+        Auto-correct table names in SQL if they don't match actual schema.
+        Returns corrected SQL and list of corrections made.
+        """
+        corrections = []
+        corrected_sql = sql
+        
+        # Extract tables from SQL
+        tables = self._extract_tables_from_sql(sql)
+        
+        for table in tables:
+            # Check if table exists exactly
+            columns = self._get_table_columns_from_db(table)
+            
+            if not columns:
+                # Try to find similar table name
+                similar_table = self._find_similar_table(table)
+                if similar_table:
+                    # Verify the similar table actually exists in DB
+                    similar_columns = self._get_table_columns_from_db(similar_table)
+                    if similar_columns:
+                        # Replace table name in SQL (case-insensitive)
+                        pattern = rf'\b{re.escape(table)}\b'
+                        corrected_sql = re.sub(pattern, similar_table, corrected_sql, flags=re.IGNORECASE)
+                        corrections.append(f"'{table}' -> '{similar_table}'")
+                        logger.info(f"🔧 Auto-corrected table name: {table} -> {similar_table}")
+        
+        return corrected_sql, corrections
+    
     def _calculate_similarity(self, query1: str, query2: str) -> float:
         """Calculate similarity between two queries with entity-aware matching
         
@@ -738,6 +872,23 @@ RULES:
     # STEP 5: EXECUTE & VALIDATE
     # ========================================
     
+    def _validate_sql_structure(self, sql_query: str) -> Tuple[bool, Optional[str]]:
+        """Validate SQL structure using EXPLAIN without executing"""
+        try:
+            conn = pymysql.connect(**self.db_config, connect_timeout=5)
+            try:
+                with conn.cursor() as cursor:
+                    # Use EXPLAIN to validate syntax and column/table existence
+                    cursor.execute(f"EXPLAIN {sql_query}")
+                    return True, None
+            finally:
+                conn.close()
+        except pymysql.Error as e:
+            error_msg = str(e)
+            return False, error_msg
+        except Exception as e:
+            return False, str(e)
+    
     def _execute_query_safe(self, sql_query: str) -> Tuple[List[Dict[str, Any]], Optional[str]]:
         """Execute SQL query safely with timeout and validation"""
         try:
@@ -875,7 +1026,9 @@ RULES:
         context = {
             'corrections': [],
             'failed_tables': [],
-            'previous_results': []
+            'previous_results': [],
+            'previous_sql': None,
+            'previous_question': None
         }
         
         # Get session-specific corrections
@@ -892,8 +1045,93 @@ RULES:
                     'sql': query_info['sql'],
                     'results_count': query_info.get('results_count', 0)
                 })
+            # Store the most recent query for follow-up detection
+            if recent_queries:
+                context['previous_sql'] = recent_queries[-1]['sql']
+                context['previous_question'] = recent_queries[-1]['question']
         
         return context
+    
+    def _is_followup_question(self, question: str) -> bool:
+        """Detect if the current question is a follow-up to a previous query"""
+        followup_indicators = [
+            # Column modification indicators
+            'only', 'only show', 'only display', 'just show', 'just the', 'just display',
+            'i need only', 'i want only', 'show me only', 'give me only',
+            'same but', 'same query but', 'same result but',
+            'instead of', 'rather than', 'without',
+            'add column', 'remove column', 'exclude column', 'include column',
+            'also show', 'also include', 'also add',
+            # Filter modification indicators
+            'filter by', 'filter it', 'filter them', 'where', 'for only',
+            'limit to', 'narrow down', 'restrict to',
+            # Sorting/ordering indicators
+            'sort by', 'order by', 'sort it', 'sort them',
+            'in ascending', 'in descending', 'newest first', 'oldest first',
+            # Aggregate modifications
+            'count of', 'sum of', 'average of', 'total of', 'group by',
+            # Reference to previous
+            'from that', 'from those', 'from the result', 'from above',
+            'of those', 'of them', 'of the above', 'in those',
+            'these results', 'those results', 'that result', 'the same',
+            'can you', 'could you', 'please also', 'now show',
+            # Implicit references
+            'which one', 'how many of', 'what about',
+        ]
+        
+        question_lower = question.lower().strip()
+        
+        for indicator in followup_indicators:
+            if indicator in question_lower:
+                return True
+        
+        # Also check if question is very short and starts with action words
+        short_actions = ['show', 'display', 'get', 'list', 'add', 'remove', 'exclude', 'include', 'filter']
+        words = question_lower.split()
+        if len(words) <= 15 and words and words[0] in short_actions:
+            # Check if it lacks a clear subject (table/entity reference)
+            data_subjects = ['alarm', 'bot', 'station', 'order', 'tote', 'task', 'user', 'inventory', 'product']
+            has_subject = any(subj in question_lower for subj in data_subjects)
+            if not has_subject:
+                return True
+        
+        return False
+    
+    def _enhance_question_with_context(
+        self, 
+        question: str, 
+        conversation_context: Dict[str, Any]
+    ) -> str:
+        """
+        Enhance a follow-up question with context from previous queries.
+        This creates a ChatGPT-like context understanding for SQL generation.
+        """
+        if not conversation_context.get('previous_sql') or not conversation_context.get('previous_question'):
+            return question
+        
+        previous_sql = conversation_context['previous_sql']
+        previous_question = conversation_context['previous_question']
+        
+        # Build enhanced question with context
+        enhanced_question = f"""CONTEXT FROM PREVIOUS QUERY:
+The user previously asked: "{previous_question}"
+Which was answered with this SQL:
+```sql
+{previous_sql}
+```
+
+CURRENT FOLLOW-UP REQUEST:
+{question}
+
+INSTRUCTIONS:
+This is a follow-up question that MODIFIES or REFINES the previous query.
+- Keep the same base tables and WHERE conditions from the previous query
+- Apply the user's modifications (different columns, additional filters, sorting, etc.)
+- Generate a new SQL query that incorporates these changes
+"""
+        
+        logger.info(f"🔗 Enhanced follow-up question with previous context")
+        return enhanced_question
     
     # ========================================
     # MAIN PROCESS QUERY METHOD
@@ -924,16 +1162,13 @@ RULES:
         try:
             logger.info(f"🔍 Processing SQL query: {chat_request.message[:50]}...")
             
-            # Get or create session
+            # Get session for context (managed by endpoint)
             session_id = chat_request.session_id
-            if not session_id or not self.session_manager.get_session(session_id):
-                session_id = self.session_manager.create_session(
-                    session_type=SessionType.SQL_ASSISTANT,
-                    initial_message=chat_request.message
-                )
-                logger.info(f"🆕 Created new session: {session_id}")
+            if session_id:
+                # Session already managed by endpoint
+                pass
             else:
-                self.session_manager.add_message(session_id, 'user', chat_request.message)
+                session_id = None
             
             if not self.db_available:
                 error_msg = "Database connection is not available."
@@ -985,6 +1220,16 @@ RULES:
                     session_id
                 )
                 
+                # Check if this is a follow-up question and enhance with context
+                question_to_use = question
+                is_followup = self._is_followup_question(question)
+                
+                if is_followup and conversation_context.get('previous_sql'):
+                    logger.info("🔗 Detected FOLLOW-UP question - enhancing with previous context")
+                    question_to_use = self._enhance_question_with_context(question, conversation_context)
+                    metadata['is_followup'] = True
+                    metadata['previous_question'] = conversation_context.get('previous_question')
+                
                 # Try nl_to_sql_generator first (up to 3 attempts with feedback)
                 feedback = None
                 previous_sql = None
@@ -992,9 +1237,9 @@ RULES:
                 for attempt in range(self.max_retry_attempts):
                     logger.info(f"🔄 Attempt {attempt + 1}/{self.max_retry_attempts} with nl_to_sql_generator...")
                     
-                    # Generate with nl_to_sql_generator
+                    # Generate with nl_to_sql_generator (using enhanced question for follow-ups)
                     sql_query, confidence, metadata = self._generate_sql_with_nl_generator(
-                        question,
+                        question_to_use,
                         feedback=feedback,
                         previous_sql=previous_sql
                     )
@@ -1003,12 +1248,38 @@ RULES:
                         logger.warning(f"⚠️ nl_to_sql_generator failed on attempt {attempt + 1}")
                         continue
                     
-                    # Execute and validate
+                    # Auto-correct table names if needed
+                    corrected_sql, corrections = self._auto_correct_sql_tables(sql_query)
+                    if corrections:
+                        logger.info(f"🔧 Auto-corrected table names: {', '.join(corrections)}")
+                        sql_query = corrected_sql
+                        metadata['table_corrections'] = corrections
+                    
+                    # Pre-validate SQL structure before execution
+                    is_valid, validation_error = self._validate_sql_structure(sql_query)
+                    
+                    if not is_valid:
+                        logger.warning(f"⚠️ SQL validation failed on attempt {attempt + 1}: {validation_error}")
+                        # Enhance feedback with correct schema info
+                        if 'Unknown column' in str(validation_error) or "doesn't exist" in str(validation_error):
+                            feedback = self._enhance_error_feedback(str(validation_error), sql_query)
+                            logger.info(f"📋 Enhanced feedback with schema info for validation error")
+                        else:
+                            feedback = str(validation_error)
+                        previous_sql = sql_query
+                        continue
+                    
+                    # Execute validated query
                     results, error = self._execute_query_safe(sql_query)
                     
                     if error:
                         logger.warning(f"⚠️ Execution error on attempt {attempt + 1}: {error}")
-                        feedback = error
+                        # Enhance feedback with actual column names for column errors
+                        if 'Unknown column' in str(error):
+                            feedback = self._enhance_error_feedback(str(error), sql_query)
+                            logger.info(f"📋 Enhanced feedback with schema info for column error")
+                        else:
+                            feedback = str(error)
                         previous_sql = sql_query
                         continue
                     
@@ -1150,7 +1421,7 @@ RULES:
                         logger.warning(f"⚠️ Failed to store in classified queries: {e}")
                 
                 # Add to session messages
-                self.session_manager.add_message(session_id, 'assistant', response_text)
+                # Note: Session management is handled by the endpoint
                 
                 return ChatResponse(
                     response=response_text,

@@ -46,8 +46,8 @@ if agentic_service:
 else:
     logger.info("ℹ️ Agentic AI mode is DISABLED - using traditional single-agent system")
 
-# Session storage (in production, use Redis or database)
-chat_sessions: Dict[str, list] = {}
+# DEPRECATED: Old session storage - now using session_manager instead
+# chat_sessions: Dict[str, list] = {}
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -94,7 +94,9 @@ async def chat(request: ChatRequest):
         # This must be handled BEFORE routing to any service!
         if _is_session_query(request.message):
             logger.info(f"📋 Detected session/conversation query - returning history directly")
-            response = _generate_session_summary_response(conversation_history, session_id)
+            # Get history EXCLUDING the current question about history
+            history_for_summary = conversation_history[:-1] if conversation_history else []
+            response = _generate_session_summary_response(history_for_summary, session_id)
             
             # Add to session history
             session_manager.add_message(
@@ -232,43 +234,75 @@ We haven't discussed anything yet in this session! This appears to be the start 
             suggested_actions=["Ask about NEO", "SQL Assistant", "Diagnostics"]
         )
     
-    # Build comprehensive summary
-    topics_discussed = []
+    # Build comprehensive summary with deduplication
     user_questions = []
-    assistant_points = []
+    assistant_responses = []
+    seen_user_questions = set()  # Track unique questions to avoid duplicates
     
     for msg in conversation_history:
         role = msg.get('role', '')
-        content = msg.get('content', '')
+        content = msg.get('content', '').strip()
         
+        # Skip empty messages or system messages
+        if not content or role == 'system':
+            continue
+            
         if role == 'user':
-            # Summarize user question (first 150 chars)
-            summary_text = content[:150] + '...' if len(content) > 150 else content
-            user_questions.append(f"• {summary_text}")
+            # Normalize and check for duplicates
+            content_lower = content.lower()
+            if content_lower not in seen_user_questions:
+                seen_user_questions.add(content_lower)
+                # Keep full question text, but limit extremely long ones
+                if len(content) > 500:
+                    summary_text = content[:500] + '... (truncated for length)'
+                else:
+                    summary_text = content
+                user_questions.append(summary_text)
+                
         elif role == 'assistant':
-            # Extract key point from assistant response (first 100 chars)
-            summary_text = content[:100] + '...' if len(content) > 100 else content
-            assistant_points.append(summary_text)
+            # Get first meaningful sentence or up to 300 chars
+            # Skip if it's a meta response (like session summaries)
+            metadata = msg.get('metadata', {})
+            if metadata.get('type') == 'session_summary':
+                continue
+                
+            # For assistant responses, provide meaningful excerpts
+            if len(content) > 300:
+                # Try to find first complete sentence
+                first_sentence_end = content.find('. ')
+                if first_sentence_end > 0 and first_sentence_end < 250:
+                    summary_text = content[:first_sentence_end + 1]
+                else:
+                    # Just take first 300 chars and add ellipsis at word boundary
+                    last_space = content[:300].rfind(' ')
+                    if last_space > 200:
+                        summary_text = content[:last_space] + '...'
+                    else:
+                        summary_text = content[:300] + '...'
+            else:
+                summary_text = content
+                
+            assistant_responses.append(summary_text)
     
-    # Build formatted summary
-    summary_parts = ["## 📋 Conversation Summary\n"]
-    summary_parts.append(f"**Session ID:** `{session_id[:12]}...`\n")
-    summary_parts.append(f"**Total Messages:** {len(conversation_history)}\n\n")
+    # Build formatted summary without emojis
+    summary_parts = ["## Conversation Summary\n"]
+    summary_parts.append(f"**Session ID:** `{session_id}`\n")
+    summary_parts.append(f"**Total Exchanges:** {len(user_questions)}\n\n")
     
     if user_questions:
-        summary_parts.append("### 💬 Your Questions (in order):\n")
+        summary_parts.append("### Your Questions:\n")
         for i, q in enumerate(user_questions, 1):
-            summary_parts.append(f"{i}. {q[2:]}\n")  # Remove bullet, add number
-        summary_parts.append("\n")
+            summary_parts.append(f"{i}. {q}\n\n")
     
-    summary_parts.append("### 📝 Key Points Covered:\n")
-    for i, point in enumerate(assistant_points, 1):
-        summary_parts.append(f"{i}. {point}\n")
+    if assistant_responses:
+        summary_parts.append("### Key Information Provided:\n")
+        for i, response in enumerate(assistant_responses, 1):
+            summary_parts.append(f"**Response {i}:** {response}\n\n")
     
-    summary_parts.append("\n**Is there anything specific you'd like me to elaborate on or a new topic to explore?**")
+    summary_parts.append("---\n\n**Would you like me to elaborate on any specific point or explore a new topic?**")
     
     return ChatResponse(
-        response="\n".join(summary_parts),
+        response="".join(summary_parts),
         chatbot_type=ChatbotType.KNOWLEDGE_BASE,
         session_id=session_id,
         sources=[],
@@ -408,11 +442,15 @@ async def get_statistics():
         sql_stats = sql_service.get_statistics()
         diag_stats = diagnostic_service.get_statistics()
         
+        # Get active sessions count from session manager
+        active_sessions = session_manager.list_active_sessions()
+        
         return {
             "knowledge_base": kb_stats,
             "sql_assistant": sql_stats,
             "diagnostic": diag_stats,
-            "total_sessions": len(chat_sessions)
+            "total_sessions": len(active_sessions),
+            "all_sessions": len(session_manager.sessions)
         }
         
     except Exception as e:
@@ -426,8 +464,8 @@ async def clear_session(session_id: str):
     Clear a chat session history
     """
     try:
-        if session_id in chat_sessions:
-            del chat_sessions[session_id]
+        # Use session manager to delete session
+        if session_manager.delete_session(session_id):
             logger.info(f"🗑️ Cleared session: {session_id}")
             return {"status": "success", "message": f"Session {session_id} cleared"}
         else:
@@ -446,15 +484,26 @@ async def get_session_history(session_id: str):
     Get chat history for a session
     """
     try:
-        if session_id in chat_sessions:
+        # Get session from unified session manager
+        session = session_manager.get_session(session_id)
+        
+        if session:
+            conversation_history = session_manager.get_conversation_history(session_id)
             return {
                 "session_id": session_id,
-                "messages": chat_sessions[session_id]
+                "messages": conversation_history,
+                "message_count": len(conversation_history),
+                "session_type": session.get('type', 'general'),
+                "created_at": session.get('created_at'),
+                "last_updated": session.get('last_updated')
             }
         else:
+            # Session not found - return empty
+            logger.warning(f"⚠️ Session not found: {session_id}")
             return {
                 "session_id": session_id,
-                "messages": []
+                "messages": [],
+                "message_count": 0
             }
             
     except Exception as e:
