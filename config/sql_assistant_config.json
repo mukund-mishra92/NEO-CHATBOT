@@ -867,34 +867,36 @@
       ]
     },
     "sku_inventory_by_name": {
-      "description": "Find inventory/bins for a product/SKU by NAME (not ID). CRITICAL: When user provides a product/SKU NAME (not ID), you MUST join with article_master to resolve the name to ARTICLE_ID first.",
+      "description": "Find inventory/bins for a product/SKU by NAME (not ID). CRITICAL: There is NO article_master table! SKU names are in sku_master.SKU_NAME. Join sku_master to resolve name to SKU_ID, then match live_inventory_master.ARTICLE_ID.",
       "required_table": "live_inventory_master",
       "required_joins": [
-        "JOIN article_master am ON lim.ARTICLE_ID = am.ARTICLE_ID",
+        "JOIN sku_master sm ON lim.ARTICLE_ID = sm.SKU_ID",
         "LEFT JOIN bin_info_master bim ON lim.BIN_ID = bim.BIN_ID"
       ],
-      "name_matching_column": "am.ARTICLE_NAME",
-      "name_matching_pattern": "Use LIKE '%{product_name}%' or exact match on am.ARTICLE_NAME",
+      "name_matching_column": "sm.SKU_NAME",
+      "name_matching_pattern": "Use LIKE '%{product_name}%' on sm.SKU_NAME",
       "required_filters": [
-        "am.ARTICLE_NAME LIKE '%{product_name}%' (when user provides product name)",
+        "sm.SKU_NAME LIKE '%{product_name}%' (when user provides product name)",
         "lim.IS_ACTIVE = 1",
         "(lim.QUANTITY > 0 OR lim.VIRTUAL_QUANTITY_TO_PICK > 0 OR lim.VIRTUAL_QUANTITY_TO_PUT > 0)"
       ],
       "additional_columns": [
-        "am.ARTICLE_NAME",
-        "am.ARTICLE_ID", 
+        "sm.SKU_NAME",
+        "sm.SKU_ID",
         "lim.BIN_ID",
         "bim.BIN_BARCODE",
         "lim.QUANTITY",
         "lim.BATCH_ID"
       ],
+      "forbidden_tables": [
+        "article_master (DOES NOT EXIST in the database!)"
+      ],
       "critical_notes": [
-        "NEVER use ARTICLE_ID LIKE '%name%' - this is WRONG!",
-        "Product names are in article_master.ARTICLE_NAME, not in ARTICLE_ID",
-        "ALWAYS join with article_master when user mentions product/SKU name",
-        "ARTICLE_ID is a numeric or coded ID, not a name",
-        "If user says 'sku name', 'product name', 'article name', or provides a text name → use article_master.ARTICLE_NAME",
-        "If user provides just a number or code → use ARTICLE_ID directly"
+        "There is NO article_master table! Use sku_master for SKU names.",
+        "SKU names are in sku_master.SKU_NAME",
+        "NEVER use ARTICLE_ID LIKE '%name%' - ARTICLE_ID is a UUID, not a name!",
+        "ALWAYS join sku_master when user mentions product/SKU name",
+        "live_inventory_master.ARTICLE_ID = sku_master.SKU_ID (they are the same value)"
       ],
       "order_by": "lim.BIN_ID, lim.SEGMENT_NO",
       "triggers": [
@@ -917,26 +919,34 @@
       ]
     },
     "bin_location_mapping": {
-      "description": "Get bin physical locations (aisle, tower, level). Use store_bin_master for bin→location mapping, NOT order_bin_task_master which is for order tasks.",
-      "required_table": "store_bin_master",
+      "description": "Get bin physical locations (aisle, tower). store_bin_master has BIN_ID + LOCATION_ID but NO aisle/tower. You MUST JOIN location_master to get AISLE_NUMBER and TOWER_NUMBER.",
+      "required_tables": [
+        "store_bin_master",
+        "location_master"
+      ],
       "required_joins": [
-        "JOIN bin_info_master bim ON store_bin_master.BIN_ID = bim.BIN_ID"
+        "JOIN location_master lm ON sbm.LOCATION_ID = lm.LOCATION_ID",
+        "LEFT JOIN bin_info_master bim ON sbm.BIN_ID = bim.BIN_ID"
       ],
       "additional_columns": [
-        "store_bin_master.BIN_ID",
-        "store_bin_master.AISLE_ID",
-        "store_bin_master.TOWER_ID", 
-        "store_bin_master.TOWER_LEVEL",
-        "store_bin_master.LOCATION_ID",
-        "bim.BIN_BARCODE"
+        "sbm.BIN_ID",
+        "bim.BIN_BARCODE",
+        "lm.AISLE_NUMBER",
+        "lm.TOWER_NUMBER",
+        "sbm.LOCATION_ID",
+        "sbm.VELOCITY"
       ],
-      "forbidden_tables": [
-        "order_bin_task_master (this is for ORDER TASKS, not bin locations!)"
+      "forbidden_columns": [
+        "AISLE_ID (does NOT exist in store_bin_master!)",
+        "TOWER_ID (does NOT exist in store_bin_master!)",
+        "TOWER_LEVEL (does NOT exist in store_bin_master!)"
       ],
       "critical_notes": [
-        "DO NOT use order_bin_task_master for bin locations - it's for order task tracking",
-        "Use store_bin_master for persistent bin→location mapping",
-        "AISLE_ID, TOWER_ID, TOWER_LEVEL come from store_bin_master"
+        "store_bin_master columns: LOCATION_ID(PK), BIN_ID, PREV_BIN_ID, VELOCITY, COST, timestamps, AUDIT",
+        "store_bin_master does NOT have AISLE_ID, TOWER_ID, or TOWER_LEVEL!",
+        "Aisle info is in location_master.AISLE_NUMBER (enum: A01-A24, RA01-RA03, URA01-URA04)",
+        "Tower info is in location_master.TOWER_NUMBER (enum: T01-T10)",
+        "MUST JOIN: store_bin_master sbm JOIN location_master lm ON sbm.LOCATION_ID = lm.LOCATION_ID"
       ],
       "triggers": [
         "which aisle",
@@ -946,7 +956,71 @@
         "aisle and tower",
         "tower and aisle",
         "where are bins",
-        "bin coordinates"
+        "bin coordinates",
+        "aisle",
+        "tower"
+      ]
+    },
+    "expiry_date_with_location": {
+      "description": "Get SKUs expiring soon with bin location (aisle, tower). Uses sku_batch_master for EXPIRY_DATE (most reliable source), live_inventory_master for current stock, store_bin_master + location_master for physical location. If user asks for velocity, add sku_master or store_bin_master.",
+      "required_tables": [
+        "sku_batch_master",
+        "live_inventory_master",
+        "store_bin_master",
+        "location_master"
+      ],
+      "required_joins": [
+        "JOIN live_inventory_master lim ON sbm.ARTICLE_ID = lim.ARTICLE_ID AND sbm.BATCH_ID = lim.BATCH_ID",
+        "JOIN store_bin_master stbm ON lim.BIN_ID = stbm.BIN_ID",
+        "JOIN location_master lm ON stbm.LOCATION_ID = lm.LOCATION_ID",
+        "LEFT JOIN bin_info_master bim ON lim.BIN_ID = bim.BIN_ID",
+        "LEFT JOIN sku_master sm ON sbm.SKU_ID = sm.SKU_ID (if user asks for name or velocity)"
+      ],
+      "required_filters": [
+        "sbm.EXPIRY_DATE IS NOT NULL",
+        "sbm.EXPIRY_DATE >= CURDATE()",
+        "lim.IS_ACTIVE = 1",
+        "lim.QUANTITY > 0"
+      ],
+      "additional_columns": [
+        "sbm.SKU_ID",
+        "sm.SKU_NAME (if joined)",
+        "sbm.EXPIRY_DATE",
+        "lim.BIN_ID",
+        "bim.BIN_BARCODE",
+        "lm.AISLE_NUMBER",
+        "lm.TOWER_NUMBER",
+        "lim.SEGMENT_NO",
+        "lim.QUANTITY",
+        "sm.VELOCITY (from sku_master, if user asks)",
+        "stbm.VELOCITY (from store_bin_master, bin-level velocity)"
+      ],
+      "forbidden_columns": [
+        "store_bin_master.AISLE_ID (DOES NOT EXIST!)",
+        "store_bin_master.TOWER_ID (DOES NOT EXIST!)",
+        "store_bin_master.TOWER_LEVEL (DOES NOT EXIST!)"
+      ],
+      "critical_notes": [
+        "store_bin_master does NOT have AISLE_ID/TOWER_ID - MUST join location_master!",
+        "location_master has AISLE_NUMBER (enum A01-A24) and TOWER_NUMBER (enum T01-T10)",
+        "EXPIRY_DATE is in sku_batch_master (PK: SKU_ID, BATCH_ID) - most reliable source",
+        "Alternative expiry source: stock_audit_bin_segments.expiry_date",
+        "VELOCITY is in sku_master.VELOCITY (SKU-level) or store_bin_master.VELOCITY (bin-level)",
+        "There is NO article_master table! Use sku_master for SKU names.",
+        "live_inventory_master.ARTICLE_ID = sku_batch_master.SKU_ID = sku_master.SKU_ID",
+        "JOIN CHAIN: sku_batch_master → live_inventory_master (via SKU_ID+BATCH_ID) → store_bin_master (via BIN_ID) → location_master (via LOCATION_ID)"
+      ],
+      "triggers": [
+        "expiry",
+        "expiring",
+        "expire",
+        "expiration",
+        "near expiry",
+        "next 30 days",
+        "next week",
+        "next month",
+        "expiry date",
+        "going to expire"
       ]
     },
     "chatbot_analytics": {
@@ -1176,14 +1250,14 @@
     },
     "bin_presentation_per_bot": {
       "user_query": "Show me bin presentations per bot in the last 24 hours",
-      "sql": "SELECT tl.BOT_ID, bm.BOT_NAME, COUNT(*) AS bin_presentations FROM task_master_log tl LEFT JOIN bot_master bm ON tl.BOT_ID = bm.BOT_ID WHERE tl.task_type IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND tl.status = 'COMPLETED' AND tl.logged_timestamp >= NOW() - INTERVAL 24 HOUR GROUP BY tl.BOT_ID, bm.BOT_NAME ORDER BY bin_presentations DESC",
-      "tables": ["task_master_log", "bot_master"],
+      "sql": "SELECT tl.BOT_ID, COUNT(*) AS bin_presentations FROM task_master_log tl WHERE tl.task_type IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND tl.status = 'COMPLETED' AND tl.logged_timestamp >= NOW() - INTERVAL 24 HOUR GROUP BY tl.BOT_ID ORDER BY bin_presentations DESC",
+      "tables": ["task_master_log"],
       "confidence": 0.95
     },
     "bin_presentation_per_bot_timerange": {
       "user_query": "Compute bin presentations done per bot from 7 pm to 9 pm yesterday",
-      "sql": "SELECT tl.BOT_ID, bm.BOT_NAME, COUNT(*) AS bin_presentations FROM task_master_log tl LEFT JOIN bot_master bm ON tl.BOT_ID = bm.BOT_ID WHERE tl.task_type IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND tl.status = 'COMPLETED' AND tl.logged_timestamp >= (CURDATE() - INTERVAL 1 DAY) + INTERVAL 19 HOUR AND tl.logged_timestamp < (CURDATE() - INTERVAL 1 DAY) + INTERVAL 21 HOUR GROUP BY tl.BOT_ID, bm.BOT_NAME ORDER BY bin_presentations DESC",
-      "tables": ["task_master_log", "bot_master"],
+      "sql": "SELECT tl.BOT_ID, COUNT(*) AS bin_presentations FROM task_master_log tl WHERE tl.task_type IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND tl.status = 'COMPLETED' AND tl.logged_timestamp >= (CURDATE() - INTERVAL 1 DAY) + INTERVAL 19 HOUR AND tl.logged_timestamp < (CURDATE() - INTERVAL 1 DAY) + INTERVAL 21 HOUR GROUP BY tl.BOT_ID ORDER BY bin_presentations DESC",
+      "tables": ["task_master_log"],
       "confidence": 0.95
     },
     "bin_presentation_per_station_timerange": {

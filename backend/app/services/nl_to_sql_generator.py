@@ -17,6 +17,12 @@ import pymysql
 from app.core.config import settings
 
 try:
+    from app.prompts.sql_generation_prompt import build_enhanced_prompt, TABLE_RELATIONSHIPS
+except ImportError:
+    build_enhanced_prompt = None
+    TABLE_RELATIONSHIPS = ""
+
+try:
     import sqlglot
 except ImportError:
     sqlglot = None
@@ -703,66 +709,82 @@ class NLToSQLGenerator:
             print(f"⚠️ Error loading business rules: {e}")
             return {}
     
-    def _check_business_rules(self, question: str) -> Optional[Dict[str, Any]]:
-        """Check if question matches any business rules
+    def _check_business_rules(self, question: str) -> List[Dict[str, Any]]:
+        """Check if question matches any business rules.
         
-        Returns:
-            Matched rule config or None
+        Returns ALL matching rules (not just first) so compound queries
+        like 'expiry + aisle + velocity' get all relevant guidance.
         """
         if not self.business_rules:
-            return None
+            return []
         
         question_lower = question.lower()
+        matched = []
         
         for rule_name, rule_config in self.business_rules.items():
             triggers = rule_config.get("triggers", [])
-            if any(trigger.lower() in question_lower for trigger in triggers):
-                print(f"🔴 BUSINESS RULE MATCHED: {rule_name}")
-                return rule_config
+            # Count how many triggers match for scoring
+            hit_count = sum(1 for t in triggers if t.lower() in question_lower)
+            if hit_count > 0:
+                print(f"🔴 BUSINESS RULE MATCHED: {rule_name} ({hit_count} triggers)")
+                matched.append({"rule_name": rule_name, "hits": hit_count, **rule_config})
         
-        return None
+        # Sort by number of trigger hits (most specific first)
+        matched.sort(key=lambda r: r["hits"], reverse=True)
+        return matched
     
-    def _build_business_rules_prompt(self, rule_config: Dict[str, Any]) -> str:
-        """Build prompt section for business rules"""
+    def _build_business_rules_prompt(self, matched_rules: List[Dict[str, Any]]) -> str:
+        """Build prompt section for ALL matched business rules."""
+        if not matched_rules:
+            return ""
+        
         prompt = "\n\n" + "="*80 + "\n"
-        prompt += "🔴🔴🔴 CRITICAL MANDATORY BUSINESS RULE - MUST FOLLOW 🔴🔴🔴\n"
-        prompt += "="*80 + "\n"
-        prompt += f"Description: {rule_config.get('description', 'N/A')}\n\n"
+        prompt += "🔴🔴🔴 CRITICAL BUSINESS RULES — MUST FOLLOW 🔴🔴🔴\n"
+        prompt += "="*80 + "\n\n"
         
-        if 'required_table' in rule_config:
-            prompt += f"✅ REQUIRED TABLE (MUST USE): {rule_config['required_table']}\n"
-            prompt += f"❌ DO NOT use any other table for this query type!\n\n"
-        
-        if 'required_filters' in rule_config:
-            prompt += "✅ REQUIRED WHERE CONDITIONS (MUST INCLUDE ALL):\n"
-            for filter_rule in rule_config['required_filters']:
-                prompt += f"   - {filter_rule}\n"
+        for rule in matched_rules:
+            prompt += f"--- Rule: {rule.get('rule_name', 'unknown')} ---\n"
+            prompt += f"Description: {rule.get('description', 'N/A')}\n\n"
+            
+            # Handle both singular and plural required_table(s)
+            tables = rule.get('required_tables', [])
+            if not tables and 'required_table' in rule:
+                tables = [rule['required_table']]
+            if tables:
+                prompt += f"✅ REQUIRED TABLES: {', '.join(tables)}\n"
+            
+            if 'required_joins' in rule:
+                prompt += "✅ REQUIRED JOINS:\n"
+                for j in rule['required_joins']:
+                    prompt += f"   {j}\n"
+            
+            if 'required_filters' in rule:
+                prompt += "✅ REQUIRED WHERE CONDITIONS:\n"
+                for f in rule['required_filters']:
+                    prompt += f"   {f}\n"
+            
+            if 'forbidden_columns' in rule:
+                prompt += "❌ FORBIDDEN (columns that DO NOT EXIST):\n"
+                for c in rule['forbidden_columns']:
+                    prompt += f"   {c}\n"
+            
+            if 'forbidden_tables' in rule:
+                prompt += "❌ FORBIDDEN TABLES:\n"
+                for t in rule['forbidden_tables']:
+                    prompt += f"   {t}\n"
+            
+            if 'additional_columns' in rule:
+                prompt += "📋 AVAILABLE COLUMNS:\n"
+                for c in rule['additional_columns']:
+                    prompt += f"   {c}\n"
+            
+            if 'critical_notes' in rule:
+                prompt += "⚠️ CRITICAL NOTES:\n"
+                for n in rule['critical_notes']:
+                    prompt += f"   ⚠️ {n}\n"
+            
             prompt += "\n"
         
-        if 'forbidden_columns' in rule_config:
-            prompt += "❌ FORBIDDEN COLUMNS (DO NOT USE):\n"
-            for col in rule_config['forbidden_columns']:
-                prompt += f"   - {col}\n"
-            prompt += "\n"
-        
-        if 'additional_columns' in rule_config:
-            prompt += "✅ AVAILABLE COLUMNS (use these):\n"
-            for col in rule_config.get('additional_columns', [])[:10]:  # Limit to first 10
-                prompt += f"   - {col}\n"
-            prompt += "\n"
-        
-        if 'additional_joins' in rule_config:
-            prompt += "📋 SUGGESTED JOINS:\n"
-            for join_info in rule_config['additional_joins']:
-                if isinstance(join_info, dict):
-                    prompt += f"   - JOIN {join_info.get('table', '')} ON {join_info.get('condition', '')}\n"
-                else:
-                    prompt += f"   - {join_info}\n"
-            prompt += "\n"
-        
-        prompt += "="*80 + "\n"
-        prompt += "⚠️ VIOLATION OF THIS RULE WILL RESULT IN INCORRECT RESULTS!\n"
-        prompt += "⚠️ DO NOT use alternative approaches or skip required conditions!\n"
         prompt += "="*80 + "\n"
         return prompt
 
@@ -784,8 +806,8 @@ class NLToSQLGenerator:
             except Exception as e:
                 resolved["warnings"].append(f"Entity resolution failed: {e}")
 
-        # Step 2: Check business rules
-        matched_business_rule = self._check_business_rules(question)
+        # Step 2: Check business rules (returns list of ALL matching rules)
+        matched_rules = self._check_business_rules(question)
         
         # Step 3: Enrich question with resolved entities
         question_for_llm = question
@@ -793,6 +815,14 @@ class NLToSQLGenerator:
             question_for_llm = inject_resolved_into_question(question, resolved)
 
         # Step 4: Pick relevant tables using TF-IDF with validation rules
+        # If business rules specify required tables, ensure they are included
+        extra_tables = set()
+        for rule in matched_rules:
+            for t in rule.get('required_tables', []):
+                extra_tables.add(t)
+            if 'required_table' in rule:
+                extra_tables.add(rule['required_table'])
+        
         picked = pick_relevant_tables(
             question_for_llm, 
             self.schema_df, 
@@ -802,40 +832,45 @@ class NLToSQLGenerator:
             validation_rules=self.validation_rules,
             custom_priorities=self.custom_priorities
         )
+        
+        # Force-add business-rule required tables if TF-IDF missed them
+        picked_names = set(picked['Table_name'].tolist())
+        missing_tables = extra_tables - picked_names
+        if missing_tables:
+            print(f"📋 Force-adding missing business rule tables: {missing_tables}")
+            for mt in missing_tables:
+                mask = self.schema_df['Table_name'] == mt
+                if mask.any():
+                    row = self.schema_df[mask].iloc[0:1].copy()
+                    row['score'] = 10.0  # High score for forced tables
+                    picked = pd.concat([row, picked], ignore_index=True)
+        
         schema_context = build_schema_context(picked)
 
-        # Step 5: Generate SQL with OpenAI
-        instructions = (
-            "You are a senior MySQL 8.x Text-to-SQL generator for the NEO warehouse database.\n\n"
-            "CRITICAL RULES:\n"
-            "1) Use ONLY the tables/columns provided in SCHEMA CONTEXT below.\n"
-            "2) Output MUST strictly match the JSON schema (sql, tables_used, confidence, etc.).\n"
-            "3) Generate READ-ONLY SQL only (SELECT/WITH). Never use INSERT/UPDATE/DELETE/DROP.\n"
-            "4) If question is ambiguous or missing required filters, set needs_followup=true.\n"
-            "5) If returning many rows without explicit user request for all, add LIMIT 200.\n"
-            "6) Prefer explicit JOINs using primary/foreign key relationships.\n\n"
-            "ENTITY RESOLUTION RULES (CRITICAL):\n"
-            "7) If you see **RESOLVED_ENTITIES** section, you MUST use those EXACT values in your SQL.\n"
-            "   - DO NOT transform, reformat, or modify these values.\n"
-            "   - Example: If BOT_ID = 'BOT-0008', use WHERE BOT_ID = 'BOT-0008' (NOT WHERE BOT_ID = '8').\n"
-            "8) If you see **RESOLVED_CANDIDATES** showing multiple matches, set needs_followup=true and ask user to clarify.\n\n"
-            "TABLE PRIORITY RULES (CRITICAL):\n"
-            "9) For CURRENT/LIVE state queries (status, position, battery), use MASTER tables (bot_master, station_master).\n"
-            "10) AVOID telemetry/log tables for business queries unless explicitly asking for historical/sensor data.\n"
-            "11) Master tables contain PRIMARY/CURRENT state. Log/telemetry tables are for HISTORY/DEBUGGING.\n"
-            "12) Examples:\n"
-            "    - 'current position of bot 7' → Use bot_master (GRIDX, GRIDY), NOT teleoperation tables\n"
-            "    - 'bot 7 position history' → Use bot_master_log or telemetry\n"
-            "    - 'bot 7 sensor readings' → Use teleoperation/telemetry tables\n\n"
-            "SIMPLICITY RULES:\n"
-            "13) Use the SIMPLEST query that answers the question. Avoid unnecessary complexity.\n"
-            "14) Do NOT use UNION unless explicitly needed for combining different data sources.\n"
-            "15) Use ORDER BY + LIMIT only when specifically asking for 'latest', 'recent', 'top N', etc.\n"
-        )
+        # Step 5: Build enhanced prompt with few-shot examples + guardrails
+        business_rule_prompt = self._build_business_rules_prompt(matched_rules)
         
-        # Add business rules to instructions if matched
-        if matched_business_rule:
-            instructions += self._build_business_rules_prompt(matched_business_rule)
+        if build_enhanced_prompt is not None:
+            instructions = build_enhanced_prompt(
+                schema_context=schema_context,
+                business_rule_prompt=business_rule_prompt,
+            )
+        else:
+            # Fallback if import failed
+            instructions = (
+                "You are a senior MySQL 8.x Text-to-SQL generator for the NEO warehouse database.\n"
+                "Generate READ-ONLY SQL only. Use ONLY tables/columns from SCHEMA CONTEXT.\n"
+                "Verify every column exists before using it.\n"
+            )
+            if business_rule_prompt:
+                instructions += business_rule_prompt
+        
+        # Add entity resolution rules
+        instructions += (
+            "\nENTITY RESOLUTION:\n"
+            "- If you see **RESOLVED_ENTITIES**, use those EXACT values (don't transform).\n"
+            "- If you see **RESOLVED_CANDIDATES** with multiple matches, set needs_followup=true.\n"
+        )
 
         resp = self.client.responses.create(
             model=self.model,
