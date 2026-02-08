@@ -389,6 +389,11 @@ class SQLAssistantService:
         """
         Check session cache for similar queries (last 10 queries in THIS session)
         
+        IMPORTANT: Only returns cached query if:
+        1. High similarity (>= 85%)
+        2. Time parameters match (e.g., "one week" vs "one month")
+        3. Key entities match (e.g., same station, bot, etc.)
+        
         Returns:
             Tuple of (sql, confidence, metadata) if found, None otherwise
         """
@@ -397,10 +402,22 @@ class SQLAssistantService:
         
         cached_queries = self.session_query_cache[session_id]
         
+        # Extract time parameters from current question
+        current_time_params = self._extract_time_parameters(question)
+        
         for cached in cached_queries[-10:]:  # Last 10 queries
             similarity = self._calculate_similarity(question, cached['question'])
             
             if similarity >= self.session_cache_similarity_threshold:
+                # CRITICAL: Check if time parameters changed
+                cached_time_params = self._extract_time_parameters(cached['question'])
+                
+                if current_time_params != cached_time_params:
+                    logger.info(f"⚠️ SESSION CACHE: Similar question but different time parameters")
+                    logger.info(f"   Cached time: {cached_time_params}")
+                    logger.info(f"   Current time: {current_time_params}")
+                    continue  # Skip this cache entry
+                
                 logger.info(f"🎯 SESSION CACHE HIT! Similarity: {similarity:.2%}")
                 logger.info(f"   Cached Q: {cached['question'][:60]}")
                 logger.info(f"   Current Q: {question[:60]}")
@@ -423,6 +440,49 @@ class SQLAssistantService:
                 )
         
         return None
+    
+    def _extract_time_parameters(self, question: str) -> Dict[str, str]:
+        """
+        Extract time-related parameters from question.
+        
+        Returns:
+            Dict with time parameters (e.g., {'period': 'one week', 'unit': 'week', 'count': '1'})
+        """
+        import re
+        
+        question_lower = question.lower()
+        time_params = {}
+        
+        # Pattern: "last X days/weeks/months/hours"
+        last_pattern = r'last\s+(\w+)\s+(day|days|week|weeks|month|months|hour|hours|year|years)'
+        match = re.search(last_pattern, question_lower)
+        if match:
+            time_params['period'] = f"last {match.group(1)} {match.group(2)}"
+            time_params['count'] = match.group(1)
+            time_params['unit'] = match.group(2)
+            return time_params
+        
+        # Pattern: "past X days/weeks/months"
+        past_pattern = r'past\s+(\w+)\s+(day|days|week|weeks|month|months|hour|hours)'
+        match = re.search(past_pattern, question_lower)
+        if match:
+            time_params['period'] = f"past {match.group(1)} {match.group(2)}"
+            time_params['count'] = match.group(1)
+            time_params['unit'] = match.group(2)
+            return time_params
+        
+        # Pattern: "yesterday", "today", "this week", "this month"
+        simple_patterns = [
+            'yesterday', 'today', 'this week', 'this month', 'this year',
+            'last week', 'last month', 'last year'
+        ]
+        for pattern in simple_patterns:
+            if pattern in question_lower:
+                time_params['period'] = pattern
+                return time_params
+        
+        # No time parameter found
+        return time_params
     
     # ========================================
     # ENTITY SUBSTITUTION FOR CLASSIFIED QUERIES
@@ -1087,32 +1147,40 @@ RULES:
         return context
     
     def _is_followup_question(self, question: str) -> bool:
-        """Detect if the current question is a follow-up to a previous query"""
-        followup_indicators = [
-            # Column modification indicators
-            'only', 'only show', 'only display', 'just show', 'just the', 'just display',
-            'i need only', 'i want only', 'show me only', 'give me only',
-            'same but', 'same query but', 'same result but',
-            'instead of', 'rather than', 'without',
-            'add column', 'remove column', 'exclude column', 'include column',
-            'also show', 'also include', 'also add',
-            # Filter modification indicators
-            'filter by', 'filter it', 'filter them', 'where', 'for only',
-            'limit to', 'narrow down', 'restrict to',
-            # Sorting/ordering indicators
-            'sort by', 'order by', 'sort it', 'sort them',
-            'in ascending', 'in descending', 'newest first', 'oldest first',
-            # Aggregate modifications
-            'count of', 'sum of', 'average of', 'total of', 'group by',
-            # Reference to previous
+        """Detect if the current question is a follow-up to a previous query
+        
+        IMPORTANT: Only return True if question explicitly references previous query.
+        Don't treat questions as followups just because they share similar words.
+        """
+        question_lower = question.lower()
+        
+        # Strong followup indicators - explicitly reference previous query
+        strong_indicators = [
             'from that', 'from those', 'from the result', 'from above',
-            'of those', 'of them', 'of the above', 'in those',
-            'these results', 'those results', 'that result', 'the same',
-            'can you', 'could you', 'please also', 'now show',
-            # Implicit references
-            'which one', 'how many of', 'what about',
+            'of those results', 'of them', 'of the above', 'those results', 'that result',
+            'the same query', 'the same result', 'same but', 'same query but',
+            'from previous', 'previous query', 'previous result',
+            'instead of that', 'rather than that',
         ]
         
+        # Check for strong indicators first
+        if any(indicator in question_lower for indicator in strong_indicators):
+            return True
+        
+        # Weak indicators - only consider followup if:
+        # 1. Question is very short (< 30 chars) AND
+        # 2. Contains modification words
+        if len(question) < 30:
+            weak_indicators = [
+                'only show', 'just show', 'also show', 'also add',
+                'filter by', 'filter it', 'sort by', 'order by',
+                'limit to', 'add column', 'remove column',
+            ]
+            if any(indicator in question_lower for indicator in weak_indicators):
+                return True
+        
+        # Default: treat as NEW independent question
+        return False
         question_lower = question.lower().strip()
         
         for indicator in followup_indicators:

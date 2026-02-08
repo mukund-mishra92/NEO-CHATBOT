@@ -611,6 +611,19 @@
       "join_table": "hw_station_master",
       "join_condition": "task_master_log.destination_location_id = hw_station_master.location_id",
       "timestamp_column": "logged_timestamp",
+      "primary_key": "TASK_ID",
+      "count_expression": "COUNT(*) or COUNT(TASK_ID)",
+      "additional_columns": [
+        "TASK_ID (primary key - use this for counting)",
+        "BOT_ID",
+        "destination_location_id",
+        "logged_timestamp",
+        "UPDATED_TIMESTAMP",
+        "END_TIME"
+      ],
+      "forbidden_columns": [
+        "TASK_MASTER_LOG_ID (does NOT exist!)"
+      ],
       "additional_joins": [
         {
           "table": "bot_master",
@@ -647,7 +660,7 @@
         "bin presentation per hour",
         "bin presentation average"
       ],
-      "notes": "CRITICAL: Never use order_bin_mapping, station_pick_task_master, or recovery_pick_task_master for bin presentations. Always use task_master_log as the primary source. Each row in task_master_log with matching filters = 1 bin presentation."
+      "notes": "CRITICAL: Never use order_bin_mapping, station_pick_task_master, or recovery_pick_task_master for bin presentations. Always use task_master_log as the primary source. Each row in task_master_log with matching filters = 1 bin presentation. Use TASK_ID (NOT TASK_MASTER_LOG_ID which doesn't exist)."
     },
     "empty_bins": {
       "description": "Empty/available bins are identified by ARTICLE_ID = 'no-sku' in live_inventory_master",
@@ -901,6 +914,39 @@
         "find item",
         "product in bins",
         "sku in bins"
+      ]
+    },
+    "bin_location_mapping": {
+      "description": "Get bin physical locations (aisle, tower, level). Use store_bin_master for bin→location mapping, NOT order_bin_task_master which is for order tasks.",
+      "required_table": "store_bin_master",
+      "required_joins": [
+        "JOIN bin_info_master bim ON store_bin_master.BIN_ID = bim.BIN_ID"
+      ],
+      "additional_columns": [
+        "store_bin_master.BIN_ID",
+        "store_bin_master.AISLE_ID",
+        "store_bin_master.TOWER_ID", 
+        "store_bin_master.TOWER_LEVEL",
+        "store_bin_master.LOCATION_ID",
+        "bim.BIN_BARCODE"
+      ],
+      "forbidden_tables": [
+        "order_bin_task_master (this is for ORDER TASKS, not bin locations!)"
+      ],
+      "critical_notes": [
+        "DO NOT use order_bin_task_master for bin locations - it's for order task tracking",
+        "Use store_bin_master for persistent bin→location mapping",
+        "AISLE_ID, TOWER_ID, TOWER_LEVEL come from store_bin_master"
+      ],
+      "triggers": [
+        "which aisle",
+        "which tower",
+        "bin location",
+        "bin physical location",
+        "aisle and tower",
+        "tower and aisle",
+        "where are bins",
+        "bin coordinates"
       ]
     },
     "chatbot_analytics": {

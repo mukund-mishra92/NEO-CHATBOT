@@ -724,24 +724,46 @@ class NLToSQLGenerator:
     
     def _build_business_rules_prompt(self, rule_config: Dict[str, Any]) -> str:
         """Build prompt section for business rules"""
-        prompt = "\n\n🔴 CRITICAL BUSINESS RULE - YOU MUST FOLLOW THIS 🔴\n"
-        prompt += f"Description: {rule_config.get('description', 'N/A')}\n"
+        prompt = "\n\n" + "="*80 + "\n"
+        prompt += "🔴🔴🔴 CRITICAL MANDATORY BUSINESS RULE - MUST FOLLOW 🔴🔴🔴\n"
+        prompt += "="*80 + "\n"
+        prompt += f"Description: {rule_config.get('description', 'N/A')}\n\n"
         
         if 'required_table' in rule_config:
-            prompt += f"\n⚠️ REQUIRED TABLE: {rule_config['required_table']}\n"
-            prompt += "DO NOT use any other table for this query type!\n"
+            prompt += f"✅ REQUIRED TABLE (MUST USE): {rule_config['required_table']}\n"
+            prompt += f"❌ DO NOT use any other table for this query type!\n\n"
         
         if 'required_filters' in rule_config:
-            prompt += "\n⚠️ REQUIRED WHERE CONDITIONS:\n"
+            prompt += "✅ REQUIRED WHERE CONDITIONS (MUST INCLUDE ALL):\n"
             for filter_rule in rule_config['required_filters']:
-                prompt += f"  - {filter_rule}\n"
+                prompt += f"   - {filter_rule}\n"
+            prompt += "\n"
+        
+        if 'forbidden_columns' in rule_config:
+            prompt += "❌ FORBIDDEN COLUMNS (DO NOT USE):\n"
+            for col in rule_config['forbidden_columns']:
+                prompt += f"   - {col}\n"
+            prompt += "\n"
+        
+        if 'additional_columns' in rule_config:
+            prompt += "✅ AVAILABLE COLUMNS (use these):\n"
+            for col in rule_config.get('additional_columns', [])[:10]:  # Limit to first 10
+                prompt += f"   - {col}\n"
+            prompt += "\n"
         
         if 'additional_joins' in rule_config:
-            prompt += "\n⚠️ SUGGESTED JOINS:\n"
+            prompt += "📋 SUGGESTED JOINS:\n"
             for join_info in rule_config['additional_joins']:
-                prompt += f"  - {join_info}\n"
+                if isinstance(join_info, dict):
+                    prompt += f"   - JOIN {join_info.get('table', '')} ON {join_info.get('condition', '')}\n"
+                else:
+                    prompt += f"   - {join_info}\n"
+            prompt += "\n"
         
-        prompt += "\n❌ DO NOT use alternative approaches or skip required conditions!\n"
+        prompt += "="*80 + "\n"
+        prompt += "⚠️ VIOLATION OF THIS RULE WILL RESULT IN INCORRECT RESULTS!\n"
+        prompt += "⚠️ DO NOT use alternative approaches or skip required conditions!\n"
+        prompt += "="*80 + "\n"
         return prompt
 
     def generate(self, question: str, enable_entity_resolution: bool = True) -> Dict[str, Any]:

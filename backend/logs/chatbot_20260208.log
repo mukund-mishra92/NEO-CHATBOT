@@ -1068,3 +1068,250 @@ ASSISTANT: *Generated wit...
 2026-02-08 17:57:48 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
 2026-02-08 17:57:48 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1498 classified queries
 2026-02-08 17:57:48 - app.main - INFO - ✅ Classification service initialized
+2026-02-08 17:58:34 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=can you give me top 10 SKUs with expiry date nearb...
+2026-02-08 17:58:34 - app.api.chatbot_endpoints - ERROR - ❌ Error in chat endpoint: type object 'ChatbotType' has no attribute 'SEMI_AUTO_DIAGNOSTIC'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\api\chatbot_endpoints.py", line 75, in chat
+    ChatbotType.SEMI_AUTO_DIAGNOSTIC: SessionType.SEMI_AUTO_DIAGNOSTIC,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'ChatbotType' has no attribute 'SEMI_AUTO_DIAGNOSTIC'
+2026-02-08 17:58:52 - app.utils.session_manager - INFO - 🆕 New session created: 25eedfc5-edf (type: sql_assistant)
+2026-02-08 17:58:52 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 25eedfc5-edf (type: sql_assistant)
+2026-02-08 17:58:52 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=top 10 SKUs with expiry date nearby...
+2026-02-08 17:58:52 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: top 10 SKUs with expiry date nearby...
+2026-02-08 17:58:52 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-08 17:58:52 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-08 17:58:52 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-08 17:58:52 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-08 17:58:52 - app.services.chat_history_service - INFO - 📊 Retrieved 5 common query patterns
+2026-02-08 17:58:52 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-08 17:58:52 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-08 17:59:00 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 68.00%)
+2026-02-08 17:59:00 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  sbm.SKU_ID,
+  sm.SKU_NAME,
+  sbm.BATCH_ID,
+  sbm.EXPIRY_DATE,
+  DATEDIFF(sbm.EXPIRY_DATE, C...
+2026-02-08 17:59:01 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 10 rows returned
+2026-02-08 17:59:01 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=68.00%, validation=95.00%, combined=78.80%
+2026-02-08 17:59:01 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (78.80%) - Using result
+2026-02-08 17:59:01 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-08 17:59:01 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 10 rows returned
+2026-02-08 17:59:01 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-08 17:59:01 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-08 17:59:01 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 8046d6b5-9d1d-4355-ac7d-f46e1e5e8e59
+2026-02-08 17:59:01 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 8046d6b5-9d1d-4355-ac7d-f46e1e5e8e59
+2026-02-08 17:59:01 - app.services.query_classification_service - INFO - 📝 Stored query 25eedfc5-edf_20260208175901262150 for classification (cache now has 1499 queries)
+2026-02-08 17:59:01 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 78.80%)
+2026-02-08 17:59:01 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.79, session=25eedfc5-edf
+2026-02-08 18:00:05 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give top 10 picked and put SKU...
+2026-02-08 18:00:05 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: top 10 SKUs with expiry date nearby
+ASSISTANT: *Generated with NL-to-SQL*
+
+**Found 10 result(s...
+2026-02-08 18:00:05 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: give top 10 picked and put SKU...
+2026-02-08 18:00:05 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-08 18:00:05 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-08 18:00:05 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-08 18:00:05 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-08 18:00:05 - app.services.chat_history_service - INFO - 📊 Retrieved 5 common query patterns
+2026-02-08 18:00:05 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-08 18:00:05 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-08 18:00:10 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 78.00%)
+2026-02-08 18:00:10 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  lim.ARTICLE_ID AS sku_id,
+  sm.SKU_NAME AS sku_name,
+  SUM(lim.VIRTUAL_QUANTITY_TO_PICK) AS...
+2026-02-08 18:00:11 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-08 18:00:11 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=78.00%, validation=30.00%, combined=58.80%
+2026-02-08 18:00:11 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (58.80%) - Retrying with feedback
+2026-02-08 18:00:11 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-08 18:00:17 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 74.00%)
+2026-02-08 18:00:17 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  lim.ARTICLE_ID AS sku_id,
+  COALESCE(sm.SKU_NAME, lim.ARTICLE_ID) AS sku_name,
+  SUM(COALES...
+2026-02-08 18:00:17 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-08 18:00:17 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=74.00%, validation=30.00%, combined=56.40%
+2026-02-08 18:00:17 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (56.40%) - Retrying with feedback
+2026-02-08 18:00:17 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 74.00%)
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  lim.ARTICLE_ID AS sku_id,
+  COALESCE(sm.SKU_NAME, lim.ARTICLE_ID) AS sku_name,
+  SUM(COALES...
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=74.00%, validation=30.00%, combined=56.40%
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (56.40%) - Retrying with feedback
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - WARNING - ⚠️ Last attempt - using result despite low confidence
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 2)
+2026-02-08 18:00:25 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: fdde0fcc-fc57-4edf-afc2-bd779c2a8025
+2026-02-08 18:00:25 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: fdde0fcc-fc57-4edf-afc2-bd779c2a8025
+2026-02-08 18:00:25 - app.services.query_classification_service - INFO - 📝 Stored query 25eedfc5-edf_20260208180025153993 for classification (cache now has 1500 queries)
+2026-02-08 18:00:25 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 56.40%)
+2026-02-08 18:00:25 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.56, session=25eedfc5-edf
+2026-02-08 18:29:30 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260208.log
+2026-02-08 18:29:30 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-08 18:30:41 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260208.log
+2026-02-08 18:30:41 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260208.log
+2026-02-08 18:30:41 - app.services.query_classification_service - INFO - ✅ Loaded 1500 classified queries
+2026-02-08 18:30:41 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-08 18:30:41 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1500 classified queries
+2026-02-08 18:30:41 - app.main - INFO - ✅ Classification service initialized
+2026-02-08 18:35:27 - app.utils.session_manager - INFO - 🆕 New session created: 1d33c6b9-9bc (type: sql_assistant)
+2026-02-08 18:35:27 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 1d33c6b9-9bc (type: sql_assistant)
+2026-02-08 18:35:27 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=compute the bin presentation for each station for ...
+2026-02-08 18:35:27 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: compute the bin presentation for each station for ...
+2026-02-08 18:35:27 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-08 18:35:27 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-08 18:35:47 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-08 18:35:47 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-08 18:35:47 - app.services.chat_history_service - INFO - 📊 Retrieved 5 common query patterns
+2026-02-08 18:35:47 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-08 18:35:47 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-08 18:35:54 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 56.00%)
+2026-02-08 18:35:54 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  s.STATION_ID,
+  s.STATION_ALIAS_NAME,
+  COUNT(1) AS bin_presentations_last_month
+FROM task_...
+2026-02-08 18:35:54 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 1: (1054, "Unknown column 't.COMPLETED_TIMESTAMP' in 'where clause'")
+2026-02-08 18:35:54 - app.services.sql_assistant_integrated - INFO - 📋 Enhanced feedback with schema info for validation error
+2026-02-08 18:35:54 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-08 18:36:00 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 86.00%)
+2026-02-08 18:36:00 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  s.STATION_ID,
+  s.STATION_ALIAS_NAME,
+  COUNT(1) AS bin_presentations_last_month
+FROM task_...
+2026-02-08 18:36:00 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-08 18:36:00 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=86.00%, validation=30.00%, combined=63.60%
+2026-02-08 18:36:00 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (63.60%) - Retrying with feedback
+2026-02-08 18:36:00 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-08 18:36:06 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 78.00%)
+2026-02-08 18:36:06 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  s.STATION_ID,
+  s.STATION_ALIAS_NAME,
+  COUNT(t.TASK_ID) AS bin_presentations_last_month
+FR...
+2026-02-08 18:36:06 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-08 18:36:06 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=78.00%, validation=30.00%, combined=58.80%
+2026-02-08 18:36:06 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (58.80%) - Retrying with feedback
+2026-02-08 18:36:06 - app.services.sql_assistant_integrated - WARNING - ⚠️ Last attempt - using result despite low confidence
+2026-02-08 18:36:06 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-08 18:36:07 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-08 18:36:07 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-08 18:36:07 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-08 18:36:07 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 5cd72959-7477-47ce-8b3c-68812ca5e18a
+2026-02-08 18:36:07 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 5cd72959-7477-47ce-8b3c-68812ca5e18a
+2026-02-08 18:36:07 - app.services.query_classification_service - INFO - 📝 Stored query 1d33c6b9-9bc_20260208183607066964 for classification (cache now has 1501 queries)
+2026-02-08 18:36:07 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 58.80%)
+2026-02-08 18:36:07 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.59, session=1d33c6b9-9bc
+2026-02-08 18:38:27 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=on emonth is too big, lest take it for last one we...
+2026-02-08 18:38:27 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: compute the bin presentation for each station for the last one month
+ASSISTANT: *Generated wit...
+2026-02-08 18:38:27 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: on emonth is too big, lest take it for last one we...
+2026-02-08 18:38:27 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-08 18:38:27 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-08 18:38:27 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-08 18:38:27 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-08 18:38:27 - app.services.chat_history_service - INFO - 📊 Retrieved 5 common query patterns
+2026-02-08 18:38:27 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-08 18:38:27 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-08 18:38:33 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 62.00%)
+2026-02-08 18:38:33 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  hsm.STATION_ID,
+  hsm.STATION_ALIAS_NAME,
+  tml.destination_location_id AS STATION_LOCATION...
+2026-02-08 18:38:33 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-08 18:38:33 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=62.00%, validation=30.00%, combined=49.20%
+2026-02-08 18:38:33 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (49.20%) - Retrying with feedback
+2026-02-08 18:38:33 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-08 18:38:40 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 64.00%)
+2026-02-08 18:38:40 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  hsm.STATION_ID,
+  hsm.STATION_ALIAS_NAME,
+  hsm.LOCATION_ID AS STATION_LOCATION_ID,
+  COUNT...
+2026-02-08 18:38:40 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-08 18:38:40 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=64.00%, validation=30.00%, combined=50.40%
+2026-02-08 18:38:40 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (50.40%) - Retrying with feedback
+2026-02-08 18:38:40 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-08 18:38:48 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 70.00%)
+2026-02-08 18:38:48 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  hsm.STATION_ID,
+  hsm.STATION_ALIAS_NAME,
+  hsm.LOCATION_ID AS STATION_LOCATION_ID,
+  COUNT...
+2026-02-08 18:38:48 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 3: (1054, "Unknown column 'tml.TASK_MASTER_LOG_ID' in 'field list'")
+2026-02-08 18:38:48 - app.services.sql_assistant_integrated - INFO - 📋 Enhanced feedback with schema info for validation error
+2026-02-08 18:38:48 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-08 18:38:48 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'SELECT
+  hsm.STATION_ID,
+  hsm.STATION_ALIAS_NAME,
+  hsm.LOCATION_ID AS STATION_LOCATION_ID,
+  COUNT(tml.TASK_MASTER_LOG_ID) AS bin_presentations_last_7_days
+FROM hw_station_master AS hsm
+LEFT JOIN task_master_log AS tml
+  ON tml.destination_location_id = hsm.LOCATION_ID
+  AND tml.TASK_TYPE IN ('STATION_TO_STATION','BIN_STORE_TO_ZONE')
+  AND tml.STATUS = 'COMPLETED'
+  AND tml.UPDATED_TIMESTAMP >= (UTC_TIMESTAMP() - INTERVAL 7 DAY)
+GROUP BY
+  hsm.STATION_ID,
+  hsm.STATION_ALIAS_NAME,
+  hsm.LOCATION_ID
+ORDER BY bin_presentations_last_7_days DESC
+LIMIT 200;': (1054, "Unknown column 'tml.TASK_MASTER_LOG_ID' in 'field list'")
+2026-02-08 18:38:48 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=1d33c6b9-9bc
+2026-02-08 18:39:11 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=compute the bin presentation for each station for ...
+2026-02-08 18:39:11 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: compute the bin presentation for each station for the last one month
+ASSISTANT: *Generated wit...
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: compute the bin presentation for each station for ...
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO - 🎯 SESSION CACHE HIT! Similarity: 93.33%
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO -    Cached Q: compute the bin presentation for each station for the last o
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO -    Current Q: compute the bin presentation for each station for the last o
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO - ✨ Using cached query from session (confidence: 68.80%)
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 2)
+2026-02-08 18:39:11 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 73ee502d-52d1-429c-8b9e-535e14ec705a
+2026-02-08 18:39:11 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 73ee502d-52d1-429c-8b9e-535e14ec705a
+2026-02-08 18:39:11 - app.services.query_classification_service - INFO - 📝 Stored query 1d33c6b9-9bc_20260208183911647439 for classification (cache now has 1502 queries)
+2026-02-08 18:39:11 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 68.80%)
+2026-02-08 18:39:11 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.69, session=1d33c6b9-9bc
+2026-02-08 18:42:08 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260208.log
+2026-02-08 18:42:08 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260208.log
+2026-02-08 18:42:08 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260208.log
+2026-02-08 18:42:08 - app.services.query_classification_service - INFO - ✅ Loaded 1502 classified queries
+2026-02-08 18:42:08 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-08 18:42:08 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1502 classified queries
+2026-02-08 18:42:08 - app.main - INFO - ✅ Classification service initialized
+2026-02-08 18:42:08 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260208.log
+2026-02-08 18:42:09 - app.services.query_classification_service - INFO - ✅ Loaded 1502 classified queries
+2026-02-08 18:42:09 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-08 18:42:09 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1502 classified queries
+2026-02-08 18:42:09 - app.main - INFO - ✅ Classification service initialized
+2026-02-08 18:42:49 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=please share the details of all the sku  SKU is pr...
+2026-02-08 18:42:49 - app.api.chatbot_endpoints - ERROR - ❌ Error in chat endpoint: type object 'ChatbotType' has no attribute 'SEMI_AUTO_DIAGNOSTIC'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\api\chatbot_endpoints.py", line 75, in chat
+    ChatbotType.SEMI_AUTO_DIAGNOSTIC: SessionType.SEMI_AUTO_DIAGNOSTIC,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'ChatbotType' has no attribute 'SEMI_AUTO_DIAGNOSTIC'
+2026-02-08 18:47:31 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260208.log
+2026-02-08 18:47:31 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260208.log
+2026-02-08 18:47:31 - app.services.query_classification_service - INFO - ✅ Loaded 1502 classified queries
+2026-02-08 18:47:31 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-08 18:47:31 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1502 classified queries
+2026-02-08 18:47:31 - app.main - INFO - ✅ Classification service initialized
+2026-02-08 18:47:31 - app.services.query_classification_service - INFO - ✅ Loaded 1502 classified queries
+2026-02-08 18:47:31 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-08 18:47:31 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1502 classified queries
+2026-02-08 18:47:31 - app.main - INFO - ✅ Classification service initialized
