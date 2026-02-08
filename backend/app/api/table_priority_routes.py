@@ -12,8 +12,8 @@ from pathlib import Path
 
 from app.core.config import settings
 
-# Import the NL to SQL generator for testing
-from ..services.nl_to_sql_generator import NLToSQLGenerator
+# Import the SQL engine for testing
+from ..services.sql_engine import SQLEngine
 
 router = APIRouter(prefix="/api/table-priority", tags=["table-priority"])
 
@@ -166,15 +166,15 @@ async def test_query(request: TestQueryRequest):
         if not OPENAI_API_KEY:
             raise HTTPException(status_code=500, detail="OpenAI API key not configured")
         
-        # Initialize SQL generator with API key and model
-        generator = NLToSQLGenerator(
+        # Initialize SQL engine with API key and model
+        engine = SQLEngine(
             api_key=OPENAI_API_KEY,
             model=SQL_MODEL,
             schema_csv_path=SCHEMA_CSV_PATH
         )
         
         # Get ranked tables (top 8)
-        ranked_tables = generator.get_ranked_tables_for_query(query, top_k=8)
+        ranked_tables = engine.get_ranked_tables_for_query(query, top_k=8)
         
         return {
             "success": True,
@@ -346,23 +346,22 @@ async def get_all_tables():
         if not OPENAI_API_KEY:
             raise HTTPException(status_code=500, detail="OpenAI API key not configured")
         
-        # Initialize SQL generator
-        generator = NLToSQLGenerator(
+        # Initialize SQL engine
+        engine = SQLEngine(
             api_key=OPENAI_API_KEY,
             model=SQL_MODEL,
             schema_csv_path=SCHEMA_CSV_PATH
         )
         
-        # Get all tables from schema
+        # Get all tables from schema registry
         all_tables = []
-        if hasattr(generator, 'table_info') and generator.table_info is not None:
-            for _, row in generator.table_info.iterrows():
-                all_tables.append({
-                    'table_name': row.get('Table Name', ''),
-                    'category': row.get('Category', ''),
-                    'description': row.get('Description', ''),
-                    'columns': row.get('Columns', '')
-                })
+        for tname, tinfo in engine.registry.tables.items():
+            all_tables.append({
+                'table_name': tname,
+                'category': tinfo.get('category', ''),
+                'description': tinfo.get('description', ''),
+                'columns': tinfo.get('columns_raw', '')
+            })
         
         # Sort alphabetically by table name
         all_tables.sort(key=lambda x: x['table_name'].lower())

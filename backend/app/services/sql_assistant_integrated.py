@@ -1,18 +1,18 @@
 """
-SQL Assistant Service - INTEGRATED VERSION with nl_to_sql_generator.py
+SQL Assistant Service - INTEGRATED VERSION with SQLEngine
 Convert natural language to SQL queries with prioritized generation strategies
 
 FLOW:
 1. Check session cache (in-memory)
 2. Check classified queries (JSONL file)  
 3. Check chat history (MySQL patterns)
-4a. Generate with nl_to_sql_generator.py (PRIORITY - CSV-based)
+4a. Generate with SQLEngine (PRIORITY - schema-registry-driven)
 4b. Retry with feedback up to 3 attempts
-4c. Fallback to LLM if CSV generator fails
+4c. Fallback to LLM if SQLEngine fails
 5. Execute & validate
 6. Store for future reuse
 
-Author: Integrated with nl_to_sql_generator.py priority
+Author: Integrated with SQLEngine (universal, schema-registry-driven)
 Date: February 2026
 """
 
@@ -30,7 +30,7 @@ from difflib import SequenceMatcher
 from .llm_service import LLMService
 from .rlhf_service import RLHFService
 from .chat_history_service import ChatHistoryService
-from .nl_to_sql_generator import NLToSQLGenerator
+from .sql_engine import SQLEngine
 from ..models.schemas import ChatRequest, ChatResponse, ChatbotType, SQLQueryRequest, SQLQueryResponse
 from app.core.config import settings
 from ..utils.session_manager import get_session_manager, SessionType
@@ -40,15 +40,15 @@ logger = logging.getLogger(__name__)
 
 class SQLAssistantService:
     """
-    Integrated SQL Assistant with nl_to_sql_generator priority
+    Integrated SQL Assistant with SQLEngine priority
     
     Features:
     - Session cache (in-memory, last 10 queries per session)
     - Classified queries (human-verified JSONL file)
     - Chat history patterns (MySQL learning)
-    - nl_to_sql_generator.py as primary SQL generator
+    - SQLEngine as primary SQL generator (schema-registry-driven)
     - Retry with feedback (up to 3 attempts)
-    - LLM fallback (only if CSV generator fails)
+    - LLM fallback (only if SQLEngine fails)
     - Execution & validation
     - Result storage (session, classification, MySQL)
     """
@@ -67,28 +67,25 @@ class SQLAssistantService:
             'database': settings.DB_NAME
         }
         
-        # Initialize nl_to_sql_generator (PRIORITY GENERATOR)
+        # Initialize SQLEngine (PRIORITY GENERATOR — universal, schema-registry-driven)
         try:
             csv_path = settings.DATA_DIR / "database" / "Table_information.csv"
-            # NLToSQLGenerator expects: api_key, model, schema_csv_path, db_config
             openai_api_key = settings.OPENAI_API_KEY
             if not openai_api_key:
                 raise ValueError("OPENAI_API_KEY not configured")
             
-            # Use gpt-5.2 as default model for SQL generation
             openai_model = os.getenv("OPENAI_SQL_MODEL", "gpt-5.2")
             
-            # Pass DB config for entity resolution
-            self.nl_sql_generator = NLToSQLGenerator(
+            self.sql_engine = SQLEngine(
                 api_key=openai_api_key,
                 model=openai_model,
                 schema_csv_path=str(csv_path),
-                db_config=self.db_config
+                db_config=self.db_config,
             )
-            logger.info(f"✅ nl_to_sql_generator initialized with entity resolution (model: {openai_model})")
+            logger.info(f"✅ SQLEngine initialized (model: {openai_model}, tables: {len(self.sql_engine.registry.tables)})")
         except Exception as e:
-            logger.warning(f"⚠️ nl_to_sql_generator unavailable, will use LLM only: {e}")
-            self.nl_sql_generator = None
+            logger.warning(f"⚠️ SQLEngine unavailable, will use LLM only: {e}")
+            self.sql_engine = None
         
         # Initialize vector store for SQL examples
         try:
@@ -141,7 +138,7 @@ class SQLAssistantService:
         self.session_cache_similarity_threshold = 0.85
         self.classified_query_similarity_threshold = 0.85
         
-        logger.info(f"🎯 Integrated SQL Assistant initialized with nl_to_sql_generator priority")
+        logger.info(f"🎯 Integrated SQL Assistant initialized with SQLEngine priority")
         logger.info(f"   Max retry attempts: {self.max_retry_attempts}")
         logger.info(f"   High confidence threshold: {self.high_confidence_threshold:.0%}")
         logger.info(f"   Acceptable confidence threshold: {self.acceptable_confidence_threshold:.0%}")
@@ -756,55 +753,50 @@ class SQLAssistantService:
         previous_sql: Optional[str] = None
     ) -> Tuple[Optional[str], float, Dict]:
         """
-        Generate SQL using nl_to_sql_generator.py (CSV-based TF-IDF)
+        Generate SQL using SQLEngine (schema-registry-driven, universal).
         
         Returns:
             Tuple of (sql, confidence, metadata)
         """
-        if not self.nl_sql_generator:
-            return None, 0.0, {'error': 'nl_sql_generator not available'}
+        if not self.sql_engine:
+            return None, 0.0, {'error': 'sql_engine not available'}
         
         try:
-            # Build prompt with feedback if provided
-            if feedback and previous_sql:
-                enhanced_question = f"""{question}
-
-PREVIOUS ATTEMPT FEEDBACK:
-SQL: {previous_sql}
-Issue: {feedback}
-
-Generate improved SQL query addressing the feedback."""
-            else:
-                enhanced_question = question
-            
-            # Generate SQL with nl_to_sql_generator
-            result = self.nl_sql_generator.generate(enhanced_question)
+            result = self.sql_engine.generate(
+                question=question,
+                enable_entity_resolution=True,
+                feedback=feedback,
+                previous_sql=previous_sql,
+            )
             
             if result and result.get('sql'):
                 sql = result['sql']
                 confidence = result.get('confidence', 0.75)
                 
-                logger.info(f"✅ nl_to_sql_generator generated SQL (confidence: {confidence:.2%})")
+                logger.info(f"✅ SQLEngine generated SQL (confidence: {confidence:.2%})")
                 logger.info(f"   SQL: {sql[:100]}...")
                 
                 return (
                     sql,
                     confidence,
                     {
-                        'source': 'nl_to_sql_generator',
+                        'source': 'sql_engine',
                         'tables_used': result.get('tables_used', []),
                         'columns_used': result.get('columns_used', []),
                         'assumptions': result.get('assumptions', []),
                         'warnings': result.get('warnings', []),
-                        'is_read_only': result.get('is_read_only', True)
+                        'is_read_only': result.get('is_read_only', True),
+                        'domains_matched': result.get('domains_matched', []),
+                        'selected_tables': result.get('selected_tables', []),
+                        'resolved_entities': result.get('resolved_entities', {}),
                     }
                 )
             else:
-                logger.warning("⚠️ nl_to_sql_generator returned no SQL")
+                logger.warning("⚠️ SQLEngine returned no SQL")
                 return None, 0.0, {'error': 'No SQL generated'}
         
         except Exception as e:
-            logger.error(f"❌ nl_to_sql_generator error: {e}")
+            logger.error(f"❌ SQLEngine error: {e}")
             return None, 0.0, {'error': str(e)}
     
     def _generate_sql_with_llm(
@@ -1247,9 +1239,9 @@ This is a follow-up question that MODIFIES or REFINES the previous query.
         1. Check session cache (in-memory, 85% similarity)
         2. Check classified queries (JSONL file, 85% similarity)
         3. Check chat history patterns (MySQL, 80% similarity)
-        4a. Generate with nl_to_sql_generator.py (CSV-based, PRIORITY)
+        4a. Generate with SQLEngine (schema-registry-driven, PRIORITY)
         4b. Retry with feedback (up to 3 attempts)
-        4c. Fallback to LLM if all nl_to_sql attempts fail
+        4c. Fallback to LLM if all SQLEngine attempts fail
         5. Execute & validate (with confidence scoring)
         6. Store for future reuse (session cache + classification + chat history)
         
@@ -1332,14 +1324,14 @@ This is a follow-up question that MODIFIES or REFINES the previous query.
                     metadata['is_followup'] = True
                     metadata['previous_question'] = conversation_context.get('previous_question')
                 
-                # Try nl_to_sql_generator first (up to 3 attempts with feedback)
+                # Try SQLEngine first (up to 3 attempts with feedback)
                 feedback = None
                 previous_sql = None
                 
                 for attempt in range(self.max_retry_attempts):
-                    logger.info(f"🔄 Attempt {attempt + 1}/{self.max_retry_attempts} with nl_to_sql_generator...")
+                    logger.info(f"🔄 Attempt {attempt + 1}/{self.max_retry_attempts} with SQLEngine...")
                     
-                    # Generate with nl_to_sql_generator (using enhanced question for follow-ups)
+                    # Generate with SQLEngine (using enhanced question for follow-ups)
                     sql_query, confidence, metadata = self._generate_sql_with_nl_generator(
                         question_to_use,
                         feedback=feedback,
@@ -1347,7 +1339,7 @@ This is a follow-up question that MODIFIES or REFINES the previous query.
                     )
                     
                     if not sql_query:
-                        logger.warning(f"⚠️ nl_to_sql_generator failed on attempt {attempt + 1}")
+                        logger.warning(f"⚠️ SQLEngine failed on attempt {attempt + 1}")
                         continue
                     
                     # Auto-correct table names if needed
@@ -1423,9 +1415,9 @@ This is a follow-up question that MODIFIES or REFINES the previous query.
                             metadata['attempt'] = attempt + 1
                             break
                 
-                # If all nl_to_sql_generator attempts failed, fallback to LLM
+                # If all SQLEngine attempts failed, fallback to LLM
                 if not sql_query or confidence < 0.30:
-                    logger.warning("⚠️ All nl_to_sql_generator attempts failed or very low confidence - falling back to LLM")
+                    logger.warning("⚠️ All SQLEngine attempts failed or very low confidence - falling back to LLM")
                     
                     strategies = ['direct', 'with_context', 'simplified']
                     for strategy in strategies:
@@ -1562,7 +1554,8 @@ This is a follow-up question that MODIFIES or REFINES the previous query.
             'session_cache': 'Retrieved from session cache',
             'classified_queries': 'Retrieved from classified queries',
             'chat_history': 'Retrieved from chat history',
-            'nl_to_sql_generator': 'Generated with NL-to-SQL',
+            'nl_to_sql_generator': 'Generated with SQL Engine',
+            'sql_engine': 'Generated with SQL Engine',
             'llm_fallback': 'Generated with LLM'
         }.get(source, 'Generated')
         response_parts.append(f"*{source_display}*\n")
