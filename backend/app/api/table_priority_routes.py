@@ -4,11 +4,13 @@ API endpoints for testing queries, validating table selections, and managing pri
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import json
 import os
 from datetime import datetime
 from pathlib import Path
+
+from app.core.config import settings
 
 # Import the NL to SQL generator for testing
 from ..services.nl_to_sql_generator import NLToSQLGenerator
@@ -353,13 +355,13 @@ async def get_all_tables():
         
         # Get all tables from schema
         all_tables = []
-        if hasattr(generator, 'schema_df') and generator.schema_df is not None:
-            for _, row in generator.schema_df.iterrows():
+        if hasattr(generator, 'table_info') and generator.table_info is not None:
+            for _, row in generator.table_info.iterrows():
                 all_tables.append({
-                    'table_name': row.get('Table_name', ''),
-                    'category': row.get('Table_category', ''),
-                    'description': row.get('Table_description', ''),
-                    'columns': row.get('Table_columns(Data type)', '')
+                    'table_name': row.get('Table Name', ''),
+                    'category': row.get('Category', ''),
+                    'description': row.get('Description', ''),
+                    'columns': row.get('Columns', '')
                 })
         
         # Sort alphabetically by table name
@@ -376,3 +378,140 @@ async def get_all_tables():
             "success": False,
             "error": str(e)
         }
+
+
+# ========================================
+# BUSINESS RULES MANAGEMENT ENDPOINTS
+# ========================================
+
+class BusinessRuleRequest(BaseModel):
+    rule_name: str
+    rule_config: Dict[str, Any]
+
+
+@router.get("/business-rules")
+async def get_business_rules():
+    """
+    Get current business rules from config/sql_assistant_config.json
+    """
+    try:
+        config_path = settings.DATA_DIR.parent / "config" / "sql_assistant_config.json"
+        
+        if not config_path.exists():
+            return {"business_rules": {}, "path": str(config_path)}
+        
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        
+        return {
+            "business_rules": config.get("business_rules", {}),
+            "total_rules": len(config.get("business_rules", {})),
+            "path": str(config_path)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading business rules: {str(e)}")
+
+
+@router.post("/business-rules")
+async def update_business_rule(request: BusinessRuleRequest):
+    """
+    Add or update a business rule in config/sql_assistant_config.json
+    """
+    try:
+        config_path = settings.DATA_DIR.parent / "config" / "sql_assistant_config.json"
+        
+        # Load existing config
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+        else:
+            config = {"business_rules": {}, "example_queries": {}}
+        
+        # Ensure business_rules exists
+        if "business_rules" not in config:
+            config["business_rules"] = {}
+        
+        # Update the rule
+        config["business_rules"][request.rule_name] = request.rule_config
+        
+        # Save back to file
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        
+        return {
+            "success": True,
+            "message": f"Business rule '{request.rule_name}' updated successfully",
+            "total_rules": len(config["business_rules"])
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating business rule: {str(e)}")
+
+
+@router.delete("/business-rules/{rule_name}")
+async def delete_business_rule(rule_name: str):
+    """
+    Delete a business rule from config/sql_assistant_config.json
+    """
+    try:
+        config_path = settings.DATA_DIR.parent / "config" / "sql_assistant_config.json"
+        
+        if not config_path.exists():
+            raise HTTPException(status_code=404, detail="Config file not found")
+        
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        
+        if "business_rules" not in config or rule_name not in config["business_rules"]:
+            raise HTTPException(status_code=404, detail=f"Rule '{rule_name}' not found")
+        
+        # Delete the rule
+        del config["business_rules"][rule_name]
+        
+        # Save back to file
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        
+        return {
+            "success": True,
+            "message": f"Business rule '{rule_name}' deleted successfully",
+            "total_rules": len(config["business_rules"])
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting business rule: {str(e)}")
+
+
+@router.put("/business-rules/bulk")
+async def update_all_business_rules(business_rules: Dict[str, Any]):
+    """
+    Replace all business rules in config/sql_assistant_config.json
+    """
+    try:
+        config_path = settings.DATA_DIR.parent / "config" / "sql_assistant_config.json"
+        
+        # Load existing config
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+        else:
+            config = {"business_rules": {}, "example_queries": {}}
+        
+        # Replace all business rules
+        config["business_rules"] = business_rules
+        
+        # Save back to file
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        
+        return {
+            "success": True,
+            "message": f"All business rules updated successfully",
+            "total_rules": len(business_rules)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating all business rules: {str(e)}")

@@ -93,6 +93,20 @@
       "put_detail",
       "put_bin"
     ],
+    "task": [
+      "task",
+      "tasks",
+      "task_master",
+      "task_log",
+      "task_detail",
+      "completed_task",
+      "task_status",
+      "bin_presentation",
+      "bin_presentations",
+      "bins_presented",
+      "bin_reached",
+      "bins_delivered"
+    ],
     "station": [
       "station",
       "stations",
@@ -576,6 +590,561 @@
       "description": "Inventory to bins",
       "confidence": 0.95,
       "source": "predefined"
+    },
+    {
+      "table1": "task_master_log",
+      "table2": "hw_station_master",
+      "join_on": "destination_location_id = location_id",
+      "description": "Completed tasks to stations (for bin presentations)",
+      "confidence": 0.98,
+      "source": "predefined"
     }
-  ]
+  ],
+  "business_rules": {
+    "bin_presentation": {
+      "description": "Bin presentation = bins that reached/were delivered to a station OR per bot. ALWAYS use task_master_log with TASK_TYPE IN ('STATION_TO_STATION','BIN_STORE_TO_ZONE') and STATUS='COMPLETED'. Count each completed task as one bin presentation. Group by BOT_ID for per-bot analysis, or join with hw_station_master on destination_location_id for per-station analysis.",
+      "required_table": "task_master_log",
+      "required_filters": [
+        "TASK_TYPE IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE')",
+        "STATUS = 'COMPLETED'"
+      ],
+      "join_table": "hw_station_master",
+      "join_condition": "task_master_log.destination_location_id = hw_station_master.location_id",
+      "timestamp_column": "logged_timestamp",
+      "additional_joins": [
+        {
+          "table": "bot_master",
+          "condition": "task_master_log.BOT_ID = bot_master.BOT_ID",
+          "when": "grouping by bot or analyzing bot performance"
+        }
+      ],
+      "grouping_options": {
+        "by_station": "GROUP BY hw_station_master.STATION_ID, hw_station_master.STATION_ALIAS_NAME",
+        "by_bot": "GROUP BY task_master_log.BOT_ID",
+        "by_hour": "GROUP BY HOUR(logged_timestamp)",
+        "by_date": "GROUP BY DATE(logged_timestamp)"
+      },
+      "triggers": [
+        "bin presentation",
+        "bins presented",
+        "bins reached",
+        "bins delivered",
+        "bins delivered to station",
+        "how many bins reached",
+        "bin presentations per bot",
+        "bin presentations per station",
+        "bin presentations done per bot",
+        "bin presentations done on station",
+        "bin presentations done on each station",
+        "bin presentations by bot",
+        "bin presentations by station",
+        "bins delivered per bot",
+        "bins reached station",
+        "bins to station",
+        "average bin presentation",
+        "hourly bin presentation",
+        "hourly average bin presentation",
+        "bin presentation per hour",
+        "bin presentation average"
+      ],
+      "notes": "CRITICAL: Never use order_bin_mapping, station_pick_task_master, or recovery_pick_task_master for bin presentations. Always use task_master_log as the primary source. Each row in task_master_log with matching filters = 1 bin presentation."
+    },
+    "empty_bins": {
+      "description": "Empty/available bins are identified by ARTICLE_ID = 'no-sku' in live_inventory_master",
+      "required_table": "live_inventory_master",
+      "required_filters": [
+        "ARTICLE_ID = 'no-sku'",
+        "IS_ACTIVE = 1"
+      ],
+      "timestamp_column": null,
+      "triggers": [
+        "empty bin",
+        "empty bins",
+        "available bin",
+        "available bins",
+        "free bin",
+        "bins without sku",
+        "bins with no sku"
+      ]
+    },
+    "active_bots": {
+      "description": "Active bots should be filtered by IS_ACTIVE = 1 and exclude bots in maintenance",
+      "required_table": "bot_master",
+      "required_filters": [
+        "IS_ACTIVE = 1"
+      ],
+      "additional_filters": [
+        "STATUS NOT IN ('MAINTENANCE', 'ERROR', 'OFFLINE')"
+      ],
+      "timestamp_column": null,
+      "triggers": [
+        "active bot",
+        "active bots",
+        "working bot",
+        "operational bot",
+        "bots in use"
+      ]
+    },
+    "pending_orders": {
+      "description": "Pending/incomplete orders should check STATUS column for specific values",
+      "required_table": "wms_to_wcs_order_line_request_data",
+      "required_filters": [
+        "STATUS IN ('PENDING', 'IN_PROGRESS', 'ASSIGNED')"
+      ],
+      "timestamp_column": "INSERTED_TIMESTAMP",
+      "triggers": [
+        "pending order",
+        "pending orders",
+        "incomplete order",
+        "orders not completed",
+        "orders in progress"
+      ]
+    },
+    "completed_orders": {
+      "description": "Completed orders should filter by STATUS = 'COMPLETED'",
+      "required_table": "wms_to_wcs_order_line_request_data",
+      "required_filters": [
+        "STATUS = 'COMPLETED'"
+      ],
+      "timestamp_column": "UPDATED_TIMESTAMP",
+      "triggers": [
+        "completed order",
+        "completed orders",
+        "finished order",
+        "orders completed",
+        "successful order"
+      ]
+    },
+    "bot_charging": {
+      "description": "Bot charging status and location - use bot_master with charging-specific columns",
+      "required_table": "bot_master",
+      "required_filters": [
+        "STATUS = 'CHARGING'"
+      ],
+      "additional_columns": [
+        "BATTERY_LEVEL",
+        "CHARGING_STATION_ID"
+      ],
+      "timestamp_column": "LAST_UPDATED_TIMESTAMP",
+      "triggers": [
+        "bot charging",
+        "bots charging",
+        "charging bot",
+        "bot battery",
+        "bots at charging station"
+      ]
+    },
+    "inventory_by_bin": {
+      "description": "Current inventory levels per bin - use live_inventory_master with proper grouping",
+      "required_table": "live_inventory_master",
+      "required_filters": [
+        "IS_ACTIVE = 1",
+        "ARTICLE_ID != 'no-sku'"
+      ],
+      "join_table": "bin_info_master",
+      "join_condition": "live_inventory_master.BIN_ID = bin_info_master.BIN_ID",
+      "aggregate_by": "BIN_ID",
+      "timestamp_column": null,
+      "triggers": [
+        "inventory per bin",
+        "inventory by bin",
+        "stock in each bin",
+        "bin inventory level",
+        "what's in each bin"
+      ]
+    },
+    "task_completion_time": {
+      "description": "Task duration/completion time - calculate from start to end timestamps",
+      "required_table": "task_master_log",
+      "required_filters": [
+        "status = 'COMPLETED'"
+      ],
+      "time_calculation": "TIMESTAMPDIFF(SECOND, task_assigned_timestamp, logged_timestamp)",
+      "timestamp_column": "logged_timestamp",
+      "triggers": [
+        "task duration",
+        "task completion time",
+        "how long task took",
+        "task time",
+        "average task time"
+      ]
+    },
+    "sku_velocity": {
+      "description": "SKU velocity/turnover - use order frequency from order data joined with SKU master",
+      "required_table": "wms_to_wcs_order_line_request_data",
+      "join_table": "sku_master",
+      "join_condition": "wms_to_wcs_order_line_request_data.ARTICLE_ID = sku_master.SKU_ID",
+      "required_filters": [
+        "STATUS = 'COMPLETED'"
+      ],
+      "aggregate_by": "ARTICLE_ID",
+      "timestamp_column": "INSERTED_TIMESTAMP",
+      "triggers": [
+        "sku velocity",
+        "fast moving sku",
+        "slow moving sku",
+        "sku turnover",
+        "most picked sku"
+      ]
+    },
+    "completed_tasks": {
+      "description": "Always filter by status = 'COMPLETED' when counting finished tasks",
+      "applies_to": ["task_master_log", "task_detail_log"],
+      "required_filter": "status = 'COMPLETED'"
+    },
+    "low_battery_bots": {
+      "description": "Identifies bots with battery level below threshold requiring immediate charging or alerts",
+      "required_table": "bot_master",
+      "required_filters": ["BATTERY <= :battery_threshold"],
+      "order_by": "BATTERY ASC",
+      "timestamp_column": "UPDATED_TIMESTAMP",
+      "triggers": [
+        "low battery",
+        "battery low",
+        "battery alert",
+        "bots need charging",
+        "critical battery",
+        "dying battery",
+        "battery below"
+      ]
+    },
+    "bot_fleet_health": {
+      "description": "Overall fleet health check showing enabled bots with battery and alarm status",
+      "required_table": "bot_master",
+      "required_filters": ["IS_ACTIVE = 1"],
+      "additional_filters": ["STATUS = 'ENABLED'"],
+      "additional_columns": ["BATTERY", "ALARM"],
+      "timestamp_column": null,
+      "triggers": [
+        "fleet health",
+        "bot fleet",
+        "bot status",
+        "enabled bots",
+        "active bots health",
+        "overall bot status"
+      ]
+    },
+    "recent_bot_alarms": {
+      "description": "Recent bot alarms and alerts for monitoring and troubleshooting",
+      "required_table": "bot_manual_alarm_log",
+      "order_by": "INSERTED_TIMESTAMP DESC",
+      "limit": 100,
+      "timestamp_column": "INSERTED_TIMESTAMP",
+      "triggers": [
+        "recent alarms",
+        "latest alarms",
+        "alarm history",
+        "bot alarms",
+        "recent bot alarms",
+        "alarm logs"
+      ]
+    },
+    "bot_obstacles": {
+      "description": "Bot obstacle detection events for path planning and troubleshooting",
+      "required_table": "bot_obstacle_log",
+      "order_by": "OBSTACLE_DETECTION_TIMESTAMP DESC",
+      "limit": 100,
+      "timestamp_column": "OBSTACLE_DETECTION_TIMESTAMP",
+      "triggers": [
+        "obstacles",
+        "obstacle detection",
+        "blocked bots",
+        "bot obstacles",
+        "obstruction"
+      ]
+    },
+    "sku_inventory_by_name": {
+      "description": "Find inventory/bins for a product/SKU by NAME (not ID). CRITICAL: When user provides a product/SKU NAME (not ID), you MUST join with article_master to resolve the name to ARTICLE_ID first.",
+      "required_table": "live_inventory_master",
+      "required_joins": [
+        "JOIN article_master am ON lim.ARTICLE_ID = am.ARTICLE_ID",
+        "LEFT JOIN bin_info_master bim ON lim.BIN_ID = bim.BIN_ID"
+      ],
+      "name_matching_column": "am.ARTICLE_NAME",
+      "name_matching_pattern": "Use LIKE '%{product_name}%' or exact match on am.ARTICLE_NAME",
+      "required_filters": [
+        "am.ARTICLE_NAME LIKE '%{product_name}%' (when user provides product name)",
+        "lim.IS_ACTIVE = 1",
+        "(lim.QUANTITY > 0 OR lim.VIRTUAL_QUANTITY_TO_PICK > 0 OR lim.VIRTUAL_QUANTITY_TO_PUT > 0)"
+      ],
+      "additional_columns": [
+        "am.ARTICLE_NAME",
+        "am.ARTICLE_ID", 
+        "lim.BIN_ID",
+        "bim.BIN_BARCODE",
+        "lim.QUANTITY",
+        "lim.BATCH_ID"
+      ],
+      "critical_notes": [
+        "NEVER use ARTICLE_ID LIKE '%name%' - this is WRONG!",
+        "Product names are in article_master.ARTICLE_NAME, not in ARTICLE_ID",
+        "ALWAYS join with article_master when user mentions product/SKU name",
+        "ARTICLE_ID is a numeric or coded ID, not a name",
+        "If user says 'sku name', 'product name', 'article name', or provides a text name → use article_master.ARTICLE_NAME",
+        "If user provides just a number or code → use ARTICLE_ID directly"
+      ],
+      "order_by": "lim.BIN_ID, lim.SEGMENT_NO",
+      "triggers": [
+        "sku name",
+        "product name",
+        "article name",
+        "item name",
+        "which bins",
+        "bins for",
+        "inventory for",
+        "where is",
+        "location of product",
+        "location of sku",
+        "stock location",
+        "find product",
+        "find sku",
+        "find item",
+        "product in bins",
+        "sku in bins"
+      ]
+    },
+    "chatbot_analytics": {
+      "description": "Chatbot SQL query performance and execution status breakdown for monitoring",
+      "required_table": "chatbot_sql_queries",
+      "aggregate_by": "execution_status",
+      "order_by": "COUNT(*) DESC",
+      "triggers": [
+        "chatbot performance",
+        "query failures",
+        "execution status",
+        "chatbot analytics",
+        "sql query stats",
+        "query success rate"
+      ]
+    },
+    "active_stations": {
+      "description": "Active/enabled stations showing current operational status",
+      "required_table": "hw_station_master",
+      "required_filters": ["STATUS IN ('ENABLED', 'ACTIVE')"],
+      "order_by": "UPDATED_ON DESC",
+      "timestamp_column": "UPDATED_ON",
+      "triggers": [
+        "active stations",
+        "enabled stations",
+        "station status",
+        "operational stations",
+        "working stations"
+      ]
+    },
+    "station_by_wave": {
+      "description": "Stations assigned to specific wave for wave management",
+      "required_table": "hw_station_master",
+      "required_filters": ["WAVE_ID = :wave_id"],
+      "additional_columns": ["STATION_ID", "STATION_ALIAS_NAME", "STATION_TYPE", "WAVE_STATUS"],
+      "order_by": "UPDATED_ON DESC",
+      "triggers": [
+        "stations for wave",
+        "wave stations",
+        "station wave mapping",
+        "stations in wave",
+        "wave station assignment"
+      ]
+    },
+    "recent_stock_audit": {
+      "description": "Recent stock audit activities showing bin segment updates and SKU changes",
+      "required_table": "stock_audit_bin_segments_details",
+      "order_by": "UPDATED_TIMESTAMP DESC",
+      "limit": 100,
+      "timestamp_column": "UPDATED_TIMESTAMP",
+      "additional_columns": ["PREV_SKU_ID", "UPDATED_SKU_ID"],
+      "triggers": [
+        "recent audit",
+        "stock audit",
+        "bin audit history",
+        "audit trail",
+        "inventory audit"
+      ]
+    },
+    "order_status_breakdown": {
+      "description": "Order status breakdown showing count by status for health monitoring",
+      "required_table": "order_bin_mapping",
+      "aggregate_by": "STATUS",
+      "order_by": "COUNT(*) DESC",
+      "triggers": [
+        "order summary",
+        "order status count",
+        "orders by status",
+        "order breakdown",
+        "order health check"
+      ]
+    },
+    "bin_velocity_tracking": {
+      "description": "Bin velocity and cost analysis for bin optimization",
+      "required_table": "store_bin_master",
+      "additional_columns": ["VELOCITY", "COST", "LOCATION_ID", "BIN_ID"],
+      "triggers": [
+        "bin velocity",
+        "bin cost",
+        "bin performance",
+        "bin optimization",
+        "high velocity bins"
+      ]
+    },
+    "location_blocks": {
+      "description": "Location blocks showing blocked/unavailable areas in warehouse",
+      "required_table": "location_block_master",
+      "additional_columns": ["ID", "LOCATION_ID", "TOWER_ID", "AISLE_ID", "TYPE", "BLOCK_TIMESTAMP"],
+      "triggers": [
+        "blocked locations",
+        "location blocks",
+        "unavailable locations",
+        "blocked areas",
+        "location block status"
+      ]
+    },
+    "task_status_filter": {
+      "description": "Filters tasks by status across task management tables with common STATUS values",
+      "required_table": "task_master_log",
+      "required_filters": ["STATUS = :status"],
+      "order_by": "UPDATED_TIMESTAMP DESC",
+      "limit": 200,
+      "timestamp_column": "UPDATED_TIMESTAMP",
+      "triggers": [
+        "task status",
+        "tasks by status",
+        "find tasks",
+        "task filter",
+        "tasks with status"
+      ],
+      "notes": "Common STATUS values: ALLOCATED, AUDIT_COMPLETED, AUDIT_SKIPPED, AUDIT_STARTED, BIN_MOVED, BIN_PICKED, COMPLETED, DELETED, ENABLED, Failed, OPERATION_COMPLETED. Alternative tables: dashboard_manual_task_master, task_detail"
+    },
+    "recent_tasks": {
+      "description": "Recent task records for monitoring current task activity",
+      "required_table": "task_master_log",
+      "order_by": "UPDATED_TIMESTAMP DESC",
+      "limit": 100,
+      "timestamp_column": "UPDATED_TIMESTAMP",
+      "triggers": [
+        "recent tasks",
+        "latest tasks",
+        "recent task activity",
+        "current tasks",
+        "task history"
+      ]
+    },
+    "wave_health_check": {
+      "description": "Provides status breakdown for wave/order health monitoring with counts by status",
+      "required_table": "wave_master",
+      "aggregate_by": "WAVE_STATUS",
+      "order_by": "COUNT(*) DESC",
+      "triggers": [
+        "wave summary",
+        "wave health",
+        "wave status breakdown",
+        "order counts by status",
+        "wave health check",
+        "wave status count"
+      ],
+      "notes": "Quick health check pattern. Alternative tables: pick_wave_order_master, put_wave_order_master, stock_audit_wave_order_master. Use WAVE_STATUS for wave_master, STATUS for order tables"
+    },
+    "maintenance_tasks": {
+      "description": "Maintenance task tracking for bot maintenance operations",
+      "required_table": "maintenance_task_master",
+      "additional_columns": ["MAINTENANCE_POINT_BOT_ID", "MAINTENANCE_PICK_POINT_BOT_ID", "IS_MP_BOT_HEALTHY"],
+      "order_by": "INSERTED_TIMESTAMP DESC",
+      "triggers": [
+        "maintenance tasks",
+        "bot maintenance",
+        "maintenance status",
+        "maintenance operations",
+        "scheduled maintenance"
+      ]
+    },
+    "lpn_tracking": {
+      "description": "LPN-order mapping for license plate number tracking",
+      "required_table": "lpn_pick_wave_order_mapping",
+      "required_filters": ["LPN_ID = :lpn_id OR PICK_ORDER_ID = :pick_order_id"],
+      "order_by": "UPDATED_TIMESTAMP DESC",
+      "triggers": [
+        "lpn tracking",
+        "lpn for order",
+        "order lpn mapping",
+        "license plate",
+        "lpn status"
+      ]
+    },
+    "integration_errors": {
+      "description": "WMS/WCS integration error monitoring by HTTP status",
+      "required_table": "wcs_to_wms_payload",
+      "aggregate_by": "HTTP_STATUS",
+      "order_by": "COUNT(*) DESC",
+      "additional_filters": ["INSERTED_TIMESTAMP >= :from_ts"],
+      "triggers": [
+        "integration errors",
+        "wms wcs errors",
+        "payload errors",
+        "http errors",
+        "integration health"
+      ]
+    },
+    "configuration_recent": {
+      "description": "Recent configuration changes and master config records",
+      "required_table": "master_config",
+      "order_by": "UPDATED_TIMESTAMP DESC",
+      "limit": 100,
+      "timestamp_column": "UPDATED_TIMESTAMP",
+      "triggers": [
+        "recent config",
+        "configuration changes",
+        "master config",
+        "config updates",
+        "system configuration"
+      ]
+    },
+    "dashboard_wave_upload": {
+      "description": "Dashboard wave upload status for wave management monitoring",
+      "required_table": "dashboard_wave_upload_status",
+      "aggregate_by": "STATUS",
+      "order_by": "COUNT(*) DESC",
+      "triggers": [
+        "wave upload status",
+        "wave upload health",
+        "upload status breakdown",
+        "wave upload errors"
+      ]
+    }
+  },
+  "example_queries": {
+    "bin_presentation_hourly": {
+      "user_query": "Show me bin presentations by hour for each station in the last 12 hours",
+      "sql": "SELECT HOUR(logged_timestamp) AS hour_, station_id, COUNT(*) AS bin_count FROM task_master_log tl JOIN hw_station_master hm ON tl.destination_location_id = hm.location_id WHERE task_type IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND tl.status = 'COMPLETED' AND logged_timestamp >= NOW() - INTERVAL 12 HOUR GROUP BY HOUR(logged_timestamp), station_id ORDER BY hour_, station_id",
+      "tables": ["task_master_log", "hw_station_master"],
+      "confidence": 0.95
+    },
+    "bin_presentation_daily": {
+      "user_query": "Calculate bin presentations for each station in the last week",
+      "sql": "SELECT s.STATION_ID, s.STATION_ALIAS_NAME, COUNT(*) AS bin_presentations, COUNT(DISTINCT DATE(tl.logged_timestamp)) AS days_active FROM hw_station_master s LEFT JOIN task_master_log tl ON tl.destination_location_id = s.location_id AND tl.task_type IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND tl.status = 'COMPLETED' AND tl.logged_timestamp >= NOW() - INTERVAL 7 DAY GROUP BY s.STATION_ID, s.STATION_ALIAS_NAME ORDER BY bin_presentations DESC",
+      "tables": ["hw_station_master", "task_master_log"],
+      "confidence": 0.95
+    },
+    "bin_presentation_station_performance": {
+      "user_query": "What is the bin presentation for each station today",
+      "sql": "SELECT hm.station_id, hm.STATION_ALIAS_NAME, COUNT(*) as bins_presented_today FROM task_master_log tl JOIN hw_station_master hm ON tl.destination_location_id = hm.location_id WHERE tl.task_type IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND tl.status = 'COMPLETED' AND DATE(tl.logged_timestamp) = CURDATE() GROUP BY hm.station_id, hm.STATION_ALIAS_NAME ORDER BY bins_presented_today DESC",
+      "tables": ["task_master_log", "hw_station_master"],
+      "confidence": 0.95
+    },
+    "bin_presentation_per_bot": {
+      "user_query": "Show me bin presentations per bot in the last 24 hours",
+      "sql": "SELECT tl.BOT_ID, bm.BOT_NAME, COUNT(*) AS bin_presentations FROM task_master_log tl LEFT JOIN bot_master bm ON tl.BOT_ID = bm.BOT_ID WHERE tl.task_type IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND tl.status = 'COMPLETED' AND tl.logged_timestamp >= NOW() - INTERVAL 24 HOUR GROUP BY tl.BOT_ID, bm.BOT_NAME ORDER BY bin_presentations DESC",
+      "tables": ["task_master_log", "bot_master"],
+      "confidence": 0.95
+    },
+    "bin_presentation_per_bot_timerange": {
+      "user_query": "Compute bin presentations done per bot from 7 pm to 9 pm yesterday",
+      "sql": "SELECT tl.BOT_ID, bm.BOT_NAME, COUNT(*) AS bin_presentations FROM task_master_log tl LEFT JOIN bot_master bm ON tl.BOT_ID = bm.BOT_ID WHERE tl.task_type IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND tl.status = 'COMPLETED' AND tl.logged_timestamp >= (CURDATE() - INTERVAL 1 DAY) + INTERVAL 19 HOUR AND tl.logged_timestamp < (CURDATE() - INTERVAL 1 DAY) + INTERVAL 21 HOUR GROUP BY tl.BOT_ID, bm.BOT_NAME ORDER BY bin_presentations DESC",
+      "tables": ["task_master_log", "bot_master"],
+      "confidence": 0.95
+    },
+    "bin_presentation_per_station_timerange": {
+      "user_query": "Compute bin presentations done on each station from 7 pm to 9 pm yesterday",
+      "sql": "SELECT hm.STATION_ID, hm.STATION_ALIAS_NAME, COUNT(*) AS bin_presentations FROM task_master_log tl JOIN hw_station_master hm ON tl.destination_location_id = hm.location_id WHERE tl.task_type IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND tl.status = 'COMPLETED' AND tl.logged_timestamp >= (CURDATE() - INTERVAL 1 DAY) + INTERVAL 19 HOUR AND tl.logged_timestamp < (CURDATE() - INTERVAL 1 DAY) + INTERVAL 21 HOUR GROUP BY hm.STATION_ID, hm.STATION_ALIAS_NAME ORDER BY bin_presentations DESC",
+      "tables": ["task_master_log", "hw_station_master"],
+      "confidence": 0.95
+    }
+  }
 }

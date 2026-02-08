@@ -1468,3 +1468,892 @@ ASSISTANT: *Gene...
 2026-02-06 14:05:42 - app.services.query_classification_service - INFO - 📝 Stored query 0de53bc5-b05_20260206140542494535 for classification (cache now has 1656 queries)
 2026-02-06 14:05:42 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 59.00%)
 2026-02-06 14:05:42 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.59, session=0de53bc5-b05
+2026-02-06 17:40:15 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260206.log
+2026-02-06 17:40:16 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-06 17:41:08 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260206.log
+2026-02-06 17:41:08 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260206.log
+2026-02-06 17:41:08 - app.services.query_classification_service - INFO - ✅ Loaded 1613 classified queries
+2026-02-06 17:41:08 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-06 17:41:08 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1613 classified queries
+2026-02-06 17:41:08 - app.main - INFO - ✅ Classification service initialized
+2026-02-06 17:42:23 - app.utils.session_manager - INFO - 🆕 New session created: 66db462f-0d6 (type: sql_assistant)
+2026-02-06 17:42:23 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 66db462f-0d6 (type: sql_assistant)
+2026-02-06 17:42:23 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=how many are running put waves...
+2026-02-06 17:42:23 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: how many are running put waves...
+2026-02-06 17:42:23 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 17:42:23 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 17:42:23 - app.services.sql_assistant_integrated - INFO - 📚 CLASSIFIED QUERY HIT! Similarity: 98.36%
+2026-02-06 17:42:23 - app.services.sql_assistant_integrated - INFO -    Classified Q: how many are running put waves.
+2026-02-06 17:42:23 - app.services.sql_assistant_integrated - INFO -    Current Q: how many are running put waves
+2026-02-06 17:42:23 - app.services.sql_assistant_integrated - INFO - ✨ Using classified query (confidence: 94.84%)
+2026-02-06 17:42:23 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 17:42:24 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-06 17:42:24 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 17:42:24 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-06 17:42:24 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 5f5d8439-8957-4678-bc19-5954e67d9a59
+2026-02-06 17:42:24 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 5f5d8439-8957-4678-bc19-5954e67d9a59
+2026-02-06 17:42:24 - app.services.query_classification_service - INFO - 📝 Stored query 66db462f-0d6_20260206174224909208 for classification (cache now has 1614 queries)
+2026-02-06 17:42:24 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 94.84%)
+2026-02-06 17:42:24 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.95, session=66db462f-0d6
+2026-02-06 17:54:09 - app.api.sql_execution_routes - INFO - 🔍 Executing SQL: SELECT
+  ol.ARTICLE_ID AS sku,
+  SUM(ol.QUANTITY) AS total_quantity_ordered,
+  COUNT(DISTINCT ol.ORD...
+2026-02-06 17:54:10 - app.api.sql_execution_routes - INFO - ✅ Query executed successfully: 5 rows returned
+2026-02-06 17:54:15 - app.services.query_classification_service - INFO - ✅ Loaded 1614 classified queries
+2026-02-06 17:54:15 - app.services.query_classification_service - INFO - ✅ Query 943fb686-293_20260205213656468646 classified as: correct
+2026-02-06 17:54:21 - app.api.sql_execution_routes - INFO - 🔍 Executing SQL: SELECT
+  'bot_alarm_log' AS source_table,
+  ID,
+  BOT_ID,
+  ALARM_CODE,
+  ALARM_DESCRIPTION,
+  TASK_...
+2026-02-06 17:54:21 - app.api.sql_execution_routes - INFO - ✅ Query executed successfully: 0 rows returned
+2026-02-06 17:54:48 - app.services.query_classification_service - INFO - ✅ Loaded 1614 classified queries
+2026-02-06 17:54:48 - app.services.query_classification_service - INFO - ✅ Query c87c09c8-5ff_20260205123746859280 classified as: correct
+2026-02-06 17:55:25 - app.services.query_classification_service - INFO - ✅ Loaded 1614 classified queries
+2026-02-06 17:55:25 - app.services.query_classification_service - INFO - ✅ Query c87c09c8-5ff_20260205120342126014 classified as: correct
+2026-02-06 17:55:33 - app.api.sql_execution_routes - INFO - 🔍 Executing SQL: SELECT `pick_wave_order_master`.`STATUS` AS status,
+       COUNT(*) AS orders,
+       SUM(`pick_wave...
+2026-02-06 17:55:33 - app.api.sql_execution_routes - ERROR - ❌ Database error: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ':wave_id\nGROUP BY `pick_wave_order_master`.`STATUS`\nORDER BY orders DESC' at line 6")
+2026-02-06 17:56:02 - app.api.sql_execution_routes - INFO - 🔍 Executing SQL: SELECT `pick_wave_order_master`.`STATUS` AS status,
+       COUNT(*) AS orders,
+       SUM(`pick_wave...
+2026-02-06 17:56:02 - app.api.sql_execution_routes - ERROR - ❌ Database error: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ':wave_id\nGROUP BY `pick_wave_order_master`.`STATUS`\nORDER BY orders DESC' at line 6")
+2026-02-06 17:56:36 - app.api.sql_execution_routes - INFO - 🔍 Executing SQL: SELECT `pick_wave_order_master`.`STATUS` AS status,
+       COUNT(*) AS orders,
+       SUM(`pick_wave...
+2026-02-06 17:56:36 - app.api.sql_execution_routes - ERROR - ❌ Database error: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ':wave_id\nGROUP BY `pick_wave_order_master`.`STATUS`\nORDER BY orders DESC' at line 6")
+2026-02-06 17:56:41 - app.api.sql_execution_routes - INFO - 🔍 Executing SQL: SELECT `wave_master`.`WAVE_ID`, `wave_master`.`CLIENT_WAVE_ID`, `wave_master`.`WAVE_TYPE`, `wave_mas...
+2026-02-06 17:56:41 - app.api.sql_execution_routes - INFO - ✅ Query executed successfully: 0 rows returned
+2026-02-06 17:56:45 - app.api.sql_execution_routes - INFO - 🔍 Executing SQL: SELECT `wave_master`.`WAVE_ID`, `wave_master`.`CLIENT_WAVE_ID`, `wave_master`.`WAVE_TYPE`, `wave_mas...
+2026-02-06 17:56:45 - app.api.sql_execution_routes - INFO - ✅ Query executed successfully: 0 rows returned
+2026-02-06 17:56:48 - app.api.sql_execution_routes - INFO - 🔍 Executing SQL: SELECT `wave_master`.`WAVE_ID`, `wave_master`.`CLIENT_WAVE_ID`, `wave_master`.`WAVE_TYPE`, `wave_mas...
+2026-02-06 17:56:48 - app.api.sql_execution_routes - INFO - ✅ Query executed successfully: 0 rows returned
+2026-02-06 17:56:52 - app.api.sql_execution_routes - INFO - 🔍 Executing SQL: SELECT `wave_master`.`WAVE_ID`, `wave_master`.`CLIENT_WAVE_ID`, `wave_master`.`WAVE_TYPE`, `wave_mas...
+2026-02-06 17:56:52 - app.api.sql_execution_routes - INFO - ✅ Query executed successfully: 0 rows returned
+2026-02-06 17:56:58 - app.api.sql_execution_routes - INFO - 🔍 Executing SQL: SELECT `stock_audit_wave_wms_data`.`WAVE_MASTER_ID`, `stock_audit_wave_wms_data`.`WAVE_ID`, `stock_a...
+2026-02-06 17:56:58 - app.api.sql_execution_routes - INFO - ✅ Query executed successfully: 0 rows returned
+2026-02-06 17:58:03 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260206.log
+2026-02-06 17:58:03 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-06 18:00:20 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260206.log
+2026-02-06 18:00:20 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-06 18:01:00 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260206.log
+2026-02-06 18:01:00 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260206.log
+2026-02-06 18:01:00 - app.services.query_classification_service - INFO - ✅ Loaded 1614 classified queries
+2026-02-06 18:01:00 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-06 18:01:00 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1614 classified queries
+2026-02-06 18:01:00 - app.main - INFO - ✅ Classification service initialized
+2026-02-06 18:02:44 - app.utils.session_manager - INFO - 🆕 New session created: d429cf82-553 (type: sql_assistant)
+2026-02-06 18:02:44 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: d429cf82-553 (type: sql_assistant)
+2026-02-06 18:02:44 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Show me all the suspended order ?...
+2026-02-06 18:02:44 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Show me all the suspended order ?...
+2026-02-06 18:02:44 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:02:44 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:02:45 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:02:45 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:02:45 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:02:45 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:02:52 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 78.00%)
+2026-02-06 18:02:52 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID,
+  o.GLN,
+  o.ORDER_ID,
+  o.PICK_ORDER_ID,
+  o.PARENT_STORE_ID,...
+2026-02-06 18:02:52 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 1: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-06 18:02:53 - app.services.sql_assistant_integrated - INFO - 📋 Enhanced feedback with schema info for validation error
+2026-02-06 18:02:53 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:03:02 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 86.00%)
+2026-02-06 18:03:02 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID,
+  o.GLN,
+  o.ORDER_ID,
+  o.PICK_ORDER_ID,
+  o.PARENT_STORE_ID,...
+2026-02-06 18:03:03 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 2: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-06 18:03:03 - app.services.sql_assistant_integrated - INFO - 📋 Enhanced feedback with schema info for validation error
+2026-02-06 18:03:03 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-06 18:03:09 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 66.00%)
+2026-02-06 18:03:09 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID,
+  o.GLN,
+  o.ORDER_ID,
+  o.PICK_ORDER_ID,
+  o.PARENT_STORE_ID,...
+2026-02-06 18:03:09 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 3: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-06 18:03:09 - app.services.sql_assistant_integrated - INFO - 📋 Enhanced feedback with schema info for validation error
+2026-02-06 18:03:09 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:03:10 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID,
+  o.GLN,
+  o.ORDER_ID,
+  o.PICK_ORDER_ID,
+  o.PARENT_STORE_ID,
+  o.STORE_ID,
+  o.PICKING_TYPE,
+  o.PICK_LIST_ID,
+  o.BATCH_PICKLIST_ID,
+  o.BATCH_PICKLIST_CODE,
+  o.WMS_BATCH_ID,
+  o.PRIORITY,
+  o.ORDER_CATEGORY,
+  o.CUT_OFF_TIME,
+  o.ORDER_CREATION_TIME,
+  o.ORDER_REQUEST_STATUS,
+  o.ORDER_CANCEL_TIMESTAMP,
+  o.PAYLOAD_ID,
+  o.INSERTED_TIMESTAMP,
+  o.UPDATED_TIMESTAMP,
+  o.ALLOCATED_PTL
+FROM wms_to_wcs_order_request_data AS o
+WHERE o.ORDER_REQUEST_STATUS = 'ORDER_SUSPENDED'
+ORDER BY o.UPDATED_TIMESTAMP DESC
+LIMIT 200;': (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-06 18:03:10 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=d429cf82-553
+2026-02-06 18:03:47 - app.utils.session_manager - INFO - 🆕 New session created: f4551a68-9a6 (type: sql_assistant)
+2026-02-06 18:03:47 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: f4551a68-9a6 (type: sql_assistant)
+2026-02-06 18:03:47 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Show me all the suspended order ?...
+2026-02-06 18:03:47 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Show me all the suspended order ?...
+2026-02-06 18:03:47 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:03:47 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:03:47 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:03:47 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:03:47 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:03:47 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:03:56 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 86.00%)
+2026-02-06 18:03:56 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID,
+  o.GLN,
+  o.ORDER_ID,
+  o.PICK_ORDER_ID,
+  o.PARENT_STORE_ID,...
+2026-02-06 18:03:57 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 1: (1054, "Unknown column 'o.GLN' in 'field list'")
+2026-02-06 18:03:57 - app.services.sql_assistant_integrated - INFO - 📋 Enhanced feedback with schema info for validation error
+2026-02-06 18:03:57 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:04:02 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 84.00%)
+2026-02-06 18:04:02 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID,
+  o.PARENT_ORDER_ID,
+  o.ORDER_TYPE,
+  o.ORDER_ID,
+  o.ORDER_R...
+2026-02-06 18:04:04 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:04:04 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=84.00%, validation=95.00%, combined=88.40%
+2026-02-06 18:04:04 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (88.40%) - Using result
+2026-02-06 18:04:04 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:04:04 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:04:04 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 18:04:04 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-06 18:04:04 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: fd953b13-2306-488e-87a9-d6ea1acaf6ce
+2026-02-06 18:04:04 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: fd953b13-2306-488e-87a9-d6ea1acaf6ce
+2026-02-06 18:04:04 - app.services.query_classification_service - INFO - 📝 Stored query f4551a68-9a6_20260206180404889819 for classification (cache now has 1615 queries)
+2026-02-06 18:04:04 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 88.40%)
+2026-02-06 18:04:04 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.88, session=f4551a68-9a6
+2026-02-06 18:05:07 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=No show me Only those order whose order type is Fo...
+2026-02-06 18:05:07 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: Show me all the suspended order ?
+ASSISTANT: *Generated with NL-to-SQL*
+
+**Found 200 result(s)...
+2026-02-06 18:05:07 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: No show me Only those order whose order type is Fo...
+2026-02-06 18:05:07 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:05:07 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:05:08 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:05:08 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:05:08 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:05:08 - app.services.sql_assistant_integrated - INFO - 🔗 Detected FOLLOW-UP question - enhancing with previous context
+2026-02-06 18:05:08 - app.services.sql_assistant_integrated - INFO - 🔗 Enhanced follow-up question with previous context
+2026-02-06 18:05:08 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:05:14 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 58.00%)
+2026-02-06 18:05:14 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID,
+  o.PARENT_ORDER_ID,
+  o.ORDER_TYPE,
+  o.ORDER_ID,
+  o.ORDER_R...
+2026-02-06 18:05:15 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:05:15 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=58.00%, validation=95.00%, combined=72.80%
+2026-02-06 18:05:15 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (72.80%) - Retrying with feedback
+2026-02-06 18:05:15 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:05:21 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 78.00%)
+2026-02-06 18:05:21 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID,
+  o.PARENT_ORDER_ID,
+  o.ORDER_TYPE,
+  o.ORDER_ID,
+  o.ORDER_R...
+2026-02-06 18:05:22 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:05:22 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=78.00%, validation=95.00%, combined=84.80%
+2026-02-06 18:05:22 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (84.80%) - Using result
+2026-02-06 18:05:22 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:05:22 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:05:22 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 18:05:22 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 2)
+2026-02-06 18:05:23 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: ad25f6d1-a917-4372-bbc3-ceead00c22f6
+2026-02-06 18:05:23 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: ad25f6d1-a917-4372-bbc3-ceead00c22f6
+2026-02-06 18:05:23 - app.services.query_classification_service - INFO - 📝 Stored query f4551a68-9a6_20260206180523303605 for classification (cache now has 1616 queries)
+2026-02-06 18:05:23 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 84.80%)
+2026-02-06 18:05:23 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.85, session=f4551a68-9a6
+2026-02-06 18:06:21 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=ok this is good. show me only these three collumns...
+2026-02-06 18:06:21 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: Show me all the suspended order ?
+ASSISTANT: *Generated with NL-to-SQL*
+
+**Found 200 result(s)...
+2026-02-06 18:06:21 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: ok this is good. show me only these three collumns...
+2026-02-06 18:06:21 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:06:21 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:06:22 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:06:22 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:06:22 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:06:22 - app.services.sql_assistant_integrated - INFO - 🔗 Detected FOLLOW-UP question - enhancing with previous context
+2026-02-06 18:06:22 - app.services.sql_assistant_integrated - INFO - 🔗 Enhanced follow-up question with previous context
+2026-02-06 18:06:22 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:06:26 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 62.00%)
+2026-02-06 18:06:26 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  o.WMS_ORDER_REQUEST_DATA_ID,
+  o.PARENT_ORDER_ID,
+  o.ORDER_TYPE
+FROM wms_to_wcs_order_requ...
+2026-02-06 18:06:26 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:06:26 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=62.00%, validation=95.00%, combined=75.20%
+2026-02-06 18:06:26 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (75.20%) - Using result
+2026-02-06 18:06:26 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:06:26 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:06:26 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 18:06:26 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 3)
+2026-02-06 18:06:27 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 40434ea8-ac81-4bef-9a09-df39917be6a2
+2026-02-06 18:06:27 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 40434ea8-ac81-4bef-9a09-df39917be6a2
+2026-02-06 18:06:27 - app.services.query_classification_service - INFO - 📝 Stored query f4551a68-9a6_20260206180627232710 for classification (cache now has 1617 queries)
+2026-02-06 18:06:27 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 75.20%)
+2026-02-06 18:06:27 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=f4551a68-9a6
+2026-02-06 18:07:07 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=which station has highest number of active task...
+2026-02-06 18:07:07 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: No show me Only those order whose order type is Food
+ASSISTANT: *Generated with NL-to-SQL*
+
+**...
+2026-02-06 18:07:07 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: which station has highest number of active task...
+2026-02-06 18:07:07 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:07:07 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:07:07 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:07:08 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:07:08 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:07:08 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:07:15 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 55.00%)
+2026-02-06 18:07:15 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  s.STATION_ID,
+  s.STATION_ALIAS_NAME,
+  COUNT(r.RESERVATION_ID) AS active_task_count
+FROM h...
+2026-02-06 18:07:15 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-06 18:07:15 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=55.00%, validation=30.00%, combined=45.00%
+2026-02-06 18:07:15 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (45.00%) - Retrying with feedback
+2026-02-06 18:07:15 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:07:22 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 72.00%)
+2026-02-06 18:07:22 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  s.STATION_ID,
+  s.STATION_ALIAS_NAME,
+  COALESCE(r.active_task_count, 0) AS active_task_cou...
+2026-02-06 18:07:24 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-06 18:07:24 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=72.00%, validation=95.00%, combined=81.20%
+2026-02-06 18:07:24 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (81.20%) - Using result
+2026-02-06 18:07:24 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:07:24 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-06 18:07:24 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 18:07:24 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 4)
+2026-02-06 18:07:25 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 26492e7d-1799-4887-8f0f-80120f06f6a0
+2026-02-06 18:07:25 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 26492e7d-1799-4887-8f0f-80120f06f6a0
+2026-02-06 18:07:25 - app.services.query_classification_service - INFO - 📝 Stored query f4551a68-9a6_20260206180725407241 for classification (cache now has 1618 queries)
+2026-02-06 18:07:25 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 81.20%)
+2026-02-06 18:07:25 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.81, session=f4551a68-9a6
+2026-02-06 18:09:30 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me a list of all those bins who are on an ave...
+2026-02-06 18:09:30 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: ok this is good. show me only these three collumns.WMS_ORDER_REQUEST_DATA_ID PARENT_ORDER_ID O...
+2026-02-06 18:09:30 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: give me a list of all those bins who are on an ave...
+2026-02-06 18:09:30 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:09:30 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:09:30 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:09:30 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:09:30 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:09:30 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:09:39 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 58.00%)
+2026-02-06 18:09:39 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  p.BIN_ID,
+  AVG(
+    CASE
+      WHEN p.EXPECTED_QUANTITY IS NULL OR p.EXPECTED_QUANTITY = 0...
+2026-02-06 18:09:40 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-06 18:09:40 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=58.00%, validation=30.00%, combined=46.80%
+2026-02-06 18:09:40 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (46.80%) - Retrying with feedback
+2026-02-06 18:09:40 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:09:49 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 72.00%)
+2026-02-06 18:09:49 - app.services.sql_assistant_integrated - INFO -    SQL: WITH put_data AS (
+  SELECT
+    p.BIN_ID,
+    p.BIN_SEGMENT_NO,
+    p.EXPECTED_QUANTITY,
+    COALESC...
+2026-02-06 18:09:52 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 47 rows returned
+2026-02-06 18:09:52 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=72.00%, validation=95.00%, combined=81.20%
+2026-02-06 18:09:52 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (81.20%) - Using result
+2026-02-06 18:09:52 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:09:53 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 47 rows returned
+2026-02-06 18:09:53 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 18:09:53 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 5)
+2026-02-06 18:09:53 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 7060682d-abf1-4e30-8f25-6d66e5ff7073
+2026-02-06 18:09:54 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 7060682d-abf1-4e30-8f25-6d66e5ff7073
+2026-02-06 18:09:54 - app.services.query_classification_service - INFO - 📝 Stored query f4551a68-9a6_20260206180954028933 for classification (cache now has 1619 queries)
+2026-02-06 18:09:54 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 81.20%)
+2026-02-06 18:09:54 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.81, session=f4551a68-9a6
+2026-02-06 18:10:41 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=compare the number of alarm logged weekly....
+2026-02-06 18:10:41 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: which station has highest number of active task
+ASSISTANT: *Generated with NL-to-SQL*
+
+**Found...
+2026-02-06 18:10:41 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: compare the number of alarm logged weekly....
+2026-02-06 18:10:41 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:10:41 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:10:42 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:10:42 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:10:42 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:10:42 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:10:48 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 78.00%)
+2026-02-06 18:10:48 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  DATE_SUB(DATE(bal.INSERTED_TIMESTAMP), INTERVAL WEEKDAY(bal.INSERTED_TIMESTAMP) DAY) AS wee...
+2026-02-06 18:10:49 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 6 rows returned
+2026-02-06 18:10:49 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=78.00%, validation=95.00%, combined=84.80%
+2026-02-06 18:10:49 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (84.80%) - Using result
+2026-02-06 18:10:49 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:10:50 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 6 rows returned
+2026-02-06 18:10:50 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 18:10:50 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 6)
+2026-02-06 18:10:50 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: ee156e9f-5b24-4d14-854d-b1109db63546
+2026-02-06 18:10:50 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: ee156e9f-5b24-4d14-854d-b1109db63546
+2026-02-06 18:10:50 - app.services.query_classification_service - INFO - 📝 Stored query f4551a68-9a6_20260206181050800124 for classification (cache now has 1620 queries)
+2026-02-06 18:10:50 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 84.80%)
+2026-02-06 18:10:50 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.85, session=f4551a68-9a6
+2026-02-06 18:11:42 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=compare the total average number of task completei...
+2026-02-06 18:11:42 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: give me a list of all those bins who are on an average 50% or more than 50% empty
+ASSISTANT: *...
+2026-02-06 18:11:42 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: compare the total average number of task completei...
+2026-02-06 18:11:42 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:11:42 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:11:42 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:11:43 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:11:43 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:11:43 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:11:49 - app.services.sql_assistant_integrated - ERROR - ❌ nl_to_sql_generator error: Generated SQL is not read-only
+2026-02-06 18:11:49 - app.services.sql_assistant_integrated - WARNING - ⚠️ nl_to_sql_generator failed on attempt 1
+2026-02-06 18:11:49 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:11:56 - app.services.sql_assistant_integrated - ERROR - ❌ nl_to_sql_generator error: Generated SQL is not read-only
+2026-02-06 18:11:56 - app.services.sql_assistant_integrated - WARNING - ⚠️ nl_to_sql_generator failed on attempt 2
+2026-02-06 18:11:56 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-06 18:12:04 - app.services.sql_assistant_integrated - ERROR - ❌ nl_to_sql_generator error: Generated SQL is not read-only
+2026-02-06 18:12:04 - app.services.sql_assistant_integrated - WARNING - ⚠️ nl_to_sql_generator failed on attempt 3
+2026-02-06 18:12:04 - app.services.sql_assistant_integrated - WARNING - ⚠️ All nl_to_sql_generator attempts failed or very low confidence - falling back to LLM
+2026-02-06 18:12:04 - app.services.sql_assistant_integrated - INFO - 🔄 LLM fallback with strategy: direct
+2026-02-06 18:12:05 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-06 18:12:05 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-06 18:12:05 - app.services.sql_assistant_integrated - INFO - ✅ LLM generated SQL with strategy: direct
+2026-02-06 18:12:06 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'SELECT DATE(task_completion_date) AS date, AVG(task_completion_time) AS average_task_completion_time, MONTH(task_completion_date) AS month, YEAR(task_completion_date) AS year FROM task_completion GROUP BY DATE(task_completion_date) UNION ALL SELECT CONCAT(YEAR(task_completion_date), '-', MONTH(task_completion_date)) AS month, AVG(task_completion_time) AS average_task_completion_time, NULL AS date, NULL AS year FROM task_completion GROUP BY YEAR(task_completion_date), MONTH(task_completion_date) ORDER BY date, month;': (1146, "Table 'neo.task_completion' doesn't exist")
+2026-02-06 18:12:06 - app.services.sql_assistant_integrated - INFO - 🔄 LLM fallback with strategy: with_context
+2026-02-06 18:12:07 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-06 18:12:07 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-06 18:12:08 - app.services.sql_assistant_integrated - INFO - ✅ LLM generated SQL with strategy: with_context
+2026-02-06 18:12:09 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'SELECT DATE(task_completion_date) AS completion_date, COUNT(*) AS total_tasks, AVG(task_duration) AS average_task_duration FROM task_completion GROUP BY DATE(task_completion_date) ORDER BY completion_date; SELECT YEAR(task_completion_date) AS year, MONTH(task_completion_date) AS month, AVG(task_duration) AS average_task_duration, COUNT(*) AS total_tasks FROM task_completion GROUP BY YEAR(task_completion_date), MONTH(task_completion_date) ORDER BY year, month;': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SELECT YEAR(task_completion_date) AS year, MONTH(task_completion_date) AS month,' at line 1")
+2026-02-06 18:12:09 - app.services.sql_assistant_integrated - INFO - 🔄 LLM fallback with strategy: simplified
+2026-02-06 18:12:10 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-06 18:12:10 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-06 18:12:10 - app.services.sql_assistant_integrated - INFO - ✅ LLM generated SQL with strategy: simplified
+2026-02-06 18:12:11 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'SELECT DATE(task_completion_date) AS date, AVG(task_id) AS average_tasks_completed FROM task_completion GROUP BY DATE(task_completion_date) ORDER BY date; SELECT MONTH(task_completion_date) AS month, AVG(task_id) AS average_tasks_completed FROM task_completion GROUP BY MONTH(task_completion_date) ORDER BY month;': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SELECT MONTH(task_completion_date) AS month, AVG(task_id) AS average_tasks_compl' at line 1")
+2026-02-06 18:12:11 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:12:12 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'SELECT DATE(task_completion_date) AS date, AVG(task_id) AS average_tasks_completed FROM task_completion GROUP BY DATE(task_completion_date) ORDER BY date; SELECT MONTH(task_completion_date) AS month, AVG(task_id) AS average_tasks_completed FROM task_completion GROUP BY MONTH(task_completion_date) ORDER BY month;': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SELECT MONTH(task_completion_date) AS month, AVG(task_id) AS average_tasks_compl' at line 1")
+2026-02-06 18:12:12 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=f4551a68-9a6
+2026-02-06 18:12:50 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=find the peak hours for task creation based on ana...
+2026-02-06 18:12:50 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: compare the number of alarm logged weekly.
+ASSISTANT: *Generated with NL-to-SQL*
+
+**Found 6 re...
+2026-02-06 18:12:50 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: find the peak hours for task creation based on ana...
+2026-02-06 18:12:50 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:12:50 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:12:50 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:12:50 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:12:50 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:12:50 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:12:59 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 54.00%)
+2026-02-06 18:12:59 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  HOUR(t.created_ts) AS creation_hour,
+  COUNT(*) AS tasks_created
+FROM (
+  SELECT blwom.INSE...
+2026-02-06 18:13:01 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 21 rows returned
+2026-02-06 18:13:01 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=54.00%, validation=95.00%, combined=70.40%
+2026-02-06 18:13:01 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (70.40%) - Retrying with feedback
+2026-02-06 18:13:01 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:13:08 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 78.00%)
+2026-02-06 18:13:08 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  HOUR(blwom.INSERTED_TIMESTAMP) AS creation_hour,
+  COUNT(*) AS tasks_created,
+  ROUND(100.0...
+2026-02-06 18:13:10 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 21 rows returned
+2026-02-06 18:13:10 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=78.00%, validation=95.00%, combined=84.80%
+2026-02-06 18:13:10 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (84.80%) - Using result
+2026-02-06 18:13:10 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:13:10 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 21 rows returned
+2026-02-06 18:13:10 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 18:13:10 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 7)
+2026-02-06 18:13:11 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 7f67800a-80cc-4458-9a19-00a767ddffa2
+2026-02-06 18:13:12 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 7f67800a-80cc-4458-9a19-00a767ddffa2
+2026-02-06 18:13:12 - app.services.query_classification_service - INFO - 📝 Stored query f4551a68-9a6_20260206181312373680 for classification (cache now has 1621 queries)
+2026-02-06 18:13:12 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 84.80%)
+2026-02-06 18:13:12 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.85, session=f4551a68-9a6
+2026-02-06 18:16:43 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=For each wave, calculate the theoretical minimum c...
+2026-02-06 18:16:43 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: compare the total average number of task completeion dai;ly, and create a monthly report as we...
+2026-02-06 18:16:43 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: For each wave, calculate the theoretical minimum c...
+2026-02-06 18:16:43 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:16:43 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:16:44 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:16:44 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:16:44 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:16:44 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:16:57 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 44.00%)
+2026-02-06 18:16:57 - app.services.sql_assistant_integrated - INFO -    SQL: WITH wave_stations AS (
+    SELECT
+        sm.WAVE_ID,
+        COUNT(*) AS stations_in_wave,
+       ...
+2026-02-06 18:17:02 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-06 18:17:02 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=44.00%, validation=30.00%, combined=38.40%
+2026-02-06 18:17:02 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (38.40%) - Retrying with feedback
+2026-02-06 18:17:02 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:17:30 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 62.00%)
+2026-02-06 18:17:30 - app.services.sql_assistant_integrated - INFO -    SQL: WITH
+/* Wave metadata from wave_master if present; fallback to dashboard upload status */
+wm AS (
+  ...
+2026-02-06 18:17:34 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 11 rows returned
+2026-02-06 18:17:34 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=62.00%, validation=95.00%, combined=75.20%
+2026-02-06 18:17:34 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (75.20%) - Using result
+2026-02-06 18:17:34 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:17:34 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 11 rows returned
+2026-02-06 18:17:34 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 18:17:34 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 8)
+2026-02-06 18:17:34 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 555ae70f-b5e3-457e-bf7e-d1eb3737e67c
+2026-02-06 18:17:34 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 555ae70f-b5e3-457e-bf7e-d1eb3737e67c
+2026-02-06 18:17:34 - app.services.query_classification_service - INFO - 📝 Stored query f4551a68-9a6_20260206181734819760 for classification (cache now has 1622 queries)
+2026-02-06 18:17:34 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 75.20%)
+2026-02-06 18:17:34 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=f4551a68-9a6
+2026-02-06 18:18:18 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Analyze pick rule and put rule effectiveness by co...
+2026-02-06 18:18:18 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: find the peak hours for task creation based on analysing all the data we have
+ASSISTANT: *Gene...
+2026-02-06 18:18:18 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Analyze pick rule and put rule effectiveness by co...
+2026-02-06 18:18:18 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:18:18 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:18:18 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:18:18 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:18:18 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:18:18 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:18:33 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 48.00%)
+2026-02-06 18:18:33 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  wm.WAVE_ID,
+  wm.CLIENT_WAVE_ID,
+  wm.WAVE_TYPE,
+  wm.WAVE_STATUS,
+  wm.START_TIMESTAMP AS ...
+2026-02-06 18:18:33 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 1: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP (ORDER BY CASE\n    WHEN td.START_TIME IS NOT NULL AND td.END_TIME IS NOT N' at line 15")
+2026-02-06 18:18:33 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:18:46 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 46.00%)
+2026-02-06 18:18:46 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  wm.WAVE_ID,
+  wm.CLIENT_WAVE_ID,
+  wm.WAVE_TYPE,
+  wm.WAVE_STATUS,
+  wm.START_TIMESTAMP AS ...
+2026-02-06 18:18:46 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 2 rows returned
+2026-02-06 18:18:46 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=46.00%, validation=95.00%, combined=65.60%
+2026-02-06 18:18:46 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (65.60%) - Retrying with feedback
+2026-02-06 18:18:46 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-06 18:19:10 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 74.00%)
+2026-02-06 18:19:10 - app.services.sql_assistant_integrated - INFO -    SQL: WITH all_waves AS (
+  SELECT
+    wm.WAVE_ID,
+    wm.CLIENT_WAVE_ID,
+    wm.WAVE_TYPE,
+    wm.WAVE_ST...
+2026-02-06 18:19:13 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 3: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP (ORDER BY wt.task_cycle_time_sec) OVER (PARTITION BY cw.WAVE_ID), 2) AS me' at line 94")
+2026-02-06 18:19:13 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:19:13 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'WITH all_waves AS (
+  SELECT
+    wm.WAVE_ID,
+    wm.CLIENT_WAVE_ID,
+    wm.WAVE_TYPE,
+    wm.WAVE_STATUS,
+    wm.LEFT_OVER_STATUS,
+    wm.START_TIMESTAMP,
+    wm.COMPLETED_TIMESTAMP,
+    wm.IS_ACTIVE,
+    wm.IS_CANCELLED,
+    wm.IS_STOPPED,
+    wm.HAS_SHORT_PUT
+  FROM wave_master wm
+  
+  UNION ALL
+  
+  SELECT
+    wma.WAVE_ID,
+    wma.CLIENT_WAVE_ID,
+    wma.WAVE_TYPE,
+    wma.WAVE_STATUS,
+    wma.LEFT_OVER_STATUS,
+    wma.START_TIMESTAMP,
+    wma.COMPLETED_TIMESTAMP,
+    wma.IS_ACTIVE,
+    wma.IS_CANCELLED,
+    wma.IS_STOPPED,
+    wma.HAS_SHORT_PUT
+  FROM wave_master_archive wma
+),
+completed_waves AS (
+  SELECT
+    aw.WAVE_ID,
+    aw.CLIENT_WAVE_ID,
+    aw.WAVE_TYPE,
+    aw.WAVE_STATUS,
+    aw.LEFT_OVER_STATUS,
+    aw.START_TIMESTAMP,
+    aw.COMPLETED_TIMESTAMP,
+    TIMESTAMPDIFF(SECOND, aw.START_TIMESTAMP, aw.COMPLETED_TIMESTAMP) AS wave_cycle_time_sec,
+    aw.HAS_SHORT_PUT,
+    aw.IS_STOPPED,
+    aw.IS_CANCELLED
+  FROM all_waves aw
+  WHERE aw.START_TIMESTAMP IS NOT NULL
+    AND aw.COMPLETED_TIMESTAMP IS NOT NULL
+    AND aw.WAVE_STATUS = 'COMPLETED'
+    AND (aw.IS_CANCELLED = 0 OR aw.IS_CANCELLED IS NULL)
+),
+wave_tasks AS (
+  /*
+    Best-effort attribution of tasks to a wave using task timestamps within the wave window.
+    We use INSERTED_TIMESTAMP if START_TIME is NULL to reduce undercounting.
+  */
+  SELECT
+    cw.WAVE_ID,
+    tm.TASK_ID,
+    tm.STATUS,
+    tm.TASK_TYPE,
+    tm.BOT_ID,
+    tm.FROM_LOCATION_ID,
+    tm.DESTINATION_LOCATION_ID,
+    tm.START_TIME,
+    tm.END_TIME,
+    tm.INSERTED_TIMESTAMP,
+    CASE
+      WHEN tm.START_TIME IS NOT NULL AND tm.END_TIME IS NOT NULL
+        THEN TIMESTAMPDIFF(SECOND, tm.START_TIME, tm.END_TIME)
+      ELSE NULL
+    END AS task_cycle_time_sec
+  FROM completed_waves cw
+  LEFT JOIN task_master tm
+    ON COALESCE(tm.START_TIME, tm.INSERTED_TIMESTAMP) >= cw.START_TIMESTAMP
+   AND COALESCE(tm.START_TIME, tm.INSERTED_TIMESTAMP) <= cw.COMPLETED_TIMESTAMP
+   AND (tm.MARKED_FOR_DELETION = 0 OR tm.MARKED_FOR_DELETION IS NULL)
+)
+SELECT
+  cw.WAVE_ID,
+  cw.CLIENT_WAVE_ID,
+  cw.WAVE_TYPE,
+  cw.LEFT_OVER_STATUS,
+  cw.START_TIMESTAMP AS wave_start_ts,
+  cw.COMPLETED_TIMESTAMP AS wave_completed_ts,
+  cw.wave_cycle_time_sec,
+  cw.HAS_SHORT_PUT,
+  cw.IS_STOPPED,
+
+  COUNT(wt.TASK_ID) AS task_count,
+  SUM(CASE WHEN wt.STATUS = 'COMPLETED' THEN 1 ELSE 0 END) AS completed_task_count,
+  SUM(CASE WHEN wt.TASK_TYPE LIKE '%RECOVERY%' THEN 1 ELSE 0 END) AS recovery_task_count,
+
+  ROUND(AVG(wt.task_cycle_time_sec), 2) AS avg_task_cycle_time_sec,
+  ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY wt.task_cycle_time_sec) OVER (PARTITION BY cw.WAVE_ID), 2) AS median_task_cycle_time_sec,
+
+  /* proxy for pick/put rule configuration: station assignment (if any) */
+  COUNT(DISTINCT hsm.STATION_ID) AS station_count,
+  GROUP_CONCAT(DISTINCT hsm.STATION_ALIAS_NAME ORDER BY hsm.STATION_ALIAS_NAME SEPARATOR ', ') AS stations,
+
+  /* proxy for pick/put routing effectiveness: reservation cost stats within the wave window */
+  COUNT(DISTINCT crm.RESERVATION_ID) AS reservation_count,
+  ROUND(AVG(crm.COST), 2) AS avg_reservation_cost,
+  MAX(crm.COST) AS max_reservation_cost
+FROM completed_waves cw
+LEFT JOIN wave_tasks wt
+  ON wt.WAVE_ID = cw.WAVE_ID
+LEFT JOIN hw_station_master hsm
+  ON hsm.WAVE_ID = cw.WAVE_ID
+LEFT JOIN controller_reservations_master crm
+  ON crm.INSERTED_TIMESTAMP >= cw.START_TIMESTAMP
+ AND crm.INSERTED_TIMESTAMP <= cw.COMPLETED_TIMESTAMP
+GROUP BY
+  cw.WAVE_ID,
+  cw.CLIENT_WAVE_ID,
+  cw.WAVE_TYPE,
+  cw.LEFT_OVER_STATUS,
+  cw.START_TIMESTAMP,
+  cw.COMPLETED_TIMESTAMP,
+  cw.wave_cycle_time_sec,
+  cw.HAS_SHORT_PUT,
+  cw.IS_STOPPED
+ORDER BY cw.START_TIMESTAMP DESC
+LIMIT 200;': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP (ORDER BY wt.task_cycle_time_sec) OVER (PARTITION BY cw.WAVE_ID), 2) AS me' at line 94")
+2026-02-06 18:19:13 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=f4551a68-9a6
+2026-02-06 18:25:04 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Find instances where stock adjustment payloads wer...
+2026-02-06 18:25:04 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: For each wave, calculate the theoretical minimum completion time based on bot capacity, statio...
+2026-02-06 18:25:04 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Find instances where stock adjustment payloads wer...
+2026-02-06 18:25:04 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:25:04 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:25:04 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:25:04 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:25:04 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:25:04 - app.services.sql_assistant_integrated - INFO - 🔗 Detected FOLLOW-UP question - enhancing with previous context
+2026-02-06 18:25:04 - app.services.sql_assistant_integrated - INFO - 🔗 Enhanced follow-up question with previous context
+2026-02-06 18:25:04 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:25:21 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 56.00%)
+2026-02-06 18:25:21 - app.services.sql_assistant_integrated - INFO -    SQL: WITH
+/* Wave metadata from wave_master if present; fallback to dashboard upload status */
+wm AS (
+  ...
+2026-02-06 18:25:24 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-06 18:25:24 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=56.00%, validation=30.00%, combined=45.60%
+2026-02-06 18:25:24 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (45.60%) - Retrying with feedback
+2026-02-06 18:25:24 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:25:47 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 62.00%)
+2026-02-06 18:25:47 - app.services.sql_assistant_integrated - INFO -    SQL: WITH
+/* Wave metadata from wave_master if present; fallback to dashboard upload status */
+wm AS (
+  ...
+2026-02-06 18:25:49 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-06 18:25:49 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=62.00%, validation=30.00%, combined=49.20%
+2026-02-06 18:25:49 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (49.20%) - Retrying with feedback
+2026-02-06 18:25:49 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-06 18:26:17 - app.services.sql_assistant_integrated - ERROR - ❌ nl_to_sql_generator error: Generated SQL is not read-only
+2026-02-06 18:26:17 - app.services.sql_assistant_integrated - WARNING - ⚠️ nl_to_sql_generator failed on attempt 3
+2026-02-06 18:26:17 - app.services.sql_assistant_integrated - WARNING - ⚠️ All nl_to_sql_generator attempts failed or very low confidence - falling back to LLM
+2026-02-06 18:26:17 - app.services.sql_assistant_integrated - INFO - 🔄 LLM fallback with strategy: direct
+2026-02-06 18:26:18 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-06 18:26:18 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-06 18:26:18 - app.services.sql_assistant_integrated - INFO - ✅ LLM generated SQL with strategy: direct
+2026-02-06 18:26:18 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'SELECT sap FROM stock_adjustment_payloads sap LEFT JOIN inventory_movements im ON sap.id = im.stock_adjustment_payload_id WHERE im.id IS NULL;': (1146, "Table 'neo.stock_adjustment_payloads' doesn't exist")
+2026-02-06 18:26:18 - app.services.sql_assistant_integrated - INFO - 🔄 LLM fallback with strategy: with_context
+2026-02-06 18:26:19 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-06 18:26:19 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-06 18:26:20 - app.services.sql_assistant_integrated - INFO - ✅ LLM generated SQL with strategy: with_context
+2026-02-06 18:26:20 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'SELECT sap FROM stock_adjustment_payloads sap LEFT JOIN inventory_movements im ON sap.id = im.stock_adjustment_payload_id WHERE im.id IS NULL;': (1146, "Table 'neo.stock_adjustment_payloads' doesn't exist")
+2026-02-06 18:26:20 - app.services.sql_assistant_integrated - INFO - 🔄 LLM fallback with strategy: simplified
+2026-02-06 18:26:21 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-06 18:26:21 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-06 18:26:21 - app.services.sql_assistant_integrated - INFO - ✅ LLM generated SQL with strategy: simplified
+2026-02-06 18:26:21 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'SELECT sap FROM stock_adjustment_payload sap LEFT JOIN inventory_movement im ON sap.id = im.stock_adjustment_payload_id WHERE im.id IS NULL;': (1146, "Table 'neo.stock_adjustment_payload' doesn't exist")
+2026-02-06 18:26:21 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:26:22 - app.services.sql_assistant_integrated - ERROR - ❌ Execution error: Execution failed on sql 'SELECT sap FROM stock_adjustment_payload sap LEFT JOIN inventory_movement im ON sap.id = im.stock_adjustment_payload_id WHERE im.id IS NULL;': (1146, "Table 'neo.stock_adjustment_payload' doesn't exist")
+2026-02-06 18:26:22 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=f4551a68-9a6
+2026-02-06 18:26:34 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Determine which combination of article attributes ...
+2026-02-06 18:26:34 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: Analyze pick rule and put rule effectiveness by comparing different rule configurations across...
+2026-02-06 18:26:34 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Determine which combination of article attributes ...
+2026-02-06 18:26:34 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:26:34 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:26:34 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:26:35 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:26:35 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:26:35 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:26:50 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 52.00%)
+2026-02-06 18:26:50 - app.services.sql_assistant_integrated - INFO -    SQL: WITH sku_attrs AS (
+    SELECT
+        ar.SKU_ID AS ARTICLE_ID,
+        ar.VELOCITY AS article_veloc...
+2026-02-06 18:26:51 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 1: (1146, "Table 'neo.article_registered' doesn't exist")
+2026-02-06 18:26:53 - app.services.sql_assistant_integrated - INFO - 📋 Enhanced feedback with schema info for validation error
+2026-02-06 18:26:53 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:27:09 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 62.00%)
+2026-02-06 18:27:09 - app.services.sql_assistant_integrated - INFO -    SQL: WITH inv_by_bin_article AS (
+    SELECT
+        lim.ARTICLE_ID,
+        lim.BIN_ID,
+        lim.CATE...
+2026-02-06 18:27:11 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:27:11 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=62.00%, validation=95.00%, combined=75.20%
+2026-02-06 18:27:11 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (75.20%) - Using result
+2026-02-06 18:27:11 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:27:12 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:27:12 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 18:27:12 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 9)
+2026-02-06 18:27:12 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 2324c27f-e272-42b2-806e-b9788264f5a2
+2026-02-06 18:27:12 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 2324c27f-e272-42b2-806e-b9788264f5a2
+2026-02-06 18:27:12 - app.services.query_classification_service - INFO - 📝 Stored query f4551a68-9a6_20260206182712500969 for classification (cache now has 1623 queries)
+2026-02-06 18:27:12 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 75.20%)
+2026-02-06 18:27:12 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=f4551a68-9a6
+2026-02-06 18:29:52 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Analyze seasonal patterns in order volumes, SKU ve...
+2026-02-06 18:29:52 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: Find instances where stock adjustment payloads were created but corresponding inventory moveme...
+2026-02-06 18:29:52 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Analyze seasonal patterns in order volumes, SKU ve...
+2026-02-06 18:29:52 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-06 18:29:52 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-06 18:29:52 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-06 18:29:53 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-06 18:29:53 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-06 18:29:53 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-06 18:30:11 - app.services.sql_assistant_integrated - ERROR - ❌ nl_to_sql_generator error: Generated SQL is not read-only
+2026-02-06 18:30:11 - app.services.sql_assistant_integrated - WARNING - ⚠️ nl_to_sql_generator failed on attempt 1
+2026-02-06 18:30:11 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-06 18:30:38 - app.services.sql_assistant_integrated - ERROR - ❌ nl_to_sql_generator error: Generated SQL is not read-only
+2026-02-06 18:30:38 - app.services.sql_assistant_integrated - WARNING - ⚠️ nl_to_sql_generator failed on attempt 2
+2026-02-06 18:30:38 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-06 18:31:05 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 46.00%)
+2026-02-06 18:31:05 - app.services.sql_assistant_integrated - INFO -    SQL: WITH
+-- Orders/waves: only wave metadata exists in provided schema; treat wave uploads as a proxy fo...
+2026-02-06 18:31:06 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:31:06 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=46.00%, validation=95.00%, combined=65.60%
+2026-02-06 18:31:06 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (65.60%) - Retrying with feedback
+2026-02-06 18:31:06 - app.services.sql_assistant_integrated - WARNING - ⚠️ Last attempt - using result despite low confidence
+2026-02-06 18:31:06 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-06 18:31:06 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 200 rows returned
+2026-02-06 18:31:06 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-06 18:31:06 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 10)
+2026-02-06 18:31:06 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 5d0eec6c-26e5-4f28-8057-ccdab40c2bda
+2026-02-06 18:31:06 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 5d0eec6c-26e5-4f28-8057-ccdab40c2bda
+2026-02-06 18:31:06 - app.services.query_classification_service - INFO - 📝 Stored query f4551a68-9a6_20260206183106488571 for classification (cache now has 1624 queries)
+2026-02-06 18:31:06 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 65.60%)
+2026-02-06 18:31:06 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.66, session=f4551a68-9a6
+2026-02-08 15:15:02 - app.utils.session_manager - INFO - 🆕 New session created: f5597dcf-1ff (type: sql_assistant)
+2026-02-08 15:15:02 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: f5597dcf-1ff (type: sql_assistant)
+2026-02-08 15:15:02 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=what is bin presentation for this...
+2026-02-08 15:15:02 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: what is bin presentation for this...
+2026-02-08 15:15:02 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-08 15:15:02 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-08 15:15:02 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-08 15:15:23 - app.services.chat_history_service - WARNING - ⚠️ DB connection failed (attempt 1/3): (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+2026-02-08 15:15:23 - app.services.chat_history_service - INFO - ⏳ Waiting 1.0s before retry...
+2026-02-08 15:15:24 - app.services.chat_history_service - INFO - 🔄 DB connection attempt 2/3...
+2026-02-08 15:17:47 - app.services.chat_history_service - WARNING - ⚠️ DB connection failed (attempt 2/3): (2003, "Can't connect to MySQL server on '192.168.1.149' ([WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond)")
+2026-02-08 15:17:47 - app.services.chat_history_service - INFO - ⏳ Waiting 2.0s before retry...
+2026-02-08 15:17:49 - app.services.chat_history_service - INFO - 🔄 DB connection attempt 3/3...
+2026-02-08 15:18:09 - app.services.chat_history_service - ERROR - ❌ All 3 connection attempts failed
+2026-02-08 15:18:09 - app.services.chat_history_service - ERROR - ❌ Error getting query patterns: (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-packages\pymysql\connections.py", line 661, in connect
+    sock = socket.create_connection(
+        (self.host, self.port), self.connect_timeout, **kwargs
+    )
+  File "C:\Users\Balmukund.Mishra\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Balmukund.Mishra\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\chat_history_service.py", line 453, in get_common_query_patterns
+    conn = self._get_connection()
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\chat_history_service.py", line 83, in _get_connection
+    raise last_error
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\chat_history_service.py", line 55, in _get_connection
+    conn = pymysql.connect(
+        host=self.db_config['host'],
+    ...<7 lines>...
+        write_timeout=30
+    )
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-packages\pymysql\connections.py", line 365, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-packages\pymysql\connections.py", line 723, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+2026-02-08 15:18:09 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-08 15:18:09 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-08 15:18:47 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 42.00%)
+2026-02-08 15:18:47 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  bim.BIN_ID,
+  bim.BIN_BARCODE,
+  bim.BIN_TYPE,
+  bim.BIN_SEGMENTS
+FROM bin_info_master AS b...
+2026-02-08 15:18:57 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 1: (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+2026-02-08 15:18:57 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-08 15:19:33 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 60.00%)
+2026-02-08 15:19:33 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  bim.BIN_ID,
+  bim.BIN_BARCODE,
+  bim.BIN_TYPE,
+  bim.BIN_SEGMENTS,
+  CASE
+    WHEN bim.BIN_...
+2026-02-08 15:19:43 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 2: (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+2026-02-08 15:19:43 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-08 15:20:19 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 62.00%)
+2026-02-08 15:20:19 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  bim.BIN_ID,
+  bim.BIN_BARCODE,
+  bim.BIN_TYPE,
+  bim.BIN_SEGMENTS,
+  CASE
+    WHEN COALESCE...
+2026-02-08 15:20:29 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 3: (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+2026-02-08 15:20:29 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-08 15:20:34 - app.services.sql_assistant_integrated - ERROR - ❌ Database error: (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+2026-02-08 15:20:34 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=f5597dcf-1ff
+2026-02-08 15:20:34 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=bin presentation means, how many bin reached to th...
+2026-02-08 15:20:34 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: what is bin presentation for this
+ASSISTANT: **Error:** Query execution error: (2003, "Can't c...
+2026-02-08 15:20:34 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: bin presentation means, how many bin reached to th...
+2026-02-08 15:20:34 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-08 15:20:34 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-08 15:20:35 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-08 15:20:55 - app.services.chat_history_service - WARNING - ⚠️ DB connection failed (attempt 1/3): (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+2026-02-08 15:20:55 - app.services.chat_history_service - INFO - ⏳ Waiting 1.0s before retry...
+2026-02-08 15:20:56 - app.services.chat_history_service - INFO - 🔄 DB connection attempt 2/3...
+2026-02-08 15:21:16 - app.services.chat_history_service - WARNING - ⚠️ DB connection failed (attempt 2/3): (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+2026-02-08 15:21:16 - app.services.chat_history_service - INFO - ⏳ Waiting 2.0s before retry...
+2026-02-08 15:21:18 - app.services.chat_history_service - INFO - 🔄 DB connection attempt 3/3...
+2026-02-08 15:21:38 - app.services.chat_history_service - ERROR - ❌ All 3 connection attempts failed
+2026-02-08 15:21:38 - app.services.chat_history_service - ERROR - ❌ Error getting query patterns: (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-packages\pymysql\connections.py", line 661, in connect
+    sock = socket.create_connection(
+        (self.host, self.port), self.connect_timeout, **kwargs
+    )
+  File "C:\Users\Balmukund.Mishra\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Balmukund.Mishra\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\chat_history_service.py", line 453, in get_common_query_patterns
+    conn = self._get_connection()
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\chat_history_service.py", line 83, in _get_connection
+    raise last_error
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\chat_history_service.py", line 55, in _get_connection
+    conn = pymysql.connect(
+        host=self.db_config['host'],
+    ...<7 lines>...
+        write_timeout=30
+    )
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-packages\pymysql\connections.py", line 365, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-packages\pymysql\connections.py", line 723, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+2026-02-08 15:21:38 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-08 15:21:38 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-08 15:22:21 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 32.00%)
+2026-02-08 15:22:21 - app.services.sql_assistant_integrated - INFO -    SQL: WITH params AS (
+  SELECT
+    DATE_SUB(CURDATE(), INTERVAL 3 MONTH) AS start_date,
+    CURDATE() AS ...
+2026-02-08 15:22:46 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 1: (2003, "Can't connect to MySQL server on '192.168.1.149' (timed out)")
+2026-02-08 15:22:46 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...

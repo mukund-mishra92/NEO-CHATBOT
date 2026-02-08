@@ -8,7 +8,7 @@ echo ========================================
 echo.
 
 REM Check if virtual environment exists
-if not exist "backend\NEO\" (
+if not exist "venv\" (
     echo [WARNING] Virtual environment not found!
     echo Please run setup.bat first to create the virtual environment
     pause
@@ -17,7 +17,7 @@ if not exist "backend\NEO\" (
 
 REM Activate virtual environment
 echo [1/3] Activating virtual environment...
-call backend\NEO\Scripts\activate.bat
+call venv\Scripts\activate.bat
 
 REM Check if .env file exists
 if not exist "backend\.env" (

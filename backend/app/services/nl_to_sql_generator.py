@@ -5,6 +5,7 @@ import json
 import re
 import time
 import pandas as pd
+from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -12,6 +13,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from openai import OpenAI
 import pymysql
+
+from app.core.config import settings
 
 try:
     import sqlglot
@@ -631,6 +634,9 @@ class NLToSQLGenerator:
         # Load validation rules and custom priorities
         self.validation_rules = self._load_validation_rules()
         self.custom_priorities = self._load_custom_priorities()
+        
+        # Load business rules from config
+        self.business_rules = self._load_business_rules()
     
     def _load_validation_rules(self) -> Dict[str, Dict[str, List[str]]]:
         """Load query-specific validation rules from JSONL"""
@@ -676,6 +682,67 @@ class NLToSQLGenerator:
         except Exception as e:
             print(f"Error loading custom priorities: {e}")
             return None
+    
+    def _load_business_rules(self) -> Dict[str, Any]:
+        """Load business rules from config/sql_assistant_config.json"""
+        # Use same path resolution as sql_assistant_service.py
+        config_dir = settings.DATA_DIR.parent / "config"
+        rules_path = config_dir / "sql_assistant_config.json"
+        
+        if not rules_path.exists():
+            print(f"ℹ️ Business rules not found at {rules_path}")
+            return {}
+        
+        try:
+            with open(rules_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                business_rules = config.get("business_rules", {})
+                print(f"✅ Loaded {len(business_rules)} business rules from config")
+                return business_rules
+        except Exception as e:
+            print(f"⚠️ Error loading business rules: {e}")
+            return {}
+    
+    def _check_business_rules(self, question: str) -> Optional[Dict[str, Any]]:
+        """Check if question matches any business rules
+        
+        Returns:
+            Matched rule config or None
+        """
+        if not self.business_rules:
+            return None
+        
+        question_lower = question.lower()
+        
+        for rule_name, rule_config in self.business_rules.items():
+            triggers = rule_config.get("triggers", [])
+            if any(trigger.lower() in question_lower for trigger in triggers):
+                print(f"🔴 BUSINESS RULE MATCHED: {rule_name}")
+                return rule_config
+        
+        return None
+    
+    def _build_business_rules_prompt(self, rule_config: Dict[str, Any]) -> str:
+        """Build prompt section for business rules"""
+        prompt = "\n\n🔴 CRITICAL BUSINESS RULE - YOU MUST FOLLOW THIS 🔴\n"
+        prompt += f"Description: {rule_config.get('description', 'N/A')}\n"
+        
+        if 'required_table' in rule_config:
+            prompt += f"\n⚠️ REQUIRED TABLE: {rule_config['required_table']}\n"
+            prompt += "DO NOT use any other table for this query type!\n"
+        
+        if 'required_filters' in rule_config:
+            prompt += "\n⚠️ REQUIRED WHERE CONDITIONS:\n"
+            for filter_rule in rule_config['required_filters']:
+                prompt += f"  - {filter_rule}\n"
+        
+        if 'additional_joins' in rule_config:
+            prompt += "\n⚠️ SUGGESTED JOINS:\n"
+            for join_info in rule_config['additional_joins']:
+                prompt += f"  - {join_info}\n"
+        
+        prompt += "\n❌ DO NOT use alternative approaches or skip required conditions!\n"
+        return prompt
 
     def generate(self, question: str, enable_entity_resolution: bool = True) -> Dict[str, Any]:
         """Generate SQL from natural language question
@@ -695,12 +762,15 @@ class NLToSQLGenerator:
             except Exception as e:
                 resolved["warnings"].append(f"Entity resolution failed: {e}")
 
-        # Step 2: Enrich question with resolved entities
+        # Step 2: Check business rules
+        matched_business_rule = self._check_business_rules(question)
+        
+        # Step 3: Enrich question with resolved entities
         question_for_llm = question
         if resolved.get("entities") or resolved.get("candidates"):
             question_for_llm = inject_resolved_into_question(question, resolved)
 
-        # Step 3: Pick relevant tables using TF-IDF with validation rules
+        # Step 4: Pick relevant tables using TF-IDF with validation rules
         picked = pick_relevant_tables(
             question_for_llm, 
             self.schema_df, 
@@ -712,7 +782,7 @@ class NLToSQLGenerator:
         )
         schema_context = build_schema_context(picked)
 
-        # Step 4: Generate SQL with OpenAI
+        # Step 5: Generate SQL with OpenAI
         instructions = (
             "You are a senior MySQL 8.x Text-to-SQL generator for the NEO warehouse database.\n\n"
             "CRITICAL RULES:\n"
@@ -740,6 +810,10 @@ class NLToSQLGenerator:
             "14) Do NOT use UNION unless explicitly needed for combining different data sources.\n"
             "15) Use ORDER BY + LIMIT only when specifically asking for 'latest', 'recent', 'top N', etc.\n"
         )
+        
+        # Add business rules to instructions if matched
+        if matched_business_rule:
+            instructions += self._build_business_rules_prompt(matched_business_rule)
 
         resp = self.client.responses.create(
             model=self.model,

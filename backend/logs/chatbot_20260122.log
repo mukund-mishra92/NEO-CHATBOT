@@ -1,0 +1,1287 @@
+2026-01-22 11:39:04 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 11:39:46 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=can you check if bot is stuck in tower, also check...
+2026-01-22 11:39:46 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 11:39:46 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: can you check if bot is stuck in tower, also check...
+2026-01-22 11:39:46 - app.services.knowledge_base_service - INFO - 🔧 Detected troubleshooting query, checking diagnostic database...
+2026-01-22 11:39:46 - app.services.diagnostic_support_service - INFO - 🔍 Searching for: 'can you check if bot is stuck in tower, also check if yes then why' | Terms: {'also', 'then', 'bot', 'check', 'tower,', 'why', 'stuck', 'if', 'you', 'yes', 'can'} | Searching 16 issues
+2026-01-22 11:39:46 - app.services.diagnostic_support_service - INFO - 📊 Top match: Score=125, Problem='BOT Stuck in Tower(Z>0)...'
+2026-01-22 11:39:46 - app.services.diagnostic_support_service - INFO -    Reasons: ["Key phrase: 'stuck'", 'Terms: stuck, bot']
+2026-01-22 11:39:46 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.95
+2026-01-22 11:40:33 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.DIAGNOSTIC, message=can you check if bot is stuck in tower, also check...
+2026-01-22 11:40:33 - app.services.diagnostic_service - INFO - 🔍 Processing diagnostic query: can you check if bot is stuck in tower, also check...
+2026-01-22 11:40:33 - app.services.diagnostic_support_service - INFO - ✅ Successfully loaded bot CSV with latin1 encoding
+2026-01-22 11:40:33 - app.services.diagnostic_support_service - INFO - ✅ Loaded 7 bot-level issues
+2026-01-22 11:40:33 - app.services.diagnostic_support_service - INFO - ✅ Successfully loaded station CSV with latin1 encoding
+2026-01-22 11:40:33 - app.services.diagnostic_support_service - INFO - ✅ Loaded 9 station-level issues
+2026-01-22 11:40:33 - app.services.diagnostic_support_service - INFO - ✅ Diagnostic Support Service initialized
+2026-01-22 11:40:33 - app.services.diagnostic_support_service - INFO -    Bot-level issues: 7
+2026-01-22 11:40:33 - app.services.diagnostic_support_service - INFO -    Station-level issues: 9
+2026-01-22 11:40:33 - app.services.diagnostic_support_service - INFO - 🔍 Searching for: 'can you check if bot is stuck in tower, also check if yes then why' | Terms: {'also', 'then', 'bot', 'check', 'tower,', 'why', 'stuck', 'if', 'you', 'yes', 'can'} | Searching 16 issues
+2026-01-22 11:40:33 - app.services.diagnostic_support_service - INFO - 📊 Top match: Score=125, Problem='BOT Stuck in Tower(Z>0)...'
+2026-01-22 11:40:33 - app.services.diagnostic_support_service - INFO -    Reasons: ["Key phrase: 'stuck'", 'Terms: stuck, bot']
+2026-01-22 11:40:33 - app.services.diagnostic_service - INFO - ✅ Found 10 matches in support CSV database (best: 125%)
+2026-01-22 11:40:33 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_3a0735b79d454036' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: bbac71a7-9eb5-43de-a562-5d1360927209
+2026-01-22 11:40:33 - app.services.rlhf_service - INFO - 📝 Feedback recorded: diagnostic_support | neutral | Reward: 0.00
+2026-01-22 11:40:33 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 0f5f7cbc-ff7c-42b5-ae0a-d9e8f9ec3743
+2026-01-22 11:40:33 - app.services.diagnostic_service - INFO - 💾 Logged diagnostic chat to database: 0f5f7cbc-ff7c-42b5-ae0a-d9e8f9ec3743
+2026-01-22 11:40:33 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.95
+2026-01-22 11:40:54 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.DIAGNOSTIC, message=can you check if bot is stuck in tower, also check...
+2026-01-22 11:40:54 - app.services.diagnostic_service - INFO - 🔍 Processing diagnostic query: can you check if bot is stuck in tower, also check...
+2026-01-22 11:40:54 - app.services.diagnostic_support_service - INFO - ✅ Successfully loaded bot CSV with latin1 encoding
+2026-01-22 11:40:54 - app.services.diagnostic_support_service - INFO - ✅ Loaded 7 bot-level issues
+2026-01-22 11:40:54 - app.services.diagnostic_support_service - INFO - ✅ Successfully loaded station CSV with latin1 encoding
+2026-01-22 11:40:54 - app.services.diagnostic_support_service - INFO - ✅ Loaded 9 station-level issues
+2026-01-22 11:40:54 - app.services.diagnostic_support_service - INFO - ✅ Diagnostic Support Service initialized
+2026-01-22 11:40:54 - app.services.diagnostic_support_service - INFO -    Bot-level issues: 7
+2026-01-22 11:40:54 - app.services.diagnostic_support_service - INFO -    Station-level issues: 9
+2026-01-22 11:40:54 - app.services.diagnostic_support_service - INFO - 🔍 Searching for: 'can you check if bot is stuck in tower, also check if yes then why' | Terms: {'also', 'then', 'bot', 'check', 'tower,', 'why', 'stuck', 'if', 'you', 'yes', 'can'} | Searching 16 issues
+2026-01-22 11:40:54 - app.services.diagnostic_support_service - INFO - 📊 Top match: Score=125, Problem='BOT Stuck in Tower(Z>0)...'
+2026-01-22 11:40:54 - app.services.diagnostic_support_service - INFO -    Reasons: ["Key phrase: 'stuck'", 'Terms: stuck, bot']
+2026-01-22 11:40:54 - app.services.diagnostic_service - INFO - ✅ Found 10 matches in support CSV database (best: 125%)
+2026-01-22 11:40:54 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_8fbe402ebe8d4fa0' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: aa9d8c24-1f4e-4022-99e4-4ee5304506f0
+2026-01-22 11:40:54 - app.services.rlhf_service - INFO - 📝 Feedback recorded: diagnostic_support | neutral | Reward: 0.00
+2026-01-22 11:40:54 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 89c1a58b-2779-4ffb-825c-a663b602e179
+2026-01-22 11:40:54 - app.services.diagnostic_service - INFO - 💾 Logged diagnostic chat to database: 89c1a58b-2779-4ffb-825c-a663b602e179
+2026-01-22 11:40:54 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.95
+2026-01-22 11:42:42 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=what are the latest high frequency orderd items...
+2026-01-22 11:42:42 - app.services.sql_assistant_service - INFO - 🔍 Processing SQL query: what are the latest high frequency orderd items...
+2026-01-22 11:42:42 - app.services.sql_assistant_service - INFO - 🔄 Attempt 1/3 using strategy: direct
+2026-01-22 11:42:42 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['order', 'sku', 'velocity']
+2026-01-22 11:42:42 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 10 potential JOINs
+2026-01-22 11:42:46 - app.services.sql_assistant_service - WARNING - ⚠️ LLM-based JOIN detection failed: Unterminated string starting at: line 42 column 24 (char 2049)
+2026-01-22 11:42:46 - app.services.sql_assistant_service - INFO - 🔗 Found 5 JOIN paths using all tiers
+2026-01-22 11:42:46 - app.services.sql_assistant_service - INFO - 📋 Using 10 relevant tables | JOINs detected: 5
+2026-01-22 11:42:46 - app.services.sql_assistant_service - WARNING - ⚠️ Vector search failed: 'VectorStoreService' object has no attribute 'search_sql_examples', trying fallback
+2026-01-22 11:42:46 - app.services.chat_history_service - INFO - 📚 Learned from history: 0 successful, 0 failed patterns
+2026-01-22 11:42:47 - app.services.sql_assistant_service - INFO - ✅ Table validation passed - all tables exist in schema
+2026-01-22 11:42:47 - app.services.sql_assistant_service - INFO - ✅ Column validation passed - all columns exist in their tables
+2026-01-22 11:42:47 - app.services.sql_assistant_service - INFO - ✅ Value validation passed - filter values exist in database
+2026-01-22 11:42:53 - app.services.sql_assistant_service - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 11:42:53 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['order', 'sku', 'velocity']
+2026-01-22 11:42:53 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 4 potential JOINs
+2026-01-22 11:42:55 - app.services.sql_assistant_service - INFO - 🤖 LLM detected 5 implicit JOIN paths
+2026-01-22 11:42:55 - app.services.sql_assistant_service - INFO - 🔗 Found 5 JOIN paths using all tiers
+2026-01-22 11:42:55 - app.services.sql_assistant_service - INFO - 📋 Using 8 relevant tables | JOINs detected: 5
+2026-01-22 11:42:55 - app.services.sql_assistant_service - INFO - 🔁 Self-refinement iteration 1/3
+2026-01-22 11:42:55 - app.services.sql_assistant_service - INFO - 📊 Validation: confidence=0.30, msg=No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 11:42:56 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge decision (iteration 1): satisfactory=False, confidence=0.20
+2026-01-22 11:42:56 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge: satisfactory=False, confidence=0.20
+2026-01-22 11:42:56 - app.services.sql_assistant_service - INFO - 📝 Using judge-provided improved query
+2026-01-22 11:42:56 - app.services.sql_assistant_service - INFO - 🔄 Executing improved query (iteration 2)
+2026-01-22 11:42:57 - app.services.sql_assistant_service - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 11:42:57 - app.services.sql_assistant_service - INFO - ✨ Improved query executed successfully, continuing refinement
+2026-01-22 11:42:57 - app.services.sql_assistant_service - INFO - 🔁 Self-refinement iteration 2/3
+2026-01-22 11:42:57 - app.services.sql_assistant_service - INFO - 📊 Validation: confidence=0.30, msg=No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 11:42:58 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge decision (iteration 2): satisfactory=False, confidence=0.30
+2026-01-22 11:42:58 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge: satisfactory=False, confidence=0.30
+2026-01-22 11:42:58 - app.services.sql_assistant_service - INFO - 📝 Using judge-provided improved query
+2026-01-22 11:42:58 - app.services.sql_assistant_service - INFO - 🔄 Executing improved query (iteration 3)
+2026-01-22 11:42:58 - app.services.sql_assistant_service - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 11:42:58 - app.services.sql_assistant_service - INFO - ✨ Improved query executed successfully, continuing refinement
+2026-01-22 11:42:58 - app.services.sql_assistant_service - INFO - 🔁 Self-refinement iteration 3/3
+2026-01-22 11:42:58 - app.services.sql_assistant_service - INFO - 📊 Validation: confidence=0.30, msg=No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 11:42:59 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge decision (iteration 3): satisfactory=False, confidence=0.40
+2026-01-22 11:42:59 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge: satisfactory=False, confidence=0.40
+2026-01-22 11:42:59 - app.services.sql_assistant_service - INFO - 🛑 Reached max iterations (3) - using best result
+2026-01-22 11:42:59 - app.services.sql_assistant_service - INFO - 📈 Refinement summary: 3 iterations, final confidence: 0.30
+2026-01-22 11:42:59 - app.services.sql_assistant_service - INFO - 🔄 Attempt 2/3 using strategy: with_context
+2026-01-22 11:42:59 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['order', 'sku', 'velocity']
+2026-01-22 11:42:59 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 10 potential JOINs
+2026-01-22 11:43:01 - app.services.sql_assistant_service - WARNING - ⚠️ LLM-based JOIN detection failed: Expecting property name enclosed in double quotes: line 42 column 182 (char 2204)
+2026-01-22 11:43:01 - app.services.sql_assistant_service - INFO - 🔗 Found 5 JOIN paths using all tiers
+2026-01-22 11:43:01 - app.services.sql_assistant_service - INFO - 📋 Using 10 relevant tables | JOINs detected: 5
+2026-01-22 11:43:01 - app.services.sql_assistant_service - WARNING - ⚠️ Vector search failed: 'VectorStoreService' object has no attribute 'search_sql_examples', trying fallback
+2026-01-22 11:43:01 - app.services.chat_history_service - INFO - 📚 Learned from history: 0 successful, 0 failed patterns
+2026-01-22 11:43:01 - groq._base_client - INFO - Retrying request to /openai/v1/chat/completions in 16.000000 seconds
+2026-01-22 11:43:18 - app.services.sql_assistant_service - INFO - ✅ Table validation passed - all tables exist in schema
+2026-01-22 11:43:18 - app.services.sql_assistant_service - INFO - ✅ Column validation passed - all columns exist in their tables
+2026-01-22 11:43:18 - app.services.sql_assistant_service - INFO - ✅ Value validation passed - filter values exist in database
+2026-01-22 11:43:18 - app.services.sql_assistant_service - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 11:43:18 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['order', 'sku', 'velocity']
+2026-01-22 11:43:18 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 4 potential JOINs
+2026-01-22 11:43:18 - groq._base_client - INFO - Retrying request to /openai/v1/chat/completions in 4.000000 seconds
+2026-01-22 11:43:24 - app.services.sql_assistant_service - WARNING - ⚠️ LLM-based JOIN detection failed: Unterminated string starting at: line 37 column 26 (char 2219)
+2026-01-22 11:43:24 - app.services.sql_assistant_service - INFO - 🔗 Found 2 JOIN paths using all tiers
+2026-01-22 11:43:24 - app.services.sql_assistant_service - INFO - 📋 Using 8 relevant tables | JOINs detected: 2
+2026-01-22 11:43:24 - app.services.sql_assistant_service - INFO - 🔁 Self-refinement iteration 1/3
+2026-01-22 11:43:24 - app.services.sql_assistant_service - INFO - 📊 Validation: confidence=0.30, msg=No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 11:43:24 - groq._base_client - INFO - Retrying request to /openai/v1/chat/completions in 9.000000 seconds
+2026-01-22 11:43:34 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge decision (iteration 1): satisfactory=False, confidence=0.20
+2026-01-22 11:43:34 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge: satisfactory=False, confidence=0.20
+2026-01-22 11:43:34 - app.services.sql_assistant_service - INFO - 📝 Using judge-provided improved query
+2026-01-22 11:43:34 - app.services.sql_assistant_service - INFO - 🔄 Executing improved query (iteration 2)
+2026-01-22 11:43:34 - app.services.sql_assistant_service - ERROR - ❌ Execution error: Execution failed on sql 'SELECT lim.BIN_ARTICLE_ID, lim.ARTICLE_ID, SUM(obm.QUANTITY) AS total_qty FROM order_bin_mapping obm JOIN live_inventory_master lim ON obm.BIN_ID = lim.BIN_ID WHERE obm.INSERTED_TIMESTAMP >= DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY lim.BIN_ARTICLE_ID, lim.ARTICLE_ID ORDER BY total_qty DESC LIMIT 100;': (1054, "Unknown column 'obm.QUANTITY' in 'field list'")
+2026-01-22 11:43:34 - app.services.sql_assistant_service - WARNING - ⚠️ Improved query failed: Execution failed on sql 'SELECT lim.BIN_ARTICLE_ID, lim.ARTICLE_ID, SUM(obm.QUANTITY) AS total_qty FROM order_bin_mapping obm JOIN live_inventory_master lim ON obm.BIN_ID = lim.BIN_ID WHERE obm.INSERT
+2026-01-22 11:43:34 - app.services.sql_assistant_service - INFO - 🔄 Attempt 3/3 using strategy: simplified
+2026-01-22 11:43:34 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['order', 'sku', 'velocity']
+2026-01-22 11:43:34 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 10 potential JOINs
+2026-01-22 11:43:34 - groq._base_client - INFO - Retrying request to /openai/v1/chat/completions in 5.000000 seconds
+2026-01-22 11:43:41 - app.services.sql_assistant_service - WARNING - ⚠️ LLM-based JOIN detection failed: Unterminated string starting at: line 37 column 26 (char 2117)
+2026-01-22 11:43:41 - app.services.sql_assistant_service - INFO - 🔗 Found 5 JOIN paths using all tiers
+2026-01-22 11:43:41 - app.services.sql_assistant_service - INFO - 📋 Using 10 relevant tables | JOINs detected: 5
+2026-01-22 11:43:41 - app.services.sql_assistant_service - WARNING - ⚠️ Vector search failed: 'VectorStoreService' object has no attribute 'search_sql_examples', trying fallback
+2026-01-22 11:43:41 - app.services.chat_history_service - INFO - 📚 Learned from history: 0 successful, 0 failed patterns
+2026-01-22 11:43:41 - groq._base_client - INFO - Retrying request to /openai/v1/chat/completions in 18.000000 seconds
+2026-01-22 11:44:00 - app.services.sql_assistant_service - INFO - ✅ Table validation passed - all tables exist in schema
+2026-01-22 11:44:00 - app.services.sql_assistant_service - INFO - ✅ Column validation passed - all columns exist in their tables
+2026-01-22 11:44:00 - app.services.sql_assistant_service - INFO - ✅ Value validation passed - filter values exist in database
+2026-01-22 11:44:01 - app.services.sql_assistant_service - INFO - ✅ Query executed: 100 rows returned
+2026-01-22 11:44:01 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['order', 'sku', 'velocity']
+2026-01-22 11:44:01 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 4 potential JOINs
+2026-01-22 11:44:01 - groq._base_client - INFO - Retrying request to /openai/v1/chat/completions in 3.000000 seconds
+2026-01-22 11:44:05 - app.services.sql_assistant_service - WARNING - ⚠️ LLM-based JOIN detection failed: Unterminated string starting at: line 37 column 26 (char 2222)
+2026-01-22 11:44:05 - app.services.sql_assistant_service - INFO - 🔗 Found 2 JOIN paths using all tiers
+2026-01-22 11:44:05 - app.services.sql_assistant_service - INFO - 📋 Using 8 relevant tables | JOINs detected: 2
+2026-01-22 11:44:05 - app.services.sql_assistant_service - INFO - 🔁 Self-refinement iteration 1/3
+2026-01-22 11:44:05 - app.services.sql_assistant_service - INFO - 📊 Validation: confidence=0.90, msg=✅ 100 results found | ✅ Result count looks reasonable | ✅ Results contain meaningful data
+2026-01-22 11:44:05 - groq._base_client - INFO - Retrying request to /openai/v1/chat/completions in 9.000000 seconds
+2026-01-22 11:44:16 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge decision (iteration 1): satisfactory=False, confidence=0.40
+2026-01-22 11:44:16 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge: satisfactory=False, confidence=0.40
+2026-01-22 11:44:16 - app.services.sql_assistant_service - INFO - ✅ Very high confidence (0.90) - stopping refinement
+2026-01-22 11:44:16 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: d3cc1123-50a3-4a02-9c10-416400bc172c
+2026-01-22 11:44:16 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: d3cc1123-50a3-4a02-9c10-416400bc172c
+2026-01-22 11:44:16 - app.services.chat_history_service - ERROR - ❌ Error updating query pattern: unsupported operand type(s) for +: 'decimal.Decimal' and 'float'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\chat_history_service.py", line 329, in update_query_pattern
+    new_success_rate = ((success_rate * frequency) + (1.0 if success else 0.0)) / new_frequency
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for +: 'decimal.Decimal' and 'float'
+2026-01-22 11:44:16 - app.services.chat_history_service - ERROR - ❌ Error updating query pattern: unsupported operand type(s) for +: 'decimal.Decimal' and 'float'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\chat_history_service.py", line 329, in update_query_pattern
+    new_success_rate = ((success_rate * frequency) + (1.0 if success else 0.0)) / new_frequency
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for +: 'decimal.Decimal' and 'float'
+2026-01-22 11:44:16 - app.services.chat_history_service - ERROR - ❌ Error updating query pattern: unsupported operand type(s) for +: 'decimal.Decimal' and 'float'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\chat_history_service.py", line 329, in update_query_pattern
+    new_success_rate = ((success_rate * frequency) + (1.0 if success else 0.0)) / new_frequency
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for +: 'decimal.Decimal' and 'float'
+2026-01-22 11:44:16 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_7f920ef74e0946f9' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: d9f8de04-ce2d-4d7d-8e19-de5a5cb31bd5
+2026-01-22 11:44:16 - app.services.rlhf_service - INFO - 📝 Feedback recorded: sql_assistant | neutral | Reward: 0.10
+2026-01-22 11:44:16 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.90
+2026-01-22 12:16:00 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.DIAGNOSTIC, message=Diagnostic Support...
+2026-01-22 12:16:00 - app.services.diagnostic_service - INFO - 🔍 Processing diagnostic query: Diagnostic Support...
+2026-01-22 12:16:00 - app.services.diagnostic_support_service - INFO - ✅ Successfully loaded bot CSV with latin1 encoding
+2026-01-22 12:16:00 - app.services.diagnostic_support_service - INFO - ✅ Loaded 7 bot-level issues
+2026-01-22 12:16:00 - app.services.diagnostic_support_service - INFO - ✅ Successfully loaded station CSV with latin1 encoding
+2026-01-22 12:16:00 - app.services.diagnostic_support_service - INFO - ✅ Loaded 9 station-level issues
+2026-01-22 12:16:00 - app.services.diagnostic_support_service - INFO - ✅ Diagnostic Support Service initialized
+2026-01-22 12:16:00 - app.services.diagnostic_support_service - INFO -    Bot-level issues: 7
+2026-01-22 12:16:00 - app.services.diagnostic_support_service - INFO -    Station-level issues: 9
+2026-01-22 12:16:00 - app.services.diagnostic_support_service - INFO - 🔍 Searching for: 'Diagnostic Support' | Terms: {'support', 'diagnostic'} | Searching 16 issues
+2026-01-22 12:16:00 - app.services.diagnostic_support_service - INFO - 📊 Top match: Score=5, Problem='BOT Stopped Without Any Error on Ground (XY axis, Z=0)...'
+2026-01-22 12:16:00 - app.services.diagnostic_support_service - INFO -    Reasons: []
+2026-01-22 12:16:00 - app.services.diagnostic_service - INFO - ⚠️ No good CSV matches found (best: 5%), using AI-powered analysis...
+2026-01-22 12:16:00 - app.services.intelligent_diagnostic_service - INFO - 🔍 Starting intelligent diagnosis with self-improving loop: Diagnostic Support...
+2026-01-22 12:16:00 - app.services.intelligent_diagnostic_service - INFO - 🎯 Intent classified: TROUBLESHOOT - The user query 'Diagnostic Support' implies that the user is experiencing an issue and needs help diagnosing the problem. This aligns with the TROUBLESHOOT intent type, which involves identifying the root cause of a problem and providing a solution. A diagnostic response style is most suitable, focusing on analysis and solution steps rather than raw data or SQL queries.
+2026-01-22 12:16:00 - app.services.intelligent_diagnostic_service - INFO - 🎯 Response format: diagnostic
+2026-01-22 12:16:01 - app.services.intelligent_diagnostic_service - INFO - 📊 Problem analysis: {'component': 'unknown', 'symptom': 'unknown', 'entity': 'general', 'severity': 'medium', 'likely_tables': ['task_master', 'bot_master', 'order_bin_mapping'], 'keywords': ['diagnostic', 'support']}
+2026-01-22 12:16:01 - app.services.diagnostic_support_service - INFO - 🔍 Searching for: 'Diagnostic Support' | Terms: {'support', 'diagnostic'} | Searching 16 issues
+2026-01-22 12:16:01 - app.services.diagnostic_support_service - INFO - 📊 Top match: Score=5, Problem='BOT Stopped Without Any Error on Ground (XY axis, Z=0)...'
+2026-01-22 12:16:01 - app.services.diagnostic_support_service - INFO -    Reasons: []
+2026-01-22 12:16:01 - app.services.intelligent_diagnostic_service - INFO - ✅ Generated 0 queries using valid tables: set()
+2026-01-22 12:16:01 - app.services.intelligent_diagnostic_service - INFO - Generated 0 diagnostic queries for unknown/unknown
+2026-01-22 12:16:05 - app.services.intelligent_diagnostic_service - ERROR - Error searching documentation: 'content'
+2026-01-22 12:16:05 - app.services.intelligent_diagnostic_service - INFO - 🔁 Diagnosis refinement iteration 1/3
+2026-01-22 12:16:05 - app.services.intelligent_diagnostic_service - INFO - 📋 Retrieved 33 columns for table bot_master
+2026-01-22 12:16:05 - app.services.intelligent_diagnostic_service - INFO - 📋 Retrieved 33 columns for table bot_master
+2026-01-22 12:16:05 - app.services.sql_assistant_service - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 12:16:05 - app.services.intelligent_diagnostic_service - INFO - 📊 Found 0 distinct values for bot_master.STATUS
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - 🧑‍⚖️ Diagnosis Judge (iteration 1): satisfactory=False, confidence=0.30
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - 🧑‍⚖️ Judge: satisfactory=False, confidence=0.30
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - 🔄 Running 3 additional diagnostic queries based on judge feedback
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - 🔍 Executing: Additional diagnostic based on judge feedback
+2026-01-22 12:16:07 - app.services.sql_assistant_service - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - ⚠️ Query succeeded but returned 0 records
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - 🔍 Executing: Additional diagnostic based on judge feedback
+2026-01-22 12:16:07 - app.services.sql_assistant_service - ERROR - ❌ Execution error: Execution failed on sql 'SELECT * FROM bot_alarm_log WHERE TIMESTAMP > NOW() - INTERVAL 1 DAY;': (1054, "Unknown column 'TIMESTAMP' in 'where clause'")
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - WARNING - ⚠️ Query failed: Execution failed on sql 'SELECT * FROM bot_alarm_log WHERE TIMESTAMP > NOW() - INTERVAL 1 DAY;': (1054, "Unknown column 'TIMESTAMP' in 'where clause'")
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - 🔍 Executing: Additional diagnostic based on judge feedback
+2026-01-22 12:16:07 - app.services.sql_assistant_service - ERROR - ❌ Execution error: Execution failed on sql 'SELECT * FROM bot_charging_bit_log WHERE TIMESTAMP > NOW() - INTERVAL 1 DAY;': (1054, "Unknown column 'TIMESTAMP' in 'where clause'")
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - WARNING - ⚠️ Query failed: Execution failed on sql 'SELECT * FROM bot_charging_bit_log WHERE TIMESTAMP > NOW() - INTERVAL 1 DAY;': (1054, "Unknown column 'TIMESTAMP' in 'where clause'")
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - ✨ Collected additional diagnostic data, continuing refinement
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - 🔁 Diagnosis refinement iteration 2/3
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - 📋 Retrieved 33 columns for table bot_master
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - 📋 Retrieved 33 columns for table bot_master
+2026-01-22 12:16:07 - app.services.sql_assistant_service - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 12:16:07 - app.services.intelligent_diagnostic_service - INFO - 📊 Found 0 distinct values for bot_master.STATUS
+2026-01-22 12:16:09 - app.services.intelligent_diagnostic_service - ERROR - ❌ Error in diagnosis judgment: Invalid \escape: line 11 column 115 (char 621)
+2026-01-22 12:16:09 - app.services.intelligent_diagnostic_service - INFO - 🧑‍⚖️ Judge: satisfactory=True, confidence=0.50
+2026-01-22 12:16:09 - app.services.intelligent_diagnostic_service - INFO - ⚠️ Could not refine diagnosis further - stopping
+2026-01-22 12:16:09 - app.services.intelligent_diagnostic_service - INFO - 📈 Diagnosis refinement summary: 2 iterations, final confidence: 0.60
+2026-01-22 12:16:10 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: ecf173d2-fcab-4563-a823-12935d21c82b
+2026-01-22 12:16:10 - app.services.diagnostic_service - INFO - 💾 Logged diagnostic chat to database: ecf173d2-fcab-4563-a823-12935d21c82b
+2026-01-22 12:16:10 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_a82e58bea2cd4487' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: b3db53f3-83f6-4321-883b-0677fb1be0f1
+2026-01-22 12:16:10 - app.services.rlhf_service - INFO - 📝 Feedback recorded: diagnostic_support | neutral | Reward: 0.10
+2026-01-22 12:16:10 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.60
+2026-01-22 12:16:19 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.DIAGNOSTIC, message=can you check if bot is stuck in tower, also check...
+2026-01-22 12:16:19 - app.services.diagnostic_service - INFO - 🔍 Processing diagnostic query: can you check if bot is stuck in tower, also check...
+2026-01-22 12:16:19 - app.services.diagnostic_support_service - INFO - ✅ Successfully loaded bot CSV with latin1 encoding
+2026-01-22 12:16:19 - app.services.diagnostic_support_service - INFO - ✅ Loaded 7 bot-level issues
+2026-01-22 12:16:19 - app.services.diagnostic_support_service - INFO - ✅ Successfully loaded station CSV with latin1 encoding
+2026-01-22 12:16:19 - app.services.diagnostic_support_service - INFO - ✅ Loaded 9 station-level issues
+2026-01-22 12:16:19 - app.services.diagnostic_support_service - INFO - ✅ Diagnostic Support Service initialized
+2026-01-22 12:16:19 - app.services.diagnostic_support_service - INFO -    Bot-level issues: 7
+2026-01-22 12:16:19 - app.services.diagnostic_support_service - INFO -    Station-level issues: 9
+2026-01-22 12:16:19 - app.services.diagnostic_support_service - INFO - 🔍 Searching for: 'can you check if bot is stuck in tower, also check if yes then why' | Terms: {'also', 'then', 'bot', 'check', 'tower,', 'why', 'stuck', 'if', 'you', 'yes', 'can'} | Searching 16 issues
+2026-01-22 12:16:19 - app.services.diagnostic_support_service - INFO - 📊 Top match: Score=125, Problem='BOT Stuck in Tower(Z>0)...'
+2026-01-22 12:16:19 - app.services.diagnostic_support_service - INFO -    Reasons: ["Key phrase: 'stuck'", 'Terms: stuck, bot']
+2026-01-22 12:16:19 - app.services.diagnostic_service - INFO - ✅ Found 10 matches in support CSV database (best: 125%)
+2026-01-22 12:16:19 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_9b51eb5818ad4a63' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 5025e6d9-0330-47e3-9e8a-5b0a8a28fa73
+2026-01-22 12:16:19 - app.services.rlhf_service - INFO - 📝 Feedback recorded: diagnostic_support | neutral | Reward: 0.00
+2026-01-22 12:16:19 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: a646d44f-bdab-4751-9664-0e080d02d230
+2026-01-22 12:16:19 - app.services.diagnostic_service - INFO - 💾 Logged diagnostic chat to database: a646d44f-bdab-4751-9664-0e080d02d230
+2026-01-22 12:16:19 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.95
+2026-01-22 13:03:35 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 13:03:35 - backend.app.services.diagnostic.csv_loader - INFO - ✅ Loaded bot CSV with latin1 encoding
+2026-01-22 13:03:35 - backend.app.services.diagnostic.csv_loader - INFO - ✅ Loaded 7 bot-level issues
+2026-01-22 13:03:35 - backend.app.services.diagnostic.csv_loader - INFO - ✅ Loaded station CSV with latin1 encoding
+2026-01-22 13:03:35 - backend.app.services.diagnostic.csv_loader - INFO - ✅ Loaded 9 station-level issues
+2026-01-22 13:03:35 - backend.app.services.diagnostic.core - INFO - ✅ Diagnostic Support Service initialized
+2026-01-22 13:03:35 - backend.app.services.diagnostic.core - INFO -    Bot-level issues: 7
+2026-01-22 13:03:35 - backend.app.services.diagnostic.core - INFO -    Station-level issues: 9
+2026-01-22 13:03:35 - backend.app.services.llm_service - INFO - ✅ HuggingFace API initialized for FREE embeddings
+2026-01-22 13:03:35 - backend.app.services.llm_service - INFO - ✅ Groq (Fast Inference) client initialized
+2026-01-22 13:03:35 - backend.app.services.llm_service - INFO - ✅ OpenAI client initialized
+2026-01-22 13:03:35 - backend.app.services.llm_service - INFO - ✅ Anthropic client initialized
+2026-01-22 13:03:35 - backend.app.services.llm_service - INFO - 🎯 Primary LLM provider: GROQ
+2026-01-22 13:03:35 - backend.app.services.rlhf_service - INFO - ✅ RLHF Service initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.schema.parser - INFO - ✅ Loaded schema parser with 162 tables
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.schema.parser - INFO - ✅ SchemaParser initialized with 162 tables
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.schema.validator - INFO - ✅ SchemaValidator initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.schema.discovery - INFO - ✅ SchemaDiscovery initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.query.extractor - INFO - ✅ QueryExtractor initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.query.executor - INFO - ✅ QueryExecutor initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.query.validator - INFO - ✅ QueryValidator initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.intent.classifier - INFO - ✅ IntentClassifier initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.intent.temporal - INFO - ✅ TemporalClassifier initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.context.session_cache - INFO - ✅ SessionCache initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.context.conversation - INFO - ✅ ConversationContext initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.judge.llm_judge - INFO - ✅ LLMJudge initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.prompts.prompt_builder - INFO - ✅ PromptBuilder initialized
+2026-01-22 13:03:35 - backend.app.services.sql_assistant.query.generator - INFO - ✅ QueryGenerator initialized
+2026-01-22 13:03:42 - backend.app.services.vector_store_service - INFO - 📂 Loaded 9383 documents from vector store
+2026-01-22 13:03:42 - backend.app.services.vector_store_service - INFO - ✅ Vector store initialized with 9383 documents
+2026-01-22 13:03:42 - backend.app.services.sql_assistant.core - INFO - ✅ Vector store available for SQL examples
+2026-01-22 13:03:42 - backend.app.services.chat_history_service - INFO - ✅ Chat history tables created/verified
+2026-01-22 13:03:42 - backend.app.services.chat_history_service - INFO - ✅ Chat History Service initialized
+2026-01-22 13:03:42 - backend.app.services.sql_assistant.core - INFO - ✅ Chat history logging enabled
+2026-01-22 13:03:42 - backend.app.services.sql_assistant.query.executor - INFO - ✅ Database connection successful
+2026-01-22 13:03:42 - backend.app.services.sql_assistant.core - INFO - ✅ SQL Assistant Service initialized | DB Available: True | Tables: 162
+2026-01-22 13:22:17 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 13:24:11 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 13:24:32 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-01-22 13:24:32 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 13:24:32 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-01-22 13:24:32 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-22 13:24:40 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-01-22 13:24:42 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: a021d3f5-444d-46b5-a91b-795535ee0656
+2026-01-22 13:24:42 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: a021d3f5-444d-46b5-a91b-795535ee0656
+2026-01-22 13:24:42 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_c0fbb3b91aa64920' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 5e5e2014-3069-4074-ba1a-406f234b7c56
+2026-01-22 13:24:42 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 13:24:42 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 13:24:59 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bot ids available in the neo syste...
+2026-01-22 13:24:59 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the bot ids available in the neo syste...
+2026-01-22 13:24:59 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 13:24:59 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 13:24:59 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:24:59 - app.services.sql_assistant.core - ERROR - ❌ Error processing query: 'type'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 184, in process_query
+    logger.info(f"📊 Intent: {intent_info['type']} | Temporal: {temporal_info['scope']}")
+                              ~~~~~~~~~~~^^^^^^^^
+KeyError: 'type'
+2026-01-22 13:24:59 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.11s
+2026-01-22 13:24:59 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 13:25:15 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.DIAGNOSTIC, message=why bot is not moving...
+2026-01-22 13:25:15 - app.services.diagnostic_service - INFO - 🔍 Processing diagnostic query: why bot is not moving...
+2026-01-22 13:25:15 - app.services.diagnostic_service - ERROR - ❌ Error processing diagnostic query: No module named 'app.services.diagnostic_support_service'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\diagnostic_service.py", line 135, in process_query
+    from app.services.diagnostic_support_service import DiagnosticSupportService
+ModuleNotFoundError: No module named 'app.services.diagnostic_support_service'
+2026-01-22 13:25:15 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 13:25:25 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 13:27:33 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 13:28:34 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bot ids which is available in the ...
+2026-01-22 13:28:34 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the bot ids which is available in the ...
+2026-01-22 13:28:34 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 13:28:34 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 13:28:34 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:28:34 - app.services.sql_assistant.core - ERROR - ❌ Error processing query: 'type'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 184, in process_query
+    logger.info(f"📊 Intent: {intent_info['type']} | Temporal: {temporal_info['scope']}")
+                              ~~~~~~~~~~~^^^^^^^^
+KeyError: 'type'
+2026-01-22 13:28:34 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.00s
+2026-01-22 13:28:34 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 13:31:04 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 13:32:19 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 13:32:47 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-01-22 13:32:47 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 13:32:47 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-01-22 13:32:47 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-22 13:32:50 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-01-22 13:32:51 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 2c0341d8-980c-4631-95bd-25de3696b1b6
+2026-01-22 13:32:51 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: 2c0341d8-980c-4631-95bd-25de3696b1b6
+2026-01-22 13:32:51 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_0195aa38ec8a4603' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: ae31846b-e650-46a0-8255-2e90d192aec2
+2026-01-22 13:32:51 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 13:32:51 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 13:32:51 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bot ids available in the neo syste...
+2026-01-22 13:32:51 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the bot ids available in the neo syste...
+2026-01-22 13:32:51 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 13:32:51 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 13:32:51 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:32:51 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 13:32:51 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 13:32:51 - app.services.sql_assistant.core - ERROR - ❌ Error processing query: QueryGenerator.generate_sql_with_strategy() got an unexpected keyword argument 'conversation_history'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 195, in process_query
+    sql_result = self.query_generator.generate_sql_with_strategy(
+        question=chat_request.message,
+    ...<5 lines>...
+        temporal_info=temporal_info
+    )
+TypeError: QueryGenerator.generate_sql_with_strategy() got an unexpected keyword argument 'conversation_history'
+2026-01-22 13:32:51 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.00s
+2026-01-22 13:32:51 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 13:32:51 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.DIAGNOSTIC, message=why bot is not moving...
+2026-01-22 13:32:51 - app.services.diagnostic_service - INFO - 🔍 Processing diagnostic query: why bot is not moving...
+2026-01-22 13:32:51 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded bot CSV with latin1 encoding
+2026-01-22 13:32:51 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded 7 bot-level issues
+2026-01-22 13:32:51 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded station CSV with latin1 encoding
+2026-01-22 13:32:51 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded 9 station-level issues
+2026-01-22 13:32:51 - app.services.diagnostic.core - INFO - ✅ Diagnostic Support Service initialized
+2026-01-22 13:32:51 - app.services.diagnostic.core - INFO -    Bot-level issues: 7
+2026-01-22 13:32:51 - app.services.diagnostic.core - INFO -    Station-level issues: 9
+2026-01-22 13:32:51 - app.services.diagnostic.issue_search - INFO - 🔍 Searching for: 'why bot is not moving' | Terms: {'moving', 'why', 'bot', 'not'} | Searching 16 issues
+2026-01-22 13:32:51 - app.services.diagnostic.issue_search - INFO - 📊 Top match: Score=40, Problem='BOT Maintenance / Recovery BOT not assigned...'
+2026-01-22 13:32:51 - app.services.diagnostic.issue_search - INFO -    Reasons: ['Terms: not, bot']
+2026-01-22 13:32:51 - app.services.diagnostic_service - INFO - ✅ Found 10 matches in support CSV database (best: 40%)
+2026-01-22 13:32:51 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_27477f62eb6b4f3b' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: b4234a78-cd79-40fc-96fb-e11489d04233
+2026-01-22 13:32:51 - app.services.rlhf_service - INFO - 📝 Feedback recorded: diagnostic_support | neutral | Reward: 0.00
+2026-01-22 13:32:51 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 68161eea-d765-48f7-ba05-228d97160cda
+2026-01-22 13:32:51 - app.services.diagnostic_service - INFO - 💾 Logged diagnostic chat to database: 68161eea-d765-48f7-ba05-228d97160cda
+2026-01-22 13:32:51 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 13:34:38 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 13:34:38 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-01-22 13:34:38 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 13:34:38 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-01-22 13:34:38 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-22 13:34:40 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-01-22 13:34:40 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 8781d76a-c2a3-474b-9d81-41aabcb7e9a6
+2026-01-22 13:34:40 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: 8781d76a-c2a3-474b-9d81-41aabcb7e9a6
+2026-01-22 13:34:40 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_c407e0f0a5a14273' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: e6096e38-0e1b-476a-abcd-8e283bf13f01
+2026-01-22 13:34:40 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 13:34:40 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 13:34:40 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bot ids available in the neo syste...
+2026-01-22 13:34:40 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the bot ids available in the neo syste...
+2026-01-22 13:34:40 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 13:34:40 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 13:34:40 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:34:40 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 13:34:40 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 13:34:41 - app.services.llm_service - ERROR - ❌ Groq error: Error code: 400 - {'error': {'message': "'messages.0' : value must be an object with the discriminator property: 'role'", 'type': 'invalid_request_error'}}
+2026-01-22 13:34:41 - app.services.llm_service - ERROR - ❌ Error with groq LLM: Error code: 400 - {'error': {'message': "'messages.0' : value must be an object with the discriminator property: 'role'", 'type': 'invalid_request_error'}}
+2026-01-22 13:34:41 - app.services.llm_service - INFO - 🔄 Attempting fallback to OpenAI...
+2026-01-22 13:34:42 - app.services.llm_service - ERROR - ❌ OpenAI fallback failed: Error code: 400 - {'error': {'message': "Invalid type for 'messages[0]': expected an object, but got a string instead.", 'type': 'invalid_request_error', 'param': 'messages[0]', 'code': 'invalid_type'}}
+2026-01-22 13:34:42 - app.services.llm_service - INFO - 🔄 Attempting fallback to Anthropic...
+2026-01-22 13:34:42 - app.services.llm_service - ERROR - ❌ Anthropic fallback failed: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CXN54mTgV2sCiDtB4jb1j'}
+2026-01-22 13:34:42 - app.services.llm_service - INFO - 🔄 Attempting fallback to local LLM...
+2026-01-22 13:34:42 - app.services.local_llm_service - INFO - 💾 Local LLM Service initialized with model: tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+2026-01-22 13:34:42 - app.services.llm_service - INFO - 💾 Using local LLM: tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+2026-01-22 13:34:42 - app.services.llm_service - ERROR - ❌ Local LLM fallback also failed: 'str' object has no attribute 'get'
+2026-01-22 13:34:42 - app.services.llm_service - ERROR - ❌ All fallbacks exhausted. Tried: OpenAI, Anthropic, Local LLM
+2026-01-22 13:34:42 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 13:34:42 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 13:34:42 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:34:42 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5229 chars)
+2026-01-22 13:34:43 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: direct
+2026-01-22 13:34:43 - app.services.sql_assistant.core - ERROR - ❌ Error processing query: string indices must be integers, not 'str'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 204, in process_query
+    sql_query = sql_result['sql']
+                ~~~~~~~~~~^^^^^^^
+TypeError: string indices must be integers, not 'str'
+2026-01-22 13:34:43 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 2.37s
+2026-01-22 13:34:43 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 13:34:43 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.DIAGNOSTIC, message=why bot is not moving...
+2026-01-22 13:34:43 - app.services.diagnostic_service - INFO - 🔍 Processing diagnostic query: why bot is not moving...
+2026-01-22 13:34:43 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded bot CSV with latin1 encoding
+2026-01-22 13:34:43 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded 7 bot-level issues
+2026-01-22 13:34:43 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded station CSV with latin1 encoding
+2026-01-22 13:34:43 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded 9 station-level issues
+2026-01-22 13:34:43 - app.services.diagnostic.core - INFO - ✅ Diagnostic Support Service initialized
+2026-01-22 13:34:43 - app.services.diagnostic.core - INFO -    Bot-level issues: 7
+2026-01-22 13:34:43 - app.services.diagnostic.core - INFO -    Station-level issues: 9
+2026-01-22 13:34:43 - app.services.diagnostic.issue_search - INFO - 🔍 Searching for: 'why bot is not moving' | Terms: {'not', 'bot', 'moving', 'why'} | Searching 16 issues
+2026-01-22 13:34:43 - app.services.diagnostic.issue_search - INFO - 📊 Top match: Score=40, Problem='BOT Maintenance / Recovery BOT not assigned...'
+2026-01-22 13:34:43 - app.services.diagnostic.issue_search - INFO -    Reasons: ['Terms: not, bot']
+2026-01-22 13:34:43 - app.services.diagnostic_service - INFO - ✅ Found 10 matches in support CSV database (best: 40%)
+2026-01-22 13:34:43 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_0c4967f357604cb8' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 275be7f1-52b8-4cab-a2a6-012bbff06ca7
+2026-01-22 13:34:43 - app.services.rlhf_service - INFO - 📝 Feedback recorded: diagnostic_support | neutral | Reward: 0.00
+2026-01-22 13:34:43 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 9e6f43c8-b575-4f66-ad80-c3e69b7dbfe1
+2026-01-22 13:34:43 - app.services.diagnostic_service - INFO - 💾 Logged diagnostic chat to database: 9e6f43c8-b575-4f66-ad80-c3e69b7dbfe1
+2026-01-22 13:34:43 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 13:37:03 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 13:37:03 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-01-22 13:37:03 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 13:37:03 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-01-22 13:37:03 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-22 13:37:04 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-01-22 13:37:05 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: a125ae6b-1741-4e96-a726-e57bdc61a690
+2026-01-22 13:37:05 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: a125ae6b-1741-4e96-a726-e57bdc61a690
+2026-01-22 13:37:05 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_58b47033bd204895' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: c545ba03-80c8-493a-adc7-aa65f9ef3124
+2026-01-22 13:37:05 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 13:37:05 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 13:37:05 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bot ids available in the neo syste...
+2026-01-22 13:37:05 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the bot ids available in the neo syste...
+2026-01-22 13:37:05 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 13:37:05 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 13:37:05 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:37:05 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 13:37:05 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 13:37:05 - app.services.llm_service - ERROR - ❌ Groq error: Error code: 400 - {'error': {'message': "'messages.0' : value must be an object with the discriminator property: 'role'", 'type': 'invalid_request_error'}}
+2026-01-22 13:37:05 - app.services.llm_service - ERROR - ❌ Error with groq LLM: Error code: 400 - {'error': {'message': "'messages.0' : value must be an object with the discriminator property: 'role'", 'type': 'invalid_request_error'}}
+2026-01-22 13:37:05 - app.services.llm_service - INFO - 🔄 Attempting fallback to OpenAI...
+2026-01-22 13:37:05 - app.services.llm_service - ERROR - ❌ OpenAI fallback failed: Error code: 400 - {'error': {'message': "Invalid type for 'messages[0]': expected an object, but got a string instead.", 'type': 'invalid_request_error', 'param': 'messages[0]', 'code': 'invalid_type'}}
+2026-01-22 13:37:05 - app.services.llm_service - INFO - 🔄 Attempting fallback to Anthropic...
+2026-01-22 13:37:06 - app.services.llm_service - ERROR - ❌ Anthropic fallback failed: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CXN5FLy6B7ha4WeK4bxN2'}
+2026-01-22 13:37:06 - app.services.llm_service - INFO - 🔄 Attempting fallback to local LLM...
+2026-01-22 13:37:06 - app.services.local_llm_service - INFO - 💾 Local LLM Service initialized with model: tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+2026-01-22 13:37:06 - app.services.llm_service - INFO - 💾 Using local LLM: tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+2026-01-22 13:37:06 - app.services.llm_service - ERROR - ❌ Local LLM fallback also failed: 'str' object has no attribute 'get'
+2026-01-22 13:37:06 - app.services.llm_service - ERROR - ❌ All fallbacks exhausted. Tried: OpenAI, Anthropic, Local LLM
+2026-01-22 13:37:06 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 13:37:06 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 13:37:06 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:37:06 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5229 chars)
+2026-01-22 13:37:06 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: direct
+2026-01-22 13:37:09 - app.services.sql_assistant.query.executor - ERROR - ❌ Execution error: Execution failed on sql '```sql
+SELECT DISTINCT BOT_ID 
+FROM bot_master 
+LIMIT 100;
+```': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '```sql\nSELECT DISTINCT BOT_ID \nFROM bot_master \nLIMIT 100;\n```' at line 1")
+2026-01-22 13:37:09 - app.services.sql_assistant.core - ERROR - ❌ Error processing query: tuple indices must be integers or slices, not str
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 219, in process_query
+    if not execution_result['success']:
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+TypeError: tuple indices must be integers or slices, not str
+2026-01-22 13:37:09 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 4.04s
+2026-01-22 13:37:09 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 13:37:09 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.DIAGNOSTIC, message=why bot is not moving...
+2026-01-22 13:37:09 - app.services.diagnostic_service - INFO - 🔍 Processing diagnostic query: why bot is not moving...
+2026-01-22 13:37:09 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded bot CSV with latin1 encoding
+2026-01-22 13:37:09 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded 7 bot-level issues
+2026-01-22 13:37:09 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded station CSV with latin1 encoding
+2026-01-22 13:37:09 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded 9 station-level issues
+2026-01-22 13:37:09 - app.services.diagnostic.core - INFO - ✅ Diagnostic Support Service initialized
+2026-01-22 13:37:09 - app.services.diagnostic.core - INFO -    Bot-level issues: 7
+2026-01-22 13:37:09 - app.services.diagnostic.core - INFO -    Station-level issues: 9
+2026-01-22 13:37:09 - app.services.diagnostic.issue_search - INFO - 🔍 Searching for: 'why bot is not moving' | Terms: {'moving', 'bot', 'why', 'not'} | Searching 16 issues
+2026-01-22 13:37:09 - app.services.diagnostic.issue_search - INFO - 📊 Top match: Score=40, Problem='BOT Maintenance / Recovery BOT not assigned...'
+2026-01-22 13:37:09 - app.services.diagnostic.issue_search - INFO -    Reasons: ['Terms: bot, not']
+2026-01-22 13:37:09 - app.services.diagnostic_service - INFO - ✅ Found 10 matches in support CSV database (best: 40%)
+2026-01-22 13:37:09 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_b546a0d30e5a43fc' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 34f17bed-f6c7-46ca-83ed-c8dd102425ce
+2026-01-22 13:37:09 - app.services.rlhf_service - INFO - 📝 Feedback recorded: diagnostic_support | neutral | Reward: 0.00
+2026-01-22 13:37:09 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 744fada3-3912-4148-86ce-6fe834d8130b
+2026-01-22 13:37:09 - app.services.diagnostic_service - INFO - 💾 Logged diagnostic chat to database: 744fada3-3912-4148-86ce-6fe834d8130b
+2026-01-22 13:37:09 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 13:45:22 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 13:45:56 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-01-22 13:45:56 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 13:45:56 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-01-22 13:45:56 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-22 13:45:59 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-01-22 13:45:59 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: f00bed6c-08ee-43b1-bd32-291d43c92efc
+2026-01-22 13:45:59 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: f00bed6c-08ee-43b1-bd32-291d43c92efc
+2026-01-22 13:45:59 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_12ba7883793e4bac' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 0bb84a6a-d6f9-4d38-a111-645bd7eaa5a3
+2026-01-22 13:45:59 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 13:45:59 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 13:46:22 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bot available in the system...
+2026-01-22 13:46:22 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the bot available in the system...
+2026-01-22 13:46:22 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 13:46:22 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 13:46:22 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:46:22 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 13:46:22 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 13:46:22 - app.services.llm_service - ERROR - ❌ Groq error: Error code: 400 - {'error': {'message': "'messages.0' : value must be an object with the discriminator property: 'role'", 'type': 'invalid_request_error'}}
+2026-01-22 13:46:22 - app.services.llm_service - ERROR - ❌ Error with groq LLM: Error code: 400 - {'error': {'message': "'messages.0' : value must be an object with the discriminator property: 'role'", 'type': 'invalid_request_error'}}
+2026-01-22 13:46:22 - app.services.llm_service - INFO - 🔄 Attempting fallback to OpenAI...
+2026-01-22 13:46:24 - app.services.llm_service - ERROR - ❌ OpenAI fallback failed: Error code: 400 - {'error': {'message': "Invalid type for 'messages[0]': expected an object, but got a string instead.", 'type': 'invalid_request_error', 'param': 'messages[0]', 'code': 'invalid_type'}}
+2026-01-22 13:46:24 - app.services.llm_service - INFO - 🔄 Attempting fallback to Anthropic...
+2026-01-22 13:46:24 - app.services.llm_service - ERROR - ❌ Anthropic fallback failed: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CXN5xWZSJ4KgyGtWqeNkJ'}
+2026-01-22 13:46:24 - app.services.llm_service - INFO - 🔄 Attempting fallback to local LLM...
+2026-01-22 13:46:24 - app.services.local_llm_service - INFO - 💾 Local LLM Service initialized with model: tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+2026-01-22 13:46:24 - app.services.llm_service - INFO - 💾 Using local LLM: tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+2026-01-22 13:46:24 - app.services.llm_service - ERROR - ❌ Local LLM fallback also failed: 'str' object has no attribute 'get'
+2026-01-22 13:46:24 - app.services.llm_service - ERROR - ❌ All fallbacks exhausted. Tried: OpenAI, Anthropic, Local LLM
+2026-01-22 13:46:24 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 13:46:24 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 13:46:24 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:46:24 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5229 chars)
+2026-01-22 13:46:25 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: direct
+2026-01-22 13:46:27 - app.services.sql_assistant.query.executor - ERROR - ❌ Execution error: Execution failed on sql '```sql
+SELECT * 
+FROM bot_master 
+LIMIT 100;
+```': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '```sql\nSELECT * \nFROM bot_master \nLIMIT 100;\n```' at line 1")
+2026-01-22 13:46:27 - app.services.sql_assistant.core - WARNING - ⚠️ Query execution failed: Execution failed on sql '```sql
+SELECT * 
+FROM bot_master 
+LIMIT 100;
+```': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '```sql\nSELECT * \nFROM bot_master \nLIMIT 100;\n```' at line 1")
+2026-01-22 13:46:27 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: with_context
+2026-01-22 13:46:27 - app.services.llm_service - ERROR - ❌ Groq error: Error code: 400 - {'error': {'message': "'messages.0' : value must be an object with the discriminator property: 'role'", 'type': 'invalid_request_error'}}
+2026-01-22 13:46:27 - app.services.llm_service - ERROR - ❌ Error with groq LLM: Error code: 400 - {'error': {'message': "'messages.0' : value must be an object with the discriminator property: 'role'", 'type': 'invalid_request_error'}}
+2026-01-22 13:46:27 - app.services.llm_service - INFO - 🔄 Attempting fallback to OpenAI...
+2026-01-22 13:46:28 - app.services.llm_service - ERROR - ❌ OpenAI fallback failed: Error code: 400 - {'error': {'message': "Invalid type for 'messages[0]': expected an object, but got a string instead.", 'type': 'invalid_request_error', 'param': 'messages[0]', 'code': 'invalid_type'}}
+2026-01-22 13:46:28 - app.services.llm_service - INFO - 🔄 Attempting fallback to Anthropic...
+2026-01-22 13:46:28 - app.services.llm_service - ERROR - ❌ Anthropic fallback failed: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CXN5xoMENxLPppwQCXmaD'}
+2026-01-22 13:46:28 - app.services.llm_service - INFO - 🔄 Attempting fallback to local LLM...
+2026-01-22 13:46:28 - app.services.llm_service - INFO - 💾 Using local LLM: tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+2026-01-22 13:46:28 - app.services.llm_service - ERROR - ❌ Local LLM fallback also failed: 'str' object has no attribute 'get'
+2026-01-22 13:46:28 - app.services.llm_service - ERROR - ❌ All fallbacks exhausted. Tried: OpenAI, Anthropic, Local LLM
+2026-01-22 13:46:28 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 13:46:28 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 13:46:28 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:46:28 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5229 chars)
+2026-01-22 13:46:29 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: with_context
+2026-01-22 13:46:29 - app.services.sql_assistant.query.executor - ERROR - ❌ Execution error: Execution failed on sql '```sql
+SELECT * 
+FROM bot_master 
+WHERE STATUS = 'ACTIVE' 
+ORDER BY BOT_ID 
+LIMIT 100;
+```': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '```sql\nSELECT * \nFROM bot_master \nWHERE STATUS = 'ACTIVE' \nORDER BY BOT_ID \nLIMI' at line 1")
+2026-01-22 13:46:29 - app.services.sql_assistant.core - WARNING - ⚠️ Query execution failed: Execution failed on sql '```sql
+SELECT * 
+FROM bot_master 
+WHERE STATUS = 'ACTIVE' 
+ORDER BY BOT_ID 
+LIMIT 100;
+```': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '```sql\nSELECT * \nFROM bot_master \nWHERE STATUS = 'ACTIVE' \nORDER BY BOT_ID \nLIMI' at line 1")
+2026-01-22 13:46:29 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: simplified
+2026-01-22 13:46:29 - app.services.llm_service - ERROR - ❌ Groq error: Error code: 400 - {'error': {'message': "'messages.0' : value must be an object with the discriminator property: 'role'", 'type': 'invalid_request_error'}}
+2026-01-22 13:46:29 - app.services.llm_service - ERROR - ❌ Error with groq LLM: Error code: 400 - {'error': {'message': "'messages.0' : value must be an object with the discriminator property: 'role'", 'type': 'invalid_request_error'}}
+2026-01-22 13:46:29 - app.services.llm_service - INFO - 🔄 Attempting fallback to OpenAI...
+2026-01-22 13:46:30 - app.services.llm_service - ERROR - ❌ OpenAI fallback failed: Error code: 400 - {'error': {'message': "Invalid type for 'messages[0]': expected an object, but got a string instead.", 'type': 'invalid_request_error', 'param': 'messages[0]', 'code': 'invalid_type'}}
+2026-01-22 13:46:30 - app.services.llm_service - INFO - 🔄 Attempting fallback to Anthropic...
+2026-01-22 13:46:31 - app.services.llm_service - ERROR - ❌ Anthropic fallback failed: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CXN5xyYQXeq96EnwdFoRa'}
+2026-01-22 13:46:31 - app.services.llm_service - INFO - 🔄 Attempting fallback to local LLM...
+2026-01-22 13:46:31 - app.services.llm_service - INFO - 💾 Using local LLM: tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+2026-01-22 13:46:31 - app.services.llm_service - ERROR - ❌ Local LLM fallback also failed: 'str' object has no attribute 'get'
+2026-01-22 13:46:31 - app.services.llm_service - ERROR - ❌ All fallbacks exhausted. Tried: OpenAI, Anthropic, Local LLM
+2026-01-22 13:46:31 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 13:46:31 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 13:46:31 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 13:46:31 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5229 chars)
+2026-01-22 13:46:31 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: simplified
+2026-01-22 13:46:31 - app.services.sql_assistant.query.executor - ERROR - ❌ Execution error: Execution failed on sql '```sql
+SELECT * 
+FROM bot_master 
+LIMIT 100;
+```': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '```sql\nSELECT * \nFROM bot_master \nLIMIT 100;\n```' at line 1")
+2026-01-22 13:46:31 - app.services.sql_assistant.core - WARNING - ⚠️ Query execution failed: Execution failed on sql '```sql
+SELECT * 
+FROM bot_master 
+LIMIT 100;
+```': (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '```sql\nSELECT * \nFROM bot_master \nLIMIT 100;\n```' at line 1")
+2026-01-22 13:46:31 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 8.90s
+2026-01-22 13:46:31 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 14:00:15 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 14:02:11 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 14:04:13 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 14:32:39 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 14:36:31 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 14:38:03 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 14:38:44 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-01-22 14:38:44 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 14:38:44 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-01-22 14:38:44 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-22 14:38:47 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-01-22 14:38:47 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 9a2d2678-ac3c-4836-bf37-9a9af93494ee
+2026-01-22 14:38:47 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: 9a2d2678-ac3c-4836-bf37-9a9af93494ee
+2026-01-22 14:38:47 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_9307fb5d19624b46' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 878ada7f-923c-490f-9428-76477d7d4a47
+2026-01-22 14:38:47 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 14:38:47 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 14:38:58 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bot ids currently active...
+2026-01-22 14:38:58 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the bot ids currently active...
+2026-01-22 14:38:58 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 14:38:58 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 14:38:59 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.90)
+2026-01-22 14:38:59 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 14:38:59 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 14:39:01 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 14:39:01 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 8 relevant tables
+2026-01-22 14:39:01 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.90)
+2026-01-22 14:39:01 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5598 chars)
+2026-01-22 14:39:01 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: direct
+2026-01-22 14:39:03 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 14:39:03 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: with_context
+2026-01-22 14:39:04 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 14:39:04 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 8 relevant tables
+2026-01-22 14:39:04 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.90)
+2026-01-22 14:39:04 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5598 chars)
+2026-01-22 14:39:04 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: with_context
+2026-01-22 14:39:04 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 14:39:04 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: simplified
+2026-01-22 14:39:05 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 14:39:05 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 8 relevant tables
+2026-01-22 14:39:05 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.90)
+2026-01-22 14:39:05 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5598 chars)
+2026-01-22 14:39:06 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: simplified
+2026-01-22 14:39:06 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 14:39:06 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 7.28s
+2026-01-22 14:39:06 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 14:39:22 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 14:42:33 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 14:42:53 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-01-22 14:42:53 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 14:42:53 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-01-22 14:42:53 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-22 14:42:56 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-01-22 14:42:56 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: d73f36de-fc18-47fe-9fbc-d8efb0af01ca
+2026-01-22 14:42:56 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: d73f36de-fc18-47fe-9fbc-d8efb0af01ca
+2026-01-22 14:42:56 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_d3aa0434ad8b4d45' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 71260324-665b-4f04-9ab4-3f4280196214
+2026-01-22 14:42:56 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 14:42:56 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 14:43:09 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give em all the bot ids for the bot currently acti...
+2026-01-22 14:43:09 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give em all the bot ids for the bot currently acti...
+2026-01-22 14:43:09 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 14:43:09 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 14:43:09 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.90)
+2026-01-22 14:43:09 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 14:43:09 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 14:43:10 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 14:43:10 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 9 relevant tables
+2026-01-22 14:43:10 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.90)
+2026-01-22 14:43:10 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5694 chars)
+2026-01-22 14:43:10 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: direct
+2026-01-22 14:43:10 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 14:43:10 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: with_context
+2026-01-22 14:43:12 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 14:43:12 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 9 relevant tables
+2026-01-22 14:43:12 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.90)
+2026-01-22 14:43:12 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5694 chars)
+2026-01-22 14:43:12 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: with_context
+2026-01-22 14:43:12 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 14:43:12 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: simplified
+2026-01-22 14:43:13 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 14:43:13 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 9 relevant tables
+2026-01-22 14:43:13 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.90)
+2026-01-22 14:43:13 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5694 chars)
+2026-01-22 14:43:14 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: simplified
+2026-01-22 14:43:14 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 14:43:14 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 4.78s
+2026-01-22 14:43:14 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 14:47:39 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 14:57:58 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 14:58:11 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-01-22 14:58:11 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 14:58:11 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-01-22 14:58:11 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-22 14:58:14 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-01-22 14:58:15 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 8b0a7940-adab-4a3e-ace2-451d19b052a4
+2026-01-22 14:58:15 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: 8b0a7940-adab-4a3e-ace2-451d19b052a4
+2026-01-22 14:58:15 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_d18ed3d2823948a2' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: a92997ea-174e-4ad5-916e-ba017a5be32d
+2026-01-22 14:58:15 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 14:58:15 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 14:58:33 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bots available in the system whose...
+2026-01-22 14:58:33 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the bots available in the system whose...
+2026-01-22 14:58:33 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 14:58:33 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 14:58:33 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-22 14:58:33 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 14:58:33 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 14:58:34 - app.services.sql_assistant.schema.discovery - INFO - 🤖 LLM detected 5 implicit JOINs
+2026-01-22 14:58:34 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 14:58:34 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-22 14:58:34 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (7359 chars)
+2026-01-22 14:58:34 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: direct
+2026-01-22 14:58:34 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT * 
+FROM bot_master 
+WHERE STATUS = 'active' 
+LIMIT 100;
+2026-01-22 14:58:34 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT * 
+FROM bot_master 
+WHERE STATUS = 'active' 
+LIMIT 100;
+2026-01-22 14:58:35 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 14:58:35 - app.services.sql_assistant.core - ERROR - ❌ Error processing query: QueryValidator.validate_results() got an unexpected keyword argument 'row_count'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 232, in process_query
+    validation = self.query_validator.validate_results(
+        results=execution_result['results'],
+    ...<2 lines>...
+        question=chat_request.message
+    )
+TypeError: QueryValidator.validate_results() got an unexpected keyword argument 'row_count'
+2026-01-22 14:58:35 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 1.89s
+2026-01-22 14:58:35 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 15:01:13 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 15:02:26 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 15:02:26 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bots available in the system whose...
+2026-01-22 15:02:26 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the bots available in the system whose...
+2026-01-22 15:02:26 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 15:02:26 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 15:02:26 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-22 15:02:26 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 15:02:26 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 15:02:27 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 15:02:27 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 15:02:27 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-22 15:02:27 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5729 chars)
+2026-01-22 15:02:28 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: direct
+2026-01-22 15:02:28 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT * 
+FROM bot_master 
+WHERE STATUS = 'active' 
+LIMIT 100;
+2026-01-22 15:02:28 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT * 
+FROM bot_master 
+WHERE STATUS = 'active' 
+LIMIT 100;
+2026-01-22 15:02:28 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 15:02:28 - app.services.sql_assistant.core - INFO - ✅ Strategy direct confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 15:02:28 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: with_context
+2026-01-22 15:02:29 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 15:02:29 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 15:02:29 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-22 15:02:29 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5729 chars)
+2026-01-22 15:02:29 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: with_context
+2026-01-22 15:02:29 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT * 
+FROM bot_master 
+WHERE STATUS = 'active' 
+LIMIT 100;
+2026-01-22 15:02:29 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT * 
+FROM bot_master 
+WHERE STATUS = 'active' 
+LIMIT 100;
+2026-01-22 15:02:29 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 15:02:29 - app.services.sql_assistant.core - INFO - ✅ Strategy with_context confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 15:02:29 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: simplified
+2026-01-22 15:02:30 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 15:02:30 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 15:02:30 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-22 15:02:30 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5729 chars)
+2026-01-22 15:02:31 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: simplified
+2026-01-22 15:02:31 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT * 
+FROM bot_master 
+WHERE STATUS = 'active' 
+LIMIT 100;
+2026-01-22 15:02:31 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT * 
+FROM bot_master 
+WHERE STATUS = 'active' 
+LIMIT 100;
+2026-01-22 15:02:31 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 15:02:31 - app.services.sql_assistant.core - INFO - ✅ Strategy simplified confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 15:02:31 - app.services.sql_assistant.core - ERROR - ❌ Error processing query: SessionCache.store_successful_query() missing 1 required positional argument: 'results_count'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 276, in process_query
+    self.session_cache.store_successful_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        chat_request.session_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+        chat_request.message,
+        ^^^^^^^^^^^^^^^^^^^^^
+        best_response.response if isinstance(best_response, ChatResponse) else best_response
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+TypeError: SessionCache.store_successful_query() missing 1 required positional argument: 'results_count'
+2026-01-22 15:02:31 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 4.80s
+2026-01-22 15:02:31 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 15:05:05 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 15:06:08 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 15:07:15 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 15:08:03 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=show me all bot ids...
+2026-01-22 15:08:03 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: show me all bot ids...
+2026-01-22 15:08:03 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 15:08:03 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 15:08:03 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 15:08:03 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 15:08:03 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 15:08:04 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 15:08:04 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 8 relevant tables
+2026-01-22 15:08:04 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 15:08:04 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4918 chars)
+2026-01-22 15:08:05 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: direct
+2026-01-22 15:08:05 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID 
+FROM bot_master 
+LIMIT 100;
+2026-01-22 15:08:05 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT BOT_ID 
+FROM bot_master 
+LIMIT 100;
+2026-01-22 15:08:05 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 15:08:05 - app.services.sql_assistant.core - INFO - ✅ Strategy direct confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 15:08:05 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: with_context
+2026-01-22 15:08:06 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 15:08:06 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 8 relevant tables
+2026-01-22 15:08:06 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 15:08:06 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4918 chars)
+2026-01-22 15:08:06 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: with_context
+2026-01-22 15:08:06 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID FROM bot_master LIMIT 100;
+2026-01-22 15:08:06 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT BOT_ID FROM bot_master LIMIT 100;
+2026-01-22 15:08:06 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 15:08:06 - app.services.sql_assistant.core - INFO - ✅ Strategy with_context confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 15:08:06 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: simplified
+2026-01-22 15:08:07 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 15:08:07 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 8 relevant tables
+2026-01-22 15:08:07 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 15:08:07 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4918 chars)
+2026-01-22 15:08:07 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: simplified
+2026-01-22 15:08:07 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID 
+FROM bot_master 
+LIMIT 100;
+2026-01-22 15:08:07 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT BOT_ID 
+FROM bot_master 
+LIMIT 100;
+2026-01-22 15:08:08 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 15:08:08 - app.services.sql_assistant.core - INFO - ✅ Strategy simplified confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 15:08:08 - app.services.sql_assistant.context.session_cache - INFO - 📝 Stored successful query for session test123
+2026-01-22 15:08:08 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 4.29s
+2026-01-22 15:08:08 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.30
+2026-01-22 15:09:45 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 15:11:00 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 15:12:32 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 15:15:43 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is swedi sorter...
+2026-01-22 15:15:43 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 15:15:43 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is swedi sorter...
+2026-01-22 15:15:43 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-22 15:15:45 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 4 categories
+2026-01-22 15:15:46 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 9dbfc97a-e1e7-47b0-ac2d-1e4e9a1d5379
+2026-01-22 15:15:46 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: 9dbfc97a-e1e7-47b0-ac2d-1e4e9a1d5379
+2026-01-22 15:15:46 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_640e1c356fdf4c26' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 66b023ed-cf2c-4511-8728-98712b2b122f
+2026-01-22 15:15:46 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 15:15:46 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.97
+2026-01-22 15:16:13 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the station ids in the current system...
+2026-01-22 15:16:13 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the station ids in the current system...
+2026-01-22 15:16:13 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 15:16:13 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 15:16:13 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-22 15:16:13 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 15:16:13 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 15:16:14 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 15:16:14 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 9 relevant tables
+2026-01-22 15:16:14 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-22 15:16:14 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5336 chars)
+2026-01-22 15:16:15 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: direct
+2026-01-22 15:16:15 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT STATION_ID 
+FROM hw_station_master 
+LIMIT 100;
+2026-01-22 15:16:15 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT STATION_ID 
+FROM hw_station_master 
+LIMIT 100;
+2026-01-22 15:16:15 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 15:16:15 - app.services.sql_assistant.core - INFO - ✅ Strategy direct confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 15:16:15 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: with_context
+2026-01-22 15:16:16 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 15:16:16 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 9 relevant tables
+2026-01-22 15:16:16 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-22 15:16:16 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5336 chars)
+2026-01-22 15:16:16 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: with_context
+2026-01-22 15:16:16 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT STATION_ID 
+FROM hw_station_master 
+LIMIT 100;
+2026-01-22 15:16:16 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT STATION_ID 
+FROM hw_station_master 
+LIMIT 100;
+2026-01-22 15:16:16 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 15:16:16 - app.services.sql_assistant.core - INFO - ✅ Strategy with_context confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 15:16:16 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: simplified
+2026-01-22 15:16:17 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 15:16:17 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 9 relevant tables
+2026-01-22 15:16:17 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-22 15:16:17 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5336 chars)
+2026-01-22 15:16:18 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: simplified
+2026-01-22 15:16:18 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT STATION_ID 
+FROM hw_station_master 
+LIMIT 100;
+2026-01-22 15:16:18 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT STATION_ID 
+FROM hw_station_master 
+LIMIT 100;
+2026-01-22 15:16:18 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 15:16:18 - app.services.sql_assistant.core - INFO - ✅ Strategy simplified confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 15:16:18 - app.services.sql_assistant.context.session_cache - INFO - 📝 Stored successful query for session e2619f50-b880-4a2c-a367-6f85c69996cc
+2026-01-22 15:16:18 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 4.76s
+2026-01-22 15:16:18 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.30
+2026-01-22 15:17:53 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me top 5 selling items, i need table in the f...
+2026-01-22 15:17:53 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me top 5 selling items, i need table in the f...
+2026-01-22 15:17:53 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 15:17:53 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 15:17:53 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 15:17:53 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 15:17:53 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 15:17:56 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 15:17:56 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 15:17:56 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 15:17:56 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4078 chars)
+2026-01-22 15:17:57 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL with strategy: direct
+2026-01-22 15:17:57 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT SKU_NAME, SKU_ID 
+FROM sku_master 
+ORDER BY VELOCITY DESC 
+LIMIT 5;
+2026-01-22 15:17:57 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT SKU_NAME, SKU_ID 
+FROM sku_master 
+ORDER BY VELOCITY DESC 
+LIMIT 5;
+2026-01-22 15:17:58 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 5 rows returned
+2026-01-22 15:17:58 - app.services.sql_assistant.query.validator - INFO - 📊 Validation confidence: 0.95
+2026-01-22 15:17:58 - app.services.sql_assistant.core - INFO - ✅ Strategy direct confidence: 0.95 - ✅ 5 results found | ✅ Result count looks reasonable | ✅ Results contain meaningful data | ✅ Column names match question context
+2026-01-22 15:17:58 - app.services.sql_assistant.context.session_cache - INFO - 📝 Stored successful query for session e2619f50-b880-4a2c-a367-6f85c69996cc
+2026-01-22 15:17:58 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 5.14s
+2026-01-22 15:17:58 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.95
+2026-01-22 15:18:42 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.DIAGNOSTIC, message=why bot is not moving...
+2026-01-22 15:18:42 - app.services.diagnostic_service - INFO - 🔍 Processing diagnostic query: why bot is not moving...
+2026-01-22 15:18:42 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded bot CSV with latin1 encoding
+2026-01-22 15:18:42 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded 7 bot-level issues
+2026-01-22 15:18:42 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded station CSV with latin1 encoding
+2026-01-22 15:18:42 - app.services.diagnostic.csv_loader - INFO - ✅ Loaded 9 station-level issues
+2026-01-22 15:18:42 - app.services.diagnostic.core - INFO - ✅ Diagnostic Support Service initialized
+2026-01-22 15:18:42 - app.services.diagnostic.core - INFO -    Bot-level issues: 7
+2026-01-22 15:18:42 - app.services.diagnostic.core - INFO -    Station-level issues: 9
+2026-01-22 15:18:42 - app.services.diagnostic.issue_search - INFO - 🔍 Searching for: 'why bot is not moving' | Terms: {'bot', 'moving', 'why', 'not'} | Searching 16 issues
+2026-01-22 15:18:42 - app.services.diagnostic.issue_search - INFO - 📊 Top match: Score=40, Problem='BOT Maintenance / Recovery BOT not assigned...'
+2026-01-22 15:18:42 - app.services.diagnostic.issue_search - INFO -    Reasons: ['Terms: bot, not']
+2026-01-22 15:18:42 - app.services.diagnostic_service - INFO - ✅ Found 10 matches in support CSV database (best: 40%)
+2026-01-22 15:18:42 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_c5dc3b860bf84a3d' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 47154f3c-1dca-4584-9ffa-374751309531
+2026-01-22 15:18:42 - app.services.rlhf_service - INFO - 📝 Feedback recorded: diagnostic_support | neutral | Reward: 0.00
+2026-01-22 15:18:42 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: d75d3534-37c3-46a8-b558-fe84dbeb296e
+2026-01-22 15:18:42 - app.services.diagnostic_service - INFO - 💾 Logged diagnostic chat to database: d75d3534-37c3-46a8-b558-fe84dbeb296e
+2026-01-22 15:18:42 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 15:22:18 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 15:23:27 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 16:26:14 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 16:27:42 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 16:28:45 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 16:34:06 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-01-22 16:34:06 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 16:34:06 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-01-22 16:34:06 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-22 16:34:09 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-01-22 16:34:10 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 86e5950e-7873-4138-834d-3f66f302ef20
+2026-01-22 16:34:10 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: 86e5950e-7873-4138-834d-3f66f302ef20
+2026-01-22 16:34:10 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_b18f674f71db4daf' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 61d64e25-d05b-4e0a-a90f-03e9f067a4d1
+2026-01-22 16:34:10 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 16:34:10 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-22 16:34:26 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=give me all the bots in the system...
+2026-01-22 16:34:26 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-22 16:34:26 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: give me all the bots in the system...
+2026-01-22 16:34:26 - app.services.knowledge_base_service - INFO - 📊 Query classified as: EXPLORATORY
+2026-01-22 16:34:27 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 2 categories
+2026-01-22 16:34:28 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 4f846a8b-48f0-411d-b891-a2bf8689ef56
+2026-01-22 16:34:28 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: 4f846a8b-48f0-411d-b891-a2bf8689ef56
+2026-01-22 16:34:28 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_f36dc16f7c90444e' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 03f62027-514a-4b68-96d0-11105d34fa9c
+2026-01-22 16:34:28 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-22 16:34:28 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.79
+2026-01-22 16:34:42 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bots in the system...
+2026-01-22 16:34:42 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the bots in the system...
+2026-01-22 16:34:42 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 16:34:42 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 16:34:42 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 16:34:42 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 16:34:42 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 16:34:43 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 16:34:43 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 9 relevant tables
+2026-01-22 16:34:43 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 16:34:43 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4717 chars)
+2026-01-22 16:34:43 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): direct
+2026-01-22 16:34:43 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT * FROM bot_master LIMIT 100;
+2026-01-22 16:34:43 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT * FROM bot_master LIMIT 100;
+2026-01-22 16:34:44 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 16:34:44 - app.services.sql_assistant.core - INFO - ✅ Strategy direct confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 16:34:44 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: with_context
+2026-01-22 16:34:45 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 16:34:45 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 9 relevant tables
+2026-01-22 16:34:45 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 16:34:45 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4717 chars)
+2026-01-22 16:34:45 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): with_context
+2026-01-22 16:34:45 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID FROM bot_master LIMIT 100;
+2026-01-22 16:34:45 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT BOT_ID FROM bot_master LIMIT 100;
+2026-01-22 16:34:45 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 16:34:45 - app.services.sql_assistant.core - INFO - ✅ Strategy with_context confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 16:34:45 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: simplified
+2026-01-22 16:34:46 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 16:34:46 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 9 relevant tables
+2026-01-22 16:34:46 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 16:34:46 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4717 chars)
+2026-01-22 16:34:46 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): simplified
+2026-01-22 16:34:46 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT * FROM bot_master LIMIT 100
+2026-01-22 16:34:46 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT * FROM bot_master LIMIT 100
+2026-01-22 16:34:47 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 16:34:47 - app.services.sql_assistant.core - INFO - ✅ Strategy simplified confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 16:34:47 - app.services.sql_assistant.context.session_cache - INFO - 📝 Stored successful query for session efa18a77-085f-41af-85fe-e8320476c2f8
+2026-01-22 16:34:47 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 4.53s
+2026-01-22 16:34:47 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.30
+2026-01-22 16:37:00 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the station ids...
+2026-01-22 16:37:00 - app.services.sql_assistant.core - INFO - 🔍 Processing SQL query: give me all the station ids...
+2026-01-22 16:37:00 - app.services.sql_assistant.core - WARNING - ⚠️ Failed to log chat: 'ChatHistoryService' object has no attribute 'log_chat'
+2026-01-22 16:37:00 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 16:37:00 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 16:37:00 - app.services.sql_assistant.core - INFO - 📊 Intent: retrieve | Temporal: current
+2026-01-22 16:37:00 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: direct
+2026-01-22 16:37:01 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 16:37:01 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 6 relevant tables
+2026-01-22 16:37:01 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 16:37:01 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4534 chars)
+2026-01-22 16:37:01 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): direct
+2026-01-22 16:37:01 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT STATION_ID FROM hw_station_master LIMIT 100;
+2026-01-22 16:37:01 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT STATION_ID FROM hw_station_master LIMIT 100;
+2026-01-22 16:37:01 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 16:37:01 - app.services.sql_assistant.core - INFO - ✅ Strategy direct confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 16:37:01 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: with_context
+2026-01-22 16:37:02 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 16:37:02 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 6 relevant tables
+2026-01-22 16:37:02 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 16:37:02 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4534 chars)
+2026-01-22 16:37:02 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): with_context
+2026-01-22 16:37:02 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT STATION_ID FROM hw_station_master LIMIT 100;
+2026-01-22 16:37:02 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT STATION_ID FROM hw_station_master LIMIT 100;
+2026-01-22 16:37:02 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 16:37:02 - app.services.sql_assistant.core - INFO - ✅ Strategy with_context confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 16:37:02 - app.services.sql_assistant.core - INFO - 🔄 Trying strategy: simplified
+2026-01-22 16:37:03 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 16:37:03 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 6 relevant tables
+2026-01-22 16:37:03 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 16:37:03 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4534 chars)
+2026-01-22 16:37:03 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): simplified
+2026-01-22 16:37:03 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT STATION_ID FROM hw_station_master LIMIT 100;
+2026-01-22 16:37:03 - app.services.sql_assistant.core - INFO - 🔍 Executing SQL: SELECT STATION_ID FROM hw_station_master LIMIT 100;
+2026-01-22 16:37:03 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 16:37:03 - app.services.sql_assistant.core - INFO - ✅ Strategy simplified confidence: 0.30 - No results returned - query might be too restrictive or data doesn't exist
+2026-01-22 16:37:03 - app.services.sql_assistant.context.session_cache - INFO - 📝 Stored successful query for session efa18a77-085f-41af-85fe-e8320476c2f8
+2026-01-22 16:37:03 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 3.42s
+2026-01-22 16:37:03 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.30
+2026-01-22 17:04:51 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 17:30:42 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Show all bots...
+2026-01-22 17:30:42 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 17:30:42 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:30:42 - app.services.sql_assistant.core - INFO - 🔄 Strategy: direct
+2026-01-22 17:30:42 - app.services.sql_assistant.query.generator - ERROR - ❌ SQL generation error with strategy direct: 'NoneType' object has no attribute 'build_system_prompt'
+2026-01-22 17:30:42 - app.services.sql_assistant.core - INFO - 🔄 Strategy: with_context
+2026-01-22 17:30:42 - app.services.sql_assistant.query.generator - ERROR - ❌ SQL generation error with strategy with_context: 'NoneType' object has no attribute 'build_system_prompt'
+2026-01-22 17:30:42 - app.services.sql_assistant.core - INFO - 🔄 Strategy: simplified
+2026-01-22 17:30:42 - app.services.sql_assistant.query.generator - ERROR - ❌ SQL generation error with strategy simplified: 'NoneType' object has no attribute 'build_system_prompt'
+2026-01-22 17:30:42 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.00s
+2026-01-22 17:30:42 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 17:32:48 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 17:35:21 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 17:38:51 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 17:39:29 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 17:42:22 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=show me bot name and charging stations...
+2026-01-22 17:42:22 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 17:42:22 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:42:22 - app.services.sql_assistant.core - INFO - 🔄 Strategy: direct
+2026-01-22 17:42:23 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 17:42:23 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 7 relevant tables
+2026-01-22 17:42:23 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:42:23 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4037 chars)
+2026-01-22 17:42:24 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): direct
+2026-01-22 17:42:24 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID, BATTERY_AT_STATION FROM dashboard_log_bot_charging LIMIT 100
+2026-01-22 17:42:24 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: 'SchemaParser' object has no attribute 'extract_tables_from_sql'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 154, in process_query
+    tables = self.schema_parser.extract_tables_from_sql(base_sql)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SchemaParser' object has no attribute 'extract_tables_from_sql'. Did you mean: 'extract_table_names'?
+2026-01-22 17:42:24 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 1.45s
+2026-01-22 17:42:24 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 17:46:36 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 17:46:43 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=show me bot name and charging stations...
+2026-01-22 17:46:43 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 17:46:43 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:46:43 - app.services.sql_assistant.core - INFO - 🔄 Strategy: direct
+2026-01-22 17:46:44 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 17:46:44 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 7 relevant tables
+2026-01-22 17:46:44 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:46:44 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (4037 chars)
+2026-01-22 17:46:44 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): direct
+2026-01-22 17:46:44 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID, BATTERY_AT_STATION FROM dashboard_log_bot_charging LIMIT 100
+2026-01-22 17:46:44 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: SchemaParser.extract_table_names() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 155, in process_query
+    tables = self.schema_parser.extract_table_names(base_sql)
+TypeError: SchemaParser.extract_table_names() takes 1 positional argument but 2 were given
+2026-01-22 17:46:44 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 1.54s
+2026-01-22 17:46:44 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 17:54:18 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 17:54:48 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 17:55:18 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 17:55:48 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=shwo me the bot name and station id...
+2026-01-22 17:55:48 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 17:55:49 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 17:55:49 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 17:55:49 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:55:49 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5299 chars)
+2026-01-22 17:55:50 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): direct
+2026-01-22 17:55:50 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID, STATION_ID FROM hw_station_master LIMIT 100
+2026-01-22 17:55:50 - app.services.sql_assistant.query.executor - ERROR - ❌ Execution error: Execution failed on sql 'SELECT BOT_ID, STATION_ID FROM hw_station_master LIMIT 100': (1054, "Unknown column 'BOT_ID' in 'field list'")
+2026-01-22 17:55:51 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 17:55:51 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 17:55:51 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:55:51 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5299 chars)
+2026-01-22 17:55:51 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): with_context
+2026-01-22 17:55:51 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID, STATION_ID FROM hw_station_master LIMIT 100;
+2026-01-22 17:55:51 - app.services.sql_assistant.query.executor - ERROR - ❌ Execution error: Execution failed on sql 'SELECT BOT_ID, STATION_ID FROM hw_station_master LIMIT 100;': (1054, "Unknown column 'BOT_ID' in 'field list'")
+2026-01-22 17:55:52 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 17:55:52 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 10 relevant tables
+2026-01-22 17:55:52 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:55:52 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (5299 chars)
+2026-01-22 17:55:52 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): simplified
+2026-01-22 17:55:52 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID, STATION_ID FROM bot_master LIMIT 100;
+2026-01-22 17:55:53 - app.services.sql_assistant.query.executor - ERROR - ❌ Execution error: Execution failed on sql 'SELECT BOT_ID, STATION_ID FROM bot_master LIMIT 100;': (1054, "Unknown column 'STATION_ID' in 'field list'")
+2026-01-22 17:55:53 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 4.68s
+2026-01-22 17:55:53 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 17:56:19 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Show bot name and charging status...
+2026-01-22 17:56:19 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 17:56:20 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 17:56:20 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 6 relevant tables
+2026-01-22 17:56:20 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:56:20 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (3589 chars)
+2026-01-22 17:56:21 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): direct
+2026-01-22 17:56:21 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID, BATTERY_AT_CHARGING_BIT_1 FROM dashboard_log_bot_charging LIMIT 100
+2026-01-22 17:56:21 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 17:56:22 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 17:56:22 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 6 relevant tables
+2026-01-22 17:56:22 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:56:22 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (3589 chars)
+2026-01-22 17:56:22 - app.services.llm_service - WARNING - ⚠️ Groq rate limit hit: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jx31qvv3fxmsmzbs79m0ffj3` service tier `on_demand` on tokens per day (TPD): Limit
+2026-01-22 17:56:22 - app.services.llm_service - ERROR - ❌ Error with groq LLM: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jx31qvv3fxmsmzbs79m0ffj3` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 100000, Requested 1161. Please try again in 16m43.104s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-01-22 17:56:22 - app.services.llm_service - INFO - 🔄 Attempting fallback to OpenAI...
+2026-01-22 17:56:24 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): with_context
+2026-01-22 17:56:24 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID, STATUS FROM bot_master LIMIT 100;
+2026-01-22 17:56:24 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 17:56:24 - app.services.llm_service - WARNING - ⚠️ Groq rate limit hit: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jx31qvv3fxmsmzbs79m0ffj3` service tier `on_demand` on tokens per day (TPD): Limit
+2026-01-22 17:56:24 - app.services.llm_service - ERROR - ❌ Error with groq LLM: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jx31qvv3fxmsmzbs79m0ffj3` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99998, Requested 314. Please try again in 4m29.567999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-01-22 17:56:24 - app.services.llm_service - INFO - 🔄 Attempting fallback to OpenAI...
+2026-01-22 17:56:30 - app.services.sql_assistant.schema.discovery - WARNING - ⚠️ LLM JOIN detection failed: Expecting value: line 1 column 1 (char 0)
+2026-01-22 17:56:30 - app.services.sql_assistant.schema.discovery - INFO - 📋 Selected 6 relevant tables
+2026-01-22 17:56:30 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 17:56:30 - app.services.sql_assistant.prompts.prompt_builder - INFO - 📝 Built system prompt (3589 chars)
+2026-01-22 17:56:30 - app.services.llm_service - WARNING - ⚠️ Groq rate limit hit: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jx31qvv3fxmsmzbs79m0ffj3` service tier `on_demand` on tokens per day (TPD): Limit
+2026-01-22 17:56:30 - app.services.llm_service - ERROR - ❌ Error with groq LLM: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jx31qvv3fxmsmzbs79m0ffj3` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99990, Requested 1159. Please try again in 16m32.736s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-01-22 17:56:30 - app.services.llm_service - INFO - 🔄 Attempting fallback to OpenAI...
+2026-01-22 17:56:32 - app.services.sql_assistant.query.generator - INFO - 🤖 Generated SQL (JOIN-SAFE): simplified
+2026-01-22 17:56:32 - app.services.sql_assistant.query.generator - INFO - 📝 SQL Query: SELECT BOT_ID, STATUS FROM bot_master LIMIT 100;
+2026-01-22 17:56:32 - app.services.sql_assistant.query.executor - INFO - ✅ Query executed: 0 rows returned
+2026-01-22 17:56:32 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 12.63s
+2026-01-22 17:56:32 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.30
+2026-01-22 18:05:18 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:10:09 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:10:49 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:11:26 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:12:08 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:12:54 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:14:59 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:16:19 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=show me all the skus whose demand is very high, to...
+2026-01-22 18:16:19 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 18:16:19 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 18:16:19 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: 'SchemaParser' object has no attribute 'get_schema_summary'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 128, in process_query
+    schema_summary = self.schema_parser.get_schema_summary()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SchemaParser' object has no attribute 'get_schema_summary'
+2026-01-22 18:16:19 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.00s
+2026-01-22 18:16:19 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 18:27:11 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:27:58 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the skus which is not having cost more...
+2026-01-22 18:27:58 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 18:27:58 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 18:27:59 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: Expecting value: line 1 column 1 (char 0)
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 131, in process_query
+    frame = self.semantic_extractor.extract(
+        question=chat_request.message,
+        schema_summary=schema_summary,
+    )
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\query\semantic_frame_extractor.py", line 37, in extract
+    data = json.loads(response)
+  File "C:\Users\Balmukund.Mishra\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\Balmukund.Mishra\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Balmukund.Mishra\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+2026-01-22 18:27:59 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.72s
+2026-01-22 18:27:59 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 18:29:07 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:29:10 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the skus which is not having cost more...
+2026-01-22 18:29:10 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 18:29:10 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 18:29:11 - app.services.llm_service - WARNING - ⚠️ Groq rate limit hit: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jx31qvv3fxmsmzbs79m0ffj3` service tier `on_demand` on tokens per day (TPD): Limit
+2026-01-22 18:29:11 - app.services.llm_service - ERROR - ❌ Error with groq LLM: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jx31qvv3fxmsmzbs79m0ffj3` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99147, Requested 1386. Please try again in 7m40.511999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-01-22 18:29:11 - app.services.llm_service - INFO - 🔄 Attempting fallback to OpenAI...
+2026-01-22 18:29:14 - app.services.sql_assistant.query.semantic_frame_extractor - INFO - 🤖 LLM Response: {
+  "base_table": "article_registered",
+  "dimensions": ["SKU_ID", "SKU_NAME"],
+  "metrics": ["COUNT(*)", "SUM(MAX_STORAGE_QUANTITY)"],
+  "filters": ["MAX_STORAGE_QUANTITY <= 10"],
+  "group_by": ["SKU_ID"],
+  "order_by": ["SKU_ID DESC"],
+  "limit": 100
+}
+2026-01-22 18:29:14 - app.services.sql_assistant.core - INFO - 🧠 Semantic Frame: {'base_table': 'article_registered', 'dimensions': ['SKU_ID', 'SKU_NAME'], 'metrics': ['COUNT(*)', 'SUM(MAX_STORAGE_QUANTITY)'], 'filters': ['MAX_STORAGE_QUANTITY <= 10'], 'group_by': ['SKU_ID'], 'order_by': ['SKU_ID DESC'], 'limit': 100}
+2026-01-22 18:29:14 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: No join path from article_registered to SKU_ID
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 146, in process_query
+    raise ValueError(
+        f"No join path from {frame.base_table} to {dim_table}"
+    )
+ValueError: No join path from article_registered to SKU_ID
+2026-01-22 18:29:14 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 3.25s
+2026-01-22 18:29:14 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 18:34:33 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:35:07 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:35:44 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:36:19 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:36:54 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:37:29 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:38:28 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:39:03 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the skus which is not having cost more...
+2026-01-22 18:39:03 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-22 18:39:03 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-22 18:39:04 - app.services.sql_assistant.query.semantic_frame_extractor - INFO - 🤖 LLM Response: {
+  "base_table": "article_registered",
+  "dimensions": ["SKU_ID", "SKU_NAME"],
+  "metrics": ["COUNT(*)"],
+  "filters": ["MAX_STORAGE_QUANTITY <= 10"],
+  "group_by": ["SKU_ID"],
+  "order_by": ["SKU_ID DESC"],
+  "limit": 100
+}
+2026-01-22 18:39:04 - app.services.sql_assistant.core - INFO - 🧠 Semantic Frame: {'base_table': 'article_registered', 'dimensions': ['SKU_ID', 'SKU_NAME'], 'metrics': ['COUNT(*)'], 'filters': ['MAX_STORAGE_QUANTITY <= 10'], 'group_by': ['SKU_ID'], 'order_by': ['SKU_ID DESC'], 'limit': 100}
+2026-01-22 18:39:04 - app.services.llm_service - WARNING - ⚠️ Groq rate limit hit: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jx31qvv3fxmsmzbs79m0ffj3` service tier `on_demand` on tokens per day (TPD): Limit
+2026-01-22 18:39:04 - app.services.llm_service - ERROR - ❌ Error with groq LLM: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jx31qvv3fxmsmzbs79m0ffj3` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99917, Requested 1386. Please try again in 18m45.792s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-01-22 18:39:04 - app.services.llm_service - INFO - 🔄 Attempting fallback to OpenAI...
+2026-01-22 18:39:07 - app.services.sql_assistant.query.semantic_frame_extractor - INFO - 🤖 LLM Response: {
+  "base_table": "article_registered",
+  "dimensions": ["SKU_ID", "SKU_NAME"],
+  "metrics": ["COUNT(*)", "SUM(MAX_STORAGE_QUANTITY)"],
+  "filters": ["MAX_STORAGE_QUANTITY <= 10"],
+  "group_by": ["SKU_ID"],
+  "order_by": ["SKU_ID DESC"],
+  "limit": 100
+}
+2026-01-22 18:39:07 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: No join path from article_registered to put_wave_wms_data
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 155, in process_query
+    raise ValueError(
+        f"No join path from {frame.base_table} to {dim_table}"
+    )
+ValueError: No join path from article_registered to put_wave_wms_data
+2026-01-22 18:39:07 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 4.38s
+2026-01-22 18:39:07 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-22 18:52:49 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:53:28 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:54:06 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:54:44 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:56:17 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log
+2026-01-22 18:57:15 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260122.log

@@ -534,7 +534,11 @@ class SQLAssistantService:
     
     def _check_classified_queries(self, question: str) -> Optional[Tuple[str, float, Dict]]:
         """
-        Check classified queries file (human-verified queries)
+        Check classified queries file (ONLY human-verified queries)
+        
+        CRITICAL: Only returns queries that have been:
+        1. Classified as 'correct' by human review
+        2. OR present in learned_patterns.json as validated pattern
         
         Returns:
             Tuple of (sql, confidence, metadata) if found, None otherwise
@@ -543,15 +547,41 @@ class SQLAssistantService:
             return None
         
         try:
-            # Load all classified queries from JSONL file
+            # Load classified queries
             classified_file = settings.DATA_DIR / "classification" / "classified_queries.jsonl"
             if not classified_file.exists():
                 return None
+            
+            # Load learned patterns (human-validated queries)
+            learned_patterns_file = settings.DATA_DIR / "classification" / "learned_patterns.json"
+            learned_patterns = {}
+            if learned_patterns_file.exists():
+                with open(learned_patterns_file, 'r', encoding='utf-8') as f:
+                    learned_patterns = json.load(f)
             
             with open(classified_file, 'r', encoding='utf-8') as f:
                 classified = [json.loads(line) for line in f if line.strip()]
             
             for query_record in classified:
+                # VALIDATION 1: Skip if not human-validated
+                classification = query_record.get('classification', 'unclassified')
+                query_id = query_record.get('query_id', '')
+                
+                # Only use queries that are:
+                # 1. Classified as 'correct' 
+                # 2. OR have source='manual_correction' (manually added correct queries)
+                # 3. OR present in learned_patterns.json
+                is_validated = (
+                    classification == 'correct' or
+                    classification == 'bin_presentation' or  # Specific validated categories
+                    query_record.get('metadata', {}).get('source') == 'manual_correction' or
+                    query_id in learned_patterns
+                )
+                
+                if not is_validated:
+                    # Skip unvalidated queries
+                    continue
+                
                 # Handle both 'query' and 'user_query' field names
                 user_query = query_record.get('query') or query_record.get('user_query') or query_record.get('question', '')
                 if not user_query:
@@ -560,8 +590,9 @@ class SQLAssistantService:
                 similarity = self._calculate_similarity(question, user_query)
                 
                 if similarity >= self.classified_query_similarity_threshold:
-                    logger.info(f"📚 CLASSIFIED QUERY HIT! Similarity: {similarity:.2%}")
-                    logger.info(f"   Classified Q: {user_query[:60]}")
+                    logger.info(f"📚 VALIDATED QUERY HIT! Similarity: {similarity:.2%}")
+                    logger.info(f"   Classification: {classification}")
+                    logger.info(f"   Validated Q: {user_query[:60]}")
                     logger.info(f"   Current Q: {question[:60]}")
                     
                     # High confidence for human-verified queries + 10% boost
@@ -579,12 +610,15 @@ class SQLAssistantService:
                         sql,
                         confidence,
                         {
-                            'source': 'classified_queries',
+                            'source': 'validated_classified_queries',
                             'original_question': user_query,
                             'similarity': similarity,
-                            'classification': query_record.get('category')
+                            'classification': classification,
+                            'validated': True
                         }
                     )
+            
+            logger.info("📚 No validated classified query match found")
         except Exception as e:
             logger.warning(f"⚠️ Error checking classified queries: {e}")
         

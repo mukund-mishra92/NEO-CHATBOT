@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 import logging
+import json
 
 from app.core.config import settings
 
@@ -311,4 +312,151 @@ async def search_queries(
         
     except Exception as e:
         logger.error(f"❌ Error searching queries: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================================
+# BUSINESS RULES MANAGEMENT
+# ========================================
+
+class BusinessRuleRequest(BaseModel):
+    rule_name: str = Field(..., description="Name of the business rule")
+    rule_config: Dict[str, Any] = Field(..., description="Rule configuration")
+
+
+@router.get("/business-rules")
+async def get_business_rules():
+    """
+    Get current business rules from config/sql_assistant_config.json
+    """
+    try:
+        config_path = settings.DATA_DIR.parent / "config" / "sql_assistant_config.json"
+        
+        if not config_path.exists():
+            return {"business_rules": {}, "path": str(config_path)}
+        
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        
+        return {
+            "business_rules": config.get("business_rules", {}),
+            "total_rules": len(config.get("business_rules", {})),
+            "path": str(config_path)
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error loading business rules: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/business-rules")
+async def update_business_rule(request: BusinessRuleRequest):
+    """
+    Add or update a business rule in config/sql_assistant_config.json
+    """
+    try:
+        config_path = settings.DATA_DIR.parent / "config" / "sql_assistant_config.json"
+        
+        # Load existing config
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+        else:
+            config = {"business_rules": {}, "example_queries": {}}
+        
+        # Ensure business_rules exists
+        if "business_rules" not in config:
+            config["business_rules"] = {}
+        
+        # Update the rule
+        config["business_rules"][request.rule_name] = request.rule_config
+        
+        # Save back to file
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"✅ Updated business rule: {request.rule_name}")
+        
+        return {
+            "success": True,
+            "message": f"Business rule '{request.rule_name}' updated successfully",
+            "total_rules": len(config["business_rules"])
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error updating business rule: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/business-rules/{rule_name}")
+async def delete_business_rule(rule_name: str):
+    """
+    Delete a business rule from config/sql_assistant_config.json
+    """
+    try:
+        config_path = settings.DATA_DIR.parent / "config" / "sql_assistant_config.json"
+        
+        if not config_path.exists():
+            raise HTTPException(status_code=404, detail="Config file not found")
+        
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        
+        if "business_rules" not in config or rule_name not in config["business_rules"]:
+            raise HTTPException(status_code=404, detail=f"Rule '{rule_name}' not found")
+        
+        # Delete the rule
+        del config["business_rules"][rule_name]
+        
+        # Save back to file
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"✅ Deleted business rule: {rule_name}")
+        
+        return {
+            "success": True,
+            "message": f"Business rule '{rule_name}' deleted successfully",
+            "total_rules": len(config["business_rules"])
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Error deleting business rule: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/business-rules/bulk")
+async def update_all_business_rules(business_rules: Dict[str, Any]):
+    """
+    Replace all business rules in config/sql_assistant_config.json
+    """
+    try:
+        config_path = settings.DATA_DIR.parent / "config" / "sql_assistant_config.json"
+        
+        # Load existing config
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+        else:
+            config = {"business_rules": {}, "example_queries": {}}
+        
+        # Replace all business rules
+        config["business_rules"] = business_rules
+        
+        # Save back to file
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"✅ Updated all business rules ({len(business_rules)} total)")
+        
+        return {
+            "success": True,
+            "message": f"All business rules updated successfully",
+            "total_rules": len(business_rules)
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error updating all business rules: {e}")
         raise HTTPException(status_code=500, detail=str(e))

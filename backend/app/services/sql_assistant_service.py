@@ -148,6 +148,8 @@ class SQLAssistantService:
         self.temporal_indicators: Dict[str, List[str]] = {}
         self.entity_table_map_config: Dict[str, List[str]] = {}
         self.predefined_joins_config: List[Dict[str, Any]] = []
+        self.business_rules: Dict[str, Any] = {}
+        self.example_queries: Dict[str, Any] = {}
 
         try:
             # BASE_DIR/config/sql_assistant_config.json → derive from DATA_DIR
@@ -167,8 +169,10 @@ class SQLAssistantService:
             self.temporal_indicators = cfg.get("temporal_indicators", {}) or {}
             self.entity_table_map_config = cfg.get("entity_tables", {}) or {}
             self.predefined_joins_config = cfg.get("predefined_joins", []) or []
+            self.business_rules = cfg.get("business_rules", {}) or {}
+            self.example_queries = cfg.get("example_queries", {}) or {}
 
-            logger.info(f"✅ Loaded SQL assistant config from {config_path}")
+            logger.info(f"✅ Loaded SQL assistant config from {config_path} | Business rules: {len(self.business_rules)} | Example queries: {len(self.example_queries)}")
 
         except Exception as e:
             logger.warning(f"⚠️ Failed to load SQL assistant config, using built-in defaults: {e}")
@@ -1909,6 +1913,93 @@ class SQLAssistantService:
         
         return "\n".join(guidance_parts)
     
+    def _check_business_rules(self, query: str) -> str:
+        """Check if query matches any business rules and return guidance"""
+        if not self.business_rules:
+            return ""
+        
+        query_lower = query.lower()
+        matched_rules = []
+        
+        for rule_name, rule_config in self.business_rules.items():
+            # Check if query mentions any of the trigger keywords
+            triggers = rule_config.get("triggers", [])
+            if any(trigger.lower() in query_lower for trigger in triggers):
+                matched_rules.append((rule_name, rule_config))
+        
+        if not matched_rules:
+            return ""
+        
+        rules_guidance = "\n\n🔴 CRITICAL BUSINESS RULES DETECTED 🔴\n"
+        rules_guidance += "The query matches specific business logic. YOU MUST FOLLOW THESE RULES:\n"
+        
+        for rule_name, rule_config in matched_rules:
+            rules_guidance += f"\n\n📋 Rule: {rule_name.upper()}\n"
+            rules_guidance += f"   Description: {rule_config.get('description', 'N/A')}\n"
+            
+            if 'required_table' in rule_config:
+                rules_guidance += f"   ⚠️ MUST USE TABLE: {rule_config['required_table']}\n"
+            
+            if 'required_filters' in rule_config:
+                rules_guidance += f"   ⚠️ REQUIRED WHERE FILTERS:\n"
+                for filter_rule in rule_config['required_filters']:
+                    rules_guidance += f"      - {filter_rule}\n"
+            
+            if 'join_table' in rule_config and 'join_condition' in rule_config:
+                rules_guidance += f"   ⚠️ JOIN WITH: {rule_config['join_table']}\n"
+                rules_guidance += f"   ⚠️ JOIN ON: {rule_config['join_condition']}\n"
+            
+            if 'timestamp_column' in rule_config:
+                rules_guidance += f"   ⚠️ USE TIMESTAMP COLUMN: {rule_config['timestamp_column']}\n"
+        
+        rules_guidance += "\n❌ DO NOT use alternative tables or approaches for these queries!\n"
+        rules_guidance += "❌ DO NOT skip the required filters!\n"
+        rules_guidance += "✅ Follow the exact patterns specified above.\n"
+        
+        return rules_guidance
+    
+    def _find_matching_example_queries(self, query: str) -> str:
+        """Find and return example queries that match the user's query"""
+        if not self.example_queries:
+            return ""
+        
+        query_lower = query.lower()
+        matched_examples = []
+        
+        # Simple keyword matching
+        for example_key, example_data in self.example_queries.items():
+            user_query_text = example_data.get('user_query', '').lower()
+            
+            # Calculate simple similarity based on word overlap
+            query_words = set(query_lower.split())
+            example_words = set(user_query_text.split())
+            common_words = query_words.intersection(example_words)
+            
+            if len(common_words) >= 2:  # At least 2 words in common
+                similarity = len(common_words) / max(len(query_words), len(example_words))
+                matched_examples.append((similarity, example_key, example_data))
+        
+        if not matched_examples:
+            return ""
+        
+        # Sort by similarity and take top 2
+        matched_examples.sort(reverse=True, key=lambda x: x[0])
+        top_examples = matched_examples[:2]
+        
+        examples_text = "\n\n💡 EXACT EXAMPLE QUERIES FOR THIS USE CASE:\n"
+        examples_text += "These are PROVEN CORRECT queries for similar questions. USE THESE AS TEMPLATES!\n"
+        
+        for similarity, example_key, example_data in top_examples:
+            examples_text += f"\n\n✅ Example: {example_data.get('user_query', 'N/A')}\n"
+            examples_text += f"   Tables used: {', '.join(example_data.get('tables', []))}\n"
+            examples_text += f"   Confidence: {example_data.get('confidence', 0.9) * 100:.0f}%\n"
+            examples_text += f"   SQL:\n```sql\n{example_data.get('sql', 'N/A')}\n```\n"
+            examples_text += f"   Match score: {similarity * 100:.0f}%\n"
+        
+        examples_text += "\n⚠️ Use the same tables, joins, and filters as shown above!\n"
+        
+        return examples_text
+    
     def _get_system_prompt(self, query: str, context: Optional[Dict[str, Any]] = None) -> str:
         """Generate system prompt with intelligent schema and conversation context"""
         # Get intelligent schema with JOIN hints and semantic info
@@ -1924,6 +2015,12 @@ class SQLAssistantService:
         
         # Build query-specific guidance
         query_guidance = self._build_query_guidance(intent_info)
+        
+        # CHECK FOR BUSINESS RULES (CRITICAL FOR BIN PRESENTATION)
+        business_rules_guidance = self._check_business_rules(query)
+        
+        # FIND MATCHING EXAMPLE QUERIES
+        example_queries_guidance = self._find_matching_example_queries(query)
         
         # Find similar SQL examples from codebase
         sql_examples = self._find_similar_sql_examples(query, top_k=3)
@@ -1980,6 +2077,8 @@ class SQLAssistantService:
         return f"""You are a SQL expert for the NEO Warehouse Management System.
 
 {context_prompt}
+{business_rules_guidance}
+{example_queries_guidance}
 
 {temporal_guidance}
 

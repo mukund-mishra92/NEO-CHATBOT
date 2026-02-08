@@ -1,0 +1,222 @@
+2026-01-20 13:32:09 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260120.log
+2026-01-20 13:33:56 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260120.log
+2026-01-20 13:36:32 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260120.log
+2026-01-20 14:38:43 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260120.log
+2026-01-20 14:53:13 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260120.log
+2026-01-20 17:46:04 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-01-20 17:46:04 - app.api.chatbot_endpoints - INFO - 📚 Using traditional Knowledge Base service
+2026-01-20 17:46:04 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-01-20 17:46:04 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-01-20 17:46:11 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-01-20 17:46:11 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 27788425-45b3-4ca9-beb3-eac314b54b93
+2026-01-20 17:46:11 - app.services.knowledge_base_service - INFO - 💾 Logged knowledge base chat to database: 27788425-45b3-4ca9-beb3-eac314b54b93
+2026-01-20 17:46:11 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_9232c2d137a94a9a' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 411b48d3-9eb7-4459-b109-d028f0a52690
+2026-01-20 17:46:11 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-01-20 17:46:11 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75
+2026-01-20 17:46:54 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=i am looking for all the unique article ids who ar...
+2026-01-20 17:46:54 - app.services.sql_assistant_service - INFO - 🔍 Processing SQL query: i am looking for all the unique article ids who ar...
+2026-01-20 17:46:54 - app.services.sql_assistant_service - INFO - 🔄 Attempt 1/3 using strategy: direct
+2026-01-20 17:46:54 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['sku']
+2026-01-20 17:46:54 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 6 potential JOINs
+2026-01-20 17:46:56 - app.services.sql_assistant_service - INFO - 🤖 LLM detected 6 implicit JOIN paths
+2026-01-20 17:46:56 - app.services.sql_assistant_service - INFO - 🔗 Found 9 JOIN paths using all tiers
+2026-01-20 17:46:56 - app.services.sql_assistant_service - INFO - 📋 Using 10 relevant tables | JOINs detected: 9
+2026-01-20 17:46:56 - app.services.sql_assistant_service - WARNING - ⚠️ Vector search failed: 'VectorStoreService' object has no attribute 'search_sql_examples', trying fallback
+2026-01-20 17:46:56 - app.services.chat_history_service - INFO - 📚 Learned from history: 1 successful, 0 failed patterns
+2026-01-20 17:46:57 - app.services.sql_assistant_service - INFO - ✅ Table validation passed - all tables exist in schema
+2026-01-20 17:46:57 - app.services.sql_assistant_service - INFO - ✅ Column validation passed - all columns exist in their tables
+2026-01-20 17:46:57 - app.services.sql_assistant_service - INFO - ✅ Value validation passed - filter values exist in database
+2026-01-20 17:46:58 - app.services.sql_assistant_service - ERROR - ❌ Execution error: Execution failed on sql 'SELECT DISTINCT ARTICLE_ID 
+FROM article_proximity_score 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM wms_to_wcs_order_line_request_data;': (1054, "Unknown column 'ARTICLE_ID' in 'field list'")
+2026-01-20 17:46:58 - app.services.sql_assistant_service - WARNING - ⚠️ Query execution error (attempt 1): Execution failed on sql 'SELECT DISTINCT ARTICLE_ID 
+FROM article_proximity_score 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM wms_to_wcs_order_line_request_data;': (1054, "Unknown column 'ARTICLE_ID' in 'field list'")
+2026-01-20 17:46:58 - app.services.sql_assistant_service - INFO - 🔄 Attempt 2/3 using strategy: with_context
+2026-01-20 17:46:58 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['sku']
+2026-01-20 17:46:58 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 6 potential JOINs
+2026-01-20 17:47:00 - app.services.sql_assistant_service - INFO - 🤖 LLM detected 6 implicit JOIN paths
+2026-01-20 17:47:00 - app.services.sql_assistant_service - INFO - 🔗 Found 9 JOIN paths using all tiers
+2026-01-20 17:47:00 - app.services.sql_assistant_service - INFO - 📋 Using 10 relevant tables | JOINs detected: 9
+2026-01-20 17:47:00 - app.services.sql_assistant_service - WARNING - ⚠️ Vector search failed: 'VectorStoreService' object has no attribute 'search_sql_examples', trying fallback
+2026-01-20 17:47:00 - app.services.chat_history_service - INFO - 📚 Learned from history: 1 successful, 0 failed patterns
+2026-01-20 17:47:01 - app.services.sql_assistant_service - INFO - ✅ Table validation passed - all tables exist in schema
+2026-01-20 17:47:01 - app.services.sql_assistant_service - INFO - ✅ Column validation passed - all columns exist in their tables
+2026-01-20 17:47:01 - app.services.sql_assistant_service - INFO - ✅ Value validation passed - filter values exist in database
+2026-01-20 17:47:01 - app.services.sql_assistant_service - ERROR - ❌ Execution error: Execution failed on sql 'SELECT DISTINCT ARTICLE_ID 
+FROM article_proximity_score 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM wms_to_wcs_order_line_request_data 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM live_inventory_master 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM lpn_master_stock_audit 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM lpn_pick_wave_order_mapping 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM lpn_pick_wave_order_mapping_archive 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM put_wave_order_master_archive 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM stock_audit_wave_wms_data 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM wave_master_archive 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM wave_station_rule_mapping 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM wms_to_wcs_order_line_request_data 
+LIMIT 1000;': (1054, "Unknown column 'ARTICLE_ID' in 'field list'")
+2026-01-20 17:47:01 - app.services.sql_assistant_service - WARNING - ⚠️ Query execution error (attempt 2): Execution failed on sql 'SELECT DISTINCT ARTICLE_ID 
+FROM article_proximity_score 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM wms_to_wcs_order_line_request_data 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM live_inventory_master 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM lpn_master_stock_audit 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM lpn_pick_wave_order_mapping 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM lpn_pick_wave_order_mapping_archive 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM put_wave_order_master_archive 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM stock_audit_wave_wms_data 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM wave_master_archive 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM wave_station_rule_mapping 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM wms_to_wcs_order_line_request_data 
+LIMIT 1000;': (1054, "Unknown column 'ARTICLE_ID' in 'field list'")
+2026-01-20 17:47:01 - app.services.sql_assistant_service - INFO - 🔄 Attempt 3/3 using strategy: simplified
+2026-01-20 17:47:01 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['sku']
+2026-01-20 17:47:01 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 6 potential JOINs
+2026-01-20 17:47:02 - app.services.sql_assistant_service - INFO - 🤖 LLM detected 6 implicit JOIN paths
+2026-01-20 17:47:02 - app.services.sql_assistant_service - INFO - 🔗 Found 9 JOIN paths using all tiers
+2026-01-20 17:47:02 - app.services.sql_assistant_service - INFO - 📋 Using 10 relevant tables | JOINs detected: 9
+2026-01-20 17:47:02 - app.services.sql_assistant_service - WARNING - ⚠️ Vector search failed: 'VectorStoreService' object has no attribute 'search_sql_examples', trying fallback
+2026-01-20 17:47:02 - app.services.chat_history_service - INFO - 📚 Learned from history: 1 successful, 0 failed patterns
+2026-01-20 17:47:02 - groq._base_client - INFO - Retrying request to /openai/v1/chat/completions in 16.000000 seconds
+2026-01-20 17:47:25 - app.services.sql_assistant_service - INFO - ✅ Table validation passed - all tables exist in schema
+2026-01-20 17:47:25 - app.services.sql_assistant_service - INFO - ✅ Column validation passed - all columns exist in their tables
+2026-01-20 17:47:25 - app.services.sql_assistant_service - INFO - ✅ Value validation passed - filter values exist in database
+2026-01-20 17:47:25 - app.services.sql_assistant_service - ERROR - ❌ Execution error: Execution failed on sql 'SELECT DISTINCT ARTICLE_ID 
+FROM article_proximity_score 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM live_inventory_master': (1054, "Unknown column 'ARTICLE_ID' in 'field list'")
+2026-01-20 17:47:25 - app.services.sql_assistant_service - WARNING - ⚠️ Query execution error (attempt 3): Execution failed on sql 'SELECT DISTINCT ARTICLE_ID 
+FROM article_proximity_score 
+UNION 
+SELECT DISTINCT ARTICLE_ID 
+FROM live_inventory_master': (1054, "Unknown column 'ARTICLE_ID' in 'field list'")
+2026-01-20 17:47:25 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 1af3b187-8fb3-4f6c-9989-66b2a59ae1bb
+2026-01-20 17:47:25 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 1af3b187-8fb3-4f6c-9989-66b2a59ae1bb
+2026-01-20 17:47:25 - app.services.sql_assistant_service - WARNING - ⚠️ All attempts failed to produce confident results
+2026-01-20 17:47:25 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 361ef55c-9733-4f94-87e7-7c853594a4e6
+2026-01-20 17:47:25 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 361ef55c-9733-4f94-87e7-7c853594a4e6
+2026-01-20 17:47:25 - app.services.sql_assistant_service - INFO - 💾 Logged low-confidence query to database: 361ef55c-9733-4f94-87e7-7c853594a4e6
+2026-01-20 17:47:25 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.50
+2026-01-20 17:48:50 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=no, the generated outpur is incorrect, SELECT COUN...
+2026-01-20 17:48:50 - app.services.sql_assistant_service - INFO - 🔍 Processing SQL query: no, the generated outpur is incorrect, SELECT COUN...
+2026-01-20 17:48:50 - app.services.sql_assistant_service - INFO - 🔄 Attempt 1/3 using strategy: direct
+2026-01-20 17:48:50 - app.services.sql_assistant_service - INFO - 🎯 Query intent: count, entities: ['sku']
+2026-01-20 17:48:50 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 24 potential JOINs
+2026-01-20 17:48:50 - app.services.sql_assistant_service - INFO - 🔗 Found 13 JOIN paths using all tiers
+2026-01-20 17:48:50 - app.services.sql_assistant_service - INFO - 📋 Using 10 relevant tables | JOINs detected: 13
+2026-01-20 17:48:50 - app.services.sql_assistant_service - WARNING - ⚠️ Vector search failed: 'VectorStoreService' object has no attribute 'search_sql_examples', trying fallback
+2026-01-20 17:48:50 - app.services.chat_history_service - INFO - 📚 Learned from history: 0 successful, 0 failed patterns
+2026-01-20 17:48:50 - app.services.sql_assistant_service - INFO - ✅ Table validation passed - all tables exist in schema
+2026-01-20 17:48:50 - app.services.sql_assistant_service - INFO - ✅ Column validation passed - all columns exist in their tables
+2026-01-20 17:48:50 - app.services.sql_assistant_service - INFO - ✅ Value validation passed - filter values exist in database
+2026-01-20 17:48:51 - app.services.sql_assistant_service - INFO - ✅ Query executed: 1 rows returned
+2026-01-20 17:48:51 - app.services.sql_assistant_service - INFO - 🎯 Query intent: count, entities: ['sku']
+2026-01-20 17:48:51 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 12 potential JOINs
+2026-01-20 17:48:52 - app.services.sql_assistant_service - WARNING - ⚠️ LLM-based JOIN detection failed: Unterminated string starting at: line 37 column 26 (char 2257)
+2026-01-20 17:48:52 - app.services.sql_assistant_service - INFO - 🔗 Found 6 JOIN paths using all tiers
+2026-01-20 17:48:52 - app.services.sql_assistant_service - INFO - 📋 Using 8 relevant tables | JOINs detected: 6
+2026-01-20 17:48:52 - app.services.sql_assistant_service - INFO - 🔁 Self-refinement iteration 1/3
+2026-01-20 17:48:52 - app.services.sql_assistant_service - INFO - 📊 Validation: confidence=0.95, msg=✅ 1 results found | ✅ Result count looks reasonable | ✅ Results contain meaningful data | ✅ Column names match question context
+2026-01-20 17:48:52 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge decision (iteration 1): satisfactory=True, confidence=0.90
+2026-01-20 17:48:52 - app.services.sql_assistant_service - INFO - 🧑‍⚖️ Judge: satisfactory=True, confidence=0.90
+2026-01-20 17:48:52 - app.services.sql_assistant_service - INFO - ✅ Judge satisfied with high confidence (0.90) - stopping refinement
+2026-01-20 17:48:52 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 1086e8ee-692b-4a93-96d4-68ac580e136e
+2026-01-20 17:48:52 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 1086e8ee-692b-4a93-96d4-68ac580e136e
+2026-01-20 17:48:52 - app.services.chat_history_service - ERROR - ❌ Error updating query pattern: unsupported operand type(s) for +: 'decimal.Decimal' and 'float'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\chat_history_service.py", line 329, in update_query_pattern
+    new_success_rate = ((success_rate * frequency) + (1.0 if success else 0.0)) / new_frequency
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for +: 'decimal.Decimal' and 'float'
+2026-01-20 17:48:52 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_31d3309f2a1b484e' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 27b1f7f6-7f20-4382-80ea-3719c474de68
+2026-01-20 17:48:52 - app.services.rlhf_service - INFO - 📝 Feedback recorded: sql_assistant | neutral | Reward: 0.10
+2026-01-20 17:48:52 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.95
+2026-01-20 17:50:21 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=no, i think we are doing wrong. i am lookin for in...
+2026-01-20 17:50:21 - app.services.sql_assistant_service - INFO - 🔍 Processing SQL query: no, i think we are doing wrong. i am lookin for in...
+2026-01-20 17:50:21 - app.services.sql_assistant_service - INFO - 🔄 Attempt 1/3 using strategy: direct
+2026-01-20 17:50:21 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['bot']
+2026-01-20 17:50:21 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 12 potential JOINs
+2026-01-20 17:50:22 - app.services.sql_assistant_service - INFO - 🤖 LLM detected 5 implicit JOIN paths
+2026-01-20 17:50:22 - app.services.sql_assistant_service - INFO - 🔗 Found 10 JOIN paths using all tiers
+2026-01-20 17:50:22 - app.services.sql_assistant_service - INFO - 📋 Using 10 relevant tables | JOINs detected: 10
+2026-01-20 17:50:22 - app.services.sql_assistant_service - WARNING - ⚠️ Vector search failed: 'VectorStoreService' object has no attribute 'search_sql_examples', trying fallback
+2026-01-20 17:50:22 - app.services.chat_history_service - INFO - 📚 Learned from history: 0 successful, 2 failed patterns
+2026-01-20 17:50:22 - app.services.sql_assistant_service - WARNING - ⚠️ SQL uses non-existent tables: ['YOUR_TABLE']
+2026-01-20 17:50:22 - app.services.sql_assistant_service - ERROR - ❌ Generated SQL uses non-existent tables: ['YOUR_TABLE']
+2026-01-20 17:50:22 - app.services.sql_assistant_service - WARNING - ⚠️ Skipping execution due to invalid tables (attempt 1)
+2026-01-20 17:50:22 - app.services.sql_assistant_service - INFO - 📝 Stored failed table: YOUR_TABLE (does not exist in schema)
+2026-01-20 17:50:22 - app.services.sql_assistant_service - INFO - 🔄 Attempt 2/3 using strategy: with_context
+2026-01-20 17:50:22 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['bot']
+2026-01-20 17:50:22 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 12 potential JOINs
+2026-01-20 17:50:24 - app.services.sql_assistant_service - INFO - 🤖 LLM detected 5 implicit JOIN paths
+2026-01-20 17:50:24 - app.services.sql_assistant_service - INFO - 🔗 Found 10 JOIN paths using all tiers
+2026-01-20 17:50:24 - app.services.sql_assistant_service - INFO - 📋 Using 10 relevant tables | JOINs detected: 10
+2026-01-20 17:50:24 - app.services.sql_assistant_service - WARNING - ⚠️ Vector search failed: 'VectorStoreService' object has no attribute 'search_sql_examples', trying fallback
+2026-01-20 17:50:24 - app.services.chat_history_service - INFO - 📚 Learned from history: 0 successful, 2 failed patterns
+2026-01-20 17:50:24 - app.services.sql_assistant_service - WARNING - ⚠️ SQL uses non-existent tables: ['table_name']
+2026-01-20 17:50:24 - app.services.sql_assistant_service - ERROR - ❌ Generated SQL uses non-existent tables: ['table_name']
+2026-01-20 17:50:24 - app.services.sql_assistant_service - WARNING - ⚠️ Skipping execution due to invalid tables (attempt 2)
+2026-01-20 17:50:24 - app.services.sql_assistant_service - INFO - 📝 Stored failed table: table_name (does not exist in schema)
+2026-01-20 17:50:24 - app.services.sql_assistant_service - INFO - 🔄 Attempt 3/3 using strategy: simplified
+2026-01-20 17:50:24 - app.services.sql_assistant_service - INFO - 🎯 Query intent: retrieve, entities: ['bot']
+2026-01-20 17:50:24 - app.services.sql_assistant_service - INFO - 📊 Schema discovery found 12 potential JOINs
+2026-01-20 17:50:25 - app.services.sql_assistant_service - INFO - 🤖 LLM detected 5 implicit JOIN paths
+2026-01-20 17:50:25 - app.services.sql_assistant_service - INFO - 🔗 Found 10 JOIN paths using all tiers
+2026-01-20 17:50:25 - app.services.sql_assistant_service - INFO - 📋 Using 10 relevant tables | JOINs detected: 10
+2026-01-20 17:50:25 - app.services.sql_assistant_service - WARNING - ⚠️ Vector search failed: 'VectorStoreService' object has no attribute 'search_sql_examples', trying fallback
+2026-01-20 17:50:25 - app.services.chat_history_service - INFO - 📚 Learned from history: 0 successful, 2 failed patterns
+2026-01-20 17:50:25 - groq._base_client - INFO - Retrying request to /openai/v1/chat/completions in 19.000000 seconds
+2026-01-20 17:50:45 - app.services.sql_assistant_service - WARNING - ⚠️ SQL uses non-existent tables: ['table_name']
+2026-01-20 17:50:45 - app.services.sql_assistant_service - ERROR - ❌ Generated SQL uses non-existent tables: ['table_name']
+2026-01-20 17:50:45 - app.services.sql_assistant_service - WARNING - ⚠️ Skipping execution due to invalid tables (attempt 3)
+2026-01-20 17:50:45 - app.services.sql_assistant_service - INFO - 📝 Stored failed table: table_name (does not exist in schema)
+2026-01-20 17:50:45 - app.services.sql_assistant_service - WARNING - ⚠️ All attempts failed to produce confident results
+2026-01-20 17:50:45 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 0a98627a-fdf4-43b6-8e2d-ab602f272387
+2026-01-20 17:50:45 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 0a98627a-fdf4-43b6-8e2d-ab602f272387
+2026-01-20 17:50:45 - app.services.sql_assistant_service - INFO - 💾 Logged low-confidence query to database: 0a98627a-fdf4-43b6-8e2d-ab602f272387
+2026-01-20 17:50:45 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.50
