@@ -131,6 +131,14 @@ class SQLAssistantService:
         self.available_tables = self._get_available_tables()
         logger.info(f"✅ Cached {len(self.available_tables)} available tables")
         
+        # Load table priority validations from user feedback
+        self.table_validations = self._load_table_validations()
+        logger.info(f"✅ Loaded {len(self.table_validations)} table priority validation rules")
+        
+        # Load business rules from config
+        self.business_rules = self._load_business_rules()
+        logger.info(f"✅ Loaded {len(self.business_rules)} business rules from config")
+        
         # Configuration
         self.max_retry_attempts = 3
         self.high_confidence_threshold = 0.94
@@ -206,6 +214,129 @@ class SQLAssistantService:
         except Exception as e:
             logger.error(f"❌ Error getting available tables: {e}")
             return set()
+    
+    def _load_table_validations(self) -> Dict[str, Dict[str, Any]]:
+        """Load table priority validations from JSONL file (user feedback from table_priority_analyzer)"""
+        validations_path = settings.DATA_DIR / "database" / "table_priority_validations.jsonl"
+        validation_rules = {}
+        
+        if not validations_path.exists():
+            logger.info("ℹ️ No table priority validations file found")
+            return validation_rules
+        
+        try:
+            with open(validations_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
+                    entry = json.loads(line)
+                    query = entry.get('query', '').lower().strip()
+                    table = entry.get('table_name', '')
+                    is_correct = entry.get('is_correct', False)
+                    
+                    if not query or not table:
+                        continue
+                    
+                    if query not in validation_rules:
+                        validation_rules[query] = {
+                            'correct_tables': [],
+                            'incorrect_tables': [],
+                            'query_pattern': query
+                        }
+                    
+                    if is_correct and table not in validation_rules[query]['correct_tables']:
+                        validation_rules[query]['correct_tables'].append(table)
+                    elif not is_correct and table not in validation_rules[query]['incorrect_tables']:
+                        validation_rules[query]['incorrect_tables'].append(table)
+            
+            logger.info(f"✅ Loaded {len(validation_rules)} unique validated query patterns")
+            return validation_rules
+            
+        except Exception as e:
+            logger.warning(f"⚠️ Error loading table validations: {e}")
+            return {}
+    
+    def _load_business_rules(self) -> Dict[str, Any]:
+        """Load business rules from config/sql_assistant_config.json"""
+        config_path = settings.DATA_DIR.parent / "config" / "sql_assistant_config.json"
+        
+        if not config_path.exists():
+            logger.info("ℹ️ No business rules config file found")
+            return {}
+        
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                business_rules = config.get("business_rules", {})
+                logger.info(f"✅ Loaded {len(business_rules)} business rules from config")
+                return business_rules
+        except Exception as e:
+            logger.warning(f"⚠️ Error loading business rules: {e}")
+            return {}
+    
+    def _check_business_rules(self, question: str) -> Optional[Dict[str, Any]]:
+        """Check if question matches any business rules and return the matched rule"""
+        if not self.business_rules:
+            return None
+        
+        question_lower = question.lower()
+        matched_rules = []
+        
+        for rule_name, rule_config in self.business_rules.items():
+            triggers = rule_config.get("triggers", [])
+            hit_count = sum(1 for trigger in triggers if trigger.lower() in question_lower)
+            
+            if hit_count > 0:
+                logger.info(f"🔴 BUSINESS RULE MATCHED: {rule_name} ({hit_count} triggers)")
+                matched_rules.append({
+                    'rule_name': rule_name,
+                    'hit_count': hit_count,
+                    'config': rule_config
+                })
+        
+        if not matched_rules:
+            return None
+        
+        # Sort by hit count (most specific first) and return the best match
+        matched_rules.sort(key=lambda r: r['hit_count'], reverse=True)
+        best_match = matched_rules[0]
+        
+        logger.info(f"🎯 Using business rule: {best_match['rule_name']}")
+        return best_match['config']
+    
+    def _check_table_validation_rules(self, question: str) -> Optional[Dict[str, Any]]:
+        """Check if question matches any user-validated table priority rules"""
+        if not self.table_validations:
+            return None
+        
+        question_lower = question.lower().strip()
+        
+        # First check for exact match
+        if question_lower in self.table_validations:
+            logger.info(f"🎯 EXACT TABLE VALIDATION MATCH: {question_lower}")
+            return self.table_validations[question_lower]
+        
+        # Check for high similarity matches (>= 85%)
+        best_match = None
+        best_similarity = 0.0
+        
+        for validated_query, rules in self.table_validations.items():
+            similarity = self._calculate_similarity(question, validated_query)
+            
+            if similarity >= 0.85 and similarity > best_similarity:
+                best_similarity = similarity
+                best_match = rules
+        
+        if best_match:
+            logger.info(f"🎯 TABLE VALIDATION MATCH (similarity: {best_similarity:.2%})")
+            logger.info(f"   Matched pattern: {best_match['query_pattern']}")
+            logger.info(f"   Required tables: {best_match['correct_tables']}")
+            logger.info(f"   Forbidden tables: {best_match['incorrect_tables']}")
+            return best_match
+        
+        return None
     
     def _extract_tables_from_sql(self, sql: str) -> List[str]:
         """Extract table names from SQL query"""
@@ -750,7 +881,8 @@ class SQLAssistantService:
         self, 
         question: str, 
         feedback: Optional[str] = None,
-        previous_sql: Optional[str] = None
+        previous_sql: Optional[str] = None,
+        retry_count: int = 0
     ) -> Tuple[Optional[str], float, Dict]:
         """
         Generate SQL using SQLEngine (schema-registry-driven, universal).
@@ -761,19 +893,118 @@ class SQLAssistantService:
         if not self.sql_engine:
             return None, 0.0, {'error': 'sql_engine not available'}
         
+        # Check for table validation rules before generating
+        validation_match = self._check_table_validation_rules(question)
+        
+        # ALSO check for business rules (from config)
+        business_rule = self._check_business_rules(question)
+        
+        # Combine validation rules and business rules
+        forbidden_tables = []
+        required_tables = []
+        
+        if validation_match:
+            forbidden_tables.extend(validation_match.get('incorrect_tables', []))
+            required_tables.extend(validation_match.get('correct_tables', []))
+        
+        if business_rule:
+            # Business rule might have forbidden_tables or required_table/required_tables
+            forbidden_tables.extend(business_rule.get('forbidden_tables', []))
+            if 'required_table' in business_rule:
+                required_tables.append(business_rule['required_table'])
+            if 'required_tables' in business_rule:
+                required_tables.extend(business_rule['required_tables'])
+        
+        # Remove duplicates
+        forbidden_tables = list(set(forbidden_tables))
+        required_tables = list(set(required_tables))
+        
+        # If we have validation rules, add them as additional feedback guidance
+        enhanced_feedback = feedback
+        # If we have validation rules OR business rules, add them as guidance
+        if forbidden_tables or required_tables:
+            if retry_count == 0:
+                # First attempt - soft guidance
+                validation_guidance = "\n\n🎯 TABLE SELECTION RULES (CRITICAL - MUST FOLLOW):\n"
+                if validation_match:
+                    validation_guidance += f"   User validated pattern: '{validation_match['query_pattern']}'\n"
+                if business_rule:
+                    validation_guidance += f"   Business rule: '{business_rule.get('description', 'N/A')}'\n"
+                if required_tables:
+                    validation_guidance += f"   ✅ REQUIRED TABLES: {', '.join(required_tables)}\n"
+                if forbidden_tables:
+                    validation_guidance += f"   ❌ FORBIDDEN TABLES (DO NOT USE): {', '.join(forbidden_tables)}\n"
+                validation_guidance += "\n   These rules are mandatory and must be followed exactly!"
+            else:
+                # Retry attempt - MUCH stronger enforcement
+                validation_guidance = "\n\n🚨🚨🚨 CRITICAL ERROR - RETRY WITH CORRECT TABLES 🚨🚨🚨\n"
+                validation_guidance += f"   YOU USED WRONG TABLES IN PREVIOUS ATTEMPT!\n"
+                if forbidden_tables:
+                    validation_guidance += f"   ❌❌❌ NEVER EVER USE: {', '.join(forbidden_tables)} ❌❌❌\n"
+                if required_tables:
+                    validation_guidance += f"   ✅✅✅ YOU MUST USE ONLY: {', '.join(required_tables)} ✅✅✅\n"
+                validation_guidance += "\n   DO NOT use ANY table from the FORBIDDEN list!"
+                validation_guidance += "\n   ONLY use tables from the REQUIRED list!\n"
+                validation_guidance += "\n   IGNORE SchemaRegistry suggestions if they conflict with this!"
+            
+            if enhanced_feedback:
+                enhanced_feedback += "\n" + validation_guidance
+            else:
+                enhanced_feedback = validation_guidance
+            
+            logger.info(f"📋 Adding table rules guidance (retry={retry_count})")
+            logger.info(f"   Required: {required_tables}")
+            logger.info(f"   Forbidden: {forbidden_tables}")
+        
         try:
             result = self.sql_engine.generate(
                 question=question,
                 enable_entity_resolution=True,
-                feedback=feedback,
+                feedback=enhanced_feedback,
                 previous_sql=previous_sql,
             )
             
             if result and result.get('sql'):
                 sql = result['sql']
                 confidence = result.get('confidence', 0.75)
+                tables_used = result.get('tables_used', [])
+                
+                # HARD CHECK: If validation rules or business rules exist, enforce them strictly
+                if (forbidden_tables or required_tables) and retry_count < 2:  # Allow up to 2 retries
+                    # Check for forbidden table usage
+                    violated = [t for t in tables_used if t in forbidden_tables]
+                    if violated:
+                        logger.error(f"❌ VALIDATION VIOLATION! SQL uses forbidden tables: {violated}")
+                        logger.error(f"   Tables used: {tables_used}")
+                        logger.error(f"   Forbidden: {forbidden_tables}")
+                        logger.info(f"🔄 Retrying generation with stronger constraints (attempt {retry_count + 2})...")
+                        
+                        # Recursive retry with much stronger feedback
+                        return self._generate_sql_with_nl_generator(
+                            question=question,
+                            feedback=f"PREVIOUS ATTEMPT COMPLETELY FAILED! You used FORBIDDEN tables: {', '.join(violated)}. These tables are absolutely NOT ALLOWED! Required tables: {', '.join(required_tables) if required_tables else 'any except forbidden'}",
+                            previous_sql=sql,
+                            retry_count=retry_count + 1
+                        )
+                    
+                    # Check if required tables are used (if specified)
+                    if required_tables:
+                        has_required = any(t in tables_used for t in required_tables)
+                        if not has_required:
+                            logger.error(f"❌ VALIDATION VIOLATION! SQL doesn't use required tables: {required_tables}")
+                            logger.error(f"   Tables used: {tables_used}")
+                            logger.error(f"   Required: {required_tables}")
+                            logger.info(f"🔄 Retrying generation with stronger constraints (attempt {retry_count + 2})...")
+                            
+                            return self._generate_sql_with_nl_generator(
+                                question=question,
+                                feedback=f"PREVIOUS ATTEMPT FAILED! You MUST use one of these tables: {', '.join(required_tables)}. You used: {', '.join(tables_used)}. This is WRONG!",
+                                previous_sql=sql,
+                                retry_count=retry_count + 1
+                            )
                 
                 logger.info(f"✅ SQLEngine generated SQL (confidence: {confidence:.2%})")
+                logger.info(f"   Tables used: {', '.join(tables_used)}")
                 logger.info(f"   SQL: {sql[:100]}...")
                 
                 return (
@@ -781,7 +1012,7 @@ class SQLAssistantService:
                     confidence,
                     {
                         'source': 'sql_engine',
-                        'tables_used': result.get('tables_used', []),
+                        'tables_used': tables_used,
                         'columns_used': result.get('columns_used', []),
                         'assumptions': result.get('assumptions', []),
                         'warnings': result.get('warnings', []),
@@ -789,6 +1020,9 @@ class SQLAssistantService:
                         'domains_matched': result.get('domains_matched', []),
                         'selected_tables': result.get('selected_tables', []),
                         'resolved_entities': result.get('resolved_entities', {}),
+                        'validation_applied': (validation_match is not None) or (business_rule is not None),
+                        'business_rule_matched': business_rule.get('rule_name') if business_rule else None,
+                        'retry_count': retry_count,
                     }
                 )
             else:
@@ -842,21 +1076,36 @@ Generate MySQL query to answer this question. Return ONLY the SQL."""
             return None
     
     def _get_system_prompt(self, question: str, context: Optional[Dict[str, Any]] = None) -> str:
-        """Build system prompt with relevant schema"""
+        """Build system prompt with relevant schema and verified corrections"""
         # Get relevant schema tables based on question
         schema_text = self._get_relevant_schema(question, max_tables=8)
         
-        prompt = f"""You are a MySQL query generator for the NEO Warehouse Management System.
+        prompt = f"""You are a senior MySQL 8.x query generator for the NEO Automated Warehouse (ASRS) Management System.
 
 AVAILABLE SCHEMA:
 {schema_text}
 
-RULES:
-1. Return ONLY the SQL query, no explanations
-2. Use proper MySQL syntax
-3. Use actual table and column names from schema
-4. Keep queries efficient and simple
-5. Use JOINs when querying multiple tables"""
+❌ CRITICAL SCHEMA CORRECTIONS (VERIFIED 2026-02-09):
+- ❌ NO 'article_master' table! Use 'article_registered' (or alias: sku_master)
+- ❌ bot_master has NO BOT_NAME column - only BOT_ID (varchar(50))
+- ❌ store_bin_master has NO AISLE_ID/TOWER_ID - must join location_master via LOCATION_ID
+- ❌ task_master_log PK is LOG_ID (not TASK_MASTER_LOG_ID)
+- ❌ live_inventory_master has NO EXPIRY_DATE - use sku_batch_master.EXPIRY_DATE
+- ✓ bot_master.STATUS enum: 'ENABLED', 'DISABLED' (NOT 'ACTIVE'/'INACTIVE')
+- ✓ location_master.AISLE_NUMBER: 'A01'-'A24', 'RA01'-'RA03', 'URA01'-'URA04'
+- ✓ location_master.TOWER_NUMBER: 'T01'-'T10'
+
+MANDATORY RULES:
+1. Return ONLY the SQL query - no explanations, no markdown
+2. Use ONLY tables and columns from SCHEMA above
+3. Verify every column exists before using it
+4. For Aisle/Tower: JOIN store_bin_master → location_master ON LOCATION_ID
+5. For SKU names: JOIN live_inventory_master → article_registered ON ARTICLE_ID = SKU_ID
+6. For expiry dates: JOIN sku_batch_master ON SKU_ID AND BATCH_ID (compound key!)
+7. Always filter: live_inventory_master.IS_ACTIVE = 1 AND QUANTITY > 0
+8. Use proper MySQL syntax with table aliases (bm, tml, lim, ar, sbm, lm)
+9. Default LIMIT 100 unless user asks for "all"
+10. READ-ONLY queries only (SELECT/WITH) - no INSERT/UPDATE/DELETE"""
         
         # Add conversation context if available
         if context:

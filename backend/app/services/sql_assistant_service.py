@@ -2082,6 +2082,48 @@ class SQLAssistantService:
 
 {temporal_guidance}
 
+❌❌❌ CRITICAL SCHEMA CORRECTIONS (VERIFIED 2026-02-09 from Table_information.csv) ❌❌❌
+THESE CORRECTIONS ARE MANDATORY - FAILURE TO FOLLOW WILL CAUSE QUERY FAILURES:
+
+1. ❌ NO 'article_master' table exists!
+   ✓ CORRECT: Use 'article_registered' OR 'sku_master' (both are valid aliases)
+   ✓ JOIN: live_inventory_master.ARTICLE_ID = article_registered.SKU_ID
+
+2. ❌ bot_master has NO 'BOT_NAME' column!
+   ✓ CORRECT: Only 'BOT_ID' (varchar(50)) exists as identifier
+   ✓ bot_master.STATUS enum: 'ENABLED', 'DISABLED' (NOT 'ACTIVE'/'INACTIVE')
+   ✓ bot_master.LOAD_CONDITION enum: 'UL', 'LD' (Unloaded/Loaded)
+   ✓ bot_master.BATTERY_HEALTH enum: 'GOOD', 'AVERAGE', 'CRITICAL'
+
+3. ❌ store_bin_master has NO 'AISLE_ID' or 'TOWER_ID' columns!
+   ✓ CORRECT: Must join location_master via LOCATION_ID
+   ✓ Pattern: store_bin_master.LOCATION_ID = location_master.LOCATION_ID
+   ✓ location_master.AISLE_NUMBER enum: 'A01'-'A24', 'RA01'-'RA03', 'URA01'-'URA04'
+   ✓ location_master.TOWER_NUMBER enum: 'T01'-'T10'
+
+4. ❌ task_master_log primary key is 'LOG_ID' (NOT 'TASK_MASTER_LOG_ID')!
+   ✓ CORRECT: SELECT LOG_ID FROM task_master_log
+   ✓ TASK_ID (varchar) is the actual task reference field
+   ✓ Common TASK_TYPE values: 'STATION_TO_STATION', 'BIN_STORE_TO_ZONE'
+   ✓ Common STATUS values: 'COMPLETED', 'IN_PROGRESS', 'ASSIGNED', 'FAILED'
+
+5. ❌ live_inventory_master has NO 'EXPIRY_DATE' column!
+   ✓ CORRECT: Use sku_batch_master.EXPIRY_DATE
+   ✓ Compound key required: SKU_ID + BATCH_ID (MUST use both!)
+   ✓ Pattern: lim.ARTICLE_ID = skbm.SKU_ID AND lim.BATCH_ID = skbm.BATCH_ID
+
+6. ✓ For bin presentations (counts to stations):
+   ✓ CORRECT: Use task_master_log with proper filters
+   ✓ Pattern: WHERE TASK_TYPE IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE')
+                AND STATUS = 'COMPLETED'
+   ✓ JOIN: task_master_log.DESTINATION_LOCATION_ID = hw_station_master.LOCATION_ID
+
+7. ✓ Active inventory filtering:
+   ✓ ALWAYS: WHERE lim.IS_ACTIVE = 1 AND lim.QUANTITY > 0
+   ✓ Inactive records exist and must be excluded!
+
+❌❌❌ END CRITICAL CORRECTIONS ❌❌❌
+
 ⚠️⚠️⚠️ CRITICAL: ONLY USE TABLES THAT EXIST ⚠️⚠️⚠️
 AVAILABLE TABLES IN DATABASE: {len(self.available_tables)} total
 {', '.join(sorted(list(self.available_tables)[:30]))}... (and {len(self.available_tables) - 30} more)
@@ -2117,47 +2159,52 @@ IF THE USER CORRECTION SECTION ABOVE SAYS A TABLE DOESN'T EXIST OR IS BLACKLISTE
 {sql_examples_prompt}
 {historical_learning}
 
-CRITICAL TABLE RELATIONSHIPS:
+CRITICAL TABLE RELATIONSHIPS (VERIFIED 2026-02-09):
 
-1. ORDERS & SKUs:
-   - Orders table: wms_to_wcs_order_line_request_data
-     Key columns: ORDER_ID, ORDER_LINE_ID, ARTICLE_ID (links to SKU), QUANTITY, INSERTED_TIMESTAMP
-   - SKU table: sku_master
-     Key columns: SKU_ID (primary key), SKU_NAME, VELOCITY, CATEGORY
-   - JOIN: ord.ARTICLE_ID = sm.SKU_ID
+1. INVENTORY → SKU INFORMATION (Product Names, Categories):
+   ❌ WRONG: article_master (table doesn't exist!)
+   ✓ CORRECT: article_registered OR sku_master (both valid)
+   ✓ JOIN: live_inventory_master.ARTICLE_ID = article_registered.SKU_ID
+   ✓ Gives: SKU_NAME, CATEGORY, VELOCITY, HSN_CODE, PRIMARY_BARCODE
 
-2. BINS & LOCATIONS:
-   - Bin info: bin_info_master
-     Key columns: BIN_ID (int, primary key), BIN_BARCODE, BIN_TYPE, ZONE_ID
-   - Location: location_master
-     Key columns: LOCATION_ID, LOCATION_NAME, ZONE_ID
-   - Order-bin mapping: order_bin_mapping
-     Key columns: ORDER_BIN_ID, BIN_ID (int), STATION_ID, TYPE, STATUS, INSERTED_TIMESTAMP
-   
-3. BINS & ORDERS (Multi-table JOIN):
-   - To link orders to bins:
-     wms_to_wcs_order_line_request_data → order_bin_mapping → bin_info_master
-   - Direct bin-order link: order_bin_mapping.BIN_ID = bin_info_master.BIN_ID
-   - For location info: Join bin_info_master with location_master via ZONE_ID
+2. BINS → PHYSICAL LOCATION (Aisle/Tower):
+   ❌ WRONG: store_bin_master.AISLE_ID, store_bin_master.TOWER_ID (columns don't exist!)
+   ✓ CORRECT: store_bin_master → location_master via LOCATION_ID
+   ✓ JOIN: store_bin_master.LOCATION_ID = location_master.LOCATION_ID
+   ✓ Gives: AISLE_NUMBER ('A01'-'A24'), TOWER_NUMBER ('T01'-'T10'), X, Y, Z coordinates
 
-4. SKU RECOMMENDATIONS:
-   - Table: sku_recommendations
-   - Common columns: sku_id, recommended_sku_id, score, confidence
+3. INVENTORY → EXPIRY DATE:
+   ❌ WRONG: live_inventory_master.EXPIRY_DATE (column doesn't exist!)
+   ❌ WRONG: store_bin_master.EXPIRY_DATE (column doesn't exist!)
+   ✓ CORRECT: sku_batch_master.EXPIRY_DATE (with compound key!)
+   ✓ JOIN: lim.ARTICLE_ID = skbm.SKU_ID AND lim.BATCH_ID = skbm.BATCH_ID
+   ✓ Gives: EXPIRY_DATE, BATCH_NUMBER, MRP, MFG_DATE, VENDOR_ID
 
-5. BOT MAINTENANCE TASKS:
-   - Table: dashboard_log_maintenance_task_master
-   - Key columns: MAINTENANCE_TASK_ID (bigint), MAINTENANCE_POINT_BOT_ID (varchar) ⚠️ NOT BOT_ID!
-     MAINTENANCE_PICK_POINT_BOT_ID (varchar), TASK_DONE (0=incomplete, 1=complete),
-     INSERTED_TIMESTAMP, MAINTENANCE_ID, IS_MP_BOT_HEALTHY
-   - ⚠️ CRITICAL: Column is MAINTENANCE_POINT_BOT_ID, NOT BOT_ID
+4. TASKS → STATIONS (Bin Presentations):
+   ✓ CORRECT: task_master_log → hw_station_master
+   ✓ JOIN: tml.DESTINATION_LOCATION_ID = hm.LOCATION_ID (for TO station)
+      OR: tml.SOURCE_LOCATION_ID = hm.LOCATION_ID (for FROM station)
+   ✓ Filter: TASK_TYPE IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE')
+            AND STATUS = 'COMPLETED'
+   ✓ Gives: STATION_ID, STATION_ALIAS_NAME, IS_ACTIVE
 
-6. BOT INFORMATION & COUNTS:
-   - ⚠️ ALWAYS START WITH: bot_master (main bot registry)
-   - Key columns: BOT_ID (varchar, primary key), BOT_IP, BOT_TYPE, STATUS, IS_ACTIVE
-   - For bot counts: SELECT COUNT(*) FROM bot_master
-   - For active bots: WHERE IS_ACTIVE = 1 or STATUS = 'ACTIVE'
-   - Related tables: dashboard_bot_master, bot_master_log, bot_alarm_log
-   - ⚠️ CRITICAL: Use bot_master as starting point for ALL bot queries (counts, status, lists)
+5. TASKS → BOTS (Bot Task Assignment):
+   ✓ CORRECT: task_master_log.BOT_ID = bot_master.BOT_ID
+   ❌ WRONG: bot_master has NO BOT_NAME column!
+   ✓ Gives: BOT_ID, STATUS, BATTERY, BATTERY_HEALTH, LOAD_CONDITION, GRIDX, GRIDY
+
+6. BOTS → BOT HISTORY & ALARMS:
+   ✓ State changes: bot_master.BOT_MASTER_ID = bot_master_log.BOT_MASTER_ID
+   ✓ Alarms/errors: bot_master.BOT_ID = bot_alarm_log.BOT_ID
+
+7. BINS → BIN DETAILS (Barcode):
+   ✓ CORRECT: live_inventory_master.BIN_ID = bin_info_master.BIN_ID
+   ✓ Also: store_bin_master.BIN_ID = bin_info_master.BIN_ID
+   ✓ Gives: BIN_BARCODE, BIN_TYPE, BIN_SEGMENTS (only 4 columns total!)
+
+8. STATIONS → LOCATION (Station Physical Position):
+   ✓ CORRECT: hw_station_master.LOCATION_ID = location_master.LOCATION_ID
+   ✓ Gives: Station's aisle, tower, XYZ coordinates
 
 {schema}
 

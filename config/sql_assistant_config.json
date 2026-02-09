@@ -1037,6 +1037,67 @@
         "query success rate"
       ]
     },
+    "ordered_skus_historical": {
+      "description": "Historical order data and SKU order analysis - use archived order data for past orders/historical queries. Alternative archive tables: wms_to_wcs_order_line_request_data_archive (order line level) OR wms_to_wcs_order_request_data_archive (order header level)",
+      "required_tables": [
+        "wms_to_wcs_order_line_request_data_archive",
+        "wms_to_wcs_order_request_data_archive"
+      ],
+      "required_joins": [
+        "JOIN sku_master sm ON ord.ARTICLE_ID = sm.SKU_ID (if user asks for SKU names)"
+      ],
+      "forbidden_tables": [
+        "pick_wave_order_master (NEVER use for historical order counts!)",
+        "put_wave_order_master (NEVER use for historical order counts!)",
+        "wms_to_wcs_order_line_request_data (use archive for historical data)",
+        "wms_to_wcs_order_request_data (use archive for historical data)"
+      ],
+      "aggregate_by": "ARTICLE_ID",
+      "order_by": "COUNT(*) DESC or SUM(quantity) DESC",
+      "additional_columns": [
+        "sm.SKU_NAME",
+        "ord.ARTICLE_ID or ord.SKU_ID",
+        "COUNT(DISTINCT ord.ORDER_ID) as order_count",
+        "COUNT(*) as order_lines_count",
+        "SUM(COALESCE(ord.EXPECTED_QUANTITY, 0)) as total_quantity",
+        "SUM(COALESCE(ord.PICKED_QUANTITY, 0)) as total_picked"
+      ],
+      "timestamp_column": "INSERTED_TIMESTAMP",
+      "critical_notes": [
+        "NEVER NEVER NEVER use pick_wave_order_master or put_wave_order_master for general order analysis!",
+        "Wave tables (pick_wave_order_master, put_wave_order_master) are ONLY for wave management!",
+        "For historical/past order data, ALWAYS use archive tables:",
+        "  - wms_to_wcs_order_line_request_data_archive (order line level with ARTICLE_ID)",
+        "  - wms_to_wcs_order_request_data_archive (order header level)",
+        "For real-time/current orders, use non-archive tables:",
+        "  - wms_to_wcs_order_line_request_data",
+        "  - wms_to_wcs_order_request_data",
+        "Always join sku_master to get SKU_NAME when showing order products",
+        "Use COALESCE for quantity fields to handle NULLs"
+      ],
+      "triggers": [
+        "ordered skus",
+        "ordered sku",
+        "top ordered",
+        "highest ordered",
+        "most ordered",
+        "frequently ordered",
+        "popular skus",
+        "order count by sku",
+        "sku order history",
+        "historical orders",
+        "past orders",
+        "order statistics",
+        "order analysis",
+        "top 10 ordered",
+        "top 10 highest ordered",
+        "top 5 ordered",
+        "top 20 ordered",
+        "which skus ordered most",
+        "which products ordered most",
+        "most popular products"
+      ]
+    },
     "active_stations": {
       "description": "Active/enabled stations showing current operational status",
       "required_table": "hw_station_master",

@@ -33,8 +33,19 @@ ABSOLUTE RULES:
 5. Use the ENUM/VALID VALUES section for correct WHERE filter strings.
 6. Read the CRITICAL COLUMN FACTS section — it lists columns that DO NOT EXIST.
 
+CRITICAL SCHEMA FACTS (VERIFIED 2026-02-09):
+❌ NO 'article_master' table exists! Use 'article_registered' (aka sku_master)
+❌ bot_master has NO BOT_NAME column - only BOT_ID (varchar(50))
+❌ task_master_log primary key is LOG_ID, not TASK_MASTER_LOG_ID
+❌ store_bin_master has NO AISLE_ID/TOWER_ID - must join through location_master
+✓ bot_master.STATUS enum: 'ENABLED', 'DISABLED' (NOT 'ACTIVE'/'INACTIVE')
+✓ bot_master.LOAD_CONDITION enum: 'UL', 'LD' (Unloaded/Loaded)
+✓ bot_master.BATTERY_HEALTH enum: 'GOOD', 'AVERAGE', 'CRITICAL'
+✓ location_master.AISLE_NUMBER enum: 'A01'-'A24', 'RA01'-'RA03', 'URA01'-'URA04'
+✓ location_master.TOWER_NUMBER enum: 'T01'-'T10'
+
 SQL BEST PRACTICES:
-- Always use table aliases for readability (e.g., lim, sm, sbm, lm, tml).
+- Always use table aliases for readability (e.g., lim, ar, sbm, lm, tml, bm, hm).
 - Use explicit JOIN ON syntax, never comma-joins.
 - For aggregations, include GROUP BY for every non-aggregated SELECT column.
 - For time-based queries, use the appropriate timestamp column from the schema.
@@ -44,13 +55,49 @@ SQL BEST PRACTICES:
 - For "yesterday": DATE(col) = DATE_SUB(CURDATE(), INTERVAL 1 DAY).
 - For counts/aggregations, ORDER BY the count DESC unless user specifies otherwise.
 
-COMMON PATTERNS IN THIS DATABASE:
-- Inventory by SKU name: JOIN live_inventory_master.ARTICLE_ID = sku_master.SKU_ID
-- Bin physical location: JOIN store_bin_master.LOCATION_ID = location_master.LOCATION_ID
-- Expiry date: JOIN via sku_batch_master (compound key: SKU_ID + BATCH_ID)
-- Bin presentations: COUNT tasks from task_master_log with TASK_TYPE filter
-- Bot info: bot_master has NO BOT_NAME column, use BOT_ID
-- Station: hw_station_master has STATION_ID and STATION_ALIAS_NAME
+VERIFIED COMMON PATTERNS IN THIS DATABASE:
+1. Bot Current State:
+   SELECT * FROM bot_master WHERE BOT_ID = 'BOT-XXXX' AND STATUS = 'ENABLED';
+
+2. Bot History:
+   SELECT * FROM bot_master_log WHERE BOT_ID = 'BOT-XXXX' ORDER BY LOG_TIMESTAMP DESC;
+
+3. Bot Alarms:
+   SELECT * FROM bot_alarm_log WHERE BOT_ID = 'BOT-XXXX' ORDER BY INSERTED_TIMESTAMP DESC;
+
+4. Inventory by SKU Name:
+   SELECT * FROM live_inventory_master lim
+   JOIN article_registered ar ON lim.ARTICLE_ID = ar.SKU_ID
+   WHERE ar.SKU_NAME LIKE '%ProductName%' AND lim.IS_ACTIVE = 1;
+
+5. Bin Location (Aisle/Tower):
+   SELECT lm.AISLE_NUMBER, lm.TOWER_NUMBER
+   FROM store_bin_master sbm
+   JOIN location_master lm ON sbm.LOCATION_ID = lm.LOCATION_ID
+   WHERE sbm.BIN_ID = ?;
+
+6. Station Performance:
+   SELECT hm.STATION_ID, hm.STATION_ALIAS_NAME, COUNT(*) as presentations
+   FROM task_master_log tml
+   JOIN hw_station_master hm ON tml.DESTINATION_LOCATION_ID = hm.LOCATION_ID
+   WHERE tml.TASK_TYPE IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE')
+     AND tml.STATUS = 'COMPLETED'
+   GROUP BY hm.STATION_ID, hm.STATION_ALIAS_NAME;
+
+7. Expiry Dates:
+   SELECT sb.EXPIRY_DATE FROM sku_batch_master sb
+   WHERE sb.SKU_ID = ? AND sb.BATCH_ID = ?;
+
+TABLE ALIAS CONVENTIONS:
+- bm = bot_master
+- tml = task_master_log  
+- hm = hw_station_master
+- lm = location_master
+- lim = live_inventory_master
+- ar = article_registered (sku_master)
+- sbm = store_bin_master
+- bim = bin_info_master
+- bal = bot_alarm_log
 
 RESPONSE FORMAT:
 Return valid JSON with this exact structure:

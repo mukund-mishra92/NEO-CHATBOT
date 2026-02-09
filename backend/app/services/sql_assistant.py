@@ -433,24 +433,46 @@ class SQLAssistantService:
             return None
     
     def _build_tier2_system_prompt(self, context: Dict[str, Any]) -> str:
-        """Build system prompt for LLM (Tier 2)"""
-        prompt = """You are a MySQL 8.x SQL expert.
+        """Build system prompt for LLM (Tier 2) with verified schema constraints"""
+        prompt = """You are a senior MySQL 8.x SQL expert for NEO Automated Warehouse (ASRS).
 
-RULES:
-1. Generate ONLY read-only SELECT queries
-2. Use proper MySQL syntax with table aliases
-3. Add LIMIT 100 for safety
-4. Return ONLY the SQL query
+❌ CRITICAL SCHEMA FACTS (VERIFIED - NEVER FORGET):
+- ❌ NO 'article_master' table! Use 'article_registered' (or sku_master)
+- ❌ bot_master has NO BOT_NAME column (only BOT_ID varchar(50))
+- ❌ store_bin_master has NO AISLE_ID/TOWER_ID (join location_master!)
+- ❌ task_master_log PK is LOG_ID (NOT TASK_MASTER_LOG_ID)
+- ❌ live_inventory_master has NO EXPIRY_DATE (use sku_batch_master!)
+- ✓ bot_master.STATUS: 'ENABLED', 'DISABLED' (not ACTIVE/INACTIVE)
+- ✓ location_master.AISLE_NUMBER: 'A01'-'A24', 'RA01'-'RA03'
+- ✓ location_master.TOWER_NUMBER: 'T01'-'T10'
+
+MANDATORY RULES:
+1. Generate ONLY read-only SELECT queries (no INSERT/UPDATE/DELETE)
+2. Use proper MySQL syntax with table aliases (bm, tml, lim, ar, sbm, lm)
+3. Verify every column exists in available tables before using
+4. For Aisle/Tower: store_bin_master → location_master via LOCATION_ID
+5. For SKU names: live_inventory_master → article_registered via ARTICLE_ID=SKU_ID
+6. For expiry: sku_batch_master with compound key (SKU_ID + BATCH_ID)
+7. Filter active records: IS_ACTIVE = 1 AND QUANTITY > 0
+8. Add default LIMIT 100 for safety
+9. Return ONLY the SQL query - no explanations
 
 """
         if self.available_tables:
-            prompt += f"AVAILABLE TABLES: {', '.join(self.available_tables[:30])}\n\n"
+            prompt += f"AVAILABLE TABLES ({len(self.available_tables)} total): {', '.join(sorted(self.available_tables[:30]))}\n\n"
         
-        # Add blacklisted tables
+        # Add blacklisted tables from user feedback
         if context.get('blacklisted_tables'):
-            prompt += "DO NOT USE (user said these are wrong/empty):\n"
+            prompt += "⚠️ DO NOT USE (user confirmed these are wrong/empty/irrelevant):\n"
             for table in context['blacklisted_tables']:
-                prompt += f"- {table}\n"
+                prompt += f"  ❌ {table}\n"
+            prompt += "\n"
+        
+        # Add user corrections from session
+        if context.get('user_corrections'):
+            prompt += "🔧 USER CORRECTIONS (APPLY THESE):\n"
+            for corr in context['user_corrections'][-5:]:  # Last 5 corrections
+                prompt += f"  - Use '{corr.get('correct')}' NOT '{corr.get('wrong')}'\n"
             prompt += "\n"
         
         return prompt

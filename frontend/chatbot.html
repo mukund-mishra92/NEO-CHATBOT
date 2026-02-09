@@ -1950,7 +1950,18 @@
                 // Parse all rows data
                 const allRows = [];
                 rowLines.forEach((row) => {
-                    const cells = row.split('|').map(c => c.trim()).filter(c => c);
+                    let cells = row.split('|').map(c => c.trim()).filter(c => c);
+                    if (headers.length > 0 && cells.length > headers.length) {
+                        if (headers.length === 1) {
+                            cells = [cells.join(' | ')];
+                        } else {
+                            const tailCount = headers.length - 1;
+                            const headPart = cells.slice(0, cells.length - tailCount);
+                            const tailPart = cells.slice(cells.length - tailCount);
+                            const mergedHead = headPart.join(' | ');
+                            cells = [mergedHead, ...tailPart];
+                        }
+                    }
                     if (cells.length > 0) {
                         allRows.push(cells);
                     }

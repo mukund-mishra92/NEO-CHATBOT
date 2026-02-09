@@ -285,27 +285,50 @@ class EnhancedSQLAssistantService:
             return None
     
     def _build_tier2_system_prompt(self, question: str, context: Optional[Dict[str, Any]]) -> str:
-        """Build system prompt for Tier 2 generation"""
-        prompt = """You are a senior MySQL 8.x SQL generator.
+        """Build system prompt for Tier 2 generation with verified schema corrections"""
+        prompt = """You are a senior MySQL 8.x SQL generator for NEO Automated Warehouse (ASRS).
 
-RULES:
-1. Generate ONLY read-only SELECT queries
-2. Use proper MySQL 8.x syntax
-3. Always use table aliases
-4. Add LIMIT 100 for safety
-5. Return ONLY the SQL query, no explanations
+❌ CRITICAL SCHEMA CORRECTIONS (VERIFIED 2026-02-09 - MANDATORY):
+1. ❌ NO 'article_master' table! Use 'article_registered' OR 'sku_master'
+2. ❌ bot_master has NO 'BOT_NAME' column - only BOT_ID (varchar(50))
+3. ❌ store_bin_master has NO 'AISLE_ID/TOWER_ID' - join location_master via LOCATION_ID
+4. ❌ task_master_log PK is 'LOG_ID' (NOT 'TASK_MASTER_LOG_ID')
+5. ❌ live_inventory_master has NO 'EXPIRY_DATE' - use sku_batch_master.EXPIRY_DATE
+6. ✓ bot_master.STATUS: 'ENABLED', 'DISABLED' (NOT 'ACTIVE'/'INACTIVE')
+7. ✓ location_master.AISLE_NUMBER: 'A01'-'A24', TOWER_NUMBER: 'T01'-'T10'
+
+MANDATORY RULES:
+1. Generate ONLY read-only SELECT queries (no INSERT/UPDATE/DELETE)
+2. Use proper MySQL 8.x syntax with table aliases (bm, tml, lim, ar, sbm, lm)
+3. Verify every column exists in AVAILABLE TABLES before using
+4. For Aisle/Tower: store_bin_master → location_master via LOCATION_ID
+5. For SKU names: live_inventory_master → article_registered via ARTICLE_ID = SKU_ID
+6. For expiry: sku_batch_master with compound key (SKU_ID + BATCH_ID)
+7. Filter active inventory: WHERE IS_ACTIVE = 1 AND QUANTITY > 0
+8. Add default LIMIT 100 for safety
+9. Return ONLY the SQL query - no explanations, no markdown
 
 """
         
         # Add table list
         if self.available_tables:
-            prompt += f"AVAILABLE TABLES:\n{', '.join(self.available_tables[:20])}\n\n"
+            prompt += f"AVAILABLE TABLES ({len(self.available_tables)} total):\n{', '.join(sorted(self.available_tables[:25]))}\n"
+            if len(self.available_tables) > 25:
+                prompt += f"... and {len(self.available_tables) - 25} more\n"
+            prompt += "\n"
         
-        # Add corrections if present
+        # Add blacklisted tables from user feedback
         if context and context.get('blacklisted_tables'):
-            prompt += "DO NOT USE THESE TABLES (user said they are wrong/empty):\n"
+            prompt += "⚠️ DO NOT USE (user confirmed these are wrong/empty/irrelevant):\n"
             for table in context['blacklisted_tables']:
-                prompt += f"- {table}\n"
+                prompt += f"  ❌ {table}\n"
+            prompt += "\n"
+        
+        # Add user corrections
+        if context and context.get('user_corrections'):
+            prompt += "🔧 USER CORRECTIONS (APPLY THESE):\n"
+            for corr in context.get('user_corrections', [])[-3:]:  # Last 3
+                prompt += f"  - Use '{corr.get('correct')}' NOT '{corr.get('wrong')}'\n"
             prompt += "\n"
         
         return prompt
