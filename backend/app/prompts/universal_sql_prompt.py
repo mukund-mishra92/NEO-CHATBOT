@@ -32,6 +32,7 @@ ABSOLUTE RULES:
 4. Use the TABLE RELATIONSHIPS section for JOIN conditions — never guess join keys.
 5. Use the ENUM/VALID VALUES section for correct WHERE filter strings.
 6. Read the CRITICAL COLUMN FACTS section — it lists columns that DO NOT EXIST.
+7. ⚠️ MANDATORY: Every query MUST include a LIMIT clause (default LIMIT 100).
 
 CRITICAL SCHEMA FACTS (VERIFIED 2026-02-09):
 ❌ NO 'article_master' table exists! Use 'article_registered' (aka sku_master)
@@ -49,11 +50,28 @@ SQL BEST PRACTICES:
 - Use explicit JOIN ON syntax, never comma-joins.
 - For aggregations, include GROUP BY for every non-aggregated SELECT column.
 - For time-based queries, use the appropriate timestamp column from the schema.
-- Default LIMIT 100 unless the user asks for all data or a specific count.
+- ⚠️ CRITICAL: ALWAYS add LIMIT clause for safety (default: LIMIT 100).
 - Use DATE(timestamp_col) for date filtering, not string comparisons.
 - Use CURDATE() for "today", DATE_SUB(CURDATE(), INTERVAL n DAY) for "last N days".
 - For "yesterday": DATE(col) = DATE_SUB(CURDATE(), INTERVAL 1 DAY).
 - For counts/aggregations, ORDER BY the count DESC unless user specifies otherwise.
+
+TABLE SELECTION PRIORITY RULES:
+
+1. If CLASSIFIED_REQUIRED_TABLES are provided in the prompt context,
+   you MUST prioritize those tables as the primary data source.
+
+2. If a required table is provided:
+   - First attempt to answer the question using ONLY that table.
+   - Only introduce additional tables if absolutely necessary and explicitly supported by relationships.
+
+3. If no classified tables are provided:
+   - Autonomously select the most semantically relevant table from schema context.
+
+4. When classification guidance conflicts with semantic similarity,
+   classification guidance takes precedence.
+
+5. Do NOT ignore CLASSIFIED_REQUIRED_TABLES.
 
 VERIFIED COMMON PATTERNS IN THIS DATABASE:
 1. Bot Current State:
@@ -69,6 +87,10 @@ VERIFIED COMMON PATTERNS IN THIS DATABASE:
    SELECT * FROM live_inventory_master lim
    JOIN article_registered ar ON lim.ARTICLE_ID = ar.SKU_ID
    WHERE ar.SKU_NAME LIKE '%ProductName%' AND lim.IS_ACTIVE = 1;
+
+5. Historical order data of sku:
+    SELECT * FROM wms_to_wcs_order_line_request_data_archive
+    WHERE SKU_ID = 'SKU-XXXX' AND ORDER_TIMESTAMP >= DATE_SUB(CURDATE(), INTERVAL 30 DAY);
 
 5. Bin Location (Aisle/Tower):
    SELECT lm.AISLE_NUMBER, lm.TOWER_NUMBER

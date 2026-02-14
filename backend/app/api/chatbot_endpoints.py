@@ -20,7 +20,8 @@ from ..models.schemas import (
     SystemHealthStatus
 )
 from ..services.knowledge_base_service import KnowledgeBaseService
-from ..services.sql_assistant_integrated import SQLAssistantService
+#from ..services.sql_assistant_integrated_1 import SQLAssistantService
+from app.services.sql_assistant.sql_assistant import SQLAssistantService
 from ..services.diagnostic_service import DiagnosticService
 from ..services.chat_history_service import ChatHistoryService
 from ..services.agentic_service import get_agentic_service
@@ -387,7 +388,9 @@ async def execute_sql_query(request: SQLQueryRequest):
         response = sql_service.process_query(chat_request)
         
         # Extract SQL from response
-        sql_query = sql_service._extract_sql_query(response.response)
+        #sql_query = sql_service._extract_sql_query(response.response)
+        sql_query = response.metadata.get("sql_query")
+
         
         return SQLQueryResponse(
             query=request.query,
