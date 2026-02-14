@@ -1,21 +1,12 @@
 """
-NEO Chatbot Services
-Core business logic and AI services
+NEO Chatbot Services package.
+
+Intentionally does NOT import concrete services here to avoid
+circular imports and stale paths. Always import services directly, e.g.:
+
+    from app.services.knowledge_base.knowledge_base_service import KnowledgeBaseService
+    from app.services.sql_assistant.sql_assistant import SQLAssistantService
+    from app.services.diagnostic.diagnostic_service import DiagnosticService
 """
 
-from .llm_service import LLMService
-from .vector_store_service import VectorStoreService
-from .knowledge_base_service import KnowledgeBaseService
-from .sql_assistant_integrated import SQLAssistantService
-from .diagnostic_service import DiagnosticService
-from .agentic_service import AgenticService, get_agentic_service
-
-__all__ = [
-    'LLMService',
-    'VectorStoreService',
-    'KnowledgeBaseService',
-    'SQLAssistantService',
-    'DiagnosticService',
-    'AgenticService',
-    'get_agentic_service'
-]
+__all__: list[str] = []

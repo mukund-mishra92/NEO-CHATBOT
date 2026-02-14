@@ -2242,3 +2242,178 @@ FROM wms_to_wcs_order_line_request_data_archive...
 2026-02-14 12:25:37 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 3e772840-3105-4f82-aa13-7b666dbe66cc
 2026-02-14 12:25:37 - app.services.query_classification_service - INFO - 📝 Stored query 0411bf64-7f2_20260214122537506302 for classification (cache now has 1513 queries)
 2026-02-14 12:25:37 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.90, session=0411bf64-7f2
+2026-02-14 13:24:48 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 13:24:49 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-14 13:25:21 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 13:25:23 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 13:25:23 - app.services.query_classification_service - INFO - ✅ Loaded 1513 classified queries
+2026-02-14 13:25:23 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-14 13:25:23 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1513 classified queries
+2026-02-14 13:25:23 - app.main - INFO - ✅ Classification service initialized
+2026-02-14 13:26:02 - app.utils.session_manager - INFO - 🆕 New session created: 984bb590-264 (type: knowledge_base)
+2026-02-14 13:26:02 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 984bb590-264 (type: knowledge_base)
+2026-02-14 13:26:02 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-02-14 13:26:02 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-14 13:26:02 - app.services.knowledge_base.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-02-14 13:26:02 - app.services.knowledge_base.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-02-14 13:26:06 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-02-14 13:26:07 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-14 13:26:07 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-14 13:26:09 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_30811e46f5da4688' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 0046f0e7-ff12-4763-b7a0-b5ead2a6264a
+2026-02-14 13:26:09 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-02-14 13:26:09 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: f6299fbf-b72d-4f3a-b289-1a8b15bbf861
+2026-02-14 13:26:09 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=984bb590-264
+2026-02-14 13:29:53 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the unique alram code and their descri...
+2026-02-14 13:29:53 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: what is neo
+ASSISTANT: NEO is a cutting-edge Automated Storage and Retrieval System (ASRS) des...
+2026-02-14 13:29:53 - app.services.sql_assistant.sql_assistant - INFO - 🔍 Using heuristic selected tables: ['bot_master', 'bot_master_log', 'hw_conveyor_master', 'hw_conveyor_mux_master', 'hw_curtain_light_master']
+2026-02-14 13:29:53 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['bot_master', 'bot_master_log', 'hw_conveyor_master', 'hw_conveyor_mux_master', 'hw_curtain_light_master']
+2026-02-14 13:29:53 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 5 tables
+2026-02-14 13:29:53 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-14 13:29:53 - app.services.sql_engine - INFO - 🔒 Using schema override with 5 tables
+2026-02-14 13:29:53 - app.services.sql_engine - INFO - 📉 Schema scope size: 5 tables
+2026-02-14 13:29:58 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT DISTINCT
+       bm.ALARM_TYPE AS alarm_code,
+       bm.ALARM AS alarm_description
+FROM bot_master bm
+WHERE bm.ALARM_TYPE IS NOT NULL
+  AND bm.A...
+2026-02-14 13:29:58 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-14 13:29:58 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-14 13:29:58 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 0 rows
+2026-02-14 13:29:58 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 07d431f2-1d8c-4c1f-9499-5f01baa2c0cc
+2026-02-14 13:29:58 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 07d431f2-1d8c-4c1f-9499-5f01baa2c0cc
+2026-02-14 13:29:58 - app.services.query_classification_service - INFO - 📝 Stored query 984bb590-264_20260214132958172668 for classification (cache now has 1514 queries)
+2026-02-14 13:29:58 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.67, session=984bb590-264
+2026-02-14 19:19:54 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 19:19:54 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-14 19:20:21 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 19:20:21 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 19:20:21 - app.services.query_classification_service - INFO - ✅ Loaded 1514 classified queries
+2026-02-14 19:20:21 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-14 19:20:21 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1514 classified queries
+2026-02-14 19:20:21 - app.main - INFO - ✅ Classification service initialized
+2026-02-14 19:22:37 - app.utils.session_manager - INFO - 🆕 New session created: 784b91e9-726 (type: knowledge_base)
+2026-02-14 19:22:37 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 784b91e9-726 (type: knowledge_base)
+2026-02-14 19:22:37 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-02-14 19:22:37 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-14 19:22:37 - app.services.knowledge_base.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-02-14 19:22:37 - app.services.knowledge_base.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-02-14 19:23:43 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-02-14 19:24:32 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-14 19:24:32 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-14 19:24:33 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_ecdebfa569104a57' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: ff79f9fc-c302-40bd-9a38-aa4c2dda2216
+2026-02-14 19:24:33 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-02-14 19:24:33 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 96dde317-5ff3-4a53-8bf4-1cb3ff3b7ad5
+2026-02-14 19:24:33 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=784b91e9-726
+2026-02-14 19:30:43 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me count for all the unique skus we have curr...
+2026-02-14 19:30:43 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: what is neo
+ASSISTANT: NEO is a cutting-edge Automated Storage and Retrieval System (ASRS) des...
+2026-02-14 19:30:43 - app.services.sql_assistant.sql_assistant - INFO - 🔍 Using heuristic selected tables: ['location_master', 'location_master_', 'steps', 'steps_archive']
+2026-02-14 19:30:43 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['location_master', 'location_master_', 'steps', 'steps_archive']
+2026-02-14 19:30:43 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 4 tables
+2026-02-14 19:30:43 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-14 19:30:43 - app.services.sql_engine - INFO - 🔒 Using schema override with 4 tables
+2026-02-14 19:30:43 - app.services.sql_engine - INFO - 📉 Schema scope size: 4 tables
+2026-02-14 19:30:47 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT COUNT(DISTINCT lim.ARTICLE_ID) AS unique_article_count
+FROM live_inventory_master lim
+WHERE lim.IS_ACTIVE = 1
+LIMIT 100;...
+2026-02-14 19:30:47 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-14 19:30:47 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-14 19:30:47 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 1 rows
+2026-02-14 19:30:47 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 2ba39d34-572c-4f7a-8a86-084758468c49
+2026-02-14 19:30:47 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 2ba39d34-572c-4f7a-8a86-084758468c49
+2026-02-14 19:30:47 - app.services.query_classification_service - INFO - 📝 Stored query 784b91e9-726_20260214193047812908 for classification (cache now has 1515 queries)
+2026-02-14 19:30:47 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.82, session=784b91e9-726
+2026-02-14 19:31:32 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me count for all the skus we have in our regi...
+2026-02-14 19:31:32 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: what is neo
+ASSISTANT: NEO is a cutting-edge Automated Storage and Retrieval System (ASRS) des...
+2026-02-14 19:31:32 - app.services.sql_assistant.sql_assistant - INFO - 🔍 Using heuristic selected tables: []
+2026-02-14 19:31:32 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['alarm_master', 'api_master', 'article_proximity_score', 'article_registered', 'articles_registered']
+2026-02-14 19:31:32 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 5 tables
+2026-02-14 19:31:32 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-14 19:31:32 - app.services.sql_engine - INFO - 🔒 Using schema override with 5 tables
+2026-02-14 19:31:32 - app.services.sql_engine - INFO - 📉 Schema scope size: 5 tables
+2026-02-14 19:31:36 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT COUNT(*) AS registered_article_count
+FROM article_registered ar
+LIMIT 100;...
+2026-02-14 19:31:36 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-14 19:31:36 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-14 19:31:36 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 1 rows
+2026-02-14 19:31:36 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 7bd50c46-7d27-4c41-b980-b61a829a9dbd
+2026-02-14 19:31:36 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 7bd50c46-7d27-4c41-b980-b61a829a9dbd
+2026-02-14 19:31:36 - app.services.query_classification_service - INFO - 📝 Stored query 784b91e9-726_20260214193136640640 for classification (cache now has 1516 queries)
+2026-02-14 19:31:36 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.94, session=784b91e9-726
+2026-02-14 19:32:04 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 19:32:04 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 19:32:15 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 19:32:15 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 19:56:50 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 19:56:50 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 19:56:56 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 19:56:56 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 19:57:03 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 19:57:03 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 19:57:52 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 19:57:52 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 19:59:36 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 19:59:36 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-14 20:00:00 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 20:00:00 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 20:00:01 - app.services.query_classification_service - INFO - ✅ Loaded 1516 classified queries
+2026-02-14 20:00:01 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-14 20:00:01 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1516 classified queries
+2026-02-14 20:00:01 - app.main - INFO - ✅ Classification service initialized
+2026-02-14 20:00:20 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 20:00:20 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 20:00:21 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 20:00:21 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 20:00:52 - app.utils.session_manager - INFO - 🆕 New session created: 006452de-81d (type: sql_assistant)
+2026-02-14 20:00:52 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 006452de-81d (type: sql_assistant)
+2026-02-14 20:00:52 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me count for all the skus we have in our regi...
+2026-02-14 20:00:52 - app.services.sql_assistant.sql_assistant - INFO - 🔍 Using heuristic selected tables: []
+2026-02-14 20:00:52 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['alarm_master', 'api_master', 'article_proximity_score', 'article_registered', 'articles_registered']
+2026-02-14 20:00:52 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 5 tables
+2026-02-14 20:00:52 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-14 20:00:52 - app.services.sql_engine - INFO - 🔒 Using schema override with 5 tables
+2026-02-14 20:00:52 - app.services.sql_engine - INFO - 📉 Schema scope size: 5 tables
+2026-02-14 20:00:56 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT COUNT(*) AS registered_article_count
+FROM article_registered ar
+LIMIT 100;...
+2026-02-14 20:00:56 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-14 20:00:56 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-14 20:00:56 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 1 rows
+2026-02-14 20:00:56 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: d2643ba1-4f73-4af4-a867-0ca613fc972f
+2026-02-14 20:00:56 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: d2643ba1-4f73-4af4-a867-0ca613fc972f
+2026-02-14 20:00:56 - app.services.query_classification_service - INFO - 📝 Stored query 006452de-81d_20260214200056340045 for classification (cache now has 1517 queries)
+2026-02-14 20:00:56 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.94, session=006452de-81d
+2026-02-14 20:03:13 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 20:03:13 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-14 20:03:44 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 20:03:44 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 20:03:44 - app.services.query_classification_service - INFO - ✅ Loaded 1517 classified queries
+2026-02-14 20:03:44 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-14 20:03:44 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1517 classified queries
+2026-02-14 20:03:44 - app.main - INFO - ✅ Classification service initialized
+2026-02-14 20:04:48 - app.utils.session_manager - INFO - 🆕 New session created: 9b2419bc-063 (type: sql_assistant)
+2026-02-14 20:04:48 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 9b2419bc-063 (type: sql_assistant)
+2026-02-14 20:04:48 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me count for all the skus we have in our regi...
+2026-02-14 20:04:48 - app.services.sql_assistant.table_priority_loader - INFO - 🔍 Similar query match: 'give me count for all the skus we have in our registered list' -> correct: {'sku_master'}
+2026-02-14 20:04:48 - app.services.sql_assistant.sql_assistant - INFO - 🎯 Using validated tables: ['sku_master']
+2026-02-14 20:04:48 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['sku_master']
+2026-02-14 20:04:48 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 1 tables
+2026-02-14 20:04:48 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-14 20:04:48 - app.services.sql_engine - INFO - 🔒 Using schema override with 1 tables
+2026-02-14 20:04:48 - app.services.sql_engine - INFO - 📉 Schema scope size: 1 tables
+2026-02-14 20:04:51 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT COUNT(*) AS registered_articles_count
+FROM sku_master sm
+WHERE sm.IS_ACTIVE = 1
+LIMIT 100;...
+2026-02-14 20:04:51 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-14 20:04:51 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-14 20:04:52 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 1 rows
+2026-02-14 20:04:52 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: d0532b4f-124f-4a49-af31-5a2a4d1f4803
+2026-02-14 20:04:52 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: d0532b4f-124f-4a49-af31-5a2a4d1f4803
+2026-02-14 20:04:52 - app.services.query_classification_service - INFO - 📝 Stored query 9b2419bc-063_20260214200452400408 for classification (cache now has 1518 queries)
+2026-02-14 20:04:52 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.90, session=9b2419bc-063

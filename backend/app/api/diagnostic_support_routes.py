@@ -8,9 +8,9 @@ Includes Semi-Auto SOP Diagnostic Workflow (based on semi-auto-diag.py)
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
-from app.services.diagnostic_support_service import DiagnosticSupportService
-from app.services.interactive_diagnostic_service import get_interactive_diagnostic_service
-from app.services.semi_auto_sop_service import get_sop_service
+from app.services.diagnostic.diagnostic_support_service import DiagnosticSupportService
+from app.services.semi_diagnostic.interactive_diagnostic_service import get_interactive_diagnostic_service
+from app.services.semi_diagnostic.semi_auto_sop_service import get_sop_service
 import logging
 
 logger = logging.getLogger(__name__)

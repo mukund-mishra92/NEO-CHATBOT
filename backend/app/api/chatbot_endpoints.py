@@ -19,10 +19,14 @@ from ..models.schemas import (
     SQLQueryResponse,
     SystemHealthStatus
 )
-from ..services.knowledge_base_service import KnowledgeBaseService
-#from ..services.sql_assistant_integrated_1 import SQLAssistantService
-from app.services.sql_assistant.sql_assistant import SQLAssistantService
-from ..services.diagnostic_service import DiagnosticService
+# from ..services.knowledge_base.knowledge_base_service import KnowledgeBaseService
+# from ..services.sql_assistant_integrated_1 import SQLAssistantService
+# from app.services.sql_assistant.sql_assistant import SQLAssistantService
+# from ..services.diagnostic.diagnostic_service import DiagnosticService
+from ..services.knowledge_base.knowledge_base_service import KnowledgeBaseService
+from ..services.sql_assistant.sql_assistant import SQLAssistantService
+from ..services.sql_assistant.sql_assistant import SQLAssistantService
+from ..services.diagnostic.diagnostic_service import DiagnosticService
 from ..services.chat_history_service import ChatHistoryService
 from ..services.agentic_service import get_agentic_service
 # NOTE: Old SemiAutomatedDiagnosticService has been replaced with SemiAutoSOPService

@@ -213,3 +213,24 @@ class SQLEngine:
         result["selected_tables"] = ctx.get("selected_tables", [])
 
         return result
+    
+
+    def get_ranked_tables_for_query(
+        self, question: str, top_k: int = 12
+    ) -> List[Dict[str, Any]]:
+        """
+        Get ranked tables for a query (for UI/debugging).
+        Uses SchemaRegistry domain matching instead of TF-IDF.
+        """
+        ctx = self.registry.get_schema_context(question, max_tables=top_k)
+        results = []
+        for tname in ctx["selected_tables"]:
+            info = self.registry.tables.get(tname, {})
+            results.append({
+                "table_name": tname,
+                "description": info.get("description", ""),
+                "columns": info.get("columns_raw", ""),
+                "primary_key": info.get("pk", ""),
+                "category": info.get("category", "general_table"),
+            })
+        return results

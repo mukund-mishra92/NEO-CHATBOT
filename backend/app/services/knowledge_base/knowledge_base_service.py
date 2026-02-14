@@ -8,13 +8,12 @@ import re
 import uuid
 from typing import List, Dict, Any, Optional
 from pathlib import Path
-
-from .llm_service import LLMService
-from .vector_store_service import VectorStoreService
-from .rlhf_service import RLHFService
-from .diagnostic_support_service import DiagnosticSupportService
-from ..models.schemas import ChatRequest, ChatResponse, SourceDocument, ChatbotType, MessageRole
-from ..utils.session_manager import get_session_manager, SessionType
+from app.services.llm_service import LLMService  # shared llm_service at services root
+from ..vector_store_service import VectorStoreService
+from ..rlhf_service import RLHFService
+from ..diagnostic.diagnostic_support_service import DiagnosticSupportService
+from ...models.schemas import ChatRequest, ChatResponse, SourceDocument, ChatbotType, MessageRole
+from ...utils.session_manager import get_session_manager, SessionType
 
 logger = logging.getLogger(__name__)
 
