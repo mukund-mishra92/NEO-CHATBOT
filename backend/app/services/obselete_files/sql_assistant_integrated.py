@@ -27,13 +27,13 @@ import pandas as pd
 import re
 from difflib import SequenceMatcher
 
-from .llm_service import LLMService
-from .rlhf_service import RLHFService
-from .chat_history_service import ChatHistoryService
-from .sql_engine import SQLEngine
-from ..models.schemas import ChatRequest, ChatResponse, ChatbotType, SQLQueryRequest, SQLQueryResponse
+from ..llm_service import LLMService
+from ..rlhf_service import RLHFService
+from ..chat_history_service import ChatHistoryService
+from ..sql_engine import SQLEngine
+from ...models.schemas import ChatRequest, ChatResponse, ChatbotType, SQLQueryRequest, SQLQueryResponse
 from app.core.config import settings
-from ..utils.session_manager import get_session_manager, SessionType
+from ...utils.session_manager import get_session_manager, SessionType
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +89,7 @@ class SQLAssistantService:
         
         # Initialize vector store for SQL examples
         try:
-            from .vector_store_service import VectorStoreService
+            from ..vector_store_service import VectorStoreService
             self.vector_store = VectorStoreService()
             logger.info("✅ Vector store available for SQL examples")
         except Exception as e:
@@ -106,7 +106,7 @@ class SQLAssistantService:
         
         # Initialize query classification service
         try:
-            from .query_classification_service import QueryClassificationService
+            from ..query_classification_service import QueryClassificationService
             classification_storage = settings.DATA_DIR / "classification"
             self.classification_service = QueryClassificationService(classification_storage)
             logger.info("✅ Query classification service enabled")
@@ -154,7 +154,7 @@ class SQLAssistantService:
     def _load_schema_parser(self):
         """Load schema parser from JSON file"""
         try:
-            from ..utils.schema_parser import SchemaParser
+            from ...utils.schema_parser import SchemaParser
             schema_path = settings.DATA_DIR / "database" / "schema.json"
             if schema_path.exists():
                 return SchemaParser(str(schema_path))
