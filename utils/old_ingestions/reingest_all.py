@@ -8,7 +8,7 @@ from pathlib import Path
 # Add project root to path
 sys.path.append(str(Path(__file__).parent))
 
-from ...backend.app.services.vector_store_service import VectorStoreService
+from ...backend.app.services.knowledge_base.vector_store_service import VectorStoreService
 import logging
 
 logging.basicConfig(

@@ -89,7 +89,7 @@ class SQLAssistantService:
         
         # Initialize vector store for SQL examples
         try:
-            from ..vector_store_service import VectorStoreService
+            from ..knowledge_base.vector_store_service import VectorStoreService
             self.vector_store = VectorStoreService()
             logger.info("✅ Vector store available for SQL examples")
         except Exception as e:

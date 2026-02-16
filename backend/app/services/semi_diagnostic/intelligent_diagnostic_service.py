@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 
 from ..llm_service import LLMService
-from ..vector_store_service import VectorStoreService
+from ..knowledge_base.vector_store_service import VectorStoreService
 from ..obselete_files.sql_assistant_integrated import SQLAssistantService
 from ..diagnostic.diagnostic_support_service import DiagnosticSupportService
 from ...models.schemas import ChatRequest, ChatResponse, ChatbotType

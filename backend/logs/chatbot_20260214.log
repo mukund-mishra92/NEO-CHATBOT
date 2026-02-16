@@ -2417,3 +2417,178 @@ LIMIT 100;...
 2026-02-14 20:04:52 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: d0532b4f-124f-4a49-af31-5a2a4d1f4803
 2026-02-14 20:04:52 - app.services.query_classification_service - INFO - 📝 Stored query 9b2419bc-063_20260214200452400408 for classification (cache now has 1518 queries)
 2026-02-14 20:04:52 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.90, session=9b2419bc-063
+2026-02-14 20:33:09 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 20:33:09 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-14 20:33:32 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 20:33:32 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 20:33:32 - app.services.query_classification_service - INFO - ✅ Loaded 1518 classified queries
+2026-02-14 20:33:32 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-14 20:33:32 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1518 classified queries
+2026-02-14 20:33:32 - app.main - INFO - ✅ Classification service initialized
+2026-02-14 20:36:01 - app.services.query_classification_service - INFO - ✅ Loaded 1518 classified queries
+2026-02-14 20:36:01 - app.services.query_classification_service - INFO - ✅ Query 9b2419bc-063_20260214200452400408 classified as: correct
+2026-02-14 20:36:20 - app.services.query_classification_service - INFO - ✅ Loaded 1518 classified queries
+2026-02-14 20:36:20 - app.services.query_classification_service - INFO - ✅ Query 784b91e9-726_20260214193047812908 classified as: correct
+2026-02-14 20:36:52 - app.services.query_classification_service - INFO - ✅ Exported 3 training examples to C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\data\training_dataset.json
+2026-02-14 20:40:15 - app.api.chatbot_endpoints - WARNING - ⚠️ Session not found: 9b2419bc-063
+2026-02-14 21:02:33 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:02:33 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:02:33 - app.services.query_classification_service - INFO - ✅ Loaded 1518 classified queries
+2026-02-14 21:02:33 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-14 21:02:33 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1518 classified queries
+2026-02-14 21:02:33 - app.main - INFO - ✅ Classification service initialized
+2026-02-14 21:21:18 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:21:18 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-14 21:21:28 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:21:28 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:21:28 - app.services.query_classification_service - INFO - ✅ Loaded 1518 classified queries
+2026-02-14 21:21:28 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-14 21:21:28 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1518 classified queries
+2026-02-14 21:21:28 - app.main - INFO - ✅ Classification service initialized
+2026-02-14 21:22:42 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:22:42 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-14 21:22:52 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:22:52 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:22:52 - app.services.query_classification_service - INFO - ✅ Loaded 1518 classified queries
+2026-02-14 21:22:52 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-14 21:22:52 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1518 classified queries
+2026-02-14 21:22:52 - app.main - INFO - ✅ Classification service initialized
+2026-02-14 21:25:32 - app.utils.session_manager - INFO - 🆕 New session created: c8126a1c-ea1 (type: sql_assistant)
+2026-02-14 21:25:32 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: c8126a1c-ea1 (type: sql_assistant)
+2026-02-14 21:25:32 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=list out all the unique sku_id available in proxim...
+2026-02-14 21:25:32 - app.services.sql_assistant.sql_assistant - INFO - 🔍 Using heuristic selected tables: ['steps', 'steps_archive', 'location_master', 'location_master_', 'pick_wave_wms_data_dsb_upload_validation']
+2026-02-14 21:25:32 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['steps', 'steps_archive', 'location_master', 'location_master_', 'pick_wave_wms_data_dsb_upload_validation']
+2026-02-14 21:25:32 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 5 tables
+2026-02-14 21:25:32 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-14 21:25:32 - app.services.sql_engine - INFO - 🔒 Using schema override with 5 tables
+2026-02-14 21:25:32 - app.services.sql_engine - INFO - 📉 Schema scope size: 5 tables
+2026-02-14 21:25:37 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT DISTINCT pw.SKU_ID AS sku_id
+FROM pick_wave_wms_data_dsb_upload_validation pw
+WHERE pw.SKU_ID IS NOT NULL
+LIMIT 100;...
+2026-02-14 21:25:37 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-14 21:25:37 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-14 21:25:37 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 0 rows
+2026-02-14 21:25:37 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 09006ad9-37cf-4e3c-9d51-3bceb8f513f8
+2026-02-14 21:25:37 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 09006ad9-37cf-4e3c-9d51-3bceb8f513f8
+2026-02-14 21:25:37 - app.services.query_classification_service - INFO - 📝 Stored query c8126a1c-ea1_20260214212537384922 for classification (cache now has 1519 queries)
+2026-02-14 21:25:37 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.55, session=c8126a1c-ea1
+2026-02-14 21:26:07 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 21:26:07 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 21:26:08 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 21:26:08 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 21:26:35 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=list out all the unique sku_id available in proxim...
+2026-02-14 21:26:35 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: list out all the unique sku_id available in proximity recommendation
+ASSISTANT: ### 🧾 SQL Quer...
+2026-02-14 21:26:35 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.55, session=c8126a1c-ea1
+2026-02-14 21:27:00 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:27:00 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-14 21:27:10 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:27:10 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:27:10 - app.services.query_classification_service - INFO - ✅ Loaded 1519 classified queries
+2026-02-14 21:27:10 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-14 21:27:10 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1519 classified queries
+2026-02-14 21:27:10 - app.main - INFO - ✅ Classification service initialized
+2026-02-14 21:27:39 - app.utils.session_manager - INFO - 🆕 New session created: ab199317-3c3 (type: sql_assistant)
+2026-02-14 21:27:39 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: ab199317-3c3 (type: sql_assistant)
+2026-02-14 21:27:39 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=list out all the unique sku_id available in proxim...
+2026-02-14 21:27:39 - app.services.sql_assistant.table_priority_loader - INFO - 🔍 Exact match for 'list out all the unique sku_id available in proximity recommendation': correct=['article_proximity_score'], incorrect=[]
+2026-02-14 21:27:39 - app.services.sql_assistant.sql_assistant - INFO - 🎯 Using validated tables: ['article_proximity_score']
+2026-02-14 21:27:39 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['article_proximity_score']
+2026-02-14 21:27:39 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 1 tables
+2026-02-14 21:27:39 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-14 21:27:39 - app.services.sql_engine - INFO - 🔒 Using schema override with 1 tables
+2026-02-14 21:27:39 - app.services.sql_engine - INFO - 📉 Schema scope size: 1 tables
+2026-02-14 21:27:44 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT DISTINCT aps.PARENT_ARTICLE_ID AS sku_id
+FROM article_proximity_score aps
+
+UNION
+
+SELECT DISTINCT aps.CHILD_ARTICLE_ID AS sku_id
+FROM article_p...
+2026-02-14 21:27:44 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-14 21:27:44 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-14 21:27:44 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 100 rows
+2026-02-14 21:27:44 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 2aae5960-91f1-4f65-98ae-4a4929efbf09
+2026-02-14 21:27:44 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 2aae5960-91f1-4f65-98ae-4a4929efbf09
+2026-02-14 21:27:44 - app.services.query_classification_service - INFO - 📝 Stored query ab199317-3c3_20260214212744566465 for classification (cache now has 1520 queries)
+2026-02-14 21:27:44 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.90, session=ab199317-3c3
+2026-02-14 21:28:19 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=list out all the unique sku_id and their associate...
+2026-02-14 21:28:19 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: list out all the unique sku_id available in proximity recommendation
+ASSISTANT: ### 🧾 SQL Quer...
+2026-02-14 21:28:19 - app.services.sql_assistant.table_priority_loader - INFO - 🔍 Similar query match: 'list out all the unique sku_id available in proximity recommendation' -> correct: {'article_proximity_score'}
+2026-02-14 21:28:19 - app.services.sql_assistant.sql_assistant - INFO - 🎯 Using validated tables: ['article_proximity_score']
+2026-02-14 21:28:19 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['article_proximity_score']
+2026-02-14 21:28:19 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 1 tables
+2026-02-14 21:28:19 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-14 21:28:19 - app.services.sql_engine - INFO - 🔒 Using schema override with 1 tables
+2026-02-14 21:28:19 - app.services.sql_engine - INFO - 📉 Schema scope size: 1 tables
+2026-02-14 21:28:24 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT DISTINCT
+  ar.SKU_ID AS sku_id,
+  ar.SKU_NAME AS sku_name
+FROM article_proximity_score aps
+JOIN article_registered ar
+  ON ar.SKU_ID = aps.CHIL...
+2026-02-14 21:28:24 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-14 21:28:24 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-14 21:28:24 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 0 rows
+2026-02-14 21:28:24 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 4ea504d9-931d-407b-beaf-91802c5d3372
+2026-02-14 21:28:24 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 4ea504d9-931d-407b-beaf-91802c5d3372
+2026-02-14 21:28:24 - app.services.query_classification_service - INFO - 📝 Stored query ab199317-3c3_20260214212824160653 for classification (cache now has 1521 queries)
+2026-02-14 21:28:24 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.69, session=ab199317-3c3
+2026-02-14 21:28:45 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 21:28:45 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 21:28:45 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-14 21:28:45 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-14 21:29:53 - app.utils.session_manager - INFO - 🆕 New session created: 66287eb3-fbf (type: sql_assistant)
+2026-02-14 21:29:53 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 66287eb3-fbf (type: sql_assistant)
+2026-02-14 21:29:53 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=list out all the unique sku_id and their associate...
+2026-02-14 21:29:53 - app.services.sql_assistant.table_priority_loader - INFO - 🔍 Similar query match: 'list out all the unique sku_id available in proximity recommendation' -> correct: {'article_proximity_score'}
+2026-02-14 21:29:53 - app.services.sql_assistant.sql_assistant - INFO - 🎯 Using validated tables: ['article_proximity_score']
+2026-02-14 21:29:53 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['article_proximity_score']
+2026-02-14 21:29:53 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 1 tables
+2026-02-14 21:29:53 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-14 21:29:53 - app.services.sql_engine - INFO - 🔒 Using schema override with 1 tables
+2026-02-14 21:29:53 - app.services.sql_engine - INFO - 📉 Schema scope size: 1 tables
+2026-02-14 21:29:57 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT DISTINCT
+  ar.SKU_ID AS sku_id,
+  ar.SKU_NAME AS sku_name
+FROM article_proximity_score aps
+JOIN article_registered ar ON ar.SKU_ID = aps.CHILD_...
+2026-02-14 21:29:57 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-14 21:29:57 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-14 21:29:57 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 0 rows
+2026-02-14 21:29:57 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 6c3094a8-45fb-4148-afcf-cf7de1dcbcfe
+2026-02-14 21:29:57 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 6c3094a8-45fb-4148-afcf-cf7de1dcbcfe
+2026-02-14 21:29:57 - app.services.query_classification_service - INFO - 📝 Stored query 66287eb3-fbf_20260214212957486368 for classification (cache now has 1522 queries)
+2026-02-14 21:29:57 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.64, session=66287eb3-fbf
+2026-02-14 21:30:29 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:30:29 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-14 21:30:38 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:30:38 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260214.log
+2026-02-14 21:30:38 - app.services.query_classification_service - INFO - ✅ Loaded 1522 classified queries
+2026-02-14 21:30:38 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-14 21:30:38 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1522 classified queries
+2026-02-14 21:30:38 - app.main - INFO - ✅ Classification service initialized
+2026-02-14 21:30:53 - app.utils.session_manager - INFO - 🆕 New session created: 80a50f88-6ec (type: sql_assistant)
+2026-02-14 21:30:53 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 80a50f88-6ec (type: sql_assistant)
+2026-02-14 21:30:53 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=list out all the unique sku_id and their associate...
+2026-02-14 21:30:53 - app.services.sql_assistant.table_priority_loader - INFO - 🔍 Exact match for 'list out all the unique sku_id and their associated sku_name available in proximity recommendation': correct=['article_proximity_score', 'sku_master'], incorrect=[]
+2026-02-14 21:30:53 - app.services.sql_assistant.sql_assistant - INFO - 🎯 Using validated tables: ['article_proximity_score', 'sku_master']
+2026-02-14 21:30:53 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['article_proximity_score', 'sku_master']
+2026-02-14 21:30:53 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 2 tables
+2026-02-14 21:30:53 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-14 21:30:53 - app.services.sql_engine - INFO - 🔒 Using schema override with 2 tables
+2026-02-14 21:30:53 - app.services.sql_engine - INFO - 📉 Schema scope size: 2 tables
+2026-02-14 21:30:58 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT DISTINCT sm.SKU_ID, sm.SKU_NAME
+FROM article_proximity_score aps
+JOIN sku_master sm ON sm.SKU_ID = aps.PARENT_ARTICLE_ID
+UNION
+SELECT DISTINCT ...
+2026-02-14 21:30:58 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-14 21:30:58 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-14 21:31:00 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 100 rows
+2026-02-14 21:31:00 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 19ae1a51-7a85-4ebc-a6e0-a1a53e9cd023
+2026-02-14 21:31:00 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 19ae1a51-7a85-4ebc-a6e0-a1a53e9cd023
+2026-02-14 21:31:00 - app.services.query_classification_service - INFO - 📝 Stored query 80a50f88-6ec_20260214213100765229 for classification (cache now has 1523 queries)
+2026-02-14 21:31:00 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.90, session=80a50f88-6ec

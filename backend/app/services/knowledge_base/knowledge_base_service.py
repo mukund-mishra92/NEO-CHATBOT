@@ -9,7 +9,7 @@ import uuid
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 from app.services.llm_service import LLMService  # shared llm_service at services root
-from ..vector_store_service import VectorStoreService
+from .vector_store_service import VectorStoreService
 from ..rlhf_service import RLHFService
 from ..diagnostic.diagnostic_support_service import DiagnosticSupportService
 from ...models.schemas import ChatRequest, ChatResponse, SourceDocument, ChatbotType, MessageRole

@@ -17,7 +17,7 @@ sys.path.append(str(Path(__file__).parent))
 
 from scripts.ingest_documents import DocumentProcessor
 from scripts.ingest_code import CodeProcessor
-from backend.app.services.vector_store_service import VectorStoreService
+from backend.app.services.knowledge_base.vector_store_service import VectorStoreService
 
 # Configure logging
 logging.basicConfig(

@@ -33,7 +33,7 @@ except ImportError as e:
 
 # Local imports
 from .llm_service import LLMService
-from .vector_store_service import VectorStoreService
+from .knowledge_base.vector_store_service import VectorStoreService
 from ..models.schemas import ChatRequest, ChatResponse, SourceDocument, MessageRole
 
 logger = logging.getLogger(__name__)
