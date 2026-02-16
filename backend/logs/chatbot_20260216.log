@@ -561,3 +561,84 @@ Traceback (most recent call last):
     sql_stats = sql_service.get_statistics()
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 AttributeError: 'SQLAssistantService' object has no attribute 'get_statistics'
+2026-02-16 18:01:23 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 18:01:23 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-16 18:01:46 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 18:01:46 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 18:01:46 - app.services.query_classification_service - INFO - ✅ Loaded 1530 classified queries
+2026-02-16 18:01:46 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-16 18:01:46 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1530 classified queries
+2026-02-16 18:01:46 - app.main - INFO - ✅ Classification service initialized
+2026-02-16 18:02:22 - app.utils.session_manager - INFO - 🆕 New session created: a9ec9ca9-154 (type: semi_auto_diagnostic)
+2026-02-16 18:02:22 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: a9ec9ca9-154 (type: semi_auto_diagnostic)
+2026-02-16 18:02:49 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me the recent pick tasks we have performed...
+2026-02-16 18:02:49 - app.services.sql_assistant.sql_assistant - INFO - 🔍 Using heuristic selected tables: []
+2026-02-16 18:02:49 - app.services.sql_assistant.sql_assistant - INFO - 📦 Final schema scope: ['alarm_master', 'api_master', 'article_proximity_score', 'article_registered', 'articles_registered']
+2026-02-16 18:02:49 - app.services.sql_assistant.sql_assistant - INFO - 📉 Schema reduced from 166 to 5 tables
+2026-02-16 18:02:49 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-16 18:02:49 - app.services.sql_engine - INFO - 🔒 Using schema override with 5 tables
+2026-02-16 18:02:49 - app.services.sql_engine - INFO - 📉 Schema scope size: 5 tables
+2026-02-16 18:02:56 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT tml.LOG_ID,
+       tml.TASK_ID,
+       tml.TASK_TYPE,
+       tml.STATUS,
+       tml.SOURCE_LOCATION_ID,
+       tml.DESTINATION_LOCATION_ID,
+   ...
+2026-02-16 18:02:56 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-16 18:02:56 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-16 18:02:56 - app.services.sql_assistant.executor - ERROR - ❌ Database error: 1054 (42S22): Unknown column 'tml.SOURCE_LOCATION_ID' in 'field list'
+2026-02-16 18:02:56 - app.services.sql_assistant.retry_engine - WARNING - ❌ Attempt 1 failed: Database error: Unknown column 'tml.SOURCE_LOCATION_ID' in 'field list'
+2026-02-16 18:02:56 - app.services.sql_assistant.retry_engine - INFO - 🔄 Retrying with enhanced feedback...
+2026-02-16 18:02:56 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 2/3
+2026-02-16 18:02:56 - app.services.sql_engine - INFO - 🔒 Using schema override with 5 tables
+2026-02-16 18:02:56 - app.services.sql_engine - INFO - 📉 Schema scope size: 5 tables
+2026-02-16 18:03:04 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT tml.LOG_ID,
+       tml.TASK_ID,
+       tml.TASK_TYPE,
+       tml.STATUS,
+       tml.SOURCE_BIN_ID,
+       tml.DESTINATION_LOCATION_ID,
+       t...
+2026-02-16 18:03:04 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-16 18:03:04 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-16 18:03:04 - app.services.sql_assistant.executor - ERROR - ❌ Database error: 1054 (42S22): Unknown column 'tml.SOURCE_BIN_ID' in 'field list'
+2026-02-16 18:03:04 - app.services.sql_assistant.retry_engine - WARNING - ❌ Attempt 2 failed: Database error: Unknown column 'tml.SOURCE_BIN_ID' in 'field list'
+2026-02-16 18:03:04 - app.services.sql_assistant.retry_engine - INFO - 🔄 Retrying with enhanced feedback...
+2026-02-16 18:03:04 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 3/3
+2026-02-16 18:03:04 - app.services.sql_engine - INFO - 🔒 Using schema override with 5 tables
+2026-02-16 18:03:04 - app.services.sql_engine - INFO - 📉 Schema scope size: 5 tables
+2026-02-16 18:03:11 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  tml.LOG_ID,
+  tml.TASK_ID,
+  tml.TASK_TYPE,
+  tml.STATUS,
+  tml.SOURCE_LOCATION_ID,
+  tml.DESTINATION_LOCATION_ID,
+  tml.BOT_ID,
+  tml.INSERT...
+2026-02-16 18:03:11 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-16 18:03:11 - app.services.sql_assistant.retry_engine - INFO - ✅ Schema validation passed
+2026-02-16 18:03:11 - app.services.sql_assistant.executor - ERROR - ❌ Database error: 1054 (42S22): Unknown column 'tml.SOURCE_LOCATION_ID' in 'field list'
+2026-02-16 18:03:11 - app.services.sql_assistant.retry_engine - WARNING - ❌ Attempt 3 failed: Database error: Unknown column 'tml.SOURCE_LOCATION_ID' in 'field list'
+2026-02-16 18:03:11 - app.services.sql_assistant.retry_engine - ERROR - ❌ SQL generation failed after 3 attempts. Last error: Database error: Unknown column 'tml.SOURCE_LOCATION_ID' in 'field list'
+2026-02-16 18:03:11 - app.api.chatbot_endpoints - ERROR - ❌ Error in chat endpoint: SQL generation failed after retries: Database error: Unknown column 'tml.SOURCE_LOCATION_ID' in 'field list'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\api\chatbot_endpoints.py", line 166, in chat
+    response = sql_service.process_query(request)
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\sql_assistant.py", line 230, in process_query
+    generation_result, execution_result = self.retry_engine.run(
+                                          ~~~~~~~~~~~~~~~~~~~~~^
+        generate_fn,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        schema_validator=self.schema_validator,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\retry_engine.py", line 119, in run
+    raise Exception(f"SQL generation failed after retries: {last_error}")
+Exception: SQL generation failed after retries: Database error: Unknown column 'tml.SOURCE_LOCATION_ID' in 'field list'
+2026-02-16 18:08:16 - app.api.auth_routes - INFO - User login successful: Dfaff (dfaff@falconautotech.com)
+2026-02-16 18:08:34 - app.api.auth_routes - INFO - User login successful: Balmukund (balmukund.mishra@falconautotech.com)
+2026-02-16 18:09:13 - app.api.auth_routes - INFO - User login successful: Balmukund (balmukund.mishra@falconautotech.com)
