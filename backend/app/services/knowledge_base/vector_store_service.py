@@ -23,7 +23,7 @@ class VectorStoreService:
         """Initialize vector store"""
         if storage_path is None:
             # Go up to project root: backend/app -> backend -> root
-            base_path = Path(__file__).parent.parent.parent.parent / "data"
+            base_path = Path(__file__).parent.parent.parent.parent.parent / "data"
             storage_path = str(base_path / "vector_store.json")
         
         self.storage_path = storage_path

@@ -19,11 +19,7 @@ from ..models.schemas import (
     SQLQueryResponse,
     SystemHealthStatus
 )
-# from ..services.knowledge_base.knowledge_base_service import KnowledgeBaseService
-# from ..services.sql_assistant_integrated_1 import SQLAssistantService
-# from app.services.sql_assistant.sql_assistant import SQLAssistantService
-# from ..services.diagnostic.diagnostic_service import DiagnosticService
-from ..services.knowledge_base.knowledge_base_service import KnowledgeBaseService
+from ..services.knowledge_base.knowledge_base_service_old import KnowledgeBaseService
 from ..services.sql_assistant.sql_assistant import SQLAssistantService
 from ..services.diagnostic.diagnostic_service import DiagnosticService
 from ..services.chat_history_service import ChatHistoryService
@@ -393,7 +389,6 @@ async def execute_sql_query(request: SQLQueryRequest):
         # Extract SQL from response
         #sql_query = sql_service._extract_sql_query(response.response)
         sql_query = response.metadata.get("sql_query")
-
         
         return SQLQueryResponse(
             query=request.query,
@@ -453,6 +448,79 @@ async def upload_document(
         
     except Exception as e:
         logger.error(f"❌ Error uploading document: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/extract-document-text")
+async def extract_document_text(file: UploadFile = File(...)):
+    """
+    Extract text from an uploaded PDF or DOCX file for in-chat document Q&A.
+    Does NOT ingest into the permanent knowledge base.
+    Returns the extracted text so the frontend can pass it as context during chat.
+    """
+    try:
+        logger.info(f"📄 Extracting text from: {file.filename}")
+
+        file_ext = Path(file.filename).suffix.lower()
+        if file_ext not in {".pdf", ".docx"}:
+            raise HTTPException(status_code=400, detail="Only PDF and DOCX files are supported.")
+
+        content = await file.read()
+        extracted_text = ""
+        page_count = 0
+
+        if file_ext == ".pdf":
+            import io
+            try:
+                from PyPDF2 import PdfReader
+            except ImportError:
+                raise HTTPException(status_code=500, detail="PyPDF2 is not installed on the server.")
+            reader = PdfReader(io.BytesIO(content))
+            page_count = len(reader.pages)
+            pages_text = []
+            for i, page in enumerate(reader.pages):
+                text = page.extract_text() or ""
+                if text.strip():
+                    pages_text.append(text)
+            extracted_text = "\n\n".join(pages_text)
+
+        elif file_ext == ".docx":
+            import io
+            import tempfile
+            try:
+                from docx import Document as DocxDocument
+            except ImportError:
+                raise HTTPException(status_code=500, detail="python-docx is not installed on the server.")
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp:
+                tmp.write(content)
+                tmp_path = tmp.name
+            doc = DocxDocument(tmp_path)
+            paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
+            extracted_text = "\n\n".join(paragraphs)
+            page_count = max(1, len(paragraphs) // 25)  # Approximate pages
+            import os
+            os.unlink(tmp_path)
+
+        if not extracted_text.strip():
+            raise HTTPException(status_code=400, detail="Could not extract any text from the document.")
+
+        # Truncate to ~60k chars to stay within LLM context limits
+        max_chars = 60000
+        if len(extracted_text) > max_chars:
+            extracted_text = extracted_text[:max_chars] + "\n\n[... Document truncated due to length ...]"
+
+        logger.info(f"✅ Extracted {len(extracted_text)} chars, ~{page_count} pages from {file.filename}")
+        return {
+            "filename": file.filename,
+            "text": extracted_text,
+            "pages": page_count,
+            "characters": len(extracted_text)
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Error extracting document text: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

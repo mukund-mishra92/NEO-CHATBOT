@@ -336,16 +336,6 @@
             }
         }
     </style>
-    <script>
-        // Auth guard - Admin only page
-        (function() {
-            try {
-                const s = JSON.parse(localStorage.getItem('neo_session'));
-                if (!s || !s.name || !s.role) { window.location.href = '/login'; return; }
-                if (s.role !== 'admin') { alert('Access denied. Admin privileges required.'); window.location.href = '/chatbot'; return; }
-            } catch(e) { window.location.href = '/login'; }
-        })();
-    </script>
 </head>
 <body>
     <div class="container">

@@ -29,15 +29,6 @@
             min-height: 60px;
         }
     </style>
-    <script>
-        // Auth guard - Require login
-        (function() {
-            try {
-                const s = JSON.parse(localStorage.getItem('neo_session'));
-                if (!s || !s.name || !s.role) { window.location.href = '/login'; return; }
-            } catch(e) { window.location.href = '/login'; }
-        })();
-    </script>
 </head>
 <body>
     <!-- Hero Section -->

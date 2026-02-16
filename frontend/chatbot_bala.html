@@ -447,74 +447,9 @@
             border-top: 2px solid #e9ecef;
         }
 
-        .attached-file-banner {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 14px;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
-            border: 1px solid #a5d6a7;
-            border-radius: 20px;
-            font-size: 13px;
-            color: #2e7d32;
-        }
-
-        .attached-file-banner i {
-            font-size: 14px;
-        }
-
-        .attached-file-banner .filename {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 600;
-        }
-
-        .attached-file-banner .remove-btn {
-            background: none;
-            border: none;
-            color: #c62828;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 2px 6px;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-
-        .attached-file-banner .remove-btn:hover {
-            background: rgba(198, 40, 40, 0.1);
-        }
-
         .input-group {
             display: flex;
             gap: 10px;
-            align-items: flex-end;
-        }
-
-        .attach-btn {
-            padding: 12px 14px;
-            background: #f5f5f5;
-            border: 2px solid #e9ecef;
-            border-radius: 50%;
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            transition: all 0.3s;
-            flex-shrink: 0;
-        }
-
-        .attach-btn:hover {
-            background: #e8f5e9;
-            border-color: #a5d6a7;
-            color: #2e7d32;
-        }
-
-        .attach-btn.has-file {
-            background: #e8f5e9;
-            border-color: #66bb6a;
-            color: #2e7d32;
         }
 
         .chat-input {
@@ -525,12 +460,6 @@
             font-size: 15px;
             outline: none;
             transition: all 0.3s;
-            resize: none;
-            min-height: 52px;
-            max-height: 150px;
-            overflow-y: auto;
-            font-family: inherit;
-            line-height: 1.4;
         }
 
         .chat-input:focus {
@@ -917,27 +846,14 @@
 
         <!-- Input Area -->
         <div class="chat-input-area">
-            <!-- Attached file banner (hidden by default) -->
-            <div class="attached-file-banner" id="attachedFileBanner" style="display: none;">
-                <i class="fas fa-file-alt"></i>
-                <span class="filename" id="attachedFileName"></span>
-                <button class="remove-btn" onclick="removeAttachedFile()" title="Remove file">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <input type="file" id="chatFileInput" accept=".pdf,.docx" style="display: none;" onchange="handleChatFileAttach(event)">
             <div class="input-group">
-                <button class="attach-btn" id="attachBtn" onclick="document.getElementById('chatFileInput').click()" title="Attach PDF or DOCX">
-                    <i class="fas fa-paperclip"></i>
-                </button>
-                <textarea 
+                <input 
+                    type="text" 
                     class="chat-input" 
                     id="messageInput" 
                     placeholder="Type your message here..."
-                    rows="1"
-                    onkeydown="handleKeyPress(event)"
-                    oninput="autoResize(this)"
-                ></textarea>
+                    onkeypress="handleKeyPress(event)"
+                >
                 <button class="send-btn" id="sendBtn" onclick="sendMessage()">
                     <i class="fas fa-paper-plane"></i> Send
                 </button>
@@ -947,74 +863,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // ========== Auth Check ==========
-        function getNeoSession() {
-            try {
-                const session = JSON.parse(localStorage.getItem('neo_session'));
-                if (session && session.name && session.role) return session;
-            } catch(e) {}
-            return null;
-        }
-
-        function getGreeting() {
-            const hour = new Date().getHours();
-            if (hour < 12) return 'Good morning';
-            if (hour < 17) return 'Good afternoon';
-            return 'Good evening';
-        }
-
-        (function enforceAuth() {
-            const session = getNeoSession();
-            if (!session) {
-                window.location.href = '/login';
-                return;
-            }
-
-            // Hide Management Tools for non-admin
-            if (session.role !== 'admin') {
-                document.addEventListener('DOMContentLoaded', function() {
-                    const toolsDropdown = document.querySelector('.tools-dropdown');
-                    if (toolsDropdown) toolsDropdown.style.display = 'none';
-                });
-            }
-
-            // Personalize welcome message
-            document.addEventListener('DOMContentLoaded', function() {
-                const greeting = getGreeting();
-                const welcomeHeading = document.querySelector('#emptyState h3');
-                if (welcomeHeading) {
-                    welcomeHeading.textContent = `${greeting}, ${session.name}!`;
-                }
-                const welcomeSubtext = document.querySelector('#emptyState p');
-                if (welcomeSubtext) {
-                    welcomeSubtext.textContent = "How can I help you today? I'm here for documentation, SQL queries, and system diagnostics.";
-                }
-
-                // Add logout button
-                const headerTools = document.querySelector('.header-tools');
-                if (headerTools) {
-                    const logoutBtn = document.createElement('button');
-                    logoutBtn.className = 'back-btn';
-                    logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-                    logoutBtn.onclick = function() {
-                        localStorage.removeItem('neo_session');
-                        window.location.href = '/login';
-                    };
-                    headerTools.appendChild(logoutBtn);
-                }
-
-                // Show user name in header
-                const headerSmall = document.querySelector('.chat-header small');
-                if (headerSmall) {
-                    headerSmall.textContent = `Powered by Falcon AI  \u2022  Logged in as ${session.name}` + (session.role === 'admin' ? ' (Admin)' : '');
-                }
-            });
-        })();
-
         // Global variables
         let currentChatbotType = 'knowledge_base';
         let sessionId = null;
         let messageCount = 0;
+
+        // ================= SOP WORKFLOW STATE =================
+        let semiAutoDiagSession = null;
+        let sopSessionId = null;
+        let sopCurrentStatus = null;
+        let sopWorkflowCardId = null;
+        let sopStepsCompleted = [];
+        let selectedSOPSNo = null;
+        // ======================================================
         
         // Toggle management tools dropdown
         function toggleToolsMenu() {
@@ -1096,18 +957,6 @@
                     } else {
                         uploadArea.classList.remove('active');
                     }
-
-                    // Show/hide attachment button and clear attached file when switching types
-                    const attachBtn = document.getElementById('attachBtn');
-                    if (currentChatbotType === 'knowledge_base') {
-                        attachBtn.style.display = '';
-                    } else {
-                        attachBtn.style.display = 'none';
-                        // Clear any attached document
-                        if (attachedDocumentText) {
-                            removeAttachedFile();
-                        }
-                    }
                 });
             });
 
@@ -1131,82 +980,11 @@
             });
         }
 
-        // ========== Attached Document State ==========
-        let attachedDocumentText = null;
-        let attachedFileName = null;
-
         function handleKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
-                // Enter alone → send message
                 event.preventDefault();
                 sendMessage();
             }
-            // Shift+Enter → default textarea behavior (new line)
-        }
-
-        function autoResize(el) {
-            el.style.height = 'auto';
-            el.style.height = Math.min(el.scrollHeight, 150) + 'px';
-        }
-
-        async function handleChatFileAttach(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const allowedTypes = [
-                'application/pdf',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            ];
-            const ext = file.name.split('.').pop().toLowerCase();
-            if (!['pdf', 'docx'].includes(ext)) {
-                alert('Only PDF and DOCX files are supported.');
-                event.target.value = '';
-                return;
-            }
-
-            // Show loading state
-            const banner = document.getElementById('attachedFileBanner');
-            const nameSpan = document.getElementById('attachedFileName');
-            nameSpan.textContent = `Uploading ${file.name}...`;
-            banner.style.display = 'flex';
-            document.getElementById('attachBtn').classList.add('has-file');
-
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                const response = await fetch('/api/chatbot/extract-document-text', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.detail || 'Upload failed');
-                }
-
-                const data = await response.json();
-                attachedDocumentText = data.text;
-                attachedFileName = file.name;
-                nameSpan.textContent = `📎 ${file.name} (${data.pages} pages, ${data.characters} chars)`;
-
-                addMessage('assistant', `✅ Document **${file.name}** attached successfully (${data.pages} pages). I will use this document as the primary source when answering your questions. Ask me anything about it!`, {}, false);
-            } catch (error) {
-                console.error('Error extracting document:', error);
-                alert('Failed to process document: ' + error.message);
-                banner.style.display = 'none';
-                document.getElementById('attachBtn').classList.remove('has-file');
-            }
-
-            event.target.value = '';
-        }
-
-        function removeAttachedFile() {
-            attachedDocumentText = null;
-            attachedFileName = null;
-            document.getElementById('attachedFileBanner').style.display = 'none';
-            document.getElementById('attachBtn').classList.remove('has-file');
-            addMessage('assistant', 'Document detached. I will now answer from the knowledge base only.', {}, false);
         }
 
         // Global variable for semi-auto diagnostic session
@@ -1219,9 +997,6 @@
             const message = input.value.trim();
             
             if (!message) return;
-
-            // Reset textarea height after sending
-            input.style.height = 'auto';
 
             // Create session if it doesn't exist
             if (!sessionId) {
@@ -1248,28 +1023,17 @@
                     await handleSemiAutoDiagnostic(message);
                 } else {
                     // Regular chatbot handling
-                    // Build request payload - include attached document context if present
-                    const payload = {
-                        message: message,
-                        chatbot_type: currentChatbotType,
-                        session_id: sessionId,
-                        conversation_history: []
-                    };
-
-                    // If a document is attached, include its text as context
-                    if (attachedDocumentText && currentChatbotType === 'knowledge_base') {
-                        payload.context = {
-                            attached_document: attachedDocumentText,
-                            attached_filename: attachedFileName
-                        };
-                    }
-
                     const response = await fetch('/api/chatbot/chat', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify({
+                            message: message,
+                            chatbot_type: currentChatbotType,
+                            session_id: sessionId,
+                            conversation_history: []
+                        })
                     });
 
                     const data = await response.json();

@@ -1,0 +1,113 @@
+2026-02-16 12:05:55 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:05:55 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-16 12:06:05 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:06:05 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:06:05 - app.services.query_classification_service - INFO - ✅ Loaded 1523 classified queries
+2026-02-16 12:06:05 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-16 12:06:05 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1523 classified queries
+2026-02-16 12:06:05 - app.main - INFO - ✅ Classification service initialized
+2026-02-16 12:24:06 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:24:06 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:24:06 - app.services.query_classification_service - INFO - ✅ Loaded 1523 classified queries
+2026-02-16 12:24:06 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-16 12:24:06 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1523 classified queries
+2026-02-16 12:24:06 - app.main - INFO - ✅ Classification service initialized
+2026-02-16 12:28:29 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:28:29 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-16 12:28:39 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:28:39 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:28:39 - app.services.query_classification_service - INFO - ✅ Loaded 1523 classified queries
+2026-02-16 12:28:39 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-16 12:28:39 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1523 classified queries
+2026-02-16 12:28:39 - app.main - INFO - ✅ Classification service initialized
+2026-02-16 12:30:56 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:30:56 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-16 12:31:06 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:31:06 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:31:06 - app.services.query_classification_service - INFO - ✅ Loaded 1523 classified queries
+2026-02-16 12:31:06 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-16 12:31:06 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1523 classified queries
+2026-02-16 12:31:06 - app.main - INFO - ✅ Classification service initialized
+2026-02-16 12:36:16 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:36:16 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-16 12:36:25 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:36:25 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:36:25 - app.services.query_classification_service - INFO - ✅ Loaded 1523 classified queries
+2026-02-16 12:36:25 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-16 12:36:25 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1523 classified queries
+2026-02-16 12:36:25 - app.main - INFO - ✅ Classification service initialized
+2026-02-16 12:37:53 - app.api.auth_routes - INFO - User login successful: Balmukund (balmukund.mishra@falconautotech.com)
+2026-02-16 12:38:07 - app.api.auth_routes - INFO - User login successful: Balmukund (balmukund.mishra@falconautotech.com)
+2026-02-16 12:39:06 - app.api.auth_routes - INFO - User login successful: Balmukund (balmukund.mishra@falconautotech.com)
+2026-02-16 12:39:10 - app.utils.session_manager - INFO - 🆕 New session created: 0a4f4421-b3c (type: knowledge_base)
+2026-02-16 12:39:10 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 0a4f4421-b3c (type: knowledge_base)
+2026-02-16 12:39:10 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-02-16 12:39:10 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-16 12:39:10 - app.services.knowledge_base.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-02-16 12:39:11 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 97a10c74-1cd8-4d16-b78b-65a2d6f1e15b
+2026-02-16 12:39:11 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=0a4f4421-b3c
+2026-02-16 12:56:59 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:56:59 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-16 12:57:09 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:57:09 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 12:57:09 - app.services.query_classification_service - INFO - ✅ Loaded 1523 classified queries
+2026-02-16 12:57:09 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-16 12:57:09 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1523 classified queries
+2026-02-16 12:57:09 - app.main - INFO - ✅ Classification service initialized
+2026-02-16 13:02:14 - app.api.auth_routes - INFO - User login successful: Balmukund (balmukund.mishra@falconautotech.com)
+2026-02-16 13:02:21 - app.api.chatbot_endpoints - INFO - 📄 Extracting text from: Tabe_description_with_business_analytical_context (1).pdf
+2026-02-16 13:02:23 - app.api.chatbot_endpoints - INFO - ✅ Extracted 60044 chars, ~85 pages from Tabe_description_with_business_analytical_context (1).pdf
+2026-02-16 13:02:45 - app.utils.session_manager - INFO - 🆕 New session created: 8d263568-745 (type: knowledge_base)
+2026-02-16 13:02:45 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 8d263568-745 (type: knowledge_base)
+2026-02-16 13:02:45 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=give me top 5 immportant tables we have for bot ba...
+2026-02-16 13:02:45 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-16 13:02:45 - app.services.knowledge_base.knowledge_base_service_old - INFO - 🔍 Processing knowledge base query: give me top 5 immportant tables we have for bot ba...
+2026-02-16 13:02:45 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 2c91535b-f8f7-4326-b9c9-d5e6e32d6364
+2026-02-16 13:02:45 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=8d263568-745
+2026-02-16 13:04:37 - app.utils.session_manager - INFO - 🆕 New session created: 3c484bbf-814 (type: knowledge_base)
+2026-02-16 13:04:37 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 3c484bbf-814 (type: knowledge_base)
+2026-02-16 13:04:41 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-02-16 13:04:41 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-16 13:04:41 - app.services.knowledge_base.knowledge_base_service_old - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-02-16 13:04:41 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: fc253289-c566-4fda-b3f5-cd962ee17107
+2026-02-16 13:04:41 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=3c484bbf-814
+2026-02-16 13:04:53 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-02-16 13:04:53 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: what is neo
+ASSISTANT: I don't have any documents in my knowledge base yet. 
+
+To enable docume...
+2026-02-16 13:04:53 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-16 13:04:53 - app.services.knowledge_base.knowledge_base_service_old - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-02-16 13:04:53 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 3f49338a-a374-4fec-a85b-d1dff8c158c8
+2026-02-16 13:04:53 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=3c484bbf-814
+2026-02-16 13:16:16 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 13:16:16 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-16 13:16:26 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 13:16:26 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 13:16:26 - app.services.query_classification_service - INFO - ✅ Loaded 1523 classified queries
+2026-02-16 13:16:26 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-16 13:16:26 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1523 classified queries
+2026-02-16 13:16:26 - app.main - INFO - ✅ Classification service initialized
+2026-02-16 13:16:54 - app.utils.session_manager - INFO - 🆕 New session created: 8a34e6d0-fc4 (type: knowledge_base)
+2026-02-16 13:16:54 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 8a34e6d0-fc4 (type: knowledge_base)
+2026-02-16 13:16:54 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-02-16 13:16:54 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-16 13:16:54 - app.services.knowledge_base.knowledge_base_service_old - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-02-16 13:16:54 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: e4c2440a-72ed-4531-8082-9a0743526e5e
+2026-02-16 13:16:54 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=8a34e6d0-fc4
+2026-02-16 13:17:27 - app.api.auth_routes - INFO - User login successful: Balmukund (balmukund.mishra@falconautotech.com)
+2026-02-16 13:17:48 - app.utils.session_manager - INFO - 🆕 New session created: 85dbf964-17e (type: knowledge_base)
+2026-02-16 13:17:48 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 85dbf964-17e (type: knowledge_base)
+2026-02-16 13:17:48 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-02-16 13:17:48 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-16 13:17:48 - app.services.knowledge_base.knowledge_base_service_old - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-02-16 13:17:48 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: cb35c19a-9af8-432d-9a8f-ae9b86b9109a
+2026-02-16 13:17:48 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=85dbf964-17e
+2026-02-16 13:21:12 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 13:21:12 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-16 13:21:38 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 13:21:38 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260216.log
+2026-02-16 13:21:39 - app.services.query_classification_service - INFO - ✅ Loaded 1523 classified queries
+2026-02-16 13:21:39 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-16 13:21:39 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1523 classified queries
+2026-02-16 13:21:39 - app.main - INFO - ✅ Classification service initialized

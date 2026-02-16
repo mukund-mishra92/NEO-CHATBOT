@@ -15,7 +15,6 @@ from app.api.classification_routes import router as classification_router
 from app.api.schema_management_routes import router as schema_router
 from app.api.table_priority_routes import router as table_priority_router
 from app.api.sql_execution_routes import router as sql_execution_router
-from app.api.auth_routes import router as auth_router
 from app.core.config import settings
 from app.core.logging import setup_logging
 
@@ -48,7 +47,6 @@ app.include_router(classification_router)  # Query classification routes (/api/c
 app.include_router(schema_router)  # Schema management routes (/api/schema)
 app.include_router(table_priority_router)  # Table priority validation routes (/api/table-priority)
 app.include_router(sql_execution_router)  # SQL execution routes (/api/sql)
-app.include_router(auth_router)  # Authentication routes (/api/auth)
 
 def serve_html_file(filename: str, fallback_message: str = "Page not found"):
     """Helper function to serve HTML files"""
@@ -58,15 +56,10 @@ def serve_html_file(filename: str, fallback_message: str = "Page not found"):
             return HTMLResponse(content=f.read())
     return HTMLResponse(content=f"<h1>{fallback_message}</h1>", status_code=404)
 
-@app.get("/login", response_class=HTMLResponse)
-async def login_page():
-    """Serve the login page"""
-    return serve_html_file("login.html", "Login page not found")
-
 @app.get("/", response_class=HTMLResponse)
 async def root():
-    """Root endpoint - Redirect to login"""
-    return serve_html_file("login.html", "Login page not found")
+    """Root endpoint - Serve home/index page"""
+    return serve_html_file("index.html", "Home page not found")
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page():
