@@ -37,6 +37,7 @@ class InteractiveChatRequest(BaseModel):
 class SOPStartRequest(BaseModel):
     """Request model for starting SOP workflow"""
     problem_description: str = Field(..., description="User's problem description")
+    session_id: Optional[str] = Field(None, description="Optional existing session ID to continue conversation")
 
 
 class SOPSelectRequest(BaseModel):
@@ -198,7 +199,10 @@ async def start_sop_workflow(request: SOPStartRequest):
     - Session with matched SOP or candidates for selection
     """
     try:
-        result = sop_service.start_workflow(request.problem_description)
+        result = sop_service.start_workflow(
+            user_query=request.problem_description,
+            session_id=request.session_id  # Pass existing session if provided
+        )
         
         if not result.get("success", False):
             raise HTTPException(status_code=400, detail=result.get("error", "Failed to start workflow"))

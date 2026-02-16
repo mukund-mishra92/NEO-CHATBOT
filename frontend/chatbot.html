@@ -1070,24 +1070,50 @@
                         return;
                     }
                     
-                    // Clear messages when switching assistants
-                    const messagesContainer = document.getElementById('chatMessages');
-                    messagesContainer.querySelectorAll('.message:not(:last-child)').forEach(msg => msg.remove());
-                    document.getElementById('emptyState').style.display = 'block';
-                    messageCount = 0;
-                    document.getElementById('messageCount').textContent = '0';
+                    // 🔥 FIX: Don't clear messages when switching - preserve history
+                    // Messages are filtered by backend based on chatbot_type
+                    // const messagesContainer = document.getElementById('chatMessages');
+                    // messagesContainer.querySelectorAll('.message:not(:last-child)').forEach(msg => msg.remove());
+                    // document.getElementById('emptyState').style.display = 'block';
+                    // messageCount = 0;
+                    // document.getElementById('messageCount').textContent = '0';
                     
                     document.querySelectorAll('.chatbot-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-                    currentChatbotType = this.dataset.type;
+                    
+                    // Update chatbot type BEFORE doing any other operations
+                    const newChatbotType = this.dataset.type;
+                    const oldChatbotType = currentChatbotType;
+                    currentChatbotType = newChatbotType;
+                    
+                    console.log(`🔄 Switching from ${oldChatbotType} to ${newChatbotType}`);
+
+                    // 🔥 IMPORTANT FIX
+                    // sessionId = null;
+                    // document.getElementById('currentSessionId').textContent = 'No active session';
                     document.getElementById('activeAssistant').textContent = this.textContent.trim();
                     updateSuggestions();
                     
-                    // Reset semi-auto diagnostic session when switching
-                    semiAutoDiagSession = null;
-                    sopSessionId = null;
-                    sopCurrentStatus = null;
-                    sopWorkflowCardId = null;
+                    // Reset semi-auto diagnostic session when switching AWAY from it
+                    // 🔥 FIX: Don't reset sopSessionId when switching TO semi_auto_diagnostic
+                    if (currentChatbotType !== 'semi_auto_diagnostic') {
+                        semiAutoDiagSession = null;
+                        sopSessionId = null;
+                        sopCurrentStatus = null;
+                        sopWorkflowCardId = null;
+                    } else {
+                        // Switching TO semi_auto_diagnostic - sync session if available
+                        if (sessionId && !sopSessionId) {
+                            sopSessionId = sessionId;
+                            console.log(`🔄 Synced sopSessionId with sessionId: ${sessionId}`);
+                        }
+                    }
+
+                    // 🔥 FIX: Don't remove SOP workflow cards - let them persist for history
+                    // const existingCard = document.querySelector('.sop-workflow-card');
+                    // if (existingCard) {
+                    //     existingCard.closest('.message')?.remove();
+                    // }}
                     
                     // Show upload area only for knowledge base
                     const uploadArea = document.getElementById('uploadArea');
@@ -1215,10 +1241,20 @@
         let sopCurrentStatus = null;
 
         async function sendMessage() {
+            currentChatbotType = document.querySelector('.chatbot-btn.active')?.dataset?.type || currentChatbotType;
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
             
             if (!message) return;
+            
+            // Defensive check
+            if (!currentChatbotType) {
+                console.error('❌ No chatbot type selected!');
+                alert('Please select an assistant first.');
+                return;
+            }
+            
+            console.log(`📤 Sending message to ${currentChatbotType}, session: ${sessionId || 'none'}`);
 
             // Reset textarea height after sending
             input.style.height = 'auto';
@@ -1231,9 +1267,12 @@
             // Hide empty state
             document.getElementById('emptyState').style.display = 'none';
 
-            // Add user message
-            addMessage('user', message);
+            // Add user message and get its DOM element for positioning
+            const userMessageElement = addMessage('user', message);
             input.value = '';
+            
+            // Store reference for positioning async responses
+            const responseAnchor = userMessageElement;
 
             // Show typing indicator
             document.getElementById('typingIndicator').classList.add('active');
@@ -1246,6 +1285,9 @@
                 // Check if semi-automated diagnostic
                 if (currentChatbotType === 'semi_auto_diagnostic') {
                     await handleSemiAutoDiagnostic(message);
+                    // Update message count for Semi-Auto Diagnostic too
+                    messageCount++;
+                    document.getElementById('messageCount').textContent = messageCount;
                 } else {
                     // Regular chatbot handling
                     // Build request payload - include attached document context if present
@@ -1264,6 +1306,8 @@
                         };
                     }
 
+                    console.log('🌐 Sending to /api/chatbot/chat:', payload);
+                    
                     const response = await fetch('/api/chatbot/chat', {
                         method: 'POST',
                         headers: {
@@ -1272,7 +1316,14 @@
                         body: JSON.stringify(payload)
                     });
 
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('❌ Server error:', response.status, errorText);
+                        throw new Error(`Server returned ${response.status}: ${errorText}`);
+                    }
+
                     const data = await response.json();
+                    console.log('✅ Received response:', data);
                     
                     // Update session ID (should stay same now)
                     if (data.session_id && data.session_id !== sessionId) {
@@ -1289,8 +1340,9 @@
                 }
 
             } catch (error) {
-                console.error('Error:', error);
-                await addMessage('assistant', 'Sorry, I encountered an error. Please try again.', {}, false);
+                console.error('❌ Error in sendMessage:', error);
+                console.error('Stack trace:', error.stack);
+                await addMessage('assistant', `Sorry, I encountered an error: ${error.message}. Please try again.`, {}, false);
             } finally {
                 // Hide typing indicator
                 document.getElementById('typingIndicator').classList.remove('active');
@@ -1307,12 +1359,18 @@
             // NEW SOP-based workflow (like semi-auto-diag.py)
             // No category classification - directly match against SOP using TF-IDF
             
-            if (sopCurrentStatus === 'awaiting_step_input' && sopSessionId) {
-                // User is providing step observation
-                await submitSOPStepInput(message);
-            } else {
-                // Start new SOP workflow or submit new issue
-                await startSOPWorkflow(message);
+            try {
+                if (sopCurrentStatus === 'awaiting_step_input' && sopSessionId) {
+                    // User is providing step observation
+                    await submitSOPStepInput(message);
+                } else {
+                    // Start new SOP workflow or submit new issue
+                    await startSOPWorkflow(message);
+                }
+            } catch (error) {
+                console.error('Semi-Auto Diagnostic error:', error);
+                await addSOPMessage('Error: Failed to process Semi-Auto Diagnostic request. Please try again.');
+                throw error; // Re-throw to ensure main sendMessage() error handler runs
             }
         }
 
@@ -1322,10 +1380,16 @@
 
         async function startSOPWorkflow(message) {
             try {
+                // 🔥 FIX: Include existing sessionId to preserve conversation history
+                const requestBody = { problem_description: message };
+                if (sessionId) {
+                    requestBody.session_id = sessionId;
+                }
+                
                 const response = await fetch('/api/diagnostic-support/sop/start', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ problem_description: message })
+                    body: JSON.stringify(requestBody)
                 });
                 const data = await response.json();
                 
@@ -1339,11 +1403,17 @@
                 sopCurrentStatus = result.status;
                 sopStepsCompleted = [];
                 
+                // 🔥 FIX: Sync main sessionId so switching services preserves conversation
+                if (result.session_id) {
+                    sessionId = result.session_id;
+                    document.getElementById('currentSessionId').textContent = sessionId;
+                }
+                
                 // Handle different states
                 if (result.status === 'needs_selection' && result.candidates) {
                     showSOPProblemSelection(result.candidates);
                 } else {
-                    // Create unified workflow card
+                    // Create unified workflow card (it will persist across service switches)
                     createSOPWorkflowCard(result);
                 }
                 
@@ -2127,7 +2197,9 @@
             
             messageDiv.appendChild(avatarDiv);
             messageDiv.appendChild(contentDiv);
-            messagesContainer.insertBefore(messageDiv, messagesContainer.querySelector('.message.assistant:last-child'));
+            
+            // Always append to end to maintain chronological order
+            messagesContainer.appendChild(messageDiv);
 
             // Format the message
             const formattedContent = formatMessage(content, data);
@@ -2146,6 +2218,9 @@
 
             // Scroll to bottom
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Return the message element for reference
+            return messageDiv;
         }
 
         function formatMessage(content, data) {

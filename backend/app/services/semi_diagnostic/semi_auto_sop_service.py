@@ -19,8 +19,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from app.core.config import settings
+from app.utils.session_manager import get_session_manager
 
 logger = logging.getLogger(__name__)
+session_manager = get_session_manager()  # Unified session management
 
 
 # -------------------------
@@ -330,12 +332,13 @@ class SemiAutoSOPService:
     # PUBLIC API METHODS
     # =========================================
     
-    def start_workflow(self, user_query: str) -> Dict[str, Any]:
+    def start_workflow(self, user_query: str, session_id: Optional[str] = None) -> Dict[str, Any]:
         """
         Start a new SOP diagnostic workflow
         
         Args:
             user_query: User's problem description
+            session_id: Optional existing session ID to reuse (for cross-service continuity)
             
         Returns:
             Session data with matched problems or first step
@@ -346,11 +349,20 @@ class SemiAutoSOPService:
                 "error": "SOP data not loaded. Please upload or configure SOP file."
             }
         
-        # Create session
-        session_id = str(uuid.uuid4())[:8]
+        # Create or reuse session
+        if not session_id:
+            session_id = str(uuid.uuid4())[:8]
         entities = extract_entities(user_query)
         session = SOPWorkflowSession(session_id, user_query, entities)
         session.add_message("user", user_query)
+        
+        # 🔥 ADD: Sync with unified session manager for cross-service history
+        session_manager.add_message(
+            session_id,
+            'user',
+            user_query,
+            metadata={'chatbot_type': 'semi_auto_diagnostic', 'service': 'sop'}
+        )
         
         # Find best matching problem
         best, ranked = self._select_best_problem(user_query)
@@ -362,18 +374,27 @@ class SemiAutoSOPService:
         if best["score"] < MATCH_THRESHOLD:
             # Low confidence - need user selection
             session.status = "needs_selection"
+            selection_message = f"Match confidence is low (score={best['score']:.2f}). Please select the correct Problem Statement from the options below."
             session.add_message(
                 "assistant",
-                f"Match confidence is low (score={best['score']:.2f}). Please select the correct Problem Statement from the options below.",
+                selection_message,
                 extra={"type": "top_matches", "candidates": ranked_list}
             )
             self.sessions[session_id] = session
+            
+            # 🔥 ADD: Sync with unified session manager
+            session_manager.add_message(
+                session_id,
+                'assistant',
+                selection_message,
+                metadata={'chatbot_type': 'semi_auto_diagnostic', 'status': 'needs_selection', 'candidates_count': len(ranked_list)}
+            )
             
             return {
                 "success": True,
                 "session_id": session_id,
                 "status": "needs_selection",
-                "message": f"Match confidence is low (score={best['score']:.2f}). Please select the correct Problem Statement.",
+                "message": selection_message,
                 "candidates": ranked_list,
                 "messages": session.messages
             }
@@ -386,12 +407,21 @@ class SemiAutoSOPService:
         session.steps = self._get_steps_for_problem(s_no)
         session.status = "running"
         
+        workflow_start_message = f"Matched SOP: **{personalize_text(best['Problem Statement'], entities)}**\n\nImpact: **{best.get('Impact', 'N/A')}**\n\nStarting priority-wise checks."
         session.add_message(
             "assistant",
-            f"Matched SOP: **{personalize_text(best['Problem Statement'], entities)}**\n\nImpact: **{best.get('Impact', 'N/A')}**\n\nStarting priority-wise checks."
+            workflow_start_message
         )
         
         self.sessions[session_id] = session
+        
+        # 🔥 ADD: Sync with unified session manager
+        session_manager.add_message(
+            session_id,
+            'assistant',
+            workflow_start_message,
+            metadata={'chatbot_type': 'semi_auto_diagnostic', 'status': 'running', 'problem': best["Problem Statement"]}
+        )
         
         # Execute first step
         step_result = self._execute_next_step(session)
@@ -443,9 +473,18 @@ class SemiAutoSOPService:
         session.step_idx = 0
         session.status = "running"
         
+        selection_message = f"Selected SOP: **{personalize_text(selected_row['Problem Statement'], session.entities)}**\n\nImpact: **{selected_row.get('Impact', 'N/A')}**\n\nStarting priority-wise checks."
         session.add_message(
             "assistant",
-            f"Selected SOP: **{personalize_text(selected_row['Problem Statement'], session.entities)}**\n\nImpact: **{selected_row.get('Impact', 'N/A')}**\n\nStarting priority-wise checks."
+            selection_message
+        )
+        
+        # 🔥 ADD: Sync with unified session manager
+        session_manager.add_message(
+            session_id,
+            'assistant',
+            selection_message,
+            metadata={'chatbot_type': 'semi_auto_diagnostic', 'status': 'running', 'selected_problem': selected_row["Problem Statement"]}
         )
         
         # Execute first step
@@ -485,6 +524,14 @@ class SemiAutoSOPService:
         
         session.add_message("user", user_input)
         
+        # 🔥 ADD: Sync with unified session manager
+        session_manager.add_message(
+            session_id,
+            'user',
+            user_input,
+            metadata={'chatbot_type': 'semi_auto_diagnostic', 'type': 'step_observation'}
+        )
+        
         # Capture the step observation
         i = session.step_idx
         step = session.steps[i]
@@ -498,6 +545,14 @@ class SemiAutoSOPService:
         })
         
         session.add_message("assistant", "Observation recorded.")
+        
+        # 🔥 ADD: Sync with unified session manager
+        session_manager.add_message(
+            session_id,
+            'assistant',
+            "Observation recorded.",
+            metadata={'chatbot_type': 'semi_auto_diagnostic', 'type': 'acknowledgment'}
+        )
         
         # Advance and ask resolution question
         session.step_idx = i + 1

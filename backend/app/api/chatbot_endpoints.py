@@ -95,17 +95,38 @@ async def chat(request: ChatRequest):
             
             session_type = session_type_map.get(request.chatbot_type, SessionType.GENERAL)
             session_id = session_manager.create_session(
-                session_type=session_type,
-                initial_message=request.message
+                session_type=session_type
+            )
+            session_manager.add_message(
+                session_id,
+                'user',
+                request.message,
+                metadata={'chatbot_type': request.chatbot_type}
             )
             logger.info(f"🆕 Created new session: {session_id}")
         else:
             # Add user message to existing session
-            session_manager.add_message(session_id, 'user', request.message)
+            session_manager.add_message(
+                session_id,
+                'user',
+                request.message,
+                metadata={'chatbot_type': request.chatbot_type}
+            )
         
+        # # STEP 2: Get conversation history for context
+        # conversation_history = session_manager.get_conversation_history(session_id)
+        # # Ensure services receive server-side history even if client sends none
+        # request.conversation_history = conversation_history
         # STEP 2: Get conversation history for context
-        conversation_history = session_manager.get_conversation_history(session_id)
-        # Ensure services receive server-side history even if client sends none
+        full_history = session_manager.get_conversation_history(session_id)
+
+        # 🔥 Filter history by chatbot_type to prevent cross-service contamination
+        conversation_history = [
+            msg for msg in full_history
+            if msg.get("metadata", {}).get("chatbot_type") == request.chatbot_type
+        ]
+
+        # Ensure services receive filtered server-side history
         request.conversation_history = conversation_history
         
         # STEP 2.5: CHECK IF USER IS ASKING ABOUT SESSION/CONVERSATION HISTORY
@@ -146,6 +167,15 @@ async def chat(request: ChatRequest):
             
         elif request.chatbot_type == ChatbotType.DIAGNOSTIC:
             response = diagnostic_service.process_query(request)
+            
+        elif request.chatbot_type == ChatbotType.SEMI_AUTO_DIAGNOSTIC:
+            # Semi-Auto Diagnostic uses separate SOP endpoint
+            # This branch should not be reached as frontend routes directly to /api/diagnostic-support/sop/*
+            logger.warning("⚠️ Semi-Auto Diagnostic routed through /api/chatbot/chat - should use /api/diagnostic-support/sop/start instead")
+            raise HTTPException(
+                status_code=400,
+                detail="Semi-Auto Diagnostic should use /api/diagnostic-support/sop/start endpoint"
+            )
             
         else:
             raise HTTPException(status_code=400, detail=f"Invalid chatbot type: {request.chatbot_type}")
