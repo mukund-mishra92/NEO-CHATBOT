@@ -1,6 +1,7 @@
 # Log files
 # *.log
-# logs/
+logs/
+backend/logs/
 # *.log.*
 # log_*.txt
 # mining_logs/
