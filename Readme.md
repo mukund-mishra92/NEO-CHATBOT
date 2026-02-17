@@ -39,6 +39,13 @@ Intelligent chatbot assistant for NEO Warehouse Management System with advanced 
 - Improved accuracy through consensus
 - Automatic fallback to local LLM
 
+### 7. **🔐 Secure OTP Authentication**
+- Email-based OTP (One-Time Password) verification for users
+- Domain restriction: Only `@falconautotech.com` emails allowed
+- Secure OTP generation with hashing and salting
+- Rate limiting and attempt limiting for security
+- Admin login with username/password (no OTP required)
+
 ## 🎨 User Interfaces
 
 ### Available Web Pages
@@ -46,6 +53,7 @@ Intelligent chatbot assistant for NEO Warehouse Management System with advanced 
 | URL | Page | Description |
 |-----|------|-------------|
 | `/` | Home | Landing page with feature showcase |
+| `/login` | Login | Secure OTP-based authentication |
 | `/chatbot` | Main Chatbot | 3-in-1 AI assistant (Knowledge Base, SQL, Diagnostic) |
 | `/diagnostic` | Semi-Auto Diagnostics | Interactive troubleshooting wizard |
 | `/diagnostic-support` | Support Dashboard | Comprehensive support management |
