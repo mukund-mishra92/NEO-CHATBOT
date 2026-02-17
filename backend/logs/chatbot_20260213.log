@@ -1,0 +1,10 @@
+2026-02-13 16:52:45 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\ML_Deployements\1.NEO_Chatbot\4_jan\backend\logs\chatbot_20260213.log
+2026-02-13 16:52:45 - app.services.query_classification_service - INFO - ✅ Loaded 1683 classified queries
+2026-02-13 16:52:45 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 16:52:45 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1683 classified queries
+2026-02-13 16:52:45 - app.main - INFO - ✅ Classification service initialized
+2026-02-13 16:54:54 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\ML_Deployements\1.NEO_Chatbot\4_jan\backend\logs\chatbot_20260213.log
+2026-02-13 16:54:54 - app.services.query_classification_service - INFO - ✅ Loaded 1683 classified queries
+2026-02-13 16:54:54 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 16:54:54 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1683 classified queries
+2026-02-13 16:54:54 - app.main - INFO - ✅ Classification service initialized

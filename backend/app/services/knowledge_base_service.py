@@ -83,12 +83,13 @@ Always prioritize clarity and user understanding."""
         
         Steps:
         1. Get or create session for conversation memory
-        2. Classify query type (factual, generative, conversational, unanswerable)
-        3. Generate embedding for user query
-        4. Search vector store for relevant documents
-        5. Build adaptive context based on query type
-        6. Generate response with appropriate strategy
-        7. Store conversation in session
+        2. Check for attached document context (primary source)
+        3. Classify query type (factual, generative, conversational, unanswerable)
+        4. Generate embedding for user query
+        5. Search vector store for relevant documents (secondary source)
+        6. Build adaptive context based on query type
+        7. Generate response with appropriate strategy
+        8. Store conversation in session
         
         Args:
             chat_request: User's chat request
@@ -106,8 +107,20 @@ Always prioritize clarity and user understanding."""
                 conversation_history = self.session_manager.get_context_for_llm(session_id, max_messages=10)
             else:
                 conversation_history = []
-            # Check if vector store has documents
-            if len(self.vector_store.documents) == 0:
+
+            # Step 1.5: Check for attached document (in-chat uploaded doc as primary source)
+            attached_doc_text = None
+            attached_filename = None
+            has_attached_document = False
+            if chat_request.context and isinstance(chat_request.context, dict):
+                attached_doc_text = chat_request.context.get("attached_document")
+                attached_filename = chat_request.context.get("attached_filename", "uploaded document")
+                if attached_doc_text:
+                    has_attached_document = True
+                    logger.info(f"📎 Attached document detected: {attached_filename} ({len(attached_doc_text)} chars)")
+
+            # Check if vector store has documents (skip if we have an attached doc)
+            if not has_attached_document and len(self.vector_store.documents) == 0:
                 return self._handle_empty_knowledge_base(chat_request)
             
             # Step 2: Check if this is a troubleshooting query
@@ -127,10 +140,19 @@ Always prioritize clarity and user understanding."""
             query_embedding = self.llm_service.generate_embedding(chat_request.message)
             
             # Step 5: Search for relevant documents (with balanced category distribution)
+            # Don't pass attached_document context as vector store filter
+            vector_filter = None
+            if chat_request.context and isinstance(chat_request.context, dict):
+                # Only pass actual metadata filters, not the attached document
+                vector_filter = {k: v for k, v in chat_request.context.items() 
+                                if k not in ("attached_document", "attached_filename")}
+                if not vector_filter:
+                    vector_filter = None
+
             search_results = self.vector_store.search_balanced(
                 query_embedding=query_embedding,
-                top_k=8,  # Retrieve more documents for better context
-                filter_metadata=chat_request.context,
+                top_k=8 if not has_attached_document else 4,  # Fewer KB results when doc is primary
+                filter_metadata=vector_filter,
                 min_similarity=0.25,  # Lower threshold to catch more relevant content
                 diversify=True  # Reduce proposal bias
             )
@@ -139,8 +161,35 @@ Always prioritize clarity and user understanding."""
             filtered_results = self._filter_and_rerank(search_results, chat_request.message)
             
             # Step 6: Build context from retrieved documents
-            context = self._build_context(filtered_results)
+            kb_context = self._build_context(filtered_results)
             source_documents = self._extract_source_documents(filtered_results)
+
+            # Step 6.5: If attached document exists, build combined context (doc = primary, KB = secondary)
+            if has_attached_document:
+                # Truncate document to fit in context window
+                doc_excerpt = attached_doc_text[:40000] if len(attached_doc_text) > 40000 else attached_doc_text
+                context = f"""╔══════════════════════════════════════════════════════════════════════════════╗
+║  📎 PRIMARY SOURCE: Uploaded Document - {attached_filename}                  
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+{doc_excerpt}
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  📚 SUPPLEMENTARY: Knowledge Base (background context)                       
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+{kb_context if kb_context else '(No additional knowledge base context found)'}"""
+
+                # Add uploaded doc as a source
+                source_documents.insert(0, SourceDocument(
+                    document_name=attached_filename,
+                    content_snippet=attached_doc_text[:200] + "...",
+                    relevance_score=1.0,
+                    page_number=None,
+                    document_type=Path(attached_filename).suffix.lstrip('.') if attached_filename else "document"
+                ))
+            else:
+                context = kb_context
             
             # Step 7: Get conversation history for context
             if not conversation_history:
@@ -151,6 +200,10 @@ Always prioritize clarity and user understanding."""
             
             # Adjust LLM parameters based on query type
             max_tokens, temperature = self._get_llm_parameters(query_type)
+            
+            # Increase max_tokens when processing attached documents (richer answers needed)
+            if has_attached_document:
+                max_tokens = max(max_tokens, 2000)
             
             response_text = self.llm_service.generate_response(
                 messages=messages,
@@ -490,8 +543,23 @@ FORMAT:
         # ========================================
         # STEP 2: Build query-specific prompt
         # ========================================
+        
+        # Check if there's an attached document (primary source)
+        has_attached_doc = (chat_request.context and isinstance(chat_request.context, dict) 
+                           and chat_request.context.get("attached_document"))
+        doc_priority_note = ""
+        if has_attached_doc:
+            attached_name = chat_request.context.get("attached_filename", "uploaded document")
+            doc_priority_note = f"""
+⚠️ IMPORTANT: The user has attached a document ("{attached_name}").
+- The UPLOADED DOCUMENT (marked as PRIMARY SOURCE) is the main source of truth.
+- Answer primarily from the uploaded document content.
+- Use the SUPPLEMENTARY Knowledge Base context only to add extra background or fill gaps.
+- If the answer is found in the uploaded document, cite it as the source.
+"""
+
         if query_type == "SIMPLE_FACT":
-            user_message = f"""Documentation:
+            user_message = f"""{doc_priority_note}Documentation:
 {context}
 
 Question: {chat_request.message}
@@ -499,7 +567,16 @@ Question: {chat_request.message}
 Provide a direct, concise answer in 1-3 sentences. No extra formatting."""
         
         elif query_type == "GENERATIVE":
-            user_message = f"""Documentation Available:
+            if has_attached_doc:
+                # With an attached document, allow generating answers FROM the document
+                user_message = f"""{doc_priority_note}Documentation:
+{context}
+
+User Request: {chat_request.message}
+
+Answer using the uploaded document as the primary source. Be comprehensive and helpful."""
+            else:
+                user_message = f"""Documentation Available:
 {context}
 
 User Request: {chat_request.message}
@@ -514,7 +591,7 @@ Instead:
 Be conversational and helpful, not robotic."""
         
         else:
-            user_message = f"""Documentation:
+            user_message = f"""{doc_priority_note}Documentation:
 {context}
 
 Question: {chat_request.message}

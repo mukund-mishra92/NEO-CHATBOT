@@ -1,0 +1,517 @@
+2026-02-11 16:06:31 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\ML_Deployements\1.NEO_Chatbot\4_jan\backend\logs\chatbot_20260211.log
+2026-02-11 16:06:32 - app.services.query_classification_service - INFO - ✅ Loaded 1669 classified queries
+2026-02-11 16:06:32 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-11 16:06:32 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1669 classified queries
+2026-02-11 16:06:32 - app.main - INFO - ✅ Classification service initialized
+2026-02-11 16:06:54 - app.utils.session_manager - INFO - 🆕 New session created: 5697c04c-2d6 (type: knowledge_base)
+2026-02-11 16:06:54 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 5697c04c-2d6 (type: knowledge_base)
+2026-02-11 16:06:54 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=what is neo...
+2026-02-11 16:06:54 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-11 16:06:54 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: what is neo...
+2026-02-11 16:06:54 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-02-11 16:06:59 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-02-11 16:07:00 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-11 16:07:00 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-11 16:07:00 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_b1304cf8f35946a1' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: c5fb8b1f-0c15-44cb-bec7-87bb0c690c82
+2026-02-11 16:07:00 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-02-11 16:07:00 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=5697c04c-2d6
+2026-02-11 16:07:24 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=who is arkajyoti in neo...
+2026-02-11 16:07:24 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: what is neo
+ASSISTANT: NEO is a cutting-edge Automated Storage and Retrieval System (ASRS) des...
+2026-02-11 16:07:24 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-11 16:07:24 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: who is arkajyoti in neo...
+2026-02-11 16:07:24 - app.services.knowledge_base_service - INFO - 📊 Query classified as: SIMPLE_FACT
+2026-02-11 16:07:29 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-02-11 16:07:29 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-11 16:07:29 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-11 16:07:30 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_df3fcb67fc464f15' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 1ae8e751-b560-4d42-b9f1-ee9e0df327e6
+2026-02-11 16:07:30 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-02-11 16:07:30 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.47, session=5697c04c-2d6
+2026-02-11 16:08:49 - app.utils.session_manager - INFO - 🆕 New session created: 5b4fafdf-eff (type: sql_assistant)
+2026-02-11 16:08:49 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 5b4fafdf-eff (type: sql_assistant)
+2026-02-11 16:08:49 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me top 10 skus...
+2026-02-11 16:08:49 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: give me top 10 skus...
+2026-02-11 16:08:49 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-11 16:08:49 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-11 16:08:49 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-11 16:08:49 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-11 16:08:49 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-11 16:08:49 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-11 16:08:49 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with SQLEngine...
+2026-02-11 16:08:55 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 62.00%)
+2026-02-11 16:08:55 - app.services.sql_assistant_integrated - INFO -    Tables used: sku_master
+2026-02-11 16:08:55 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  sm.SKU_ID,
+  sm.SKU_NAME,
+  sm.VELOCITY,
+  sm.ROS,
+  sm.SKU_CLASSIFICATION,
+  sm.CATEGORY,
+...
+2026-02-11 16:08:56 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 10 rows returned
+2026-02-11 16:08:56 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=62.00%, validation=95.00%, combined=75.20%
+2026-02-11 16:08:56 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (75.20%) - Using result
+2026-02-11 16:08:56 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-11 16:08:57 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 10 rows returned
+2026-02-11 16:08:57 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-11 16:08:57 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-11 16:08:57 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: b5b01d14-9c00-4574-b68f-93ded03be8e7
+2026-02-11 16:08:57 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: b5b01d14-9c00-4574-b68f-93ded03be8e7
+2026-02-11 16:08:57 - app.services.query_classification_service - INFO - 📝 Stored query 5b4fafdf-eff_20260211160857238271 for classification (cache now has 1670 queries)
+2026-02-11 16:08:57 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 75.20%)
+2026-02-11 16:08:57 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=5b4fafdf-eff
+2026-02-11 18:26:55 - app.utils.session_manager - INFO - 🆕 New session created: 1ab54e05-988 (type: sql_assistant)
+2026-02-11 18:26:55 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 1ab54e05-988 (type: sql_assistant)
+2026-02-11 18:26:55 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me a data in which i want to list each of the...
+2026-02-11 18:26:55 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: give me a data in which i want to list each of the...
+2026-02-11 18:26:55 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-11 18:26:55 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-11 18:26:55 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-11 18:26:55 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-11 18:26:55 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-11 18:26:55 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-11 18:26:55 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with SQLEngine...
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 86.00%)
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO -    Tables used: live_inventory_master, sku_master
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  lim.ARTICLE_ID AS sku_id,
+  sm.SKU_NAME AS sku_name,
+  COUNT(DISTINCT lim.BIN_ID) AS bins_c...
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 100 rows returned
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=86.00%, validation=95.00%, combined=89.60%
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (89.60%) - Using result
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 100 rows returned
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-11 18:27:04 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 99eb28a2-4508-44ce-9323-4192d9e00c03
+2026-02-11 18:27:04 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 99eb28a2-4508-44ce-9323-4192d9e00c03
+2026-02-11 18:27:04 - app.services.query_classification_service - INFO - 📝 Stored query 1ab54e05-988_20260211182704691908 for classification (cache now has 1671 queries)
+2026-02-11 18:27:04 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 89.60%)
+2026-02-11 18:27:04 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.90, session=1ab54e05-988
+2026-02-11 18:28:49 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=ok, this is good. give me a data in which i want t...
+2026-02-11 18:28:49 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: give me a data in which i want to list each of the skus available in how many bins (count) in ...
+2026-02-11 18:28:49 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: ok, this is good. give me a data in which i want t...
+2026-02-11 18:28:49 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-11 18:28:49 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-11 18:28:49 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-11 18:28:49 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-11 18:28:49 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-11 18:28:49 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-11 18:28:49 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with SQLEngine...
+2026-02-11 18:29:01 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 84.00%)
+2026-02-11 18:29:01 - app.services.sql_assistant_integrated - INFO -    Tables used: sku_master, live_inventory_master, pick_wave_order_master
+2026-02-11 18:29:01 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  sm.SKU_ID,
+  sm.SKU_NAME,
+  COUNT(DISTINCT lim.BIN_ID) AS bins_count,
+  GROUP_CONCAT(DISTIN...
+2026-02-11 18:29:01 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 100 rows returned
+2026-02-11 18:29:01 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=84.00%, validation=95.00%, combined=88.40%
+2026-02-11 18:29:01 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (88.40%) - Using result
+2026-02-11 18:29:01 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-11 18:29:02 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 100 rows returned
+2026-02-11 18:29:02 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-11 18:29:02 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 2)
+2026-02-11 18:29:02 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 83b9266f-1179-4a61-ad07-f08a019be5bc
+2026-02-11 18:29:02 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 83b9266f-1179-4a61-ad07-f08a019be5bc
+2026-02-11 18:29:02 - app.services.query_classification_service - INFO - 📝 Stored query 1ab54e05-988_20260211182902298823 for classification (cache now has 1672 queries)
+2026-02-11 18:29:02 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 88.40%)
+2026-02-11 18:29:02 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.88, session=1ab54e05-988
+2026-02-11 18:32:01 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=i think its giving me incorrect result for order_f...
+2026-02-11 18:32:01 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: give me a data in which i want to list each of the skus available in how many bins (count) in ...
+2026-02-11 18:32:01 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: i think its giving me incorrect result for order_f...
+2026-02-11 18:32:01 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-11 18:32:01 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-11 18:32:01 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-11 18:32:01 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-11 18:32:01 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-11 18:32:01 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-11 18:32:01 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with SQLEngine...
+2026-02-11 18:32:10 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 77.00%)
+2026-02-11 18:32:10 - app.services.sql_assistant_integrated - INFO -    Tables used: pick_wave_order_master
+2026-02-11 18:32:10 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  p.SKU_ID,
+  COUNT(DISTINCT p.ORDER_ID) AS order_frequency,
+  SUM(COALESCE(p.EXPECTED_QUANTI...
+2026-02-11 18:32:10 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-11 18:32:10 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=77.00%, validation=30.00%, combined=58.20%
+2026-02-11 18:32:10 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (58.20%) - Retrying with feedback
+2026-02-11 18:32:10 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with SQLEngine...
+2026-02-11 18:32:18 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 80.00%)
+2026-02-11 18:32:18 - app.services.sql_assistant_integrated - INFO -    Tables used: pick_wave_order_master
+2026-02-11 18:32:18 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  p.SKU_ID,
+  COUNT(DISTINCT p.ORDER_ID) AS order_frequency,
+  SUM(COALESCE(p.EXPECTED_QUANTI...
+2026-02-11 18:32:18 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-11 18:32:18 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=80.00%, validation=30.00%, combined=60.00%
+2026-02-11 18:32:18 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (60.00%) - Retrying with feedback
+2026-02-11 18:32:18 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with SQLEngine...
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 78.00%)
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - INFO -    Tables used: pick_wave_order_master
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  p.SKU_ID,
+  COUNT(DISTINCT p.ORDER_ID) AS order_frequency,
+  SUM(COALESCE(p.EXPECTED_QUANTI...
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=78.00%, validation=30.00%, combined=58.80%
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (58.80%) - Retrying with feedback
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - WARNING - ⚠️ Last attempt - using result despite low confidence
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 3)
+2026-02-11 18:32:25 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: fc6d2738-7195-4ce6-89bb-4c3970d1c7af
+2026-02-11 18:32:25 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: fc6d2738-7195-4ce6-89bb-4c3970d1c7af
+2026-02-11 18:32:25 - app.services.query_classification_service - INFO - 📝 Stored query 1ab54e05-988_20260211183225534488 for classification (cache now has 1673 queries)
+2026-02-11 18:32:25 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 58.80%)
+2026-02-11 18:32:25 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.59, session=1ab54e05-988
+2026-02-11 18:34:00 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=can you give me total number of orders recieved ti...
+2026-02-11 18:34:00 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: ok, this is good. give me a data in which i want to list each of the skus available in how man...
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: can you give me total number of orders recieved ti...
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-11 18:34:00 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with SQLEngine...
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: sku_inventory_by_name (1 triggers)
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: sku_inventory_by_name
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=0)
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO -    Required: ['live_inventory_master']
+2026-02-11 18:34:00 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['article_master (DOES NOT EXIST in the database!)']
+2026-02-11 18:34:07 - app.services.sql_assistant_integrated - ERROR - ❌ VALIDATION VIOLATION! SQL doesn't use required tables: ['live_inventory_master']
+2026-02-11 18:34:07 - app.services.sql_assistant_integrated - ERROR -    Tables used: ['pick_wave_order_master', 'sku_master']
+2026-02-11 18:34:07 - app.services.sql_assistant_integrated - ERROR -    Required: ['live_inventory_master']
+2026-02-11 18:34:07 - app.services.sql_assistant_integrated - INFO - 🔄 Retrying generation with stronger constraints (attempt 2)...
+2026-02-11 18:34:07 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: sku_inventory_by_name (1 triggers)
+2026-02-11 18:34:07 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: sku_inventory_by_name
+2026-02-11 18:34:07 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=1)
+2026-02-11 18:34:07 - app.services.sql_assistant_integrated - INFO -    Required: ['live_inventory_master']
+2026-02-11 18:34:07 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['article_master (DOES NOT EXIST in the database!)']
+2026-02-11 18:34:14 - app.services.sql_assistant_integrated - ERROR - ❌ VALIDATION VIOLATION! SQL doesn't use required tables: ['live_inventory_master']
+2026-02-11 18:34:14 - app.services.sql_assistant_integrated - ERROR -    Tables used: ['sku_master', 'pick_wave_order_master']
+2026-02-11 18:34:14 - app.services.sql_assistant_integrated - ERROR -    Required: ['live_inventory_master']
+2026-02-11 18:34:14 - app.services.sql_assistant_integrated - INFO - 🔄 Retrying generation with stronger constraints (attempt 3)...
+2026-02-11 18:34:14 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: sku_inventory_by_name (1 triggers)
+2026-02-11 18:34:14 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: sku_inventory_by_name
+2026-02-11 18:34:14 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=2)
+2026-02-11 18:34:14 - app.services.sql_assistant_integrated - INFO -    Required: ['live_inventory_master']
+2026-02-11 18:34:14 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['article_master (DOES NOT EXIST in the database!)']
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 74.00%)
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO -    Tables used: live_inventory_master, sku_master, pick_wave_order_master
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  sm.SKU_NAME,
+  COUNT(DISTINCT pwom.ORDER_ID) AS total_orders_received
+FROM live_inventory_m...
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=74.00%, validation=30.00%, combined=56.40%
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (56.40%) - Retrying with feedback
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with SQLEngine...
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: sku_inventory_by_name (1 triggers)
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: sku_inventory_by_name
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=0)
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO -    Required: ['live_inventory_master']
+2026-02-11 18:34:22 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['article_master (DOES NOT EXIST in the database!)']
+2026-02-11 18:34:27 - app.services.sql_assistant_integrated - ERROR - ❌ VALIDATION VIOLATION! SQL doesn't use required tables: ['live_inventory_master']
+2026-02-11 18:34:27 - app.services.sql_assistant_integrated - ERROR -    Tables used: ['sku_master', 'pick_wave_order_master']
+2026-02-11 18:34:27 - app.services.sql_assistant_integrated - ERROR -    Required: ['live_inventory_master']
+2026-02-11 18:34:27 - app.services.sql_assistant_integrated - INFO - 🔄 Retrying generation with stronger constraints (attempt 2)...
+2026-02-11 18:34:27 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: sku_inventory_by_name (1 triggers)
+2026-02-11 18:34:27 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: sku_inventory_by_name
+2026-02-11 18:34:27 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=1)
+2026-02-11 18:34:27 - app.services.sql_assistant_integrated - INFO -    Required: ['live_inventory_master']
+2026-02-11 18:34:27 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['article_master (DOES NOT EXIST in the database!)']
+2026-02-11 18:34:35 - app.services.sql_assistant_integrated - ERROR - ❌ VALIDATION VIOLATION! SQL doesn't use required tables: ['live_inventory_master']
+2026-02-11 18:34:35 - app.services.sql_assistant_integrated - ERROR -    Tables used: ['pick_wave_order_master', 'sku_master']
+2026-02-11 18:34:35 - app.services.sql_assistant_integrated - ERROR -    Required: ['live_inventory_master']
+2026-02-11 18:34:35 - app.services.sql_assistant_integrated - INFO - 🔄 Retrying generation with stronger constraints (attempt 3)...
+2026-02-11 18:34:35 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: sku_inventory_by_name (1 triggers)
+2026-02-11 18:34:35 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: sku_inventory_by_name
+2026-02-11 18:34:35 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=2)
+2026-02-11 18:34:35 - app.services.sql_assistant_integrated - INFO -    Required: ['live_inventory_master']
+2026-02-11 18:34:35 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['article_master (DOES NOT EXIST in the database!)']
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 72.00%)
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO -    Tables used: pick_wave_order_master, sku_master
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  sm.SKU_NAME,
+  COUNT(DISTINCT pwom.ORDER_ID) AS total_orders_received_till_now
+FROM pick_wa...
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=72.00%, validation=30.00%, combined=55.20%
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (55.20%) - Retrying with feedback
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with SQLEngine...
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: sku_inventory_by_name (1 triggers)
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: sku_inventory_by_name
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=0)
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO -    Required: ['live_inventory_master']
+2026-02-11 18:34:40 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['article_master (DOES NOT EXIST in the database!)']
+2026-02-11 18:34:45 - app.services.sql_assistant_integrated - ERROR - ❌ VALIDATION VIOLATION! SQL doesn't use required tables: ['live_inventory_master']
+2026-02-11 18:34:45 - app.services.sql_assistant_integrated - ERROR -    Tables used: ['sku_master', 'pick_wave_order_master']
+2026-02-11 18:34:45 - app.services.sql_assistant_integrated - ERROR -    Required: ['live_inventory_master']
+2026-02-11 18:34:45 - app.services.sql_assistant_integrated - INFO - 🔄 Retrying generation with stronger constraints (attempt 2)...
+2026-02-11 18:34:45 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: sku_inventory_by_name (1 triggers)
+2026-02-11 18:34:45 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: sku_inventory_by_name
+2026-02-11 18:34:45 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=1)
+2026-02-11 18:34:45 - app.services.sql_assistant_integrated - INFO -    Required: ['live_inventory_master']
+2026-02-11 18:34:45 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['article_master (DOES NOT EXIST in the database!)']
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 62.00%)
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO -    Tables used: sku_master, live_inventory_master, pick_wave_order_master
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  sm.SKU_NAME,
+  COUNT(DISTINCT pwom.ORDER_ID) AS total_orders_received_till_now
+FROM sku_mas...
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=62.00%, validation=95.00%, combined=75.20%
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (75.20%) - Using result
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 4)
+2026-02-11 18:34:53 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 32fd9cf3-c56c-48e5-bab5-e7f5bcf63d36
+2026-02-11 18:34:53 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 32fd9cf3-c56c-48e5-bab5-e7f5bcf63d36
+2026-02-11 18:34:53 - app.services.query_classification_service - INFO - 📝 Stored query 1ab54e05-988_20260211183453963522 for classification (cache now has 1674 queries)
+2026-02-11 18:34:53 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 75.20%)
+2026-02-11 18:34:53 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.75, session=1ab54e05-988
+2026-02-11 19:18:52 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me top 20 most ordered skus...
+2026-02-11 19:18:52 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: i think its giving me incorrect result for order_frequency	total_quantity_ordered, you are poi...
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: give me top 20 most ordered skus...
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-11 19:18:52 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with SQLEngine...
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: ordered_skus_historical (3 triggers)
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: ordered_skus_historical
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=0)
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO -    Required: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:18:52 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['pick_wave_order_master (NEVER use for historical order counts!)', 'wms_to_wcs_order_request_data (use archive for historical data)', 'wms_to_wcs_order_line_request_data (use archive for historical data)', 'put_wave_order_master (NEVER use for historical order counts!)']
+2026-02-11 19:18:58 - app.services.sql_assistant_integrated - ERROR - ❌ VALIDATION VIOLATION! SQL doesn't use required tables: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:18:58 - app.services.sql_assistant_integrated - ERROR -    Tables used: ['pick_wave_order_master', 'sku_master']
+2026-02-11 19:18:58 - app.services.sql_assistant_integrated - ERROR -    Required: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:18:58 - app.services.sql_assistant_integrated - INFO - 🔄 Retrying generation with stronger constraints (attempt 2)...
+2026-02-11 19:18:58 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: ordered_skus_historical (3 triggers)
+2026-02-11 19:18:58 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: ordered_skus_historical
+2026-02-11 19:18:58 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=1)
+2026-02-11 19:18:58 - app.services.sql_assistant_integrated - INFO -    Required: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:18:58 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['pick_wave_order_master (NEVER use for historical order counts!)', 'wms_to_wcs_order_request_data (use archive for historical data)', 'wms_to_wcs_order_line_request_data (use archive for historical data)', 'put_wave_order_master (NEVER use for historical order counts!)']
+2026-02-11 19:19:09 - app.services.sql_assistant_integrated - ERROR - ❌ VALIDATION VIOLATION! SQL doesn't use required tables: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:19:09 - app.services.sql_assistant_integrated - ERROR -    Tables used: ['pick_wave_order_master_archive', 'sku_master']
+2026-02-11 19:19:09 - app.services.sql_assistant_integrated - ERROR -    Required: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:19:09 - app.services.sql_assistant_integrated - INFO - 🔄 Retrying generation with stronger constraints (attempt 3)...
+2026-02-11 19:19:09 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: ordered_skus_historical (3 triggers)
+2026-02-11 19:19:09 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: ordered_skus_historical
+2026-02-11 19:19:09 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=2)
+2026-02-11 19:19:09 - app.services.sql_assistant_integrated - INFO -    Required: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:19:09 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['pick_wave_order_master (NEVER use for historical order counts!)', 'wms_to_wcs_order_request_data (use archive for historical data)', 'wms_to_wcs_order_line_request_data (use archive for historical data)', 'put_wave_order_master (NEVER use for historical order counts!)']
+2026-02-11 19:19:17 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 52.00%)
+2026-02-11 19:19:17 - app.services.sql_assistant_integrated - INFO -    Tables used: pick_wave_order_master_archive, sku_master
+2026-02-11 19:19:17 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  pwa.SKU_ID,
+  sm.SKU_NAME,
+  COUNT(DISTINCT pwa.ORDER_ID) AS orders_count,
+  COUNT(*) AS or...
+2026-02-11 19:19:21 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 20 rows returned
+2026-02-11 19:19:21 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=52.00%, validation=95.00%, combined=69.20%
+2026-02-11 19:19:21 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (69.20%) - Retrying with feedback
+2026-02-11 19:19:21 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with SQLEngine...
+2026-02-11 19:19:21 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: ordered_skus_historical (3 triggers)
+2026-02-11 19:19:21 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: ordered_skus_historical
+2026-02-11 19:19:21 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=0)
+2026-02-11 19:19:21 - app.services.sql_assistant_integrated - INFO -    Required: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:19:21 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['pick_wave_order_master (NEVER use for historical order counts!)', 'wms_to_wcs_order_request_data (use archive for historical data)', 'wms_to_wcs_order_line_request_data (use archive for historical data)', 'put_wave_order_master (NEVER use for historical order counts!)']
+2026-02-11 19:19:28 - app.services.sql_assistant_integrated - ERROR - ❌ VALIDATION VIOLATION! SQL doesn't use required tables: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:19:28 - app.services.sql_assistant_integrated - ERROR -    Tables used: ['pick_wave_order_master_archive', 'sku_master']
+2026-02-11 19:19:28 - app.services.sql_assistant_integrated - ERROR -    Required: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:19:28 - app.services.sql_assistant_integrated - INFO - 🔄 Retrying generation with stronger constraints (attempt 2)...
+2026-02-11 19:19:28 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: ordered_skus_historical (3 triggers)
+2026-02-11 19:19:28 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: ordered_skus_historical
+2026-02-11 19:19:28 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=1)
+2026-02-11 19:19:28 - app.services.sql_assistant_integrated - INFO -    Required: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:19:28 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['pick_wave_order_master (NEVER use for historical order counts!)', 'wms_to_wcs_order_request_data (use archive for historical data)', 'wms_to_wcs_order_line_request_data (use archive for historical data)', 'put_wave_order_master (NEVER use for historical order counts!)']
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 62.00%)
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - INFO -    Tables used: wms_to_wcs_order_line_request_data_archive, wms_to_wcs_order_request_data_archive, sku_master
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  wola.SKU_ID,
+  sm.SKU_NAME,
+  COUNT(DISTINCT wora.ORDER_ID) AS orders_count,
+  COUNT(*) AS ...
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - WARNING - ⚠️ SQL validation failed on attempt 2: (1054, "Unknown column 'wola.SKU_ID' in 'field list'")
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - INFO - 📋 Enhanced feedback with schema info for validation error
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with SQLEngine...
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - INFO - 🔴 BUSINESS RULE MATCHED: ordered_skus_historical (3 triggers)
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - INFO - 🎯 Using business rule: ordered_skus_historical
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - INFO - 📋 Adding table rules guidance (retry=0)
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - INFO -    Required: ['wms_to_wcs_order_request_data_archive', 'wms_to_wcs_order_line_request_data_archive']
+2026-02-11 19:19:37 - app.services.sql_assistant_integrated - INFO -    Forbidden: ['pick_wave_order_master (NEVER use for historical order counts!)', 'wms_to_wcs_order_request_data (use archive for historical data)', 'wms_to_wcs_order_line_request_data (use archive for historical data)', 'put_wave_order_master (NEVER use for historical order counts!)']
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 84.00%)
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO -    Tables used: wms_to_wcs_order_line_request_data_archive, sku_master
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  woldra.ARTICLE_ID AS SKU_ID,
+  sm.SKU_NAME,
+  COUNT(DISTINCT woldra.ORDER_ID) AS orders_cou...
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 20 rows returned
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=84.00%, validation=95.00%, combined=88.40%
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (88.40%) - Using result
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 20 rows returned
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 5)
+2026-02-11 19:19:44 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: bb14b69b-6671-46d3-8c6a-40b0a2fb6a1b
+2026-02-11 19:19:44 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: bb14b69b-6671-46d3-8c6a-40b0a2fb6a1b
+2026-02-11 19:19:44 - app.services.query_classification_service - INFO - 📝 Stored query 1ab54e05-988_20260211191944902192 for classification (cache now has 1675 queries)
+2026-02-11 19:19:44 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 88.40%)
+2026-02-11 19:19:44 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.88, session=1ab54e05-988
+2026-02-11 19:19:45 - app.services.schema_registry - INFO - SchemaRegistry: 200 tables, 68 edges
+2026-02-11 19:19:45 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=200
+2026-02-11 19:19:46 - app.services.schema_registry - INFO - SchemaRegistry: 200 tables, 68 edges
+2026-02-11 19:19:46 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=200
+2026-02-12 12:44:43 - app.utils.session_manager - INFO - 🆕 New session created: 8791eba3-ac4 (type: sql_assistant)
+2026-02-12 12:44:43 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 8791eba3-ac4 (type: sql_assistant)
+2026-02-12 12:44:44 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Show the top 10 alarm codes in the last 24 hours, ...
+2026-02-12 12:44:44 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Show the top 10 alarm codes in the last 24 hours, ...
+2026-02-12 12:44:44 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-12 12:44:44 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-12 12:44:44 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-12 12:44:44 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-12 12:44:44 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-12 12:44:44 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-12 12:44:44 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with SQLEngine...
+2026-02-12 12:44:48 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 92.00%)
+2026-02-12 12:44:48 - app.services.sql_assistant_integrated - INFO -    Tables used: bot_alarm_log
+2026-02-12 12:44:48 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  bal.ALARM_CODE,
+  COUNT(*) AS occurrences
+FROM bot_alarm_log bal
+WHERE bal.INSERTED_TIMESTA...
+2026-02-12 12:44:48 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-12 12:44:48 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=92.00%, validation=30.00%, combined=67.20%
+2026-02-12 12:44:48 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (67.20%) - Retrying with feedback
+2026-02-12 12:44:48 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with SQLEngine...
+2026-02-12 12:44:54 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 78.00%)
+2026-02-12 12:44:54 - app.services.sql_assistant_integrated - INFO -    Tables used: bot_alarm_log
+2026-02-12 12:44:54 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  bal.ALARM_CODE AS alarm_code,
+  COUNT(*) AS occurrences
+FROM bot_alarm_log bal
+WHERE bal.IN...
+2026-02-12 12:44:54 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-12 12:44:54 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=78.00%, validation=30.00%, combined=58.80%
+2026-02-12 12:44:54 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (58.80%) - Retrying with feedback
+2026-02-12 12:44:54 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with SQLEngine...
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 78.00%)
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - INFO -    Tables used: bot_alarm_log
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  bal.ALARM_CODE AS alarm_code,
+  COUNT(*) AS occurrences
+FROM bot_alarm_log bal
+WHERE bal.IN...
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=78.00%, validation=30.00%, combined=58.80%
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (58.80%) - Retrying with feedback
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - WARNING - ⚠️ Last attempt - using result despite low confidence
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-12 12:44:58 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 5832cfd1-9b71-4b9d-b25e-5ba162fb9f99
+2026-02-12 12:44:58 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 5832cfd1-9b71-4b9d-b25e-5ba162fb9f99
+2026-02-12 12:44:58 - app.services.query_classification_service - INFO - 📝 Stored query 8791eba3-ac4_20260212124458411172 for classification (cache now has 1676 queries)
+2026-02-12 12:44:58 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 58.80%)
+2026-02-12 12:44:58 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.59, session=8791eba3-ac4
+2026-02-12 12:45:16 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Which bots are charging right now, and what is the...
+2026-02-12 12:45:16 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: Show the top 10 alarm codes in the last 24 hours, along with how many times each occurred.
+ASS...
+2026-02-12 12:45:16 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Which bots are charging right now, and what is the...
+2026-02-12 12:45:16 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-12 12:45:16 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-12 12:45:16 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-12 12:45:16 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-12 12:45:16 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-12 12:45:16 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-12 12:45:16 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with SQLEngine...
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 74.00%)
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO -    Tables used: bot_master
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT
+  bm.BOT_ID,
+  bm.AH_REMAINING_PERCENTAGE AS latest_battery_percentage,
+  bm.UPDATED_TIMESTAM...
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 2 rows returned
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=74.00%, validation=95.00%, combined=82.40%
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (82.40%) - Using result
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 2 rows returned
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 2)
+2026-02-12 12:45:20 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 5fa268db-4f27-4dce-a2ff-07fbda77715e
+2026-02-12 12:45:20 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 5fa268db-4f27-4dce-a2ff-07fbda77715e
+2026-02-12 12:45:20 - app.services.query_classification_service - INFO - 📝 Stored query 8791eba3-ac4_20260212124520665235 for classification (cache now has 1677 queries)
+2026-02-12 12:45:20 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 82.40%)
+2026-02-12 12:45:20 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.82, session=8791eba3-ac4
+2026-02-12 12:45:38 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Yesterday, which station had the highest short-pic...
+2026-02-12 12:45:38 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: Show the top 10 alarm codes in the last 24 hours, along with how many times each occurred.
+ASS...
+2026-02-12 12:45:38 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Yesterday, which station had the highest short-pic...
+2026-02-12 12:45:38 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-12 12:45:38 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-12 12:45:38 - app.services.sql_assistant_integrated - INFO - 📚 No validated classified query match found
+2026-02-12 12:45:38 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-12 12:45:38 - app.services.chat_history_service - INFO - 📊 Retrieved 0 common query patterns
+2026-02-12 12:45:38 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-12 12:45:38 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with SQLEngine...
+2026-02-12 12:45:51 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 86.00%)
+2026-02-12 12:45:51 - app.services.sql_assistant_integrated - INFO -    Tables used: pick_wave_order_master, hw_station_master, sku_master
+2026-02-12 12:45:51 - app.services.sql_assistant_integrated - INFO -    SQL: WITH station_totals AS (
+  SELECT
+    pwom.STATION_ID,
+    SUM(COALESCE(pwom.SHORT_PICK_QUANTITY, 0)...
+2026-02-12 12:45:51 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-12 12:45:51 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=86.00%, validation=30.00%, combined=63.60%
+2026-02-12 12:45:51 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (63.60%) - Retrying with feedback
+2026-02-12 12:45:51 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with SQLEngine...
+2026-02-12 12:46:02 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 83.00%)
+2026-02-12 12:46:02 - app.services.sql_assistant_integrated - INFO -    Tables used: pick_wave_order_master, hw_station_master, sku_master
+2026-02-12 12:46:02 - app.services.sql_assistant_integrated - INFO -    SQL: WITH station_totals AS (
+  SELECT
+    pwom.STATION_ID,
+    SUM(COALESCE(pwom.SHORT_PICK_QUANTITY, 0)...
+2026-02-12 12:46:02 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-12 12:46:02 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=83.00%, validation=30.00%, combined=61.80%
+2026-02-12 12:46:02 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (61.80%) - Retrying with feedback
+2026-02-12 12:46:02 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with SQLEngine...
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - INFO - ✅ SQLEngine generated SQL (confidence: 86.00%)
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - INFO -    Tables used: pick_wave_order_master, hw_station_master, sku_master
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - INFO -    SQL: WITH base AS (
+  SELECT
+    pwom.STATION_ID,
+    pwom.SKU_ID,
+    COALESCE(pwom.SHORT_PICK_QUANTITY,...
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=86.00%, validation=30.00%, combined=63.60%
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (63.60%) - Retrying with feedback
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - WARNING - ⚠️ Last attempt - using result despite low confidence
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 3)
+2026-02-12 12:46:13 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: a4124cfa-caf8-45e0-98e5-5e2741722557
+2026-02-12 12:46:13 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: a4124cfa-caf8-45e0-98e5-5e2741722557
+2026-02-12 12:46:13 - app.services.query_classification_service - INFO - 📝 Stored query 8791eba3-ac4_20260212124613075454 for classification (cache now has 1678 queries)
+2026-02-12 12:46:13 - app.services.sql_assistant_integrated - INFO - 📝 Stored in classified queries (confidence: 63.60%)
+2026-02-12 12:46:13 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.64, session=8791eba3-ac4
+2026-02-12 12:49:56 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=can you explain the neo architecture ?...
+2026-02-12 12:49:56 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: Which bots are charging right now, and what is their latest battery % reading?
+ASSISTANT: *Gen...
+2026-02-12 12:49:56 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-12 12:49:56 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: can you explain the neo architecture ?...
+2026-02-12 12:49:56 - app.services.knowledge_base_service - INFO - 📊 Query classified as: EXPLORATORY
+2026-02-12 12:49:58 - app.services.vector_store_service - INFO - 📊 Balanced search: 8 results from 5 categories
+2026-02-12 12:49:59 - app.services.llm_service - ERROR - ❌ Error with openai LLM: Error code: 400 - {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}
+2026-02-12 12:49:59 - app.services.llm_service - INFO - 🔄 Attempting fallback to Groq...
+2026-02-12 12:50:01 - app.services.rlhf_service - WARNING - ⚠️ Skipping DB insert - chat_id 'chat_d533e1e4560f4991' does not exist in chatbot_chat_history. Feedback saved to JSONL only for feedback_id: 0f990361-91e4-475f-b545-52d12de4681a
+2026-02-12 12:50:01 - app.services.rlhf_service - INFO - 📝 Feedback recorded: knowledge_base | neutral | Reward: 0.10
+2026-02-12 12:50:01 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.83, session=8791eba3-ac4

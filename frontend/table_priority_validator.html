@@ -679,7 +679,9 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:8000';
+        // Dynamically determine API base URL from current page location
+        const API_BASE = window.location.protocol + '//' + window.location.hostname + 
+                        (window.location.port ? ':' + window.location.port : '');
         let currentTestResults = null;
         let allTables = [];
         let currentQuery = '';
@@ -697,11 +699,18 @@
             document.getElementById('resultsSection').innerHTML = '';
 
             try {
-                const response = await fetch(`${API_BASE}/api/table-priority/test-query`, {
+                const endpoint = `${API_BASE}/api/table-priority/test-query`;
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query })
                 });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    showAlert(`Server error (${response.status}): ${errorText}`, 'error');
+                    return;
+                }
 
                 const data = await response.json();
                 currentTestResults = data;
@@ -715,7 +724,8 @@
                     showAlert(data.error || 'Failed to test query', 'error');
                 }
             } catch (error) {
-                showAlert(`Error: ${error.message}`, 'error');
+                showAlert(`Error connecting to ${API_BASE}: ${error.message}. Make sure backend is running.`, 'error');
+                console.error('Fetch error:', error);
             } finally {
                 document.getElementById('loadingIndicator').classList.remove('active');
             }

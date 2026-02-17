@@ -4,6 +4,7 @@ FastAPI routes for chatbot functionality
 """
 
 import logging
+import time
 import uuid
 from typing import Dict, Any, List
 from datetime import datetime
@@ -21,6 +22,7 @@ from ..models.schemas import (
 from ..services.knowledge_base_service import KnowledgeBaseService
 from ..services.sql_assistant_integrated import SQLAssistantService
 from ..services.diagnostic_service import DiagnosticService
+from ..services.chat_history_service import ChatHistoryService
 from ..services.agentic_service import get_agentic_service
 # NOTE: Old SemiAutomatedDiagnosticService has been replaced with SemiAutoSOPService
 # New SOP-based endpoints are in diagnostic_support_routes.py under /api/diagnostic-support/sop/*
@@ -38,6 +40,21 @@ sql_service = SQLAssistantService()
 diagnostic_service = DiagnosticService()
 # NOTE: semi_auto_diagnostic removed - use /api/diagnostic-support/sop/* endpoints instead
 session_manager = get_session_manager()
+
+# Initialize chat history service for non-SQL chat logging (Knowledge Base, etc.)
+try:
+    _chat_history_db_config = {
+        'host': settings.DB_HOST,
+        'port': settings.DB_PORT,
+        'user': settings.DB_USER,
+        'password': settings.DB_PASSWORD,
+        'database': settings.DB_NAME
+    }
+    chat_history_service = ChatHistoryService(_chat_history_db_config)
+    logger.info("✅ Chat history logging enabled for non-SQL chat")
+except Exception as e:
+    logger.warning(f"⚠️ Chat history service unavailable for non-SQL chat: {e}")
+    chat_history_service = None
 
 # Initialize agentic service if enabled
 agentic_service = get_agentic_service() if settings.AGENTIC_MODE_ENABLED else None
@@ -58,6 +75,7 @@ async def chat(request: ChatRequest):
     """
     try:
         logger.info(f"📨 Chat request: type={request.chatbot_type}, message={request.message[:50]}...")
+        start_time = time.time()
         
         # STEP 1: Get or create unified session
         session_id = request.session_id
@@ -147,6 +165,21 @@ async def chat(request: ChatRequest):
             
             # Ensure response has session ID
             response.session_id = session_id
+
+            # Log Knowledge Base chats to MySQL history
+            if request.chatbot_type == ChatbotType.KNOWLEDGE_BASE and chat_history_service:
+                try:
+                    response_time_ms = int((time.time() - start_time) * 1000)
+                    chat_history_service.log_chat_interaction(
+                        session_id=session_id,
+                        chatbot_type=str(request.chatbot_type),
+                        user_query=request.message,
+                        assistant_response=response.response,
+                        confidence_score=response.confidence_score or 0.0,
+                        response_time_ms=response_time_ms
+                    )
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to log Knowledge Base chat: {e}")
         
         logger.info(f"✅ Chat response generated: confidence={response.confidence_score:.2f}, session={session_id}")
         return response
@@ -414,6 +447,79 @@ async def upload_document(
         
     except Exception as e:
         logger.error(f"❌ Error uploading document: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/extract-document-text")
+async def extract_document_text(file: UploadFile = File(...)):
+    """
+    Extract text from an uploaded PDF or DOCX file for in-chat document Q&A.
+    Does NOT ingest into the permanent knowledge base.
+    Returns the extracted text so the frontend can pass it as context during chat.
+    """
+    try:
+        logger.info(f"📄 Extracting text from: {file.filename}")
+
+        file_ext = Path(file.filename).suffix.lower()
+        if file_ext not in {".pdf", ".docx"}:
+            raise HTTPException(status_code=400, detail="Only PDF and DOCX files are supported.")
+
+        content = await file.read()
+        extracted_text = ""
+        page_count = 0
+
+        if file_ext == ".pdf":
+            import io
+            try:
+                from PyPDF2 import PdfReader
+            except ImportError:
+                raise HTTPException(status_code=500, detail="PyPDF2 is not installed on the server.")
+            reader = PdfReader(io.BytesIO(content))
+            page_count = len(reader.pages)
+            pages_text = []
+            for i, page in enumerate(reader.pages):
+                text = page.extract_text() or ""
+                if text.strip():
+                    pages_text.append(text)
+            extracted_text = "\n\n".join(pages_text)
+
+        elif file_ext == ".docx":
+            import io
+            import tempfile
+            try:
+                from docx import Document as DocxDocument
+            except ImportError:
+                raise HTTPException(status_code=500, detail="python-docx is not installed on the server.")
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp:
+                tmp.write(content)
+                tmp_path = tmp.name
+            doc = DocxDocument(tmp_path)
+            paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
+            extracted_text = "\n\n".join(paragraphs)
+            page_count = max(1, len(paragraphs) // 25)  # Approximate pages
+            import os
+            os.unlink(tmp_path)
+
+        if not extracted_text.strip():
+            raise HTTPException(status_code=400, detail="Could not extract any text from the document.")
+
+        # Truncate to ~60k chars to stay within LLM context limits
+        max_chars = 60000
+        if len(extracted_text) > max_chars:
+            extracted_text = extracted_text[:max_chars] + "\n\n[... Document truncated due to length ...]"
+
+        logger.info(f"✅ Extracted {len(extracted_text)} chars, ~{page_count} pages from {file.filename}")
+        return {
+            "filename": file.filename,
+            "text": extracted_text,
+            "pages": page_count,
+            "characters": len(extracted_text)
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Error extracting document text: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

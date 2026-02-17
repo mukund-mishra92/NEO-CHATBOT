@@ -160,21 +160,56 @@ async def test_query(request: TestQueryRequest):
         query = request.query.strip()
         
         if not query:
-            raise HTTPException(status_code=400, detail="Query cannot be empty")
+            raise ValueError("Query cannot be empty")
         
         # Check if API key is available
         if not OPENAI_API_KEY:
-            raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+            error_msg = f"OpenAI API key not configured. Please set OPENAI_API_KEY environment variable."
+            print(f"❌ ERROR: {error_msg}")
+            return {
+                "success": False,
+                "error": error_msg
+            }
+        
+        # Check schema CSV path
+        if not os.path.exists(SCHEMA_CSV_PATH):
+            error_msg = f"Schema CSV not found at {SCHEMA_CSV_PATH}. Please ensure Table_information.csv exists."
+            print(f"❌ ERROR: {error_msg}")
+            return {
+                "success": False,
+                "error": error_msg
+            }
+        
+        print(f"📝 Testing query: {query}")
+        print(f"📚 Using schema CSV: {SCHEMA_CSV_PATH}")
+        print(f"🤖 Using model: {SQL_MODEL}")
         
         # Initialize SQL engine with API key and model
-        engine = SQLEngine(
-            api_key=OPENAI_API_KEY,
-            model=SQL_MODEL,
-            schema_csv_path=SCHEMA_CSV_PATH
-        )
+        try:
+            engine = SQLEngine(
+                api_key=OPENAI_API_KEY,
+                model=SQL_MODEL,
+                schema_csv_path=SCHEMA_CSV_PATH
+            )
+        except Exception as e:
+            error_msg = f"Failed to initialize SQL engine: {str(e)}"
+            print(f"❌ ENGINE ERROR: {error_msg}")
+            return {
+                "success": False,
+                "error": error_msg
+            }
         
         # Get ranked tables (top 8)
-        ranked_tables = engine.get_ranked_tables_for_query(query, top_k=8)
+        try:
+            ranked_tables = engine.get_ranked_tables_for_query(query, top_k=8)
+            print(f"✅ Found {len(ranked_tables)} ranked tables")
+        except Exception as e:
+            error_msg = f"Failed to rank tables: {str(e)}"
+            print(f"❌ RANKING ERROR: {error_msg}")
+            return {
+                "success": False,
+                "error": error_msg
+            }
         
         return {
             "success": True,
@@ -183,9 +218,13 @@ async def test_query(request: TestQueryRequest):
         }
     
     except Exception as e:
+        error_msg = f"Unexpected error in test_query: {str(e)}"
+        print(f"❌ UNEXPECTED ERROR: {error_msg}")
+        import traceback
+        traceback.print_exc()
         return {
             "success": False,
-            "error": str(e)
+            "error": error_msg
         }
 
 
