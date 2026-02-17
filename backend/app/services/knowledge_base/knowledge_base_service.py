@@ -8,7 +8,7 @@ import re
 import uuid
 from typing import List, Dict, Any, Optional
 from pathlib import Path
-from vector_store_service import VectorStoreService
+from .vector_store_service import VectorStoreService
 from app.services.llm_service import LLMService  # shared llm_service at services root
 from ..rlhf_service import RLHFService
 from ..diagnostic.diagnostic_support_service import DiagnosticSupportService

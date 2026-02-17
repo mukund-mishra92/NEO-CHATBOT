@@ -22,16 +22,12 @@ from .table_selector import TableSelector
 
 import logging
 import csv
-import re
 
 logger = logging.getLogger(__name__)
 
 
 class SQLAssistantService:
 
-    # ----------------------------------------------------------
-    # INIT
-    # ----------------------------------------------------------
     def __init__(self):
 
         self.db_config = {
@@ -52,6 +48,7 @@ class SQLAssistantService:
         )
 
         self.chat_history_service = ChatHistoryService(self.db_config)
+
         self.classification_service = QueryClassificationService(
             settings.DATA_DIR / "classification"
         )
@@ -82,12 +79,13 @@ class SQLAssistantService:
 
         validations_file = settings.DATA_DIR / "database" / "table_priority_validations.jsonl"
         self.table_priority_loader = TablePriorityLoader(validations_file)
+
         self.table_selector = TableSelector(self.schema)
 
         logger.info(f"✅ SQLAssistantService initialized with {len(self.schema)} tables")
 
     # ----------------------------------------------------------
-    # LOAD SCHEMA
+    # SCHEMA LOADER
     # ----------------------------------------------------------
     def _load_schema(self, csv_path):
         schema = {}
@@ -115,6 +113,7 @@ class SQLAssistantService:
                         if col_name:
                             schema[table].append(col_name)
 
+        logger.info(f"DEBUG: Loaded {len(schema)} tables from schema")
         return schema
 
     # ----------------------------------------------------------
@@ -132,27 +131,6 @@ class SQLAssistantService:
         return []
 
     # ----------------------------------------------------------
-    # ENTITY HARD ENFORCEMENT
-    # ----------------------------------------------------------
-    def _enforce_entities_in_sql(self, sql: str, entities: dict) -> str:
-        """
-        Deterministically enforce canonical entity equality.
-        Prevents IN(...) guessing and wrong ID variations.
-        """
-
-        for key, value in entities.items():
-
-            # Replace IN (...)
-            in_pattern = rf"\b{key}\b\s+IN\s*\([^)]+\)"
-            sql = re.sub(in_pattern, f"{key} = '{value}'", sql, flags=re.IGNORECASE)
-
-            # Replace incorrect equality
-            eq_pattern = rf"\b{key}\b\s*=\s*'[^']+'"
-            sql = re.sub(eq_pattern, f"{key} = '{value}'", sql, flags=re.IGNORECASE)
-
-        return sql
-
-    # ----------------------------------------------------------
     # MAIN QUERY PROCESSOR
     # ----------------------------------------------------------
     def process_query(self, request):
@@ -162,39 +140,36 @@ class SQLAssistantService:
 
         clean_question, entities = self.preprocessor.process(question)
 
-        logger.info(f"🧠 Resolved entities: {entities}")
-        logger.info(f"📝 Clean question: {clean_question}")
-
         cached = self.cache.get(session_id, clean_question)
         if cached:
             return cached
 
         reused = self.reuse_engine.try_reuse(clean_question)
-
         if reused:
             sql, execution_result = reused
             generation_result = SQLGenerationResult(
                 sql=sql,
                 confidence=0.95,
                 explanation="Reused from classified queries",
-                assumptions=["Previously validated query"],
-                metadata={"source": "reuse_engine"}
+                assumptions=["Query was previously validated"],
+                metadata={"source": "reuse_engine", "tables_used": []}
             )
         else:
 
             # --------------------------------------------------
-            # DETERMINISTIC SCHEMA SCOPING
+            # 🔥 DETERMINISTIC SCHEMA SCOPING
             # --------------------------------------------------
+
             validated_tables = self.table_priority_loader.get_validated_tables_for_query(clean_question)
             learned_tables = self._get_learned_tables(clean_question)
 
-            if validated_tables.get("correct"):
+            if validated_tables["correct"]:
                 selected_tables = validated_tables["correct"]
                 logger.info(f"🎯 Using validated tables: {selected_tables}")
 
             elif learned_tables:
                 selected_tables = learned_tables
-                logger.info(f"🧠 Using learned tables: {selected_tables}")
+                logger.info(f"🧠 Using learned pattern tables: {selected_tables}")
 
             else:
                 selected_tables = self.table_selector.select(clean_question, max_tables=5)
@@ -225,34 +200,31 @@ class SQLAssistantService:
             # --------------------------------------------------
             def generate_fn(feedback, previous_sql):
 
-                entity_feedback = ""
-                for key, value in entities.items():
-                    entity_feedback += (
-                        f"\nCRITICAL: {key} MUST equal '{value}'. "
-                        f"Use strict equality. Do NOT use IN. Do NOT guess variations."
-                    )
-
-                combined_feedback = (feedback or "") + entity_feedback
-
                 result = self.sql_engine.generate(
                     question=clean_question,
-                    feedback=combined_feedback,
+                    feedback=feedback,
                     previous_sql=previous_sql,
                     enable_entity_resolution=True,
-                    schema_override=filtered_schema
+                    schema_override=filtered_schema   # 🔥 CRITICAL CHANGE
                 )
 
-                sql = result["sql"]
-
-                # 🔥 Deterministic enforcement
-                sql = self._enforce_entities_in_sql(sql, entities)
+                metadata = {
+                    "tables_used": result.get("tables_used", []),
+                    "columns_used": result.get("columns_used", []),
+                    "primary_keys_used": result.get("primary_keys_used", []),
+                    "warnings": result.get("warnings", []),
+                    "needs_followup": result.get("needs_followup", False),
+                    "followup_questions": result.get("followup_questions", []),
+                    "resolved_entities": result.get("resolved_entities", {}),
+                    "domains_matched": result.get("domains_matched", []),
+                }
 
                 return SQLGenerationResult(
-                    sql=sql,
+                    sql=result["sql"],
                     confidence=result.get("confidence", 0.75),
-                    explanation="Generated with enforced canonical entity resolution",
+                    explanation=f"Generated SQL using tables: {', '.join(metadata['tables_used'])}",
                     assumptions=result.get("assumptions", []),
-                    metadata=result
+                    metadata=metadata
                 )
 
             generation_result, execution_result = self.retry_engine.run(
@@ -263,6 +235,7 @@ class SQLAssistantService:
                 schema_validator=self.schema_validator,
             )
 
+            #self.semantic_validator.validate(execution_result)
             try:
                 self.semantic_validator.validate(execution_result)
             except Exception as e:
@@ -270,9 +243,6 @@ class SQLAssistantService:
 
             sql = generation_result.sql
 
-        # --------------------------------------------------
-        # FINAL RESPONSE
-        # --------------------------------------------------
         final_confidence = self.confidence.compute(
             generation_result,
             execution_result
@@ -310,3 +280,5 @@ class SQLAssistantService:
         self.cache.set(session_id, clean_question, response)
 
         return response
+
+
