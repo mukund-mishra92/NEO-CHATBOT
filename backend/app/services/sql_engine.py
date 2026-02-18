@@ -119,6 +119,15 @@ class SQLEngine:
     # GENERATE
     # ─────────────────────────────────────────────
 
+    # def generate(
+    #     self,
+    #     question: str,
+    #     enable_entity_resolution: bool = True,
+    #     feedback: Optional[str] = None,
+    #     previous_sql: Optional[str] = None,
+    #     schema_override: Optional[Dict[str, List[str]]] = None,
+    # ) -> Dict[str, Any]:
+
     def generate(
         self,
         question: str,
@@ -126,6 +135,7 @@ class SQLEngine:
         feedback: Optional[str] = None,
         previous_sql: Optional[str] = None,
         schema_override: Optional[Dict[str, List[str]]] = None,
+        entity_context: Optional[str] = None,
     ) -> Dict[str, Any]:
 
         # --------------------------------------------------
@@ -136,23 +146,86 @@ class SQLEngine:
             logger.info(f"🔒 Using schema override with {len(schema_override)} tables")
 
             schema_lines = []
-            for table, columns in schema_override.items():
-                col_text = ", ".join(columns[:50])  # limit columns
-                schema_lines.append(
-                    f"TABLE: {table}\nCOLUMNS: {col_text}\n"
-                )
+            # for table, columns in schema_override.items():
+            #     col_text = ", ".join(columns[:50])  # limit columns
+            #     schema_lines.append(
+            #         f"TABLE: {table}\nCOLUMNS: {col_text}\n"
+            #     )
+
+            for table, table_info in schema_override.items():
+
+                # Handle backward compatibility
+                if isinstance(table_info, list):
+                    columns = table_info
+                    description = ""
+                    business_attributes = []
+                    joins = []
+                    analytics = []
+                else:
+                    columns = table_info.get("columns", [])
+                    description = table_info.get("description", "")
+                    business_attributes = table_info.get("key_business_attributes", [])
+                    joins = table_info.get("frequently_joined_with", [])
+                    analytics = table_info.get("supports_analytics", [])
+
+                col_text = ", ".join(columns[:50])
+
+                table_block = f"TABLE: {table}\n"
+
+                if description:
+                    table_block += f"DESCRIPTION: {description}\n"
+
+                if business_attributes:
+                    table_block += (
+                        "KEY BUSINESS ATTRIBUTES: "
+                        + "; ".join(business_attributes[:5])
+                        + "\n"
+                    )
+
+                if joins:
+                    table_block += (
+                        "COMMON JOINS: "
+                        + ", ".join(joins[:5])
+                        + "\n"
+                    )
+
+                if analytics:
+                    table_block += (
+                        "ANALYTICS USE CASES: "
+                        + "; ".join(analytics[:5])
+                        + "\n"
+                    )
+
+                table_block += f"COLUMNS: {col_text}\n"
+
+                schema_lines.append(table_block)
+
 
             schema_text = "\n".join(schema_lines)
 
+            # ctx = {
+            #     "schema_text": schema_text,
+            #     "relationship_text": "",
+            #     "enum_text": "",
+            #     "path_text": "",
+            #     "column_facts": "",
+            #     "domains_matched": [],
+            #     "selected_tables": list(schema_override.keys()),
+            # }
+
+            # Preserve relationship intelligence from registry
+            base_ctx = self.registry.get_schema_context(question)
+
             ctx = {
                 "schema_text": schema_text,
-                "relationship_text": "",
-                "enum_text": "",
-                "path_text": "",
-                "column_facts": "",
-                "domains_matched": [],
+                "relationship_text": base_ctx.get("relationship_text", ""),
+                "enum_text": base_ctx.get("enum_text", ""),
+                "path_text": base_ctx.get("path_text", ""),
+                "column_facts": base_ctx.get("column_facts", ""),
+                "domains_matched": base_ctx.get("domains_matched", []),
                 "selected_tables": list(schema_override.keys()),
             }
+
 
         else:
             ctx = self.registry.get_schema_context(question)
@@ -165,14 +238,23 @@ class SQLEngine:
         # 2. BUILD PROMPT
         # --------------------------------------------------
 
+        # instructions = build_universal_prompt(
+        #     schema_context=ctx["schema_text"],
+        #     relationship_text=ctx.get("relationship_text", ""),
+        #     enum_text=ctx.get("enum_text", ""),
+        #     path_text=ctx.get("path_text", ""),
+        #     column_facts=ctx.get("column_facts", ""),
+        #     entity_context="",
+        # )
         instructions = build_universal_prompt(
             schema_context=ctx["schema_text"],
             relationship_text=ctx.get("relationship_text", ""),
             enum_text=ctx.get("enum_text", ""),
             path_text=ctx.get("path_text", ""),
             column_facts=ctx.get("column_facts", ""),
-            entity_context="",
+            entity_context=entity_context or "",
         )
+
 
         if feedback and previous_sql:
             instructions += (

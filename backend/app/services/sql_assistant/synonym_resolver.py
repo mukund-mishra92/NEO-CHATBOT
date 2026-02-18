@@ -18,12 +18,11 @@ class SynonymResolver:
         "products": "articles",
         "item": "article",
         "items": "articles",
-        "bot": "robot",
-        "bots": "robots",
-        "station": "workstation",
+        "robot" : "bot",
+        "robots" : "bots",
+        "workstation": "station",
         "stations": "workstations",
-        "bin": "container",
-        "bins": "containers",
+        "container": "bin",
     }
 
     def __init__(self, synonyms: Dict[str, str] = None):

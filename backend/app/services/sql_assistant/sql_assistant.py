@@ -22,6 +22,7 @@ from .table_selector import TableSelector
 
 import logging
 import csv
+import json
 import re
 
 logger = logging.getLogger(__name__)
@@ -43,6 +44,23 @@ class SQLAssistantService:
         }
 
         csv_path = settings.DATA_DIR / "database" / "Table_information.csv"
+        business_path = settings.DATA_DIR / "database" / "tabe_descriptions_sample.json"
+
+        # Load business context
+        try:
+            with open(business_path, "r", encoding="utf-8") as f:
+                raw = json.load(f)
+
+            self.business_context = {
+                item["table_name"]: item
+                for item in raw
+            }
+
+            logger.info(f"📘 Loaded business context for {len(self.business_context)} tables")
+
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to load business context JSON: {e}")
+            self.business_context = {}
 
         self.sql_engine = SQLEngine(
             api_key=settings.OPENAI_API_KEY,
@@ -52,6 +70,7 @@ class SQLAssistantService:
         )
 
         self.chat_history_service = ChatHistoryService(self.db_config)
+
         self.classification_service = QueryClassificationService(
             settings.DATA_DIR / "classification"
         )
@@ -132,21 +151,14 @@ class SQLAssistantService:
         return []
 
     # ----------------------------------------------------------
-    # ENTITY HARD ENFORCEMENT
+    # ENTITY ENFORCEMENT
     # ----------------------------------------------------------
     def _enforce_entities_in_sql(self, sql: str, entities: dict) -> str:
-        """
-        Deterministically enforce canonical entity equality.
-        Prevents IN(...) guessing and wrong ID variations.
-        """
-
         for key, value in entities.items():
 
-            # Replace IN (...)
             in_pattern = rf"\b{key}\b\s+IN\s*\([^)]+\)"
             sql = re.sub(in_pattern, f"{key} = '{value}'", sql, flags=re.IGNORECASE)
 
-            # Replace incorrect equality
             eq_pattern = rf"\b{key}\b\s*=\s*'[^']+'"
             sql = re.sub(eq_pattern, f"{key} = '{value}'", sql, flags=re.IGNORECASE)
 
@@ -197,55 +209,58 @@ class SQLAssistantService:
                 logger.info(f"🧠 Using learned tables: {selected_tables}")
 
             else:
-                selected_tables = self.table_selector.select(clean_question, max_tables=5)
+                selected_tables = self.table_selector.select(clean_question, max_tables=10)
                 logger.info(f"🔍 Using heuristic selected tables: {selected_tables}")
-
-            selected_tables = [
-                t for t in selected_tables
-                if t not in validated_tables.get("incorrect", [])
-            ]
 
             if not selected_tables:
                 selected_tables = list(self.schema.keys())[:5]
 
-            logger.info(f"📦 Final schema scope: {selected_tables}")
+            # --------------------------------------------------
+            # ENRICHED SCHEMA
+            # --------------------------------------------------
+            filtered_schema = {}
 
-            filtered_schema = {
-                table: self.schema[table]
-                for table in selected_tables
-                if table in self.schema
-            }
+            for table in selected_tables:
+                if table not in self.schema:
+                    continue
 
-            logger.info(
-                f"📉 Schema reduced from {len(self.schema)} to {len(filtered_schema)} tables"
-            )
+                enriched = {"columns": self.schema[table]}
+
+                if table in self.business_context:
+                    business_info = self.business_context[table]
+                    enriched.update({
+                        "description": business_info.get("description", ""),
+                        "key_business_attributes": business_info.get("key_business_attributes", []),
+                        "frequently_joined_with": business_info.get("frequently_joined_with", []),
+                        "supports_analytics": business_info.get("supports_analytics", []),
+                    })
+
+                filtered_schema[table] = enriched
 
             # --------------------------------------------------
             # GENERATION FUNCTION
             # --------------------------------------------------
             def generate_fn(feedback, previous_sql):
 
-                entity_feedback = ""
-                for key, value in entities.items():
-                    entity_feedback += (
-                        f"\nCRITICAL: {key} MUST equal '{value}'. "
-                        f"Use strict equality. Do NOT use IN. Do NOT guess variations."
-                    )
-
-                combined_feedback = (feedback or "") + entity_feedback
+                entity_context = "\n".join(
+                    [f"{k} = '{v}'" for k, v in entities.items()]
+                )
 
                 result = self.sql_engine.generate(
                     question=clean_question,
-                    feedback=combined_feedback,
+                    feedback=feedback,
                     previous_sql=previous_sql,
                     enable_entity_resolution=True,
-                    schema_override=filtered_schema
+                    schema_override=filtered_schema,
+                    entity_context=entity_context
                 )
 
-                sql = result["sql"]
+                sql = self._enforce_entities_in_sql(result["sql"], entities)
 
-                # 🔥 Deterministic enforcement
-                sql = self._enforce_entities_in_sql(sql, entities)
+                # Ensure entity present (forces retry if missing)
+                for key, value in entities.items():
+                    if value not in sql:
+                        raise ValueError(f"Missing required entity {key} in SQL.")
 
                 return SQLGenerationResult(
                     sql=sql,
@@ -263,6 +278,7 @@ class SQLAssistantService:
                 schema_validator=self.schema_validator,
             )
 
+            # Restore semantic validation
             try:
                 self.semantic_validator.validate(execution_result)
             except Exception as e:
@@ -270,9 +286,6 @@ class SQLAssistantService:
 
             sql = generation_result.sql
 
-        # --------------------------------------------------
-        # FINAL RESPONSE
-        # --------------------------------------------------
         final_confidence = self.confidence.compute(
             generation_result,
             execution_result
