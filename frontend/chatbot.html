@@ -7,56 +7,83 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --brand-start: #667eea;
+            --brand-end: #764ba2;
+            --surface-soft: #f7f8fc;
+            --surface-muted: #f1f3f9;
+            --border-soft: #e5e9f4;
+            --text-main: #1f2533;
+            --text-muted: #667085;
+        }
+
+        html,
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            color: var(--text-main);
         }
 
         .chat-container {
-            max-width: 1400px;
-            margin: 20px auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            background: #fff;
+            border-radius: 0;
+            box-shadow: none;
             overflow: hidden;
-            height: calc(100vh - 40px);
             display: flex;
             flex-direction: column;
         }
 
         .chat-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
             color: white;
-            padding: 20px 30px;
+            padding: 12px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .chat-header h1 {
             margin: 0;
             font-size: 24px;
             font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .chat-header small {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.88);
         }
 
         .back-btn {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.18);
             color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            padding: 8px 14px;
+            border-radius: 999px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-size: 13px;
         }
 
         .back-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
         }
         
         .header-tools {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
         
@@ -65,17 +92,18 @@
         }
         
         .tools-toggle {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.18);
             color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            padding: 8px 14px;
+            border-radius: 999px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 600;
         }
         
         .tools-toggle:hover {
@@ -89,8 +117,9 @@
             right: 0;
             margin-top: 10px;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            border-radius: 14px;
+            box-shadow: 0 16px 30px rgba(39, 43, 56, 0.16);
+            border: 1px solid var(--border-soft);
             min-width: 200px;
             z-index: 1000;
         }
@@ -130,36 +159,40 @@
         .tool-classification { color: #28a745; }
 
         .chatbot-selector {
-            background: #f8f9fa;
-            padding: 15px 30px;
-            border-bottom: 2px solid #e9ecef;
+            background: #fff;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-soft);
             display: flex;
-            gap: 15px;
+            gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .chatbot-btn {
-            padding: 10px 20px;
-            border: 2px solid #dee2e6;
+            padding: 8px 14px;
+            border: 1px solid #d8deec;
             background: white;
-            border-radius: 25px;
+            border-radius: 999px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 1px 2px rgba(13, 18, 30, 0.05);
+            font-size: 14px;
         }
 
         .chatbot-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
             color: white;
-            border-color: #667eea;
+            border-color: transparent;
+            box-shadow: 0 8px 18px rgba(102, 126, 234, 0.28);
         }
 
         .chatbot-btn:hover:not(.active):not(.disabled) {
-            background: #f8f9fa;
-            border-color: #667eea;
+            background: var(--surface-soft);
+            border-color: #b8c4e6;
         }
 
         .chatbot-btn.disabled {
@@ -174,18 +207,20 @@
             display: flex;
             flex: 1;
             overflow: hidden;
+            min-height: 0;
+            position: relative;
         }
 
         .chat-messages {
             flex: 1;
-            padding: 30px;
+            padding: 16px;
             overflow-y: auto;
-            background: #f8f9fa;
+            background: linear-gradient(180deg, #f7f9ff 0%, #f4f6fb 100%);
         }
 
         .message {
             display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             animation: slideIn 0.3s ease-out;
         }
 
@@ -205,32 +240,43 @@
         }
 
         .message-content {
-            max-width: 70%;
-            padding: 15px 20px;
-            border-radius: 18px;
+            max-width: min(72%, 980px);
+            padding: 10px 14px;
+            border-radius: 16px;
             position: relative;
+            font-size: 14px;
         }
 
         .message.user .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
             color: white;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 8px 20px rgba(94, 105, 187, 0.25);
         }
 
         .message.assistant .message-content {
             background: white;
-            color: #333;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            line-height: 1.6;
+            color: #273146;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 6px 20px rgba(24, 33, 61, 0.08);
+            border: 1px solid #e7ebf5;
+            line-height: 1.45;
         }
 
         .message-content h1,
         .message-content h2,
         .message-content h3 {
-            margin-top: 15px;
-            margin-bottom: 10px;
+            margin-top: 10px;
+            margin-bottom: 6px;
             line-height: 1.3;
+        }
+
+        .message-content p {
+            margin: 0 0 8px;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
         }
 
         .message-content h1 {
@@ -256,14 +302,19 @@
         }
 
         .message-content ul {
-            margin: 10px 0;
-            padding-left: 0;
+            margin: 6px 0;
+            padding-left: 18px;
+        }
+
+        .message-content ol {
+            margin: 6px 0;
+            padding-left: 18px;
         }
 
         .message-content li {
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             position: relative;
-            padding-left: 5px;
+            padding-left: 2px;
         }
 
         .message-content code {
@@ -421,14 +472,14 @@
         }
 
         .message-avatar {
-            width: 40px;
-            height: 40px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            margin: 0 10px;
+            font-size: 16px;
+            margin: 0 8px;
         }
 
         .message.user .message-avatar {
@@ -442,9 +493,9 @@
         }
 
         .chat-input-area {
-            padding: 20px 30px;
-            background: white;
-            border-top: 2px solid #e9ecef;
+            padding: 10px 14px;
+            background: #fff;
+            border-top: 1px solid var(--border-soft);
         }
 
         .attached-file-banner {
@@ -491,17 +542,22 @@
             display: flex;
             gap: 10px;
             align-items: flex-end;
+            padding: 4px;
+            border: 1px solid #d9e0ef;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 4px 14px rgba(22, 29, 48, 0.08);
         }
 
         .attach-btn {
-            padding: 12px 14px;
-            background: #f5f5f5;
-            border: 2px solid #e9ecef;
+            padding: 10px 12px;
+            background: #f4f6fb;
+            border: 1px solid #dee4f2;
             border-radius: 50%;
             cursor: pointer;
             color: #6c757d;
             font-size: 16px;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
             flex-shrink: 0;
         }
 
@@ -519,34 +575,35 @@
 
         .chat-input {
             flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 25px;
-            font-size: 15px;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
             outline: none;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
             resize: none;
-            min-height: 52px;
-            max-height: 150px;
+            min-height: 44px;
+            max-height: 120px;
             overflow-y: auto;
             font-family: inherit;
             line-height: 1.4;
+            background: transparent;
         }
 
         .chat-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: none;
         }
 
         .send-btn {
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 16px;
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            font-size: 14px;
         }
 
         .send-btn:hover:not(:disabled) {
@@ -575,46 +632,244 @@
         }
 
         .sidebar {
-            width: 300px;
-            background: white;
-            border-left: 2px solid #e9ecef;
-            padding: 20px;
+            width: 280px;
+            background: linear-gradient(180deg, #f0f2fb 0%, #e8ecf8 100%);
+            border-left: 1px solid var(--border-soft);
+            padding: 0;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-main);
+            transition: width 0.3s cubic-bezier(.4,0,.2,1), opacity 0.2s ease;
+            position: relative;
+            flex-shrink: 0;
         }
 
-        .sidebar h3 {
-            font-size: 16px;
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+            border-left: none;
+            opacity: 0;
+            padding: 0;
+        }
+
+        /* Sidebar toggle button — sits at the right edge of the chat area */
+        .sidebar-toggle-btn {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+            width: 28px;
+            height: 56px;
+            border: 1px solid var(--border-soft);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            background: linear-gradient(180deg, #f0f2fb 0%, #e8ecf8 100%);
+            color: #8b93a7;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: all 0.25s ease;
+            box-shadow: -2px 0 8px rgba(102, 126, 234, 0.08);
+        }
+        .sidebar-toggle-btn:hover {
+            background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+            color: #fff;
+            box-shadow: -2px 0 14px rgba(102, 126, 234, 0.2);
+        }
+        .sidebar-toggle-btn i {
+            transition: transform 0.3s ease;
+        }
+        .sidebar.collapsed ~ .sidebar-toggle-btn i,
+        .sidebar-toggle-btn.expand i {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-header {
+            padding: 12px;
+            border-bottom: 1px solid #dce1f2;
+        }
+
+        .sidebar-new-chat-btn {
+            width: 100%;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
             font-weight: 600;
-            color: #667eea;
-            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .sidebar-new-chat-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .sidebar-section-label {
+            padding: 12px 14px 5px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #8b93a7;
+        }
+
+        .sidebar-session-info {
+            display: none;
+        }
+
+        .sidebar-history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px 8px;
+        }
+
+        .sidebar-history-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 10px;
+            margin-bottom: 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 13px;
+            color: #4a5068;
+        }
+        .sidebar-history-item:hover {
+            background: rgba(102, 126, 234, 0.08);
+            color: #3b4575;
+        }
+        .sidebar-history-item.active {
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.25);
+        }
+        .sidebar-history-item.active i {
+            color: rgba(255,255,255,0.7);
+        }
+        .sidebar-history-item i {
+            flex-shrink: 0;
+            font-size: 13px;
+            color: #a0a8c0;
+        }
+        .sidebar-history-item .history-preview {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sidebar-history-item .history-meta {
+            font-size: 10px;
+            color: #a0a8c0;
+            white-space: nowrap;
+            background: rgba(102, 126, 234, 0.08);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        .sidebar-history-item.active .history-meta {
+            background: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.8);
+        }
+
+        .sidebar-history-item .history-delete {
+            display: none;
+            flex-shrink: 0;
+            width: 22px;
+            height: 22px;
+            border: none;
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            padding: 0;
+            line-height: 1;
+        }
+        .sidebar-history-item:hover .history-delete {
+            display: flex;
+        }
+        .sidebar-history-item .history-delete:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+        .sidebar-history-item.active .history-delete {
+            background: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.85);
+        }
+        .sidebar-history-item.active .history-delete:hover {
+            background: rgba(255,255,255,0.35);
+            color: #fff;
+        }
+
+        .sidebar-history-empty {
+            padding: 28px 14px;
+            text-align: center;
+            font-size: 13px;
+            color: #a0a8c0;
+        }
+        .sidebar-history-empty i {
+            color: #c5cbe0;
+        }
+
+        .sidebar-stats {
+            padding: 10px 10px;
+            border-top: 1px solid #dce1f2;
+            display: flex;
+            gap: 6px;
+            background: rgba(255,255,255,0.5);
+        }
+        .sidebar-stat-pill {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #dce1f2;
+            border-radius: 10px;
+            padding: 8px 6px;
+            text-align: center;
+        }
+        .sidebar-stat-pill .stat-label {
+            font-size: 9px;
+            color: #8b93a7;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 600;
+        }
+        .sidebar-stat-pill .stat-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--brand-start);
+            margin-top: 2px;
+        }
+
+        /* Expanded session overlay styles removed — sessions now load inline */
+
+        .sidebar h3 {
+            display: none;
         }
 
         .stat-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
-
-        .stat-card h4 {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 5px;
-        }
-
-        .stat-card p {
-            font-size: 20px;
-            font-weight: 600;
-            color: #667eea;
-            margin: 0;
+            display: none;
         }
 
         .typing-indicator {
             display: none;
             padding: 15px;
             background: white;
-            border-radius: 18px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(24, 33, 61, 0.08);
+            border: 1px solid #e7ebf5;
             max-width: 70%;
         }
 
@@ -703,24 +958,26 @@
 
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 72px 24px;
             color: #6c757d;
         }
 
         .empty-state i {
             font-size: 80px;
-            color: #dee2e6;
+            color: #d5daea;
             margin-bottom: 20px;
         }
 
         .empty-state h3 {
-            font-size: 24px;
+            font-size: 28px;
             margin-bottom: 10px;
+            color: #4a556d;
         }
 
         .empty-state p {
-            font-size: 16px;
-            color: #adb5bd;
+            font-size: 17px;
+            color: #8f99ae;
+            margin-bottom: 8px;
         }
 
         .suggestion-chips {
@@ -732,18 +989,74 @@
         }
 
         .suggestion-chip {
-            padding: 10px 20px;
+            padding: 10px 16px;
             background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 20px;
+            border: 1px solid #e3e8f4;
+            border-radius: 999px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
             font-size: 14px;
+            color: #4d5871;
+            box-shadow: 0 1px 2px rgba(13, 18, 30, 0.05);
         }
 
         .suggestion-chip:hover {
-            border-color: #667eea;
-            background: #f8f9fa;
+            border-color: #bac5e8;
+            background: #f8faff;
+        }
+
+        @media (max-width: 1100px) {
+            .chat-header h1 {
+                font-size: 24px;
+            }
+
+            .chat-header small {
+                font-size: 14px;
+            }
+
+            .sidebar {
+                width: 280px;
+            }
+            .sidebar.collapsed {
+                width: 0;
+            }
+
+            .message-content {
+                max-width: 80%;
+            }
+
+            .empty-state h3 {
+                font-size: 24px;
+            }
+
+            .empty-state p {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .chat-main {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid var(--border-soft);
+                max-height: 38vh;
+            }
+            .sidebar.collapsed {
+                width: 100%;
+                max-height: 0;
+                border-top: none;
+            }
+            .sidebar-toggle-btn {
+                display: none;
+            }
+
+            .chat-messages {
+                padding: 18px;
+            }
         }
 
         .file-upload-area {
@@ -772,6 +1085,99 @@
         .scrollbar-hide::-webkit-scrollbar-thumb {
             background: #667eea;
             border-radius: 10px;
+        }
+
+        /* ── Custom Delete Confirmation Modal ── */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(30, 30, 60, 0.45);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+        .confirm-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .confirm-dialog {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25), 0 0 0 1px rgba(102, 126, 234, 0.08);
+            width: 380px;
+            max-width: 90vw;
+            padding: 28px 28px 22px;
+            text-align: center;
+            transform: scale(0.85) translateY(20px);
+            transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.25s ease;
+            opacity: 0;
+        }
+        .confirm-overlay.visible .confirm-dialog {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        .confirm-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+        }
+        .confirm-icon i {
+            font-size: 24px;
+            color: #dc2626;
+        }
+        .confirm-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e1b4b;
+            margin-bottom: 8px;
+        }
+        .confirm-message {
+            font-size: 13.5px;
+            color: #6b7280;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .confirm-actions button {
+            flex: 1;
+            padding: 10px 0;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .confirm-btn-cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .confirm-btn-cancel:hover {
+            background: #e5e7eb;
+        }
+        .confirm-btn-delete {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        .confirm-btn-delete:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.45);
+            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -804,9 +1210,6 @@
                         </a>
                     </div>
                 </div>
-                <button class="back-btn" onclick="window.location.href='/'">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </button>
             </div>
         </div>
 
@@ -843,75 +1246,51 @@
                     </div>
                 </div>
 
-                <!-- Typing Indicator -->
-                <div class="message assistant">
-                    <div class="message-avatar">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="typing-indicator" id="typingIndicator">
-                        <span class="typing-dot"></span>
-                        <span class="typing-dot"></span>
-                        <span class="typing-dot"></span>
-                    </div>
-                </div>
+                <!-- Typing indicator is injected dynamically by showTypingIndicator() -->
             </div>
 
-            <!-- Sidebar -->
-            <div class="sidebar scrollbar-hide">
-                <h3><i class="fas fa-history"></i> Session Controls</h3>
-                
-                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                    <h4 style="color: white;">Current Session</h4>
-                    <p style="font-size: 13px; word-break: break-all;" id="currentSessionId">No active session</p>
-                    <small style="opacity: 0.8;">Session memory active</small>
-                </div>
+            <!-- Sidebar Toggle Button -->
+            <button class="sidebar-toggle-btn expand" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Toggle sidebar">
+                <i class="fas fa-chevron-right"></i>
+            </button>
 
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <button class="btn btn-success btn-sm flex-fill" onclick="createNewSession()" title="Start fresh conversation">
-                        <i class="fas fa-plus"></i> New Session
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="viewSessionHistory()" title="View conversation history">
-                        <i class="fas fa-history"></i> History
+            <!-- Sidebar (hidden by default) -->
+            <div class="sidebar scrollbar-hide collapsed" id="sidebarPanel">
+                <!-- New Chat Button -->
+                <div class="sidebar-header">
+                    <button class="sidebar-new-chat-btn" onclick="createNewSession()" title="Start new conversation">
+                        <i class="fas fa-plus"></i> New Chat
                     </button>
                 </div>
 
-                <hr>
-
-                <h3><i class="fas fa-chart-line"></i> Chat Statistics</h3>
-                
-                <div class="stat-card">
-                    <h4>Messages in Session</h4>
-                    <p id="messageCount">0</p>
+                <!-- Chat History -->
+                <div class="sidebar-section-label">Chat History</div>
+                <div class="sidebar-history-list" id="sidebarHistoryList">
+                    <div class="sidebar-history-empty" id="historyEmptyState">
+                        <i class="fas fa-comments" style="font-size: 20px; display: block; margin-bottom: 6px;"></i>
+                        No past conversations
+                    </div>
                 </div>
 
-                <div class="stat-card">
-                    <h4>Active Assistant</h4>
-                    <p style="font-size: 16px;" id="activeAssistant">Knowledge Base</p>
+                <!-- Stats Footer -->
+                <div class="sidebar-stats">
+                    <div class="sidebar-stat-pill">
+                        <div class="stat-label">Messages</div>
+                        <div class="stat-value" id="messageCount">0</div>
+                    </div>
+                    <div class="sidebar-stat-pill">
+                        <div class="stat-label">Assistant</div>
+                        <div class="stat-value" id="activeAssistant" style="font-size: 12px;">Knowledge Base</div>
+                    </div>
                 </div>
 
-                <button class="btn btn-outline-danger btn-sm w-100 mt-3" onclick="clearChat()">
-                    <i class="fas fa-trash"></i> Clear Chat
-                </button>
-
-                <hr>
-
-                <h3><i class="fas fa-lightbulb"></i> Quick Actions</h3>
-                
-                <div class="file-upload-area" id="uploadArea">
-                    <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display: none;">
-                    <button class="btn btn-success btn-sm w-100 mb-2" onclick="document.getElementById('fileInput').click()">
-                        <i class="fas fa-upload"></i> Upload Document
-                    </button>
-                    <small class="text-muted">Supported: PDF, DOCX, TXT</small>
+                <!-- Hidden: keep existing JS references alive -->
+                <div style="display:none;">
+                    <span id="currentSessionId"></span>
+                    <div id="uploadArea" class="file-upload-area">
+                        <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display: none;">
+                    </div>
                 </div>
-
-                <button class="btn btn-outline-primary btn-sm w-100 mt-2" onclick="viewSystemHealth()">
-                    <i class="fas fa-heartbeat"></i> System Health
-                </button>
-
-                <button class="btn btn-outline-info btn-sm w-100 mt-2" onclick="viewStatistics()">
-                    <i class="fas fa-chart-bar"></i> View Statistics
-                </button>
             </div>
         </div>
 
@@ -995,7 +1374,7 @@
                 if (headerTools) {
                     const logoutBtn = document.createElement('button');
                     logoutBtn.className = 'back-btn';
-                    logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+                    logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
                     logoutBtn.onclick = function() {
                         localStorage.removeItem('neo_session');
                         window.location.href = '/login';
@@ -1274,8 +1653,8 @@
             // Store reference for positioning async responses
             const responseAnchor = userMessageElement;
 
-            // Show typing indicator
-            document.getElementById('typingIndicator').classList.add('active');
+            // Show typing indicator right after the user message
+            showTypingIndicator();
 
             // Disable send button
             const sendBtn = document.getElementById('sendBtn');
@@ -1285,6 +1664,7 @@
                 // Check if semi-automated diagnostic
                 if (currentChatbotType === 'semi_auto_diagnostic') {
                     await handleSemiAutoDiagnostic(message);
+                    hideTypingIndicator();
                     // Update message count for Semi-Auto Diagnostic too
                     messageCount++;
                     document.getElementById('messageCount').textContent = messageCount;
@@ -1295,6 +1675,7 @@
                         message: message,
                         chatbot_type: currentChatbotType,
                         session_id: sessionId,
+                        user_id: (getNeoSession() || {}).email || (getNeoSession() || {}).name || null,
                         conversation_history: []
                     };
 
@@ -1331,21 +1712,28 @@
                         document.getElementById('currentSessionId').textContent = sessionId;
                     }
 
+                    // Hide typing indicator before rendering response
+                    hideTypingIndicator();
+
                     // Add assistant response with streaming
                     await addMessage('assistant', data.response, data);
 
                     // Update message count
                     messageCount++;
                     document.getElementById('messageCount').textContent = messageCount;
+
+                    // Refresh sidebar history
+                    loadUserChatHistory();
                 }
 
             } catch (error) {
                 console.error('❌ Error in sendMessage:', error);
                 console.error('Stack trace:', error.stack);
+                hideTypingIndicator();
                 await addMessage('assistant', `Sorry, I encountered an error: ${error.message}. Please try again.`, {}, false);
             } finally {
-                // Hide typing indicator
-                document.getElementById('typingIndicator').classList.remove('active');
+                // Ensure typing indicator is gone (safety net)
+                hideTypingIndicator();
                 
                 // Enable send button
                 sendBtn.disabled = false;
@@ -1915,7 +2303,7 @@
         async function confirmSOPSelection() {
             if (!selectedSOPSNo || !sopSessionId) return;
             
-            document.getElementById('typingIndicator').classList.add('active');
+            showTypingIndicator();
             
             try {
                 const response = await fetch('/api/diagnostic-support/sop/select', {
@@ -1928,7 +2316,7 @@
                 });
                 const data = await response.json();
                 
-                document.getElementById('typingIndicator').classList.remove('active');
+                hideTypingIndicator();
                 
                 if (data.success) {
                     const result = data.data;
@@ -1939,7 +2327,7 @@
                     addSOPMessage(`Error: ${data.message || 'Failed to select problem'}`);
                 }
             } catch (error) {
-                document.getElementById('typingIndicator').classList.remove('active');
+                hideTypingIndicator();
                 addSOPMessage('Connection error. Please try again.');
             }
             
@@ -1947,7 +2335,7 @@
         }
 
         async function submitSOPStepInput(userInput) {
-            document.getElementById('typingIndicator').classList.add('active');
+            showTypingIndicator();
             
             try {
                 const response = await fetch('/api/diagnostic-support/sop/step-input', {
@@ -1960,7 +2348,7 @@
                 });
                 const data = await response.json();
                 
-                document.getElementById('typingIndicator').classList.remove('active');
+                hideTypingIndicator();
                 
                 if (data.success) {
                     const result = data.data;
@@ -1972,7 +2360,7 @@
                     addSOPMessage(`Error: ${data.message || 'Failed to submit observation'}`);
                 }
             } catch (error) {
-                document.getElementById('typingIndicator').classList.remove('active');
+                hideTypingIndicator();
                 addSOPMessage('Connection error. Please try again.');
             }
         }
@@ -1985,7 +2373,7 @@
         async function markSOPResolved() {
             if (!sopSessionId) return;
             
-            document.getElementById('typingIndicator').classList.add('active');
+            showTypingIndicator();
             
             try {
                 const response = await fetch('/api/diagnostic-support/sop/resolved', {
@@ -1995,7 +2383,7 @@
                 });
                 const data = await response.json();
                 
-                document.getElementById('typingIndicator').classList.remove('active');
+                hideTypingIndicator();
                 
                 if (data.success) {
                     // Update workflow card to show completion
@@ -2019,7 +2407,7 @@
                     sopWorkflowCardId = null;
                 }
             } catch (error) {
-                document.getElementById('typingIndicator').classList.remove('active');
+                hideTypingIndicator();
                 addSOPMessage('Connection error. Please try again.');
             }
         }
@@ -2027,7 +2415,7 @@
         async function markSOPNotResolved(){
             if (!sopSessionId) return;
             
-            document.getElementById('typingIndicator').classList.add('active');
+            showTypingIndicator();
             
             try {
                 const response = await fetch('/api/diagnostic-support/sop/not-resolved', {
@@ -2037,7 +2425,7 @@
                 });
                 const data = await response.json();
                 
-                document.getElementById('typingIndicator').classList.remove('active');
+                hideTypingIndicator();
                 
                 if (data.success) {
                     const result = data.data;
@@ -2054,7 +2442,7 @@
                     }
                 }
             } catch (error) {
-                document.getElementById('typingIndicator').classList.remove('active');
+                hideTypingIndicator();
                 addSOPMessage('Connection error. Please try again.');
             }
         }
@@ -2169,6 +2557,29 @@
                     }
                 }
             }
+        }
+
+        // ===== Dynamic Typing Indicator =====
+        function showTypingIndicator() {
+            hideTypingIndicator(); // remove any existing one first
+            const container = document.getElementById('chatMessages');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message assistant';
+            wrapper.id = 'dynamicTypingWrapper';
+            wrapper.innerHTML = `
+                <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                <div class="typing-indicator active">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>`;
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const el = document.getElementById('dynamicTypingWrapper');
+            if (el) el.remove();
         }
 
         async function addMessage(type, content, data = {}, streaming = true) {
@@ -2477,6 +2888,43 @@
             }
         }
 
+        // ===== Sidebar Toggle =====
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebarPanel');
+            const btn = document.getElementById('sidebarToggleBtn');
+            const icon = btn.querySelector('i');
+
+            sidebar.classList.toggle('collapsed');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+
+            // Swap icon direction
+            if (isCollapsed) {
+                btn.classList.add('expand');
+                btn.title = 'Show sidebar';
+            } else {
+                btn.classList.remove('expand');
+                btn.title = 'Hide sidebar';
+            }
+
+            // Persist preference
+            localStorage.setItem('neo_sidebar_collapsed', isCollapsed ? '1' : '0');
+        }
+
+        // Restore sidebar state from localStorage
+        (function restoreSidebarState() {
+            const pref = localStorage.getItem('neo_sidebar_collapsed');
+            // Default: collapsed (hidden). Show only if user explicitly opened it.
+            if (pref === '0') {
+                const sidebar = document.getElementById('sidebarPanel');
+                const btn = document.getElementById('sidebarToggleBtn');
+                if (sidebar && btn) {
+                    sidebar.classList.remove('collapsed');
+                    btn.classList.remove('expand');
+                    btn.title = 'Hide sidebar';
+                }
+            }
+        })();
+
         async function createNewSession() {
             try {
                 // Determine session type based on current chatbot
@@ -2498,22 +2946,28 @@
                 const data = await response.json();
                 sessionId = data.session_id;
                 
-                // Update UI
+                // Update hidden reference
                 document.getElementById('currentSessionId').textContent = sessionId;
                 
-                // Clear chat display
+                // Clear ALL messages from chat area for a fresh start
                 const messagesContainer = document.getElementById('chatMessages');
-                messagesContainer.querySelectorAll('.message:not(:last-child)').forEach(msg => msg.remove());
+                const allMessages = messagesContainer.querySelectorAll('.message, .system-notification');
+                allMessages.forEach(msg => msg.remove());
+
+                // Show empty state
                 document.getElementById('emptyState').style.display = 'block';
                 messageCount = 0;
                 document.getElementById('messageCount').textContent = '0';
                 
                 // Reset semi-auto diagnostic session
                 semiAutoDiagSession = null;
+                sopSessionId = null;
+                sopCurrentStatus = null;
+                sopWorkflowCardId = null;
                 
-                // Show success notification
-                addMessage('system', `New session started: ${sessionId}`);
-                
+                // Refresh sidebar history (highlights new session)
+                loadUserChatHistory();
+
                 console.log('New session created:', sessionId);
             } catch (error) {
                 console.error('Error creating session:', error);
@@ -2605,6 +3059,217 @@
                 alert('Failed to fetch session history.');
             }
         }
+
+        // ========== Sidebar Chat History (user-specific, from DB) ==========
+        async function loadUserChatHistory() {
+            const session = getNeoSession();
+            const userId = session ? (session.email || session.name) : null;
+            if (!userId) return;
+
+            try {
+                const resp = await fetch(`/api/chatbot/user/${encodeURIComponent(userId)}/sessions?limit=30`);
+                if (!resp.ok) return;
+                const data = await resp.json();
+                renderSidebarHistory(data.sessions || []);
+            } catch (e) {
+                console.warn('Could not load chat history:', e);
+            }
+        }
+
+        function renderSidebarHistory(sessions) {
+            const list = document.getElementById('sidebarHistoryList');
+            if (!sessions.length) {
+                list.innerHTML = `<div class="sidebar-history-empty" id="historyEmptyState">
+                    <i class="fas fa-comments" style="font-size: 20px; display: block; margin-bottom: 6px;"></i>
+                    No past conversations
+                </div>`;
+                return;
+            }
+
+            // Group by date
+            const today = new Date(); today.setHours(0,0,0,0);
+            const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+            const groups = { today: [], yesterday: [], older: [] };
+
+            sessions.forEach(s => {
+                const d = new Date(s.last_message_at || s.started_at);
+                const dDay = new Date(d); dDay.setHours(0,0,0,0);
+                if (dDay.getTime() === today.getTime()) groups.today.push(s);
+                else if (dDay.getTime() === yesterday.getTime()) groups.yesterday.push(s);
+                else groups.older.push(s);
+            });
+
+            let html = '';
+            const renderGroup = (label, items) => {
+                if (!items.length) return '';
+                let g = `<div class="sidebar-section-label" style="padding-top:8px;">${label}</div>`;
+                items.forEach(s => {
+                    const preview = (s.first_query || 'Untitled chat').substring(0, 38);
+                    const icon = s.chatbot_type === 'sql_assistant' ? 'fa-database'
+                               : s.chatbot_type === 'semi_auto_diagnostic' ? 'fa-tools'
+                               : s.chatbot_type === 'diagnostic' ? 'fa-stethoscope'
+                               : 'fa-comment-dots';
+                    const isActive = s.session_id === sessionId;
+                    const countLabel = s.message_count === 1 ? '1 msg' : `${s.message_count} msgs`;
+                    g += `<div class="sidebar-history-item ${isActive ? 'active' : ''}"
+                              onclick="expandPastSession('${s.session_id}')"
+                              title="${escapeHtml(s.first_query||'')}">
+                        <i class="fas ${icon}"></i>
+                        <span class="history-preview">${escapeHtml(preview)}</span>
+                        <span class="history-meta">${countLabel}</span>
+                        <button class="history-delete" onclick="event.stopPropagation(); deleteSession('${s.session_id}')" title="Delete session">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>`;
+                });
+                return g;
+            };
+
+            html += renderGroup('Today', groups.today);
+            html += renderGroup('Yesterday', groups.yesterday);
+            html += renderGroup('Previous', groups.older);
+            list.innerHTML = html;
+        }
+
+        async function expandPastSession(pastSessionId) {
+            // If clicking the already-active session, do nothing
+            if (pastSessionId === sessionId) return;
+
+            const userSession = getNeoSession();
+            const userId = userSession ? (userSession.email || userSession.name) : null;
+
+            try {
+                const url = `/api/chatbot/user/${encodeURIComponent(userId)}/session/${encodeURIComponent(pastSessionId)}/messages`;
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error('Failed to load messages');
+                const data = await resp.json();
+                const messages = data.messages || [];
+
+                // Switch to this session
+                sessionId = pastSessionId;
+                document.getElementById('currentSessionId').textContent = sessionId;
+
+                // Clear current chat area
+                const container = document.getElementById('chatMessages');
+                container.querySelectorAll('.message, .system-notification').forEach(el => el.remove());
+                document.getElementById('emptyState').style.display = 'none';
+
+                // Render past messages into the chat area using the same layout as live chat
+                messages.forEach(m => {
+                    // User message
+                    const userDiv = document.createElement('div');
+                    userDiv.className = 'message user';
+                    userDiv.innerHTML = `
+                        <div class="message-avatar"><i class="fas fa-user"></i></div>
+                        <div class="message-content">${escapeHtml(m.user_query)}</div>`;
+                    container.appendChild(userDiv);
+
+                    // Assistant response
+                    if (m.assistant_response) {
+                        const botDiv = document.createElement('div');
+                        botDiv.className = 'message assistant';
+                        botDiv.innerHTML = `
+                            <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                            <div class="message-content">${formatMessage(m.assistant_response, m)}</div>`;
+                        container.appendChild(botDiv);
+                    }
+                });
+
+                // Update message count
+                messageCount = messages.length;
+                document.getElementById('messageCount').textContent = messageCount;
+
+                // Scroll to bottom
+                container.scrollTop = container.scrollHeight;
+
+                // Re-render sidebar to highlight the active session
+                loadUserChatHistory();
+
+            } catch (e) {
+                console.error('Error loading session:', e);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        // ── Custom confirmation dialog (replaces browser confirm()) ──
+        function showDeleteConfirm() {
+            return new Promise(resolve => {
+                const overlay = document.getElementById('deleteConfirmOverlay');
+                const cancelBtn = document.getElementById('confirmCancelBtn');
+                const deleteBtn = document.getElementById('confirmDeleteBtn');
+
+                function cleanup(result) {
+                    overlay.classList.remove('visible');
+                    cancelBtn.removeEventListener('click', onCancel);
+                    deleteBtn.removeEventListener('click', onDelete);
+                    overlay.removeEventListener('click', onBackdrop);
+                    document.removeEventListener('keydown', onKey);
+                    resolve(result);
+                }
+                function onCancel() { cleanup(false); }
+                function onDelete() { cleanup(true); }
+                function onBackdrop(e) { if (e.target === overlay) cleanup(false); }
+                function onKey(e) { if (e.key === 'Escape') cleanup(false); }
+
+                cancelBtn.addEventListener('click', onCancel);
+                deleteBtn.addEventListener('click', onDelete);
+                overlay.addEventListener('click', onBackdrop);
+                document.addEventListener('keydown', onKey);
+                overlay.classList.add('visible');
+                deleteBtn.focus();
+            });
+        }
+
+        async function deleteSession(delSessionId) {
+            const confirmed = await showDeleteConfirm();
+            if (!confirmed) return;
+
+            // Immediately remove the item from sidebar for instant feedback
+            document.querySelectorAll('.sidebar-history-item').forEach(item => {
+                if (item.getAttribute('onclick')?.includes(delSessionId)) {
+                    item.style.transition = 'opacity 0.2s, transform 0.2s';
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(20px)';
+                    setTimeout(() => item.remove(), 200);
+                }
+            });
+
+            try {
+                const resp = await fetch(`/api/chatbot/session/${encodeURIComponent(delSessionId)}/delete`, {
+                    method: 'DELETE'
+                });
+                if (!resp.ok) throw new Error('Delete failed');
+
+                // If the deleted session is the one currently viewed, clear chat area
+                if (delSessionId === sessionId) {
+                    sessionId = null;
+                    document.getElementById('currentSessionId').textContent = '';
+                    const container = document.getElementById('chatMessages');
+                    container.querySelectorAll('.message, .system-notification').forEach(el => el.remove());
+                    document.getElementById('emptyState').style.display = 'block';
+                    messageCount = 0;
+                    document.getElementById('messageCount').textContent = '0';
+                }
+
+                // Refresh sidebar from DB to sync state
+                await loadUserChatHistory();
+            } catch (e) {
+                console.error('Error deleting session:', e);
+                // Restore sidebar if delete failed
+                await loadUserChatHistory();
+                showToast('Failed to delete session. Please try again.', 'error');
+            }
+        }
+
+        // Load history on page load and after new sessions
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserChatHistory();
+        });
 
         async function handleFileUpload(event) {
             const file = event.target.files[0];
@@ -2913,5 +3578,20 @@
         `;
         document.head.appendChild(style);
     </script>
+
+    <!-- Custom Delete Confirmation Modal -->
+    <div class="confirm-overlay" id="deleteConfirmOverlay">
+        <div class="confirm-dialog">
+            <div class="confirm-icon">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <div class="confirm-title">Delete Conversation</div>
+            <div class="confirm-message">This conversation will be permanently deleted.<br>This action cannot be undone.</div>
+            <div class="confirm-actions">
+                <button class="confirm-btn-cancel" id="confirmCancelBtn">Cancel</button>
+                <button class="confirm-btn-delete" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

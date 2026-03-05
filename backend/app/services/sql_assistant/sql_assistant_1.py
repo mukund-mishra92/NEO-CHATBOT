@@ -261,7 +261,8 @@ class SQLAssistantService:
             response_text,
             sql,
             execution_result,
-            generation_result
+            generation_result,
+            user_id=getattr(request, 'user_id', None)
         )
 
         response = ChatResponse(
