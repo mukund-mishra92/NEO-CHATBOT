@@ -686,7 +686,7 @@
                 if (data.success) {
                     localStorage.setItem('neo_session', JSON.stringify({
                         name: data.name,
-                        email: null,
+                        email: data.email || username,
                         role: 'admin',
                         loginTime: new Date().toISOString()
                     }));

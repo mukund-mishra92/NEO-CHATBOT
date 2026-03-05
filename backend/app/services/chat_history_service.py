@@ -94,6 +94,7 @@ class ChatHistoryService:
                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     chat_id VARCHAR(100) UNIQUE NOT NULL,
                     session_id VARCHAR(100) NOT NULL,
+                    user_id VARCHAR(255) DEFAULT NULL,
                     chatbot_type VARCHAR(50) NOT NULL,
                     user_query TEXT NOT NULL,
                     assistant_response TEXT,
@@ -101,10 +102,26 @@ class ChatHistoryService:
                     confidence_score DECIMAL(5,4),
                     response_time_ms INT,
                     INDEX idx_session_id (session_id),
+                    INDEX idx_user_id (user_id),
                     INDEX idx_chatbot_type (chatbot_type),
                     INDEX idx_timestamp (timestamp)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
+
+            # Add user_id column if table already exists without it (compatible with all MySQL versions)
+            try:
+                cursor.execute("""
+                    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                      AND TABLE_NAME = 'chatbot_chat_history'
+                      AND COLUMN_NAME = 'user_id'
+                """)
+                if cursor.fetchone()[0] == 0:
+                    cursor.execute("ALTER TABLE chatbot_chat_history ADD COLUMN user_id VARCHAR(255) DEFAULT NULL AFTER session_id")
+                    cursor.execute("ALTER TABLE chatbot_chat_history ADD INDEX idx_user_id (user_id)")
+                    logger.info("✅ Added user_id column to chatbot_chat_history")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not add user_id to chatbot_chat_history: {e}")
             
             # SQL query details table
             cursor.execute("""
@@ -112,6 +129,7 @@ class ChatHistoryService:
                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     chat_id VARCHAR(100) NOT NULL,
                     session_id VARCHAR(100) NOT NULL,
+                    user_id VARCHAR(255) DEFAULT NULL,
                     user_query TEXT NOT NULL,
                     generated_sql TEXT,
                     execution_status ENUM('success', 'failed', 'not_executed') DEFAULT 'not_executed',
@@ -126,10 +144,26 @@ class ChatHistoryService:
                     FOREIGN KEY (chat_id) REFERENCES chatbot_chat_history(chat_id) ON DELETE CASCADE,
                     INDEX idx_chat_id (chat_id),
                     INDEX idx_session_id (session_id),
+                    INDEX idx_user_id_sql (user_id),
                     INDEX idx_execution_status (execution_status),
                     INDEX idx_timestamp (timestamp)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
+
+            # Add user_id column to chatbot_sql_queries if table already exists without it
+            try:
+                cursor.execute("""
+                    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                      AND TABLE_NAME = 'chatbot_sql_queries'
+                      AND COLUMN_NAME = 'user_id'
+                """)
+                if cursor.fetchone()[0] == 0:
+                    cursor.execute("ALTER TABLE chatbot_sql_queries ADD COLUMN user_id VARCHAR(255) DEFAULT NULL AFTER session_id")
+                    cursor.execute("ALTER TABLE chatbot_sql_queries ADD INDEX idx_user_id_sql (user_id)")
+                    logger.info("✅ Added user_id column to chatbot_sql_queries")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not add user_id to chatbot_sql_queries: {e}")
             
             # Column corrections table (automatic and manual)
             cursor.execute("""
@@ -205,6 +239,7 @@ class ChatHistoryService:
         assistant_response: str,
         confidence_score: float,
         response_time_ms: int,
+        user_id: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None
     ) -> str:
         """
@@ -221,11 +256,11 @@ class ChatHistoryService:
             
             cursor.execute("""
                 INSERT INTO chatbot_chat_history 
-                (chat_id, session_id, chatbot_type, user_query, assistant_response, 
+                (chat_id, session_id, user_id, chatbot_type, user_query, assistant_response, 
                  confidence_score, response_time_ms)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (
-                chat_id, session_id, chatbot_type, user_query, 
+                chat_id, session_id, user_id, chatbot_type, user_query, 
                 assistant_response, confidence_score, response_time_ms
             ))
             
@@ -233,12 +268,111 @@ class ChatHistoryService:
             cursor.close()
             conn.close()
             
-            logger.info(f"💾 Logged chat interaction: {chat_id}")
+            logger.info(f"💾 Logged chat interaction: {chat_id} (user={user_id})")
             return chat_id
             
         except Exception as e:
             logger.error(f"❌ Error logging chat interaction: {e}", exc_info=True)
             return ""
+
+    def get_user_chat_sessions(self, user_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        """
+        Get grouped chat sessions for a specific user (identified by email).
+        Returns a list of sessions, each with session_id, first query preview,
+        chatbot_type, message_count, and timestamp range.
+        """
+        try:
+            conn = self._get_connection()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute("""
+                SELECT
+                    session_id,
+                    chatbot_type,
+                    MIN(timestamp) AS started_at,
+                    MAX(timestamp) AS last_message_at,
+                    COUNT(*) AS message_count,
+                    SUBSTRING(MIN(CONCAT(LPAD(id, 20, '0'), user_query)), 21) AS first_query
+                FROM chatbot_chat_history
+                WHERE user_id = %s
+                GROUP BY session_id, chatbot_type
+                ORDER BY MAX(timestamp) DESC
+                LIMIT %s
+            """, (user_id, limit))
+
+            sessions = cursor.fetchall()
+            cursor.close()
+            conn.close()
+
+            return [dict(row) for row in sessions]
+
+        except Exception as e:
+            logger.error(f"❌ Error getting user chat sessions: {e}", exc_info=True)
+            return []
+
+    def get_session_messages(self, session_id: str, user_id: str = None, limit: int = 100) -> List[Dict[str, Any]]:
+        """
+        Get all messages for a specific session, optionally scoped to a user_id.
+        """
+        try:
+            conn = self._get_connection()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            if user_id:
+                cursor.execute("""
+                    SELECT chat_id, user_query, assistant_response, timestamp,
+                           confidence_score, chatbot_type
+                    FROM chatbot_chat_history
+                    WHERE session_id = %s AND user_id = %s
+                    ORDER BY timestamp ASC
+                    LIMIT %s
+                """, (session_id, user_id, limit))
+            else:
+                cursor.execute("""
+                    SELECT chat_id, user_query, assistant_response, timestamp,
+                           confidence_score, chatbot_type
+                    FROM chatbot_chat_history
+                    WHERE session_id = %s
+                    ORDER BY timestamp ASC
+                    LIMIT %s
+                """, (session_id, limit))
+
+            messages = cursor.fetchall()
+            cursor.close()
+            conn.close()
+
+            return [dict(row) for row in messages]
+
+        except Exception as e:
+            logger.error(f"❌ Error getting session messages: {e}", exc_info=True)
+            return []
+
+    def delete_session(self, session_id: str) -> int:
+        """
+        Permanently delete all records for a session from chatbot_chat_history.
+        Related chatbot_sql_queries rows are removed automatically via ON DELETE CASCADE.
+        Returns the number of deleted rows.
+        """
+        try:
+            conn = self._get_connection()
+            cursor = conn.cursor()
+
+            cursor.execute(
+                "DELETE FROM chatbot_chat_history WHERE session_id = %s",
+                (session_id,)
+            )
+            deleted = cursor.rowcount
+
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            logger.info(f"🗑️ Deleted {deleted} messages for session {session_id}")
+            return deleted
+
+        except Exception as e:
+            logger.error(f"❌ Error deleting session {session_id}: {e}", exc_info=True)
+            return 0
     
     def log_sql_query(
         self,
@@ -253,7 +387,8 @@ class ChatHistoryService:
         tables_used: Optional[List[str]] = None,
         columns_used: Optional[List[str]] = None,
         intent: Optional[str] = None,
-        entities: Optional[List[str]] = None
+        entities: Optional[List[str]] = None,
+        user_id: Optional[str] = None
     ):
         """Log SQL query details"""
         try:
@@ -262,12 +397,12 @@ class ChatHistoryService:
             
             cursor.execute("""
                 INSERT INTO chatbot_sql_queries 
-                (chat_id, session_id, user_query, generated_sql, execution_status, 
+                (chat_id, session_id, user_id, user_query, generated_sql, execution_status, 
                  error_message, rows_returned, execution_time_ms, tables_used, 
                  columns_used, intent, entities)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
-                chat_id, session_id, user_query, generated_sql, execution_status,
+                chat_id, session_id, user_id, user_query, generated_sql, execution_status,
                 error_message, rows_returned, execution_time_ms,
                 json.dumps(tables_used or []),
                 json.dumps(columns_used or []),
@@ -279,7 +414,7 @@ class ChatHistoryService:
             cursor.close()
             conn.close()
             
-            logger.info(f"💾 Logged SQL query for chat: {chat_id}")
+            logger.info(f"💾 Logged SQL query for chat: {chat_id} (user={user_id})")
             
         except Exception as e:
             logger.error(f"❌ Error logging SQL query: {e}", exc_info=True)

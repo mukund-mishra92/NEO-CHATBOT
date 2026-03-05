@@ -196,20 +196,21 @@ async def chat(request: ChatRequest):
             # Ensure response has session ID
             response.session_id = session_id
 
-            # Log Knowledge Base chats to MySQL history
-            if request.chatbot_type == ChatbotType.KNOWLEDGE_BASE and chat_history_service:
+            # Log chat to MySQL history (skip SQL_ASSISTANT - learning.py handles that with FK-linked sql_queries)
+            if chat_history_service and request.chatbot_type != ChatbotType.SQL_ASSISTANT:
                 try:
                     response_time_ms = int((time.time() - start_time) * 1000)
                     chat_history_service.log_chat_interaction(
                         session_id=session_id,
-                        chatbot_type=str(request.chatbot_type),
+                        chatbot_type=request.chatbot_type.value,
                         user_query=request.message,
                         assistant_response=response.response,
                         confidence_score=response.confidence_score or 0.0,
-                        response_time_ms=response_time_ms
+                        response_time_ms=response_time_ms,
+                        user_id=request.user_id
                     )
                 except Exception as e:
-                    logger.warning(f"⚠️ Failed to log Knowledge Base chat: {e}")
+                    logger.warning(f"⚠️ Failed to log chat: {e}")
         
         logger.info(f"✅ Chat response generated: confidence={response.confidence_score:.2f}, session={session_id}")
         return response
@@ -658,6 +659,94 @@ async def health_check():
         "service": "NEO Chatbot API",
         "version": "1.0.0"
     }
+
+
+# ===== User Chat History Endpoints =====
+
+@router.get("/user/{user_id}/sessions")
+async def get_user_sessions(user_id: str, limit: int = 50):
+    """
+    Get all chat sessions for a user (identified by email).
+    Returns grouped sessions with preview, message count, and timestamps.
+    """
+    try:
+        if not chat_history_service:
+            raise HTTPException(status_code=503, detail="Chat history service not available")
+
+        sessions = chat_history_service.get_user_chat_sessions(user_id=user_id, limit=limit)
+
+        return {
+            "status": "success",
+            "user_id": user_id,
+            "session_count": len(sessions),
+            "sessions": sessions
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Error getting user sessions: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/user/{user_id}/session/{session_id}/messages")
+async def get_user_session_messages(user_id: str, session_id: str, limit: int = 100):
+    """
+    Get all messages for a specific session belonging to a user.
+    """
+    try:
+        if not chat_history_service:
+            raise HTTPException(status_code=503, detail="Chat history service not available")
+
+        messages = chat_history_service.get_session_messages(
+            session_id=session_id,
+            user_id=user_id,
+            limit=limit
+        )
+
+        return {
+            "status": "success",
+            "session_id": session_id,
+            "message_count": len(messages),
+            "messages": messages
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Error getting session messages: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/session/{session_id}/delete")
+async def delete_session_from_db(session_id: str):
+    """
+    Permanently delete a session and all its messages from the database.
+    Also removes related sql_queries (via FK CASCADE) and in-memory session.
+    """
+    try:
+        # Delete from DB
+        if chat_history_service:
+            deleted_count = chat_history_service.delete_session(session_id)
+        else:
+            deleted_count = 0
+
+        # Also remove from in-memory session manager
+        try:
+            session_manager.delete_session(session_id)
+        except Exception:
+            pass
+
+        logger.info(f"🗑️ Deleted session {session_id} ({deleted_count} messages)")
+        return {
+            "status": "success",
+            "session_id": session_id,
+            "deleted_messages": deleted_count
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Error deleting session: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ===== Chat History & Analytics Endpoints =====

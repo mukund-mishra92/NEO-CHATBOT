@@ -36,6 +36,7 @@ class ChatRequest(BaseModel):
     message: str = Field(..., description="User's message/question")
     chatbot_type: Optional[ChatbotType] = Field(default=ChatbotType.GENERAL)
     session_id: Optional[str] = None
+    user_id: Optional[str] = Field(default=None, description="User email for chat history tracking")
     conversation_history: Optional[List[ChatMessage]] = []
     context: Optional[Dict[str, Any]] = None
 
