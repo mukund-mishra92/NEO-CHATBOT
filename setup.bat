@@ -7,7 +7,7 @@ echo ========================================
 echo.
 
 REM Check Python installation
-py --version >nul 2>&1
+python --version >nul 2>&1
 if errorlevel 1 (
     echo [ERROR] Python is not installed or not in PATH
     echo Please install Python 3.9 or higher from python.org
@@ -16,26 +16,26 @@ if errorlevel 1 (
 )
 
 echo [1/5] Python found!
-py --version
+python --version
 echo.
 
 REM Create virtual environment
 echo [2/5] Creating virtual environment...
-if exist "NEO\" (
+if exist "venv\" (
     echo Virtual environment already exists, skipping...
 ) else (
-    py -m NEO backend\NEO
+    python -m venv venv\
     echo Virtual environment created successfully!
 )
 echo.
 
 REM Activate virtual environment
 echo [3/5] Activating virtual environment...
-call NEO\Scripts\activate.bat
+call venv\Scripts\activate.bat
 
 REM Upgrade pip
 echo [4/5] Upgrading pip...
-py -m pip install --upgrade pip
+python -m pip install --upgrade pip
 echo.
 
 REM Install dependencies

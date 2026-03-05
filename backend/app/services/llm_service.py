@@ -116,7 +116,7 @@ class LLMService:
         messages: List[Dict[str, str]], 
         system_prompt: Optional[str] = None,
         max_tokens: int = 1000,
-        temperature: float = 0.7
+        temperature: float = 0.1
     ) -> str:
         """
         Generate response from LLM
@@ -229,7 +229,8 @@ class LLMService:
         response = self.openai_client.chat.completions.create(
             model="gpt-5.2",  # High-quality GPT-5.2 model
             messages=full_messages,
-            max_tokens=max_tokens,
+            max_output_tokens=max_tokens,
+            stream=True,
             temperature=temperature
         )
         

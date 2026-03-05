@@ -1,9 +1,8 @@
 from app.models.schemas import ChatResponse, ChatbotType
 from app.services.sql_engine import SQLEngine
 from app.services.chat_history_service import ChatHistoryService
-from app.services.query_classification_service import QueryClassificationService
+from app.services.query_classification_service1 import QueryClassificationService
 from app.core.config import settings
-
 from .models import SQLGenerationResult
 from .cache_manager import QueryCacheManager
 from .reuse_engine import QueryReuseEngine
@@ -19,6 +18,7 @@ from .semantic_validator import SemanticValidator
 from .schema_feedback import SchemaFeedbackGenerator
 from .table_priority_loader import TablePriorityLoader
 from .table_selector import TableSelector
+
 
 import logging
 import csv
@@ -44,7 +44,7 @@ class SQLAssistantService:
         }
 
         csv_path = settings.DATA_DIR / "database" / "Table_information.csv"
-        business_path = settings.DATA_DIR / "database" / "tabe_descriptions_sample.json"
+        business_path = settings.DATA_DIR / "database" / "table_descriptions.json"
 
         # Load business context
         try:
@@ -101,7 +101,12 @@ class SQLAssistantService:
 
         validations_file = settings.DATA_DIR / "database" / "table_priority_validations.jsonl"
         self.table_priority_loader = TablePriorityLoader(validations_file)
-        self.table_selector = TableSelector(self.schema)
+
+
+        self.table_selector = TableSelector(
+            schema=self.schema,
+            table_metadata=self.business_context
+        )
 
         logger.info(f"✅ SQLAssistantService initialized with {len(self.schema)} tables")
 
@@ -209,7 +214,7 @@ class SQLAssistantService:
                 logger.info(f"🧠 Using learned tables: {selected_tables}")
 
             else:
-                selected_tables = self.table_selector.select(clean_question, max_tables=10)
+                selected_tables = self.table_selector.select(clean_question, max_tables=20)
                 logger.info(f"🔍 Using heuristic selected tables: {selected_tables}")
 
             if not selected_tables:

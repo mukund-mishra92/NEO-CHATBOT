@@ -272,6 +272,8 @@ class SQLEngine:
             model=self.model,
             instructions=instructions,
             input=f"USER QUESTION:\n{question}",
+            temperature=0,
+            timeout=60,
             text={
                 "format": {
                     "type": "json_schema",
@@ -282,7 +284,12 @@ class SQLEngine:
             },
         )
 
-        result = json.loads(resp.output_text)
+        if not resp.output_text:
+            raise ValueError("Empty model response")
+        try:
+            result = json.loads(resp.output_text)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON response: {e}\nRaw response: {resp.output_text}")   
 
         # --------------------------------------------------
         # 4. SAFETY CHECK
