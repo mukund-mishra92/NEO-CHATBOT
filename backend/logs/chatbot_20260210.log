@@ -1,0 +1,8 @@
+2026-02-10 12:03:44 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260210.log
+2026-02-10 12:03:44 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-10 12:04:35 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260210.log
+2026-02-10 12:04:35 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260210.log
+2026-02-10 12:04:35 - app.services.query_classification_service - INFO - ✅ Loaded 1503 classified queries
+2026-02-10 12:04:35 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-10 12:04:35 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1503 classified queries
+2026-02-10 12:04:35 - app.main - INFO - ✅ Classification service initialized
