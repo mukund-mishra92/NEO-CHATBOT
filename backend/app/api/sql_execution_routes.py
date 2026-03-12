@@ -94,6 +94,7 @@ async def execute_sql_query(request: SQLExecuteRequest):
         try:
             # Use pymysql cursor directly instead of pandas (fixes compatibility issues)
             with conn.cursor() as cursor:
+                cursor.execute("SET SESSION TRANSACTION READ ONLY")
                 cursor.execute(f"SET SESSION MAX_EXECUTION_TIME = {QUERY_TIMEOUT * 1000}")
                 cursor.execute(sql_query)
                 results = cursor.fetchall()

@@ -287,7 +287,7 @@ def connect_neo(db_config: Dict[str, Any], attempts: int = 3):
             if isinstance(port, str):
                 port = int(port)
             
-            return pymysql.connect(
+            conn = pymysql.connect(
                 host=db_config.get("host", "localhost"),
                 port=port,
                 user=db_config.get("user", "root"),
@@ -300,6 +300,10 @@ def connect_neo(db_config: Dict[str, Any], attempts: int = 3):
                 cursorclass=pymysql.cursors.DictCursor,
                 autocommit=True,
             )
+            # Enforce read-only at session level
+            with conn.cursor() as cur:
+                cur.execute("SET SESSION TRANSACTION READ ONLY")
+            return conn
         except Exception as e:
             last_error = e
             if i < attempts - 1:

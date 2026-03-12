@@ -321,6 +321,7 @@ class SemiAutoSOPService:
         try:
             conn = self._connect_db()
             with conn.cursor() as cur:
+                cur.execute("SET SESSION TRANSACTION READ ONLY")
                 cur.execute(sql)
                 rows = cur.fetchall()
             conn.close()

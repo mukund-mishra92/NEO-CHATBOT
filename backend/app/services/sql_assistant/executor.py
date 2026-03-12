@@ -23,6 +23,9 @@ class SQLExecutor:
             cursor = conn.cursor(dictionary=True)
             conn_id = conn.connection_id
 
+            # Enforce read-only at session level to prevent any write operations
+            cursor.execute("SET SESSION TRANSACTION READ ONLY")
+
             # Schedule a watchdog that kills the query after timeout
             timed_out = threading.Event()
 
