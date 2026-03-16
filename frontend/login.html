@@ -684,13 +684,16 @@
 
         function handleGuestLogin() {
             hideError();
+
+            const guestId = `guest_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
             
             // Create guest session
             localStorage.setItem('neo_session', JSON.stringify({
                 name: 'Anonymous',
-                email: 'guest@anonymous',
+                email: `${guestId}@anonymous.local`,
                 role: 'guest',
                 isGuest: true,
+                guestId: guestId,
                 loginTime: new Date().toISOString()
             }));
             

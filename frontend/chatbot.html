@@ -1444,6 +1444,22 @@
             return null;
         }
 
+        function getEffectiveUserId() {
+            const session = getNeoSession();
+            if (!session) return null;
+
+            if (session.role === 'guest' || session.isGuest) {
+                if (session.guestId) return session.guestId;
+
+                const generatedGuestId = `guest_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+                const updatedSession = { ...session, guestId: generatedGuestId };
+                localStorage.setItem('neo_session', JSON.stringify(updatedSession));
+                return generatedGuestId;
+            }
+
+            return session.email || session.name || null;
+        }
+
         function getGreeting() {
             const hour = new Date().getHours();
             if (hour < 12) return 'Good morning';
@@ -1785,7 +1801,7 @@
                         message: message,
                         chatbot_type: currentChatbotType,
                         session_id: sessionId,
-                        user_id: (getNeoSession() || {}).email || (getNeoSession() || {}).name || null,
+                        user_id: getEffectiveUserId(),
                         conversation_history: []
                     };
 
@@ -3032,10 +3048,12 @@
 
         function applySidebarWidth(width) {
             const sidebar = document.getElementById('sidebarPanel');
+            const btn = document.getElementById('sidebarToggleBtn');
             if (!sidebar) return;
 
             const safeWidth = Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, Number(width) || 280));
             sidebar.style.width = `${safeWidth}px`;
+            if (btn) btn.style.right = `${safeWidth}px`;
         }
 
         function initSidebarResizer() {
@@ -3044,7 +3062,10 @@
             if (!sidebar || !resizer) return;
 
             const savedWidth = parseInt(localStorage.getItem('neo_sidebar_width') || '280', 10);
-            applySidebarWidth(savedWidth);
+            // Only set inline width if sidebar is currently open (not collapsed)
+            if (!sidebar.classList.contains('collapsed')) {
+                applySidebarWidth(savedWidth);
+            }
 
             let isDragging = false;
             let startX = 0;
@@ -3081,16 +3102,20 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebarPanel');
             const btn = document.getElementById('sidebarToggleBtn');
-            const icon = btn.querySelector('i');
 
             sidebar.classList.toggle('collapsed');
             const isCollapsed = sidebar.classList.contains('collapsed');
 
-            // Swap icon direction
             if (isCollapsed) {
+                // Clear inline width so CSS `.collapsed { width: 0 }` takes effect
+                sidebar.style.width = '';
+                btn.style.right = '0';
                 btn.classList.add('expand');
                 btn.title = 'Show sidebar';
             } else {
+                // Restore saved width
+                const savedWidth = parseInt(localStorage.getItem('neo_sidebar_width') || '280', 10);
+                applySidebarWidth(savedWidth);
                 btn.classList.remove('expand');
                 btn.title = 'Hide sidebar';
             }
@@ -3102,18 +3127,22 @@
         // Restore sidebar state from localStorage
         (function restoreSidebarState() {
             const savedWidth = parseInt(localStorage.getItem('neo_sidebar_width') || '280', 10);
-            applySidebarWidth(savedWidth);
-
             const pref = localStorage.getItem('neo_sidebar_collapsed');
+            const sidebar = document.getElementById('sidebarPanel');
+            const btn = document.getElementById('sidebarToggleBtn');
+
             // Default: collapsed (hidden). Show only if user explicitly opened it.
             if (pref === '0') {
-                const sidebar = document.getElementById('sidebarPanel');
-                const btn = document.getElementById('sidebarToggleBtn');
                 if (sidebar && btn) {
                     sidebar.classList.remove('collapsed');
                     btn.classList.remove('expand');
                     btn.title = 'Hide sidebar';
+                    applySidebarWidth(savedWidth);
                 }
+            } else {
+                // Collapsed state: ensure no inline width, button at right edge
+                if (sidebar) sidebar.style.width = '';
+                if (btn) btn.style.right = '0';
             }
         })();
 
@@ -3244,8 +3273,7 @@
 
         // ========== Sidebar Chat History (user-specific, from DB) ==========
         async function loadUserChatHistory() {
-            const session = getNeoSession();
-            const userId = session ? (session.email || session.name) : null;
+            const userId = getEffectiveUserId();
             if (!userId) return;
 
             try {
@@ -3325,8 +3353,7 @@
             // If clicking the already-active session, do nothing
             if (pastSessionId === sessionId) return;
 
-            const userSession = getNeoSession();
-            const userId = userSession ? (userSession.email || userSession.name) : null;
+            const userId = getEffectiveUserId();
 
             try {
                 const url = `/api/chatbot/user/${encodeURIComponent(userId)}/session/${encodeURIComponent(pastSessionId)}/messages`;
@@ -3528,8 +3555,7 @@
         }
 
         async function renameSession(renameSessionId, newName) {
-            const session = getNeoSession();
-            const userId = session ? (session.email || session.name) : null;
+            const userId = getEffectiveUserId();
             if (!userId) return false;
 
             try {
@@ -3695,7 +3721,7 @@
                     body: JSON.stringify({
                         session_id: sessionId,
                         chatbot_type: activeChatbot,
-                        user_id: (getNeoSession() || {}).email || (getNeoSession() || {}).name,
+                        user_id: getEffectiveUserId(),
                         feedback_type: feedbackType,
                         question: userQuestion,
                         response: botResponse
