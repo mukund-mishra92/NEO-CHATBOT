@@ -78,7 +78,5 @@ class SQLFormatter:
             f"### 🧾 SQL Query\n"
             f"```sql\n{sql}\n```\n\n"
             f"### 📊 Rows Returned: {row_count}\n\n"
-            f"{table_section}\n\n"
-            f"---\n"
-            f"**Confidence:** {confidence:.2f}"
+            f"{table_section}"
         )

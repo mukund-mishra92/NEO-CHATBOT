@@ -5,6 +5,7 @@ Answers questions about NEO documentation, code, and proposals
 
 import logging
 import re
+import json
 import uuid
 from typing import List, Dict, Any, Optional
 from pathlib import Path
@@ -244,7 +245,7 @@ Always prioritize clarity and user understanding."""
                 session_id=chat_request.session_id or str(uuid.uuid4()),
                 sources=source_documents,
                 confidence_score=confidence,
-                suggested_actions=self._generate_suggested_actions(chat_request.message)
+                suggested_actions=self._generate_suggested_actions(chat_request.message, response_text)
             )
             
         except Exception as e:
@@ -739,73 +740,91 @@ Category: {category} | Relevance: {similarity:.1%}
         
         return round(final_confidence, 2)
     
-    def _generate_suggested_actions(self, query: str) -> List[str]:
-        """Generate contextual suggested follow-up actions"""
-        suggestions = []
-        
-        query_lower = query.lower()
-        
-        # Installation/Setup queries
-        if any(word in query_lower for word in ["install", "setup", "configure", "deployment"]):
-            suggestions.extend([
-                "View system requirements and prerequisites",
-                "Check step-by-step installation guide",
-                "See configuration examples and best practices"
-            ])
-        
-        # Error/Troubleshooting queries
-        elif any(word in query_lower for word in ["error", "issue", "problem", "fix", "troubleshoot", "not working"]):
-            suggestions.extend([
-                "Check common issues and solutions",
-                "View diagnostic procedures",
-                "Access error code reference",
-                "Contact technical support"
-            ])
-        
-        # Technical/API queries
-        elif any(word in query_lower for word in ["code", "api", "function", "method", "class", "interface"]):
-            suggestions.extend([
-                "View API documentation",
-                "See code examples and snippets",
-                "Explore technical integration guides"
-            ])
-        
-        # Bot/Automation queries
-        elif any(word in query_lower for word in ["bot", "robot", "agv", "automation"]):
-            suggestions.extend([
-                "Learn about bot operations",
-                "View bot configuration guide",
-                "Check bot maintenance procedures"
-            ])
-        
-        # Safety/SOP queries
-        elif any(word in query_lower for word in ["safety", "sop", "procedure", "guideline", "protocol"]):
-            suggestions.extend([
-                "Review safety guidelines",
-                "Check standard operating procedures",
-                "View emergency protocols"
-            ])
-        
-        # Dashboard/UI queries
-        elif any(word in query_lower for word in ["dashboard", "interface", "ui", "screen", "display"]):
-            suggestions.extend([
-                "Explore dashboard features",
-                "View user interface guide",
-                "Learn about report generation"
-            ])
-        
-        # Default suggestions
-        else:
-            suggestions.extend([
-                "Explore related documentation",
-                "View practical examples",
-                "Check getting started guide",
-                "Ask about specific features"
-            ])
-        
-        return suggestions[:4]  # Limit to 4 suggestions
-        
-        return suggestions[:3]
+    def _generate_suggested_actions(self, query: str, response_text: str = "") -> List[str]:
+        """Generate 4 short follow-up bubbles using AI based on user query and answer."""
+
+        query_text = (query or "").strip()
+        response = (response_text or "").strip()
+
+        topic_match = re.findall(r"[a-zA-Z][a-zA-Z0-9_-]{2,}", query_text.lower())
+        topic = topic_match[0] if topic_match else "neo"
+
+        system_prompt = (
+            "You generate next-question bubbles for a chatbot UI. "
+            "Output ONLY valid JSON: an array of exactly 4 strings. "
+            "Each string must be a follow-up question, natural English, 4 to 5 words, and end with '?'. "
+            "Questions must be context-aware from the user question and assistant answer. "
+            "Avoid generic, repetitive, or ungrammatical phrasing."
+        )
+
+        user_prompt = (
+            f"User question:\n{query_text}\n\n"
+            f"Assistant answer:\n{response[:1800]}\n\n"
+            "Return JSON array only."
+        )
+
+        def _sanitize(raw_items: List[str]) -> List[str]:
+            cleaned: List[str] = []
+            for item in raw_items:
+                text = " ".join(str(item or "").strip().split())
+                text = re.sub(r"^[\-\d\.)\s]+", "", text)
+                if not text:
+                    continue
+
+                if not text.endswith("?"):
+                    text = f"{text}?"
+
+                words = [w for w in re.findall(r"[A-Za-z0-9']+\??", text) if w]
+                if len(words) > 5:
+                    text = " ".join(words[:5]).rstrip("?") + "?"
+                elif len(words) < 4:
+                    filler = ["in", "NEO"]
+                    while len(words) < 4 and filler:
+                        words.append(filler.pop(0))
+                    text = " ".join(words).rstrip("?") + "?"
+
+                if text not in cleaned:
+                    cleaned.append(text)
+                if len(cleaned) == 4:
+                    break
+
+            fallback = [
+                f"Can you expand {topic}?",
+                f"Any examples for {topic}?",
+                f"How is {topic} used?",
+                f"What about {topic} next?"
+            ]
+
+            for item in fallback:
+                if item not in cleaned:
+                    cleaned.append(item)
+                if len(cleaned) == 4:
+                    break
+
+            return cleaned[:4]
+
+        try:
+            ai_output = self.llm_service.generate_response(
+                messages=[{"role": "user", "content": user_prompt}],
+                system_prompt=system_prompt,
+                max_tokens=180,
+                temperature=0.4
+            )
+
+            parsed: List[str] = []
+            try:
+                loaded = json.loads(ai_output)
+                if isinstance(loaded, list):
+                    parsed = [str(x) for x in loaded]
+            except Exception:
+                lines = [ln.strip(" -*\t") for ln in (ai_output or "").splitlines() if ln.strip()]
+                parsed = [ln for ln in lines if "?" in ln]
+
+            return _sanitize(parsed)
+
+        except Exception as e:
+            logger.warning(f"⚠️ AI suggested bubbles generation failed: {e}")
+            return _sanitize([])
     
     def add_document(
         self,

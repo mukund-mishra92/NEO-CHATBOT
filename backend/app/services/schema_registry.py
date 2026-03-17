@@ -502,6 +502,10 @@ CRITICAL COLUMN FACTS (verified against real database):
    - "velocity" (SKU) → sku_master.VELOCITY or store_bin_master.VELOCITY (bin-level)
    - "expiry" / "expiry date" → sku_batch_master.EXPIRY_DATE
    - "status" (bot) → bot_master.STATUS enum('ENABLED','DISABLED')
+   - "mode" / "manual mode" / "auto mode" / "auto/manual" → bot_master.AUTO_MANUAL enum('AUTO','MANUAL')
+   - "battery" (bot) → bot_master.BATTERY or bot_master.AH_REMAINING_PERCENTAGE
+   - "position" / "grid" (bot) → bot_master.GRIDX, bot_master.GRIDY, bot_master.GRIDZ
+   - "load" / "load condition" (bot) → bot_master.LOAD_CONDITION
    - "status" (task) → task_master_log.STATUS enum('PENDING','ASSIGNED','PROCESSING','COMPLETED')
    - "status" (wave) → wave_master.WAVE_STATUS
    - "status" (order) → order_bin_mapping.STATUS
@@ -527,9 +531,16 @@ CRITICAL COLUMN FACTS (verified against real database):
    BIN_ID(PK), BIN_BARCODE, BIN_TYPE, BIN_SEGMENTS  (only 4 columns!)
 
 8. bot_master ACTUAL COLUMNS (key subset):
-   BOT_ID(PK), STATUS, GRID_X, GRID_Y, BATTERY_PERCENTAGE, LOAD_STATUS,
-   BOT_STATE, WORK_STATE, IS_ONLINE, BOT_MODE, FAULT_RECOVERY_MODE
-   NO: BOT_NAME, BOT_LABEL, BOT_ALIAS
+   BOT_MASTER_ID(PK), BOT_ID, STATUS, COUNTER, AUTO_MANUAL,
+   ACTIVITY_REQUEST, BATTERY, BATTERY_HEALTH, IP, PORT, SIM_PORT,
+   GRIDX, GRIDY, GRIDZ, ACTIVE_AXIS, LOAD_CONDITION,
+   UPDATED_TIMESTAMP, ALARM, ALARM_TYPE, RECOVERY_BIN_LOAD_STATUS,
+   STATION_SAFETY_VALUE, BATTERY_VOLTS, AH_REMAINING_PERCENTAGE,
+   AH_REMAINING_NORMAL, RECOVERY_BIT, NON_RECOVERY_BIT,
+   LOAD_NON_RECOVERY_BIT, BOT_TO_MAINTENANCE_BIT, CHARGING_BIT,
+   BARCODE_TAG_NUMBER, SLIDER_POSITION, LIDAR_ZONE_NUMBER,
+   ALARM_TIMESTAMP, ALARM_POSITION_X_Y_Z
+   NO: BOT_NAME, BOT_LABEL, BOT_ALIAS, BOT_STATE, WORK_STATE, IS_ONLINE, BOT_MODE
 
 9. TIMESTAMP COLUMNS by table:
    - task_master_log: logged_timestamp, INSERTED_TIMESTAMP, UPDATED_TIMESTAMP
@@ -547,9 +558,8 @@ CRITICAL COLUMN FACTS (verified against real database):
 ENUM_REGISTRY: Dict[str, Dict[str, List[str]]] = {
     "bot_master": {
         "STATUS": ["ENABLED", "DISABLED"],
-        "LOAD_STATUS": ["LOAD", "UNLOAD", "UNKNOWN"],
-        "BOT_STATE": ["IDLE", "RUNNING", "FAULT", "MANUAL", "CHARGING"],
-        "WORK_STATE": ["IDLE", "PICKING", "PUTTING", "MOVING", "CHARGING"],
+        "AUTO_MANUAL": ["AUTO", "MANUAL"],
+        "LOAD_CONDITION": ["LOAD", "UNLOAD", "UNKNOWN"],
     },
     "bot_master_log": {
         "STATUS": ["ENABLED", "DISABLED"],

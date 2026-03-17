@@ -248,6 +248,10 @@
             font-size: 14px;
         }
 
+        .message-content.sql-wide {
+            max-width: min(92%, 1400px);
+        }
+
         .message.user .message-content {
             background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
             color: white;
@@ -993,6 +997,526 @@
             font-family: 'Courier New', monospace;
             font-size: 13px;
             overflow-x: auto;
+        }
+
+        .assistant-rich-response {
+            background: #ffffff;
+            border: 1px solid #e7ebf5;
+            border-radius: 12px;
+            padding: 12px 14px;
+            box-shadow: 0 2px 8px rgba(24, 33, 61, 0.04);
+        }
+
+        .sql-assistant-response {
+            border-left: none;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+        }
+
+        .sql-cards-layout {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 768px) {
+            .sql-cards-layout {
+                flex-direction: column;
+            }
+            .sql-right-column { max-width: 100% !important; min-width: 0 !important; }
+        }
+
+        .sql-right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 0.7;
+            min-width: 280px;
+            max-width: 400px;
+        }
+
+        .sql-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(24, 33, 61, 0.06);
+            transition: box-shadow 0.25s ease, transform 0.25s ease;
+        }
+
+        .sql-card:hover {
+            box-shadow: 0 8px 30px rgba(24, 33, 61, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .sql-card-data {
+            flex: 1.3;
+            min-width: 0;
+        }
+
+        .sql-card-header {
+            padding: 11px 16px;
+            font-weight: 700;
+            font-size: 12.5px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sql-card-data .sql-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .sql-card-sql .sql-card-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #cbd5e1;
+        }
+
+        .sql-card-confidence .sql-card-header {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            color: #166534;
+            border-bottom: 1px solid #dcfce7;
+        }
+
+        .sql-card-body {
+            padding: 14px 16px;
+        }
+
+        .sql-card-data .sql-card-body {
+            padding: 0;
+        }
+
+        .sql-card-data .paginated-table-container {
+            margin: 0;
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
+        }
+
+        .sql-card-data .paginated-table-header {
+            display: none;
+        }
+
+        .sql-card-data .paginated-table-scroll {
+            max-height: 340px;
+        }
+
+        /* SQL toolbar — icon buttons */
+        .sql-toolbar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 10px;
+            justify-content: flex-end;
+        }
+
+        .sql-tool-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: all 0.18s ease;
+            position: relative;
+        }
+
+        .sql-tool-btn:hover {
+            background: #eef2ff;
+            border-color: #a5b4fc;
+            color: #4f46e5;
+        }
+
+        .sql-tool-btn.active,
+        .sql-tool-btn.copied {
+            background: #ecfdf5;
+            border-color: #6ee7b7;
+            color: #059669;
+        }
+
+        .sql-tool-btn .btn-tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #f1f5f9;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .sql-tool-btn:hover .btn-tooltip {
+            display: block;
+        }
+
+        .sql-tool-btn .btn-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #1e293b;
+        }
+
+        .sql-execute-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff !important;
+            border: none;
+            width: auto;
+            padding: 0 12px;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .sql-execute-btn:hover {
+            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #5a6fd6 0%, #6a429a 100%);
+            color: #fff !important;
+        }
+
+        .sql-execute-btn.running {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .sql-execute-btn.running i {
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .sql-card-sql .sql-pretty-block {
+            border-radius: 10px;
+            font-size: 12.5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        /* Editable SQL mode */
+        .sql-edit-area {
+            width: 100%;
+            min-height: 100px;
+            max-height: 200px;
+            background: #0f172a;
+            color: #dbeafe;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 12.5px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+        }
+
+        .sql-edit-area:focus {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+        }
+
+        /* Confidence card */
+        .sql-confidence-inner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .sql-confidence-ring {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            flex-shrink: 0;
+        }
+
+        .sql-confidence-ring svg {
+            transform: rotate(-90deg);
+            width: 56px;
+            height: 56px;
+        }
+
+        .sql-confidence-ring .ring-bg {
+            fill: none;
+            stroke: #e9ecf5;
+            stroke-width: 5;
+        }
+
+        .sql-confidence-ring .ring-fill {
+            fill: none;
+            stroke-width: 5;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s ease;
+        }
+
+        .sql-confidence-ring .ring-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .sql-confidence-detail {
+            flex: 1;
+        }
+
+        .sql-confidence-detail .conf-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #8b93a7;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 2px;
+        }
+
+        .sql-confidence-detail .conf-desc {
+            font-size: 12.5px;
+            color: #475569;
+            line-height: 1.4;
+        }
+
+        .sql-rows-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.15);
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: auto;
+        }
+
+        .sql-card-data .sql-card-header .sql-rows-info {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .sql-csv-download-btn {
+            margin-left: auto;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff;
+            border-radius: 6px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.2s;
+        }
+        .sql-csv-download-btn:hover {
+            background: rgba(255,255,255,0.32);
+        }
+
+        /* Execution time badge */
+        .sql-exec-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+        /* Empty state for no-data results */
+        .sql-empty-state {
+            padding: 36px 28px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sql-empty-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+
+        .sql-empty-icon i {
+            font-size: 22px;
+            color: #94a3b8;
+        }
+
+        .sql-empty-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .sql-empty-desc {
+            font-size: 12.5px;
+            color: #64748b;
+            line-height: 1.5;
+            max-width: 300px;
+        }
+
+        .sql-empty-hints {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .sql-empty-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 99px;
+            padding: 5px 12px;
+            font-size: 11.5px;
+            color: #64748b;
+        }
+
+        .sql-empty-hint i {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .sql-expander {
+            margin-top: 12px;
+            border: 1px solid #dbe3ff;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #f8faff 0%, #f3f7ff 100%);
+            overflow: hidden;
+        }
+
+        .sql-expander > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #3550bf;
+            user-select: none;
+        }
+
+        .sql-expander > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .sql-expander .sql-expander-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            letter-spacing: 0.2px;
+        }
+
+        .sql-expander .sql-expander-chevron {
+            transition: transform 0.2s ease;
+            color: #5f74df;
+        }
+
+        .sql-expander[open] .sql-expander-chevron {
+            transform: rotate(180deg);
+        }
+
+        .sql-expander-content {
+            padding: 0 12px 12px;
+        }
+
+        .sql-expander-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+        }
+
+        .sql-copy-btn {
+            border: 1px solid #c8d3ff;
+            background: #ffffff;
+            color: #3652c9;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.18s ease;
+        }
+
+        .sql-copy-btn:hover {
+            background: #eef3ff;
+            border-color: #aebfff;
+        }
+
+        .sql-copy-btn.copied {
+            background: #e8f7ee;
+            border-color: #9ed8b0;
+            color: #1f8a46;
+        }
+
+        .sql-pretty-block {
+            margin: 0;
+            background: #0f172a;
+            color: #dbeafe;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            font-family: 'Consolas', 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-x: hidden;
+        }
+
+        .sql-pretty-block code {
+            background: transparent !important;
+            color: inherit !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            font-size: inherit !important;
+        }
+
+        .sql-token-keyword {
+            color: #7dd3fc;
+            font-weight: 700;
+        }
+
+        .sql-token-function {
+            color: #c4b5fd;
+            font-weight: 600;
+        }
+
+        .sql-token-number {
+            color: #fbbf24;
+            font-weight: 600;
         }
 
         .action-buttons {
@@ -2675,6 +3199,7 @@
                     // Special handling for code blocks and tables - show instantly
                     if (child.tagName === 'PRE' || child.tagName === 'CODE' || 
                         child.tagName === 'TABLE' || child.classList.contains('sop-workflow-card') ||
+                        child.classList.contains('sql-cards-layout') ||
                         child.tagName === 'IMG' || child.tagName === 'SVG') {
                         newElement.innerHTML = child.innerHTML;
                         const messagesContainer = document.getElementById('chatMessages');
@@ -2734,7 +3259,8 @@
             avatarDiv.innerHTML = `<i class="fas fa-${iconClass}"></i>`;
             
             const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
+            const isSqlMsg = type === 'assistant' && data?.chatbot_type === 'sql_assistant';
+            contentDiv.className = isSqlMsg ? 'message-content sql-wide' : 'message-content';
             
             messageDiv.appendChild(avatarDiv);
             messageDiv.appendChild(contentDiv);
@@ -2743,7 +3269,7 @@
             messagesContainer.appendChild(messageDiv);
 
             // Format the message
-            const formattedContent = formatMessage(content, data);
+            const formattedContent = formatMessage(content, data, type);
             
             // Stream the content for assistant messages
             if (streaming && type === 'assistant') {
@@ -2764,18 +3290,435 @@
             return messageDiv;
         }
 
-        function formatMessage(content, data) {
-            // Convert markdown to HTML
-            let html = convertMarkdownToHTML(content);
+        function extractSqlBlocks(text) {
+            const sqlBlocks = [];
+            let cleaned = (text || '').replace(/```sql\s*([\s\S]*?)```/gi, (match, sqlBody) => {
+                const normalized = (sqlBody || '').trim();
+                if (normalized) sqlBlocks.push(normalized);
+                return '';
+            });
 
+            // Remove redundant headings left behind after SQL extraction.
+            cleaned = cleaned
+                .replace(/^\s*(?:\*\*)?\s*[🧾📜]?\s*SQL\s*Query\s*:?\s*(?:\*\*)?\s*$/gmi, '')
+                .replace(/^\s*#{1,6}\s*[🧾📜]?\s*SQL\s*Query\s*:?\s*$/gmi, '')
+                .replace(/^\s*<h[1-6][^>]*>\s*[🧾📜]?\s*SQL\s*Query\s*:?\s*<\/h[1-6]>\s*$/gmi, '')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+
+            return {
+                cleanedText: cleaned,
+                sqlBlocks: sqlBlocks
+            };
+        }
+
+        function formatSqlForDisplay(sql) {
+            if (!sql) return '';
+
+            const condensed = sql.replace(/\s+/g, ' ').trim();
+            return condensed
+                .replace(/\bSELECT\b/gi, 'SELECT')
+                .replace(/\bFROM\b/gi, '\nFROM')
+                .replace(/\bWHERE\b/gi, '\nWHERE')
+                .replace(/\bGROUP BY\b/gi, '\nGROUP BY')
+                .replace(/\bORDER BY\b/gi, '\nORDER BY')
+                .replace(/\bHAVING\b/gi, '\nHAVING')
+                .replace(/\bLIMIT\b/gi, '\nLIMIT')
+                .replace(/\bINNER JOIN\b/gi, '\nINNER JOIN')
+                .replace(/\bLEFT JOIN\b/gi, '\nLEFT JOIN')
+                .replace(/\bRIGHT JOIN\b/gi, '\nRIGHT JOIN')
+                .replace(/\bJOIN\b/gi, '\nJOIN')
+                .replace(/\bAND\b/gi, '\n  AND')
+                .replace(/\bOR\b/gi, '\n  OR');
+        }
+
+        function renderSqlExpanders(sqlBlocks) {
+            if (!sqlBlocks || !sqlBlocks.length) return '';
+
+            return sqlBlocks.map((sql, idx) => {
+                const formatted = formatSqlForDisplay(sql);
+                const highlightedSql = highlightSqlSyntax(formatted);
+                const encodedSql = encodeURIComponent(sql).replace(/'/g, '%27');
+                const label = sqlBlocks.length > 1 ? `Generated SQL ${idx + 1}` : 'Generated SQL';
+                return `
+                    <details class="sql-expander">
+                        <summary>
+                            <span class="sql-expander-label"><i class="fas fa-database"></i> ${label}</span>
+                            <i class="fas fa-chevron-down sql-expander-chevron"></i>
+                        </summary>
+                        <div class="sql-expander-content">
+                            <div class="sql-expander-actions">
+                                <button class="sql-copy-btn" onclick="copySqlFromExpander(event, '${encodedSql}')" title="Copy SQL query">
+                                    <i class="fas fa-copy"></i> Copy SQL
+                                </button>
+                            </div>
+                            <pre class="sql-pretty-block"><code>${highlightedSql}</code></pre>
+                        </div>
+                    </details>
+                `;
+            }).join('');
+        }
+
+        async function copySqlFromExpander(event, encodedSql) {
+            const btn = event?.currentTarget;
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const sql = decodeURIComponent(encodedSql || '');
+            if (!sql.trim()) {
+                showToast('No SQL to copy.');
+                return;
+            }
+
+            const copied = await copyText(sql);
+            if (copied) {
+                showToast('SQL copied to clipboard!');
+
+                if (btn) {
+                    const originalHtml = btn.innerHTML;
+                    btn.classList.add('copied');
+                    btn.innerHTML = '<span class="btn-tooltip">Copied!</span><i class="fas fa-check"></i>';
+
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = originalHtml;
+                    }, 1500);
+                }
+            } else {
+                showToast('Failed to copy SQL.');
+            }
+        }
+
+        function toggleSqlEdit(event, cardId) {
+            if (event) { event.preventDefault(); event.stopPropagation(); }
+            const displayEl = document.getElementById(`${cardId}_display`);
+            const editorEl = document.getElementById(`${cardId}_editor`);
+            const hiddenInput = document.getElementById(`${cardId}_sql`);
+            const textarea = document.getElementById(`${cardId}_textarea`);
+            const btn = event?.currentTarget;
+            if (!displayEl || !editorEl) return;
+
+            const isEditing = editorEl.style.display !== 'none';
+            if (isEditing) {
+                // Save edited SQL back
+                const newSql = textarea.value.trim();
+                if (newSql) {
+                    hiddenInput.value = encodeURIComponent(newSql);
+                    const formatted = formatSqlForDisplay(newSql);
+                    const highlighted = highlightSqlSyntax(formatted);
+                    displayEl.querySelector('code').innerHTML = highlighted;
+                }
+                editorEl.style.display = 'none';
+                displayEl.style.display = '';
+                if (btn) btn.classList.remove('active');
+            } else {
+                // Enter edit mode
+                const currentSql = decodeURIComponent(hiddenInput.value);
+                textarea.value = currentSql;
+                displayEl.style.display = 'none';
+                editorEl.style.display = '';
+                textarea.focus();
+                if (btn) btn.classList.add('active');
+            }
+        }
+
+        async function executeSqlFromCard(event, cardId) {
+            if (event) { event.preventDefault(); event.stopPropagation(); }
+            const btn = event?.currentTarget;
+            const hiddenInput = document.getElementById(`${cardId}_sql`);
+            const dataBody = document.getElementById(`${cardId}_dataBody`);
+            const dataCard = document.getElementById(`${cardId}_data`);
+            if (!hiddenInput || !dataBody) return;
+
+            // If in edit mode, use the textarea value
+            const textarea = document.getElementById(`${cardId}_textarea`);
+            const editorEl = document.getElementById(`${cardId}_editor`);
+            let sql;
+            if (editorEl && editorEl.style.display !== 'none' && textarea) {
+                sql = textarea.value.trim();
+                // Save back
+                hiddenInput.value = encodeURIComponent(sql);
+                const formatted = formatSqlForDisplay(sql);
+                const highlighted = highlightSqlSyntax(formatted);
+                const displayEl = document.getElementById(`${cardId}_display`);
+                if (displayEl) displayEl.querySelector('code').innerHTML = highlighted;
+                editorEl.style.display = 'none';
+                displayEl.style.display = '';
+            } else {
+                sql = decodeURIComponent(hiddenInput.value);
+            }
+
+            if (!sql) { showToast('No SQL to execute.'); return; }
+
+            // UI: show loading state
+            if (btn) {
+                btn.classList.add('running');
+                btn.innerHTML = '<span class=\"btn-tooltip\">Running...</span><i class=\"fas fa-spinner\"></i> Running';
+            }
+            dataBody.innerHTML = '<div style=\"padding:30px;text-align:center;color:#94a3b8;\"><i class=\"fas fa-spinner fa-spin\" style=\"font-size:24px;\"></i><div style=\"margin-top:10px;font-size:13px;\">Executing query...</div></div>';
+
+            try {
+                const response = await fetch('/api/sql/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sql_query: sql })
+                });
+                const result = await response.json();
+
+                if (result.success && result.results && result.results.length > 0) {
+                    // Build paginated table from results
+                    const keys = Object.keys(result.results[0]);
+                    const totalRows = result.results.length;
+                    const rowsPerPage = 5;
+                    const tableId = 'ptable_' + Math.random().toString(36).substr(2, 9);
+
+                    if (!window.paginatedTables) window.paginatedTables = {};
+                    const allRows = result.results.map(row => keys.map(k => {
+                        const v = row[k];
+                        return v === null || v === undefined ? '' : String(v);
+                    }));
+                    window.paginatedTables[tableId] = {
+                        headers: keys, rows: allRows, currentPage: 1,
+                        rowsPerPage, totalPages: Math.ceil(allRows.length / rowsPerPage)
+                    };
+
+                    let thtml = `<div class="paginated-table-container" id="${tableId}_container">`;
+                    thtml += `<div class="paginated-table-scroll"><table><thead><tr>`;
+                    keys.forEach(k => { thtml += `<th>${escapeHtml(k)}</th>`; });
+                    thtml += '</tr></thead><tbody id="' + tableId + '_tbody">';
+                    allRows.slice(0, rowsPerPage).forEach((cells, idx) => {
+                        thtml += `<tr style="background:${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">`;
+                        cells.forEach(c => {
+                            const d = c === '' ? '&nbsp;' : escapeHtml(c);
+                            thtml += `<td title="${c === '' ? '' : escapeHtml(c)}">${d}</td>`;
+                        });
+                        thtml += '</tr>';
+                    });
+                    thtml += '</tbody></table></div>';
+
+                    if (allRows.length > rowsPerPage) {
+                        const totalPages = Math.ceil(allRows.length / rowsPerPage);
+                        thtml += `<div class="pagination-controls" id="${tableId}_pagination">`;
+                        thtml += `<button onclick="paginateTable('${tableId}','prev')" id="${tableId}_prev" disabled><i class="fas fa-chevron-left"></i> Prev</button>`;
+                        thtml += `<div class="page-numbers" id="${tableId}_pages">${buildPageNumbers(1, totalPages, tableId)}</div>`;
+                        thtml += `<button onclick="paginateTable('${tableId}','next')" id="${tableId}_next">Next <i class="fas fa-chevron-right"></i></button>`;
+                        thtml += '</div>';
+                    }
+                    thtml += '</div>';
+                    thtml += `<div class="sql-exec-time"><i class="fas fa-clock"></i> ${result.execution_time_ms.toFixed(0)}ms</div>`;
+
+                    dataBody.innerHTML = thtml;
+
+                    // Update row count badge in header
+                    const header = dataCard?.querySelector('.sql-card-header');
+                    if (header) {
+                        const oldBadge = header.querySelector('.sql-rows-info');
+                        if (oldBadge) oldBadge.remove();
+                        const badge = document.createElement('span');
+                        badge.className = 'sql-rows-info';
+                        badge.innerHTML = `<i class="fas fa-table"></i> ${totalRows} rows`;
+                        header.appendChild(badge);
+                    }
+                } else if (result.success && (!result.results || result.results.length === 0)) {
+                    dataBody.innerHTML = '<div class="sql-empty-state"><div class="sql-empty-icon"><i class="fas fa-database"></i></div><div class="sql-empty-title">No Results Found</div><div class="sql-empty-desc">The query executed successfully but returned no matching records.</div><div class="sql-empty-hints"><span class="sql-empty-hint"><i class="fas fa-filter"></i> Filters may be too narrow</span><span class="sql-empty-hint"><i class="fas fa-table"></i> Table may be empty</span><span class="sql-empty-hint"><i class="fas fa-sync-alt"></i> Try editing the query</span></div></div>';
+                } else {
+                    dataBody.innerHTML = `<div style="padding:24px;text-align:center;color:#dc2626;"><i class="fas fa-exclamation-triangle" style="font-size:28px;"></i><div style="margin-top:8px;font-weight:600;">Execution Error</div><div style="font-size:12px;color:#94a3b8;margin-top:4px;">${escapeHtml(result.error || 'Unknown error')}</div></div>`;
+                }
+            } catch (err) {
+                dataBody.innerHTML = `<div style="padding:24px;text-align:center;color:#dc2626;"><i class="fas fa-exclamation-triangle" style="font-size:28px;"></i><div style="margin-top:8px;font-weight:600;">Request Failed</div><div style="font-size:12px;color:#94a3b8;margin-top:4px;">${escapeHtml(err.message)}</div></div>`;
+            } finally {
+                if (btn) {
+                    btn.classList.remove('running');
+                    btn.innerHTML = '<span class="btn-tooltip">Run Query</span><i class="fas fa-play"></i> Run';
+                }
+            }
+        }
+
+        function highlightSqlSyntax(sqlText) {
+            const escaped = escapeHtml(sqlText || '');
+
+            const keywordPattern = /\b(LEFT\s+JOIN|RIGHT\s+JOIN|INNER\s+JOIN|GROUP\s+BY|ORDER\s+BY|SELECT|FROM|WHERE|HAVING|LIMIT|JOIN|ON|AND|OR|IN|AS|DISTINCT|DESC|ASC)\b/gi;
+            const functionPattern = /\b(COUNT|AVG|SUM|MIN|MAX|DATE_SUB|CURDATE|INTERVAL|NOW)\b/gi;
+            const numberPattern = /\b(\d+)\b/g;
+
+            return escaped
+                .replace(functionPattern, '<span class="sql-token-function">$1</span>')
+                .replace(keywordPattern, '<span class="sql-token-keyword">$1</span>')
+                .replace(numberPattern, '<span class="sql-token-number">$1</span>');
+        }
+
+        function sanitizeAssistantText(text) {
+            // Remove replacement chars and emojis from assistant output for cleaner professional UI.
+            return (text || '')
+                .replace(/\uFFFD/g, '')
+                .replace(/[\u200D\uFE0F]/g, '')
+                .replace(/\p{Extended_Pictographic}/gu, '')
+                .replace(/[ \t]{2,}/g, ' ')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        function formatMessage(content, data, messageType = 'assistant') {
+            const isAssistant = messageType === 'assistant';
+            const isSqlAssistant = isAssistant && (data?.chatbot_type === 'sql_assistant');
+            const sanitizedContent = isAssistant ? sanitizeAssistantText(content) : (content || '');
+            const extracted = isSqlAssistant ? extractSqlBlocks(sanitizedContent) : { cleanedText: sanitizedContent, sqlBlocks: [] };
+            const uniqueSql = isSqlAssistant
+                ? [...new Set([...(extracted.sqlBlocks || []), ...(data?.sql_query ? [data.sql_query] : [])])]
+                : [];
+
+            // Convert markdown to HTML
+            let html = convertMarkdownToHTML(extracted.cleanedText);
+
+            if (isSqlAssistant) {
+                html = html
+                    .replace(/<h[1-6][^>]*>\s*[🧾📜]?\s*SQL\s*Query\s*:?\s*<\/h[1-6]>/gi, '')
+                    .replace(/<strong[^>]*>\s*[🧾📜]?\s*SQL\s*Query\s*:?\s*<\/strong>/gi, '')
+                    .replace(/<strong[^>]*>\s*Confidence\s*:?\s*<\/strong>\s*\d+(?:\.\d+)?%?/gi, '')
+                    .replace(/(?:<br>\s*)*[🧾📜]?\s*SQL\s*Query\s*:?\s*(?:<br>\s*)*/gi, '<br>')
+                    .replace(/(?:<br>\s*)*Confidence\s*:\s*\d+(?:\.\d+)?%?(?:<br>\s*)*/gi, '<br>')
+                    .replace(/(?:<br>\s*){3,}/g, '<br><br>')
+                    .replace(/(?:<br>\s*){2,}/g, '<br>')
+                    .replace(/^(?:\s*<br>\s*)+/, '')
+                    .replace(/(?:\s*<br>\s*)+$/, '');
+            }
+
+            // === SQL Assistant: Two-column card layout ===
+            if (isSqlAssistant) {
+                const cardId = 'sqlcard_' + Math.random().toString(36).substr(2, 9);
+
+                // --- Build SQL card content ---
+                let sqlCardHtml = '';
+                if (uniqueSql.length > 0) {
+                    sqlCardHtml = uniqueSql.map(sql => {
+                        const formatted = formatSqlForDisplay(sql);
+                        const highlightedSql = highlightSqlSyntax(formatted);
+                        const encodedSql = encodeURIComponent(sql).replace(/'/g, '%27');
+                        return `
+                            <div class="sql-meta-block">
+                                <div class="sql-toolbar">
+                                    <button class="sql-tool-btn" onclick="copySqlFromExpander(event, '${encodedSql}')" title="Copy">
+                                        <span class="btn-tooltip">Copy</span>
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <button class="sql-tool-btn" onclick="toggleSqlEdit(event, '${cardId}')" title="Edit">
+                                        <span class="btn-tooltip">Edit</span>
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="sql-tool-btn sql-execute-btn" onclick="executeSqlFromCard(event, '${cardId}')" title="Execute">
+                                        <span class="btn-tooltip">Run Query</span>
+                                        <i class="fas fa-play"></i> Run
+                                    </button>
+                                </div>
+                                <div id="${cardId}_display">
+                                    <pre class="sql-pretty-block"><code>${highlightedSql}</code></pre>
+                                </div>
+                                <div id="${cardId}_editor" style="display:none;">
+                                    <textarea class="sql-edit-area" id="${cardId}_textarea">${escapeHtml(sql)}</textarea>
+                                </div>
+                                <input type="hidden" id="${cardId}_sql" value="${encodedSql}">
+                            </div>`;
+                    }).join('');
+                }
+
+                // --- Build confidence card ---
+                let confidenceCardHtml = '';
+                if (data.confidence_score) {
+                    const pct = (data.confidence_score * 100).toFixed(0);
+                    const color = pct >= 80 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444';
+                    const circumference = 2 * Math.PI * 22;
+                    const offset = circumference - (circumference * pct / 100);
+                    const confLabel = pct >= 80 ? 'High confidence' : pct >= 50 ? 'Medium confidence' : 'Low confidence';
+                    confidenceCardHtml = `
+                        <div class="sql-card sql-card-confidence">
+                            <div class="sql-card-header">
+                                <i class="fas fa-shield-alt"></i> Confidence
+                            </div>
+                            <div class="sql-card-body">
+                                <div class="sql-confidence-inner">
+                                    <div class="sql-confidence-ring">
+                                        <svg viewBox="0 0 56 56">
+                                            <circle class="ring-bg" cx="28" cy="28" r="22"/>
+                                            <circle class="ring-fill" cx="28" cy="28" r="22"
+                                                stroke="${color}"
+                                                stroke-dasharray="${circumference}"
+                                                stroke-dashoffset="${offset}"/>
+                                        </svg>
+                                        <div class="ring-text" style="color:${color};">${pct}%</div>
+                                    </div>
+                                    <div class="sql-confidence-detail">
+                                        <div class="conf-label">${confLabel}</div>
+                                        <div class="conf-desc">The model is <strong>${pct}%</strong> sure this query matches your intent.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+
+                // Extract row count from html for the header badge
+                const rowCountMatch = html.match(/Found\s+(\d+)\s+result/);
+                const rowCountBadge = rowCountMatch
+                    ? `<span class="sql-rows-info"><i class="fas fa-table"></i> ${rowCountMatch[1]} rows</span>`
+                    : '';
+
+                // Strip any standalone "Rows Returned: N" text left in the narrative
+                html = html.replace(/<br>\s*Rows\s+Returned\s*:\s*\d+\s*<br>/gi, '<br>');
+                html = html.replace(/Rows\s+Returned\s*:\s*\d+/gi, '');
+
+                // Detect "no data" empty state and replace with polished visual
+                const hasNoData = /No data found|0 rows returned|No rows returned/i.test(html)
+                    && !html.includes('paginated-table-container');
+                if (hasNoData) {
+                    html = `
+                        <div class="sql-empty-state">
+                            <div class="sql-empty-icon"><i class="fas fa-database"></i></div>
+                            <div class="sql-empty-title">No Results Found</div>
+                            <div class="sql-empty-desc">The query executed successfully but returned no matching records.</div>
+                            <div class="sql-empty-hints">
+                                <span class="sql-empty-hint"><i class="fas fa-filter"></i> Filters may be too narrow</span>
+                                <span class="sql-empty-hint"><i class="fas fa-table"></i> Table may be empty</span>
+                                <span class="sql-empty-hint"><i class="fas fa-sync-alt"></i> Try editing the query</span>
+                            </div>
+                        </div>`;
+                }
+
+                const cardsHtml = `
+                    <div class="sql-cards-layout" id="${cardId}_layout">
+                        <div class="sql-card sql-card-data" id="${cardId}_data">
+                            <div class="sql-card-header">
+                                <i class="fas fa-table"></i> Query Results ${rowCountBadge}
+                                <button class="sql-csv-download-btn" onclick="exportTableToCSV('${cardId}_dataBody')" title="Download as CSV">
+                                    <i class="fas fa-download"></i> CSV
+                                </button>
+                            </div>
+                            <div class="sql-card-body" id="${cardId}_dataBody">${html}</div>
+                        </div>
+                        <div class="sql-right-column">
+                            ${sqlCardHtml ? `
+                            <div class="sql-card sql-card-sql">
+                                <div class="sql-card-header">
+                                    <i class="fas fa-code"></i> Generated SQL
+                                </div>
+                                <div class="sql-card-body">${sqlCardHtml}</div>
+                            </div>` : ''}
+                            ${confidenceCardHtml}
+                        </div>
+                    </div>`;
+
+                return `<div class="assistant-rich-response sql-assistant-response">${cardsHtml}</div>`;
+            }
+
+            // Non-SQL assistant paths
             // Add confidence badge if available
-            if (data.confidence_score) {
+            if (isAssistant && data.confidence_score) {
                 const confidence = (data.confidence_score * 100).toFixed(0);
                 html += `<span class="confidence-badge">${confidence}% Confident</span>`;
             }
 
             // Add source documents if available
-            if (data.source_documents && data.source_documents.length > 0) {
+            if (isAssistant && data.source_documents && data.source_documents.length > 0) {
                 html += '<div style="margin-top: 10px;">';
                 data.source_documents.forEach(doc => {
                     html += `<span class="source-tag"><i class="fas fa-file"></i> ${doc.filename || 'Document'}</span>`;
@@ -2784,12 +3727,17 @@
             }
 
             // Add suggested actions if available
-            if (data.suggested_actions && data.suggested_actions.length > 0) {
+            if (isAssistant && data.suggested_actions && data.suggested_actions.length > 0) {
                 html += '<div class="action-buttons">';
                 data.suggested_actions.forEach(action => {
                     html += `<button class="action-btn" onclick="executeSuggestedAction('${action}')">${action}</button>`;
                 });
                 html += '</div>';
+            }
+
+            // Professional response surface for assistant outputs
+            if (isAssistant) {
+                html = `<div class="assistant-rich-response">${html}</div>`;
             }
 
             return html;
@@ -2799,13 +3747,16 @@
             if (!text) return '';
             
             let html = text;
+
+            // Convert markdown horizontal rules before line-break conversion.
+            html = html.replace(/^\s*---+\s*$/gm, '<hr style="border: none; border-top: 1px solid #dbe3f5; margin: 12px 0;">');
             
             // Convert markdown tables to paginated HTML tables
             html = html.replace(/\|(.+)\|\n\|([\s\-\|]+)\|\n((\|.+\|\n?)+)/g, function(match, header, separator, rows) {
                 const headers = header.split('|').map(h => h.trim()).filter(h => h);
                 const rowLines = rows.trim().split('\n');
                 const totalRows = rowLines.length;
-                const rowsPerPage = 10;
+                const rowsPerPage = 5;
                 const tableId = 'ptable_' + Math.random().toString(36).substr(2, 9);
                 
                 // Parse all rows data
@@ -3373,21 +4324,27 @@
 
                 // Render past messages into the chat area using the same layout as live chat
                 messages.forEach(m => {
+                    const isRegeneratedTurn = typeof m.user_query === 'string' && m.user_query.includes('[REGENERATION MODE]');
+
                     // User message
-                    const userDiv = document.createElement('div');
-                    userDiv.className = 'message user';
-                    userDiv.innerHTML = `
-                        <div class="message-avatar"><i class="fas fa-user"></i></div>
-                        <div class="message-content">${escapeHtml(m.user_query)}</div>`;
-                    container.appendChild(userDiv);
+                    if (!isRegeneratedTurn) {
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'message user';
+                        userDiv.innerHTML = `
+                            <div class="message-avatar"><i class="fas fa-user"></i></div>
+                            <div class="message-content">${escapeHtml(m.user_query)}</div>`;
+                        container.appendChild(userDiv);
+                    }
 
                     // Assistant response
                     if (m.assistant_response) {
                         const botDiv = document.createElement('div');
                         botDiv.className = 'message assistant';
+                        const isHistorySql = m.chatbot_type === 'sql_assistant';
+                        const msgCls = isHistorySql ? 'message-content sql-wide' : 'message-content';
                         botDiv.innerHTML = `
                             <div class="message-avatar"><i class="fas fa-robot"></i></div>
-                            <div class="message-content">${formatMessage(m.assistant_response, m)}</div>`;
+                            <div class="${msgCls}">${formatMessage(m.assistant_response, m)}</div>`;
                         container.appendChild(botDiv);
                     }
                 });
@@ -3405,6 +4362,34 @@
             } catch (e) {
                 console.error('Error loading session:', e);
             }
+        }
+
+        function exportTableToCSV(bodyId) {
+            const container = document.getElementById(bodyId);
+            if (!container) return;
+            const table = container.querySelector('table');
+            if (!table) return;
+
+            const rows = [];
+            table.querySelectorAll('tr').forEach(tr => {
+                const cells = [];
+                tr.querySelectorAll('th, td').forEach(cell => {
+                    let text = cell.textContent.replace(/"/g, '""');
+                    cells.push('"' + text + '"');
+                });
+                rows.push(cells.join(','));
+            });
+
+            const csvContent = rows.join('\n');
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'query_results_' + new Date().toISOString().slice(0,19).replace(/[T:]/g, '_') + '.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
 
         function escapeHtml(text) {
@@ -3646,10 +4631,10 @@
         // ChatGPT-style response actions
         function addResponseActions(messageDiv, data) {
             const feedbackId = 'feedback-' + Date.now();
-            const responseText = messageDiv.querySelector('.message-content').innerText;
+            const chatbotType = (data && data.chatbot_type) ? data.chatbot_type : currentChatbotType;
             
             const actionsHTML = `
-                <div class="response-actions" id="${feedbackId}">
+                <div class="response-actions" id="${feedbackId}" data-chatbot-type="${chatbotType}">
                     <button class="response-action-icon" title="Copy response" onclick="copyResponseToClipboard('${feedbackId}')">
                         <i class="fas fa-copy"></i>
                     </button>
@@ -3662,7 +4647,7 @@
                     <button class="response-action-icon" title="Share response" onclick="shareResponse('${feedbackId}')">
                         <i class="fas fa-share-nodes"></i>
                     </button>
-                    <button class="response-action-icon" title="Regenerate response" onclick="regenerateResponse()">
+                    <button class="response-action-icon" title="Regenerate response" onclick="regenerateResponse('${feedbackId}')">
                         <i class="fas fa-rotate-right"></i>
                     </button>
                 </div>
@@ -3672,17 +4657,85 @@
             contentDiv.insertAdjacentHTML('beforeend', actionsHTML);
         }
 
+        function getResponseActionContext(feedbackId) {
+            const actionsDiv = document.getElementById(feedbackId);
+            if (!actionsDiv) return null;
+
+            const messageDiv = actionsDiv.closest('.message.assistant');
+            const contentDiv = messageDiv ? messageDiv.querySelector('.message-content') : null;
+            if (!messageDiv || !contentDiv) return null;
+
+            const clone = contentDiv.cloneNode(true);
+            clone.querySelectorAll('.response-actions').forEach(el => el.remove());
+            const responseText = (clone.innerText || '').trim();
+
+            let userMessage = '';
+            let cursor = messageDiv.previousElementSibling;
+            while (cursor) {
+                if (cursor.classList.contains('message') && cursor.classList.contains('user')) {
+                    userMessage = (cursor.querySelector('.message-content')?.innerText || '').trim();
+                    break;
+                }
+                cursor = cursor.previousElementSibling;
+            }
+
+            return {
+                actionsDiv,
+                messageDiv,
+                responseText,
+                userMessage,
+                chatbotType: actionsDiv.dataset.chatbotType || currentChatbotType
+            };
+        }
+
+        function fallbackCopyToClipboard(text) {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed';
+                ta.style.top = '-9999px';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.focus();
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function copyText(text) {
+            if (!text) return false;
+
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } catch (e) {
+                    // Fall through to legacy copy method
+                }
+            }
+
+            return fallbackCopyToClipboard(text);
+        }
+
         // Copy response text to clipboard
-        function copyResponseToClipboard(feedbackId) {
-            const responseDiv = document.getElementById(feedbackId).closest('.message-content');
-            const text = responseDiv.innerText.replace(/Copy|👍|👎|Share|↻/g, '').trim();
-            
-            navigator.clipboard.writeText(text).then(() => {
+        async function copyResponseToClipboard(feedbackId) {
+            const context = getResponseActionContext(feedbackId);
+            if (!context || !context.responseText) {
+                showToast('Nothing to copy.');
+                return;
+            }
+
+            const copied = await copyText(context.responseText);
+            if (copied) {
                 showToast('Response copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy:', err);
+            } else {
                 showToast('Failed to copy response.');
-            });
+            }
         }
 
         // Submit feedback with optional detailed form
@@ -3741,43 +4794,183 @@
         }
 
         // Share response functionality
-        function shareResponse(feedbackId) {
-            const responseDiv = document.getElementById(feedbackId).closest('.message-content');
-            const text = responseDiv.innerText.replace(/Copy|👍|👎|Share|↻/g, '').trim();
-            
+        async function shareResponse(feedbackId) {
+            const context = getResponseActionContext(feedbackId);
+            if (!context || !context.responseText) {
+                showToast('Nothing to share.');
+                return;
+            }
+
             if (navigator.share) {
-                navigator.share({
+                try {
+                    await navigator.share({
                     title: 'NEO Assistant Response',
-                    text: text
-                }).catch(err => console.log('Share cancelled:', err));
+                    text: context.responseText
+                    });
+                    showToast('Share sheet opened.');
+                    return;
+                } catch (err) {
+                    if (err && err.name !== 'AbortError') {
+                        console.warn('Share failed, falling back to clipboard:', err);
+                    }
+                }
+            }
+
+            const copied = await copyText(context.responseText);
+            if (copied) {
+                showToast('Response copied! You can share from clipboard.');
             } else {
-                // Fallback: copy to clipboard
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast('Response copied! You can share from clipboard.');
-                });
+                showToast('Share is not available and copy failed.');
             }
         }
 
+        function normalizeForComparison(text) {
+            return (text || '').replace(/\s+/g, ' ').trim().toLowerCase();
+        }
+
+        function looksLikeLimitationResponse(text) {
+            const t = normalizeForComparison(text);
+            if (!t) return true;
+
+            const limitationPhrases = [
+                'limitations of my response',
+                "i don't have the capability",
+                'i do not have the capability',
+                'based on existing documentation',
+                'i can suggest checking the user manual',
+                'could you please let me know what specific aspects',
+                'if you have any specific questions'
+            ];
+
+            return limitationPhrases.some(p => t.includes(p));
+        }
+
+        function buildRegenerationPrompt(userMessage, previousResponse, stronger = false) {
+            const baseInstruction = stronger
+                ? 'Please provide a significantly more detailed and practical explanation with architecture flow, key modules, and a concrete example scenario. Keep it factual, structured, and directly answer the question.'
+                : 'Please answer this in more depth with clear step-by-step explanation, important components, and practical examples. Keep it concise but informative.';
+
+            return `${userMessage}\n\n${baseInstruction}`;
+        }
+
         // Regenerate response functionality
-        async function regenerateResponse() {
-            const lastUserMessage = document.querySelector('.message.user:last-of-type .message-content');
-            if (!lastUserMessage) {
+        async function regenerateResponse(feedbackId) {
+            const context = getResponseActionContext(feedbackId);
+            if (!context || !context.userMessage) {
                 showToast('No message to regenerate.');
                 return;
             }
-            
-            const message = lastUserMessage.textContent.trim();
-            
-            // Remove the last assistant message
-            const messages = document.querySelectorAll('.message.assistant');
-            if (messages.length > 0) {
-                const lastAssistant = messages[messages.length - 1];
-                lastAssistant.style.opacity = '0.5';
+
+            // Keep assistant context aligned with the response being regenerated.
+            if (context.chatbotType && currentChatbotType !== context.chatbotType) {
+                const matchingBtn = document.querySelector(`.chatbot-btn[data-type="${context.chatbotType}"]`);
+                if (matchingBtn) {
+                    matchingBtn.click();
+                }
             }
-            
-            // Resend the message
-            document.getElementById('messageInput').value = message;
-            await sendMessage();
+
+            const regenBtn = context.actionsDiv.querySelector('.response-action-icon[title="Regenerate response"]');
+            const contentDiv = context.messageDiv.querySelector('.message-content');
+            if (!contentDiv) {
+                showToast('Unable to regenerate this response.');
+                return;
+            }
+
+            const originalHtml = contentDiv.innerHTML;
+            const originalTextNormalized = normalizeForComparison(context.responseText);
+
+            if (regenBtn) {
+                regenBtn.disabled = true;
+                regenBtn.style.opacity = '0.5';
+            }
+
+            context.messageDiv.style.opacity = '0.75';
+            showTypingIndicator();
+
+            try {
+                if (!sessionId) {
+                    await createNewSession();
+                }
+
+                const callRegenerate = async (promptText) => {
+                    const payload = {
+                        message: promptText,
+                        chatbot_type: context.chatbotType || currentChatbotType,
+                        session_id: sessionId,
+                        user_id: getEffectiveUserId(),
+                        conversation_history: []
+                    };
+
+                    if (attachedDocumentText && payload.chatbot_type === 'knowledge_base') {
+                        payload.context = {
+                            attached_document: attachedDocumentText,
+                            attached_filename: attachedFileName
+                        };
+                    }
+
+                    const response = await fetch('/api/chatbot/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Server returned ${response.status}: ${errorText}`);
+                    }
+
+                    return response.json();
+                };
+
+                let data = await callRegenerate(
+                    buildRegenerationPrompt(context.userMessage, context.responseText, false)
+                );
+
+                let regeneratedText = (data.response || '').trim();
+                let regeneratedNormalized = normalizeForComparison(regeneratedText);
+
+                // Retry once with stronger guidance if answer is unchanged or low-quality/meta.
+                if (
+                    (regeneratedNormalized && regeneratedNormalized === originalTextNormalized)
+                    || looksLikeLimitationResponse(regeneratedText)
+                ) {
+                    data = await callRegenerate(
+                        buildRegenerationPrompt(context.userMessage, context.responseText, true)
+                    );
+                    regeneratedText = (data.response || '').trim();
+                    regeneratedNormalized = normalizeForComparison(regeneratedText);
+                }
+
+                if (!regeneratedText) {
+                    throw new Error('Received empty regenerated response');
+                }
+
+                if (data.session_id && data.session_id !== sessionId) {
+                    sessionId = data.session_id;
+                    document.getElementById('currentSessionId').textContent = sessionId;
+                }
+
+                // Replace assistant content in place (do not add the user question again).
+                contentDiv.innerHTML = formatMessage(regeneratedText, data);
+                addResponseActions(context.messageDiv, {
+                    ...data,
+                    chatbot_type: context.chatbotType || currentChatbotType
+                });
+
+                showToast('Response regenerated with improved details.');
+                loadUserChatHistory();
+            } catch (error) {
+                console.error('Regenerate failed:', error);
+                contentDiv.innerHTML = originalHtml;
+                showToast('Failed to regenerate response. Please try again.');
+            } finally {
+                hideTypingIndicator();
+                context.messageDiv.style.opacity = '';
+                if (regenBtn) {
+                    regenBtn.disabled = false;
+                    regenBtn.style.opacity = '';
+                }
+            }
         }
 
         function showDetailedFeedback(feedbackId, feedbackType, data) {
