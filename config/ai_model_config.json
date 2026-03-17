@@ -1,8 +1,8 @@
 {
-  "active_provider": "groq",
-  "chat_model": "llama-3.3-70b-versatile",
-  "sql_model": "llama-3.3-70b-versatile",
-  "agent_model": "llama-3.3-70b-versatile",
+  "active_provider": "openai",
+  "chat_model": "gpt-5.2",
+  "sql_model": "gpt-5.2",
+  "agent_model": "gpt-5.2",
   "vision_model": "gpt-5.2",
   "embedding_model": "text-embedding-3-small"
 }
