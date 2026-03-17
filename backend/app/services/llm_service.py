@@ -273,7 +273,7 @@ class LLMService:
         response = self.openai_client.chat.completions.create(
             model=self.openai_chat_model,
             messages=full_messages,
-            max_output_tokens=max_tokens,
+            max_tokens=max_tokens,
             stream=True,
             temperature=temperature
         )
