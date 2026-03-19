@@ -94,6 +94,28 @@
 
         /* ── Buttons ── */
         .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding: 14px 16px;
+        }
+        .toolbar-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .toolbar-summary {
+            font-size: 13px;
+            color: var(--text-muted);
+            background: var(--surface-soft);
+            border: 1px solid var(--border-soft);
+            border-radius: 999px;
+            padding: 6px 12px;
+            white-space: nowrap;
+        }
         .btn {
             padding: 9px 18px; border: none; border-radius: 8px;
             font-size: 13px; font-weight: 600; cursor: pointer;
@@ -122,6 +144,56 @@
             display: inline-flex; align-items: center; gap: 5px;
         }
         .btn-execute:hover { background: #059669; transform: scale(1.03); }
+
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .pagination-info {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .pagination-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            color: var(--text-main);
+            border-radius: 8px;
+            min-width: 36px;
+            height: 34px;
+            padding: 0 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--brand-start);
+            color: var(--brand-start);
+        }
+        .page-btn.active {
+            background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+            color: #fff;
+            border-color: transparent;
+        }
+        .page-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .page-ellipsis {
+            color: var(--text-muted);
+            font-size: 12px;
+            padding: 0 4px;
+        }
 
         /* ── Query cards ── */
         .queries-list {
@@ -238,9 +310,20 @@
 
         @media (max-width: 900px) {
             .stats-row { grid-template-columns: repeat(3, 1fr); }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .toolbar-summary {
+                width: fit-content;
+            }
         }
         @media (max-width: 600px) {
             .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .pagination-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
     <script>
@@ -270,19 +353,26 @@
             </div>
 
             <!-- Controls -->
-            <div class="btn-row">
-                <button class="btn btn-brand" onclick="loadUnclassified()">
-                    <i class="fas fa-sync-alt"></i> Refresh Queries
-                </button>
-                <button class="btn btn-info" onclick="exportDataset()">
-                    <i class="fas fa-file-export"></i> Export Training Dataset
-                </button>
+            <div class="card toolbar">
+                <div class="toolbar-actions">
+                    <button class="btn btn-brand" onclick="loadUnclassified(1)">
+                        <i class="fas fa-sync-alt"></i> Refresh Queries
+                    </button>
+                    <button class="btn btn-info" onclick="exportDataset()">
+                        <i class="fas fa-file-export"></i> Export Training Dataset
+                    </button>
+                </div>
+                <div class="toolbar-summary" id="pageSummary">Showing 0 of 0 unclassified queries</div>
             </div>
+
+            <div class="pagination-bar" id="paginationTop"></div>
 
             <!-- Query list -->
             <div class="queries-list" id="queriesList">
                 <!-- Populated by JS -->
             </div>
+
+            <div class="pagination-bar" id="paginationBottom"></div>
         </div>
     </div>
 
@@ -294,11 +384,19 @@
 
     <script>
         const API_BASE = `${window.location.protocol}//${window.location.host}/api/classification`;
+        const PAGE_SIZE = 30;
+        const viewState = {
+            currentPage: 1,
+            totalUnclassified: 0,
+            totalPages: 1
+        };
 
         async function loadStats() {
             try {
                 const response = await fetch(`${API_BASE}/stats`);
                 const stats = await response.json();
+                viewState.totalUnclassified = stats.unclassified || 0;
+                viewState.totalPages = Math.max(1, Math.ceil(viewState.totalUnclassified / PAGE_SIZE));
 
                 document.getElementById('stats').innerHTML = `
                     <div class="stat-card">
@@ -326,20 +424,171 @@
                         <div class="stat-label">Accuracy</div>
                     </div>
                 `;
+
+                return stats;
             } catch (error) {
                 console.error('Error loading stats:', error);
+                return null;
             }
         }
 
-        async function loadUnclassified() {
+        function updatePageSummary(start, end) {
+            const summary = document.getElementById('pageSummary');
+            if (!summary) {
+                return;
+            }
+
+            if (viewState.totalUnclassified === 0) {
+                summary.textContent = 'Showing 0 of 0 unclassified queries';
+                return;
+            }
+
+            summary.textContent = `Showing ${start}-${end} of ${viewState.totalUnclassified} unclassified queries`;
+        }
+
+        function buildPaginationHtml() {
+            if (viewState.totalUnclassified === 0) {
+                return '';
+            }
+
+            const current = viewState.currentPage;
+            const total = viewState.totalPages;
+            const pageButtons = [];
+            const startPage = Math.max(1, current - 2);
+            const endPage = Math.min(total, current + 2);
+
+            if (startPage > 1) {
+                pageButtons.push(`<button class="page-btn" onclick="goToPage(1)">1</button>`);
+                if (startPage > 2) {
+                    pageButtons.push('<span class="page-ellipsis">...</span>');
+                }
+            }
+
+            for (let p = startPage; p <= endPage; p += 1) {
+                pageButtons.push(`<button class="page-btn ${p === current ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`);
+            }
+
+            if (endPage < total) {
+                if (endPage < total - 1) {
+                    pageButtons.push('<span class="page-ellipsis">...</span>');
+                }
+                pageButtons.push(`<button class="page-btn" onclick="goToPage(${total})">${total}</button>`);
+            }
+
+            return `
+                <div class="pagination-info">Page ${current} of ${total} (${PAGE_SIZE} per page)</div>
+                <div class="pagination-controls">
+                    <button class="page-btn" onclick="goToPage(${current - 1})" ${current <= 1 ? 'disabled' : ''}>Prev</button>
+                    ${pageButtons.join('')}
+                    <button class="page-btn" onclick="goToPage(${current + 1})" ${current >= total ? 'disabled' : ''}>Next</button>
+                </div>
+            `;
+        }
+
+        function renderPagination() {
+            const html = buildPaginationHtml();
+            document.getElementById('paginationTop').innerHTML = html;
+            document.getElementById('paginationBottom').innerHTML = html;
+        }
+
+        function goToPage(page) {
+            if (page < 1 || page > viewState.totalPages || page === viewState.currentPage) {
+                return;
+            }
+
+            loadUnclassified(page);
+            document.querySelector('.page-content').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderQueries(queries) {
+            return queries.map(query => {
+                const confidenceClass = query.confidence >= 0.8 ? 'confidence-high' :
+                    query.confidence >= 0.6 ? 'confidence-medium' : 'confidence-low';
+                const tables = Array.isArray(query.tables_used) && query.tables_used.length > 0
+                    ? query.tables_used.join(', ')
+                    : 'N/A';
+                const queryId = String(query.query_id);
+                const escapedQueryId = queryId.replace(/'/g, "\\'");
+                const rowsReturned = query.rows_returned ?? 0;
+
+                return `
+                    <div class="query-card" id="query-${queryId}" data-edit-mode="false">
+                        <div class="query-header">
+                            <div class="query-id">${query.query_id}</div>
+                            <div class="confidence-badge ${confidenceClass}">
+                                Confidence: ${(query.confidence * 100).toFixed(0)}%
+                            </div>
+                        </div>
+
+                        <div class="query-text" id="query-text-${queryId}">
+                            <strong>User Query:</strong> "${escapeHtml(query.user_query)}"
+                        </div>
+                        <textarea class="notes-input" id="query-edit-${queryId}"
+                                  style="display:none;" placeholder="Edit user query...">${escapeHtml(query.user_query)}</textarea>
+
+                        <div class="sql-block" id="sql-display-${queryId}">${escapeHtml(query.generated_sql)}</div>
+                        <textarea class="notes-input" id="sql-edit-${queryId}"
+                                  style="display:none;font-family:'Consolas','Courier New',monospace;"
+                                  placeholder="Edit SQL query..." rows="4">${escapeHtml(query.generated_sql)}</textarea>
+
+                        <div class="query-meta">
+                            <span><i class="far fa-calendar"></i> ${new Date(query.timestamp).toLocaleString()}</span>
+                            <span><i class="fas fa-table"></i> ${rowsReturned} rows</span>
+                            <span><i class="fas fa-layer-group"></i> Tables: ${escapeHtml(tables)}</span>
+                            <button class="btn-execute" onclick="executeQuery('${escapedQueryId}', \`${escapeForJs(query.generated_sql)}\`)">
+                                <i class="fas fa-play"></i> Execute
+                            </button>
+                        </div>
+
+                        <div class="query-results" id="results-${queryId}"></div>
+
+                        <textarea class="notes-input" id="notes-${queryId}"
+                                  placeholder="Optional notes about this query..."></textarea>
+
+                        <div class="classification-controls" id="controls-${queryId}">
+                            <button class="btn btn-soft btn-sm" onclick="toggleEdit('${escapedQueryId}')">
+                                <i class="fas fa-pen"></i> Edit
+                            </button>
+                            <button class="btn btn-success btn-sm" onclick="classify('${escapedQueryId}', 'correct')">
+                                <i class="fas fa-check"></i> Correct
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="classify('${escapedQueryId}', 'incorrect')">
+                                <i class="fas fa-times"></i> Incorrect
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="classify('${escapedQueryId}', 'needs_review')">
+                                <i class="fas fa-clock"></i> Needs Review
+                            </button>
+                        </div>
+                        <div class="classification-controls" id="edit-controls-${queryId}" style="display:none;">
+                            <button class="btn btn-success btn-sm" onclick="saveEdit('${escapedQueryId}')">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="cancelEdit('${escapedQueryId}')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadUnclassified(page = viewState.currentPage) {
             const queriesList = document.getElementById('queriesList');
             queriesList.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading queries...</p></div>';
 
             try {
-                const response = await fetch(`${API_BASE}/unclassified?limit=50`);
+                await loadStats();
+                viewState.currentPage = Math.min(Math.max(page, 1), viewState.totalPages);
+                const offset = (viewState.currentPage - 1) * PAGE_SIZE;
+
+                const response = await fetch(`${API_BASE}/unclassified?limit=${PAGE_SIZE}&offset=${offset}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load query list');
+                }
+
                 const queries = await response.json();
 
-                if (queries.length === 0) {
+                if (viewState.totalUnclassified === 0) {
                     queriesList.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-check-double"></i>
@@ -347,75 +596,27 @@
                             <p>No queries awaiting classification</p>
                         </div>
                     `;
+                    updatePageSummary(0, 0);
+                    renderPagination();
                     return;
                 }
 
-                queriesList.innerHTML = queries.map(query => {
-                    const confidenceClass = query.confidence >= 0.8 ? 'confidence-high' :
-                                          query.confidence >= 0.6 ? 'confidence-medium' : 'confidence-low';
+                if (queries.length === 0 && viewState.currentPage > 1) {
+                    viewState.currentPage -= 1;
+                    loadUnclassified(viewState.currentPage);
+                    return;
+                }
 
-                    return `
-                        <div class="query-card" id="query-${query.query_id}" data-edit-mode="false">
-                            <div class="query-header">
-                                <div class="query-id">${query.query_id}</div>
-                                <div class="confidence-badge ${confidenceClass}">
-                                    Confidence: ${(query.confidence * 100).toFixed(0)}%
-                                </div>
-                            </div>
+                queriesList.innerHTML = renderQueries(queries);
 
-                            <div class="query-text" id="query-text-${query.query_id}">
-                                <strong>User Query:</strong> "${query.user_query}"
-                            </div>
-                            <textarea class="notes-input" id="query-edit-${query.query_id}"
-                                      style="display:none;" placeholder="Edit user query...">${query.user_query}</textarea>
-
-                            <div class="sql-block" id="sql-display-${query.query_id}">${escapeHtml(query.generated_sql)}</div>
-                            <textarea class="notes-input" id="sql-edit-${query.query_id}"
-                                      style="display:none;font-family:'Consolas','Courier New',monospace;"
-                                      placeholder="Edit SQL query..." rows="4">${query.generated_sql}</textarea>
-
-                            <div class="query-meta">
-                                <span><i class="far fa-calendar"></i> ${new Date(query.timestamp).toLocaleString()}</span>
-                                <span><i class="fas fa-table"></i> ${query.rows_returned} rows</span>
-                                <span><i class="fas fa-layer-group"></i> Tables: ${query.tables_used.join(', ')}</span>
-                                <button class="btn-execute" onclick="executeQuery('${query.query_id}', \`${escapeForJs(query.generated_sql)}\`)">
-                                    <i class="fas fa-play"></i> Execute
-                                </button>
-                            </div>
-
-                            <div class="query-results" id="results-${query.query_id}"></div>
-
-                            <textarea class="notes-input" id="notes-${query.query_id}"
-                                      placeholder="Optional notes about this query..."></textarea>
-
-                            <div class="classification-controls" id="controls-${query.query_id}">
-                                <button class="btn btn-soft btn-sm" onclick="toggleEdit('${query.query_id}')">
-                                    <i class="fas fa-pen"></i> Edit
-                                </button>
-                                <button class="btn btn-success btn-sm" onclick="classify('${query.query_id}', 'correct')">
-                                    <i class="fas fa-check"></i> Correct
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="classify('${query.query_id}', 'incorrect')">
-                                    <i class="fas fa-times"></i> Incorrect
-                                </button>
-                                <button class="btn btn-warning btn-sm" onclick="classify('${query.query_id}', 'needs_review')">
-                                    <i class="fas fa-clock"></i> Needs Review
-                                </button>
-                            </div>
-                            <div class="classification-controls" id="edit-controls-${query.query_id}" style="display:none;">
-                                <button class="btn btn-success btn-sm" onclick="saveEdit('${query.query_id}')">
-                                    <i class="fas fa-save"></i> Save Changes
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="cancelEdit('${query.query_id}')">
-                                    <i class="fas fa-times"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                const start = offset + 1;
+                const end = offset + queries.length;
+                updatePageSummary(start, end);
+                renderPagination();
             } catch (error) {
                 console.error('Error loading queries:', error);
                 queriesList.innerHTML = '<div class="empty-state"><h3>Error loading queries</h3></div>';
+                updatePageSummary(0, 0);
             }
         }
 
@@ -449,7 +650,7 @@
                     document.getElementById(`query-text-${queryId}`).innerHTML = `<strong>User Query:</strong> "${escapeHtml(newQuery)}"`;
                     document.getElementById(`sql-display-${queryId}`).textContent = newSQL;
                     cancelEdit(queryId);
-                    setTimeout(() => loadQueries(), 300);
+                    setTimeout(() => loadUnclassified(viewState.currentPage), 300);
                 } else {
                     showToast(`Failed to update: ${result.message || 'Unknown error'}`);
                 }
@@ -538,8 +739,7 @@
                         card.style.transition = 'all 0.3s ease';
                         setTimeout(() => card.remove(), 300);
                     }
-                    await loadStats();
-                    setTimeout(() => loadQueries(), 500);
+                    setTimeout(() => loadUnclassified(viewState.currentPage), 400);
                 } else {
                     showToast(`Failed to classify: ${result.message || 'Unknown error'}`);
                 }
@@ -573,8 +773,7 @@
         }
 
         window.onload = () => {
-            loadStats();
-            loadUnclassified();
+            loadUnclassified(1);
         };
     </script>
 </body>

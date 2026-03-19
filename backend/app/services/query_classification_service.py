@@ -296,12 +296,13 @@ class QueryClassificationService:
             logger.error(f"❌ Error finding similar query: {e}")
             return None
     
-    def get_unclassified_queries(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def get_unclassified_queries(self, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
         """
         Get queries awaiting classification
         
         Args:
             limit: Maximum number of queries to return
+            offset: Number of newest unclassified queries to skip
             
         Returns:
             List of unclassified queries
@@ -315,7 +316,7 @@ class QueryClassificationService:
             # Sort by timestamp (newest first)
             unclassified.sort(key=lambda x: x['timestamp'], reverse=True)
             
-            return unclassified[:limit]
+            return unclassified[offset:offset + limit]
             
         except Exception as e:
             logger.error(f"❌ Error getting unclassified queries: {e}")

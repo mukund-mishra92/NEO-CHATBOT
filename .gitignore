@@ -116,6 +116,7 @@ Thumbs.db
 *.xls
 data/
 docs/
+scripts/
 
 # app/modules/neo_chatbot/data/**
 

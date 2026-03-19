@@ -73,7 +73,8 @@ class StatsResponse(BaseModel):
 
 @router.get("/unclassified", response_model=List[QueryResponse])
 async def get_unclassified_queries(
-    limit: int = Query(50, description="Maximum number of queries to return", ge=1, le=200)
+    limit: int = Query(50, description="Maximum number of queries to return", ge=1, le=200),
+    offset: int = Query(0, description="Number of records to skip", ge=0)
 ):
     """
     Get queries awaiting manual classification
@@ -84,7 +85,7 @@ async def get_unclassified_queries(
         if not classification_service:
             raise HTTPException(status_code=500, detail="Classification service not initialized")
         
-        queries = classification_service.get_unclassified_queries(limit=limit)
+        queries = classification_service.get_unclassified_queries(limit=limit, offset=offset)
         
         return [
             QueryResponse(
