@@ -320,16 +320,8 @@ Proprietary - NEO Development Team
 
 ## 👥 Authors
 
-NEO Development Team
+Falcon AI Team
 
----
 
-## 🎯 Next Steps
-
-1. **Customize the chatbot** for your specific use case
-2. **Add more documents** to improve knowledge base
-3. **Configure database** for SQL Assistant
-4. **Set up monitoring** and logging
-5. **Deploy to production** environment
 
 Need help? Contact the NEO Development Team.
