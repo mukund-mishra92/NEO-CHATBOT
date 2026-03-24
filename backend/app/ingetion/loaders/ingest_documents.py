@@ -13,8 +13,8 @@ sys.path.insert(0, str(project_root))
 
 import logging
 from typing import List, Dict, Any
-from app.modules.neo_chatbot.services.vector_store_service import VectorStoreService
-from app.modules.neo_chatbot.services.llm_service import LLMService
+from app.services.knowledge_base.vector_store_service import VectorStoreService
+from app.services.llm_service import LLMService
 import PyPDF2
 import uuid
 import fitz  # PyMuPDF for better PDF handling with images

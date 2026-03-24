@@ -68,51 +68,86 @@ Neo-Chatbot/
 │   ├── app/
 │   │   ├── api/                    # API endpoints
 │   │   │   ├── chatbot_endpoints.py
+│   │   │   ├── classification_routes.py
+│   │   │   ├── sql_execution_routes.py
 │   │   │   └── diagnostic_support_routes.py
 │   │   ├── core/                   # Core configuration
-│   │   │   ├── config.py
-│   │   │   ├── logging.py
-│   │   │   ├── security.py
-│   │   │   └── setting.py
+│   │   │   └── config.py
 │   │   ├── models/                 # Data models
 │   │   │   └── schemas.py
 │   │   ├── services/               # Business logic
-│   │   │   ├── llm_service.py
-│   │   │   ├── vector_store_service.py
+│   │   │   ├── sql_assistant/      # 🧠 NL→SQL pipeline (18 modules)
+│   │   │   │   ├── sql_assistant.py      # Main orchestrator
+│   │   │   │   ├── query_preprocessor.py # Synonym + entity + intent
+│   │   │   │   ├── tenant_resolver.py    # Embedding-based tenant extraction
+│   │   │   │   ├── table_selector.py     # Schema-aware table selection
+│   │   │   │   ├── validator.py          # SQL safety rules
+│   │   │   │   ├── schema_validator.py   # Table/column existence check
+│   │   │   │   ├── semantic_validator.py  # Result sanity check
+│   │   │   │   ├── retry_engine.py       # Max-3-attempt retry with feedback
+│   │   │   │   ├── reuse_engine.py       # Classification-based query reuse
+│   │   │   │   ├── entity_resolver.py    # BOT/STATION/WAVE/ORDER/BIN IDs
+│   │   │   │   ├── synonym_resolver.py   # sku→article, robot→bot
+│   │   │   │   ├── formatter.py          # Markdown table formatting
+│   │   │   │   ├── confidence.py         # 0.7×LLM + 0.3×exec scoring
+│   │   │   │   ├── cache_manager.py      # In-memory query cache
+│   │   │   │   ├── schema_feedback.py    # Smart error messages
+│   │   │   │   ├── column_resolver.py    # Fuzzy column matching
+│   │   │   │   └── table_priority_loader.py # JSONL validation history
 │   │   │   ├── knowledge_base_service.py
-│   │   │   ├── sql_assistant_service.py
-│   │   │   ├── diagnostic_service.py
+│   │   │   ├── query_classification_service.py
+│   │   │   ├── session_manager.py
 │   │   │   ├── agentic_service.py
 │   │   │   └── ...
 │   │   ├── utils/                  # Utilities
+│   │   ├── prompts/               # LLM prompt templates
 │   │   ├── ingetion/              # Document ingestion
-│   │   │   ├── ingest_pipeline.py
-│   │   │   ├── chunking/
-│   │   │   └── loaders/
-│   │   └── main.py                 # Application entry point
-│   ├── requirements.txt
-│   └── .env.example
+│   │   └── main.py                # Application entry point
+│   └── requirements.txt
+├── test/                           # 🧪 Automated Test Suite (354 tests)
+│   ├── conftest.py                 # Shared fixtures & factories
+│   ├── pytest.ini                  # Pytest configuration
+│   ├── requirements.txt            # Test dependencies
+│   ├── fixtures/                   # Test data
+│   │   ├── query_cases.json        # 20-query test bank
+│   │   ├── expected_outputs.json   # SQL output patterns
+│   │   └── mock_llm_responses.json # Canned LLM responses
+│   ├── unit/                       # Layer 1: Unit tests (279)
+│   │   ├── services/               # 16 test files for sql_assistant/*
+│   │   ├── utils/                  # Session manager tests
+│   │   ├── models/                 # Pydantic schema tests
+│   │   └── api/                    # Session query detection
+│   ├── integration/                # Layer 2: Integration tests (28)
+│   │   ├── test_pipeline_flow.py   # Preprocessing→validation chain
+│   │   ├── test_classification_storage.py  # JSONL round-trip
+│   │   └── test_reuse_engine_integration.py # Reuse path + validators
+│   ├── api/                        # Layer 3: API tests (25)
+│   │   ├── test_chatbot_endpoint.py
+│   │   ├── test_sql_routes.py
+│   │   └── test_classification_routes.py
+│   └── e2e/                        # Layer 4: End-to-end tests (22)
+│       ├── test_nl_to_sql_flow.py  # Full NL→SQL→format pipeline
+│       └── test_api_e2e.py         # HTTP round-trip + security
 ├── data/
-│   ├── documents/                  # 📚 Your documentation files
-│   ├── database/                   # 💾 Database schemas
+│   ├── documents/                  # 📚 Documentation files
+│   ├── database/                   # 💾 Database schemas & table info
+│   ├── classification/             # 🏷️ Classified query JSONL
 │   ├── support/                    # 🔧 Support knowledge base
-│   ├── models/                     # Local LLM models
-│   └── vector_store.json          # Vector embeddings
+│   └── models/                     # Local LLM models
 ├── frontend/
 │   ├── index.html                  # 🏡 Home/Landing page
 │   ├── chatbot.html               # 💬 Main chatbot (3-in-1)
+│   ├── classification.html        # 🏷️ Query classification UI
+│   ├── schema_management.html     # 📋 Schema management
 │   ├── semi_auto_diagnostic.html  # 🛠️ Semi-automated diagnostics
 │   ├── diagnostic_support.html    # 📊 Support dashboard
 │   └── navigation_dashboard.html  # 🗂️ Navigation hub
 ├── scripts/
 │   ├── ingest_documents.py        # Document ingestion
 │   ├── ingest_code.py             # Code ingestion
-│   └── test_*.py                  # Testing scripts
-├── docs/
-│   ├── AGENTIC_ARCHITECTURE.md
-│   ├── AGENTIC_QUICKSTART.md
-│   ├── CONFIGURATION_GUIDE.md
-│   └── INTEGRATION_GUIDE.md
+│   └── test_*.py                  # Manual testing scripts
+├── config/                         # AI model & SQL assistant config
+├── docs/                           # Architecture documentation
 └── README.md
 ```
 
@@ -245,18 +280,194 @@ POST /api/diagnostic-support/log-issue
 
 ## 🧪 Testing
 
+The project has a **4-layer automated test suite** with **354 tests** covering the full NL→SQL pipeline, API layer, and end-to-end flows.
+
+### Test Architecture
+
+| Layer | Tests | What it covers |
+|-------|-------|----------------|
+| **Unit** | 279 | Individual modules: validator, entity resolver, synonym resolver, formatter, confidence scoring, cache, schema feedback, retry engine, reuse engine, tenant resolver, query preprocessor, classification service, session manager, Pydantic schemas |
+| **Integration** | 28 | Multi-module chains: preprocessing→validation pipeline, classification JSONL storage round-trip, reuse engine with real validators |
+| **API** | 25 | HTTP endpoints: chatbot routing, SQL execution security (7 dangerous patterns blocked), classification CRUD, response schema contracts |
+| **E2E** | 22 | Full user journeys: NL question→SQL→validation→execution→formatted response, tenant-aware queries, entity resolution flow, cache round-trip, join queries, security gate verification |
+
+### Running Tests
+
 ```bash
-# Test knowledge base
+# Activate virtual environment
+venv\Scripts\activate          # Windows
+source venv/bin/activate        # Linux/Mac
+
+# Run ALL tests (default: skips @slow)
+python -m pytest test/ --tb=short -q
+
+# Run specific layers
+python -m pytest test/unit/               # Unit only
+python -m pytest test/integration/         # Integration only
+python -m pytest test/api/                 # API only
+python -m pytest test/e2e/                 # End-to-end only
+
+# Run by marker
+python -m pytest -m "integration"          # Integration-marked tests
+python -m pytest -m "e2e"                  # E2E-marked tests
+python -m pytest -m "not slow"             # Everything except slow
+
+# Run a single module
+python -m pytest test/unit/services/test_sql_validator.py -v
+
+# Run with coverage report
+python -m pytest test/ --cov=backend/app --cov-report=html
+
+# Run in CI mode (no color, JUnit XML output)
+python -m pytest test/ --tb=short -q --junitxml=test-results.xml
+```
+
+### Test Dependencies
+
+```bash
+pip install -r test/requirements.txt
+# Installs: pytest, pytest-mock, pytest-cov, httpx, fastapi[all]
+```
+
+### Key Test Fixtures (test/conftest.py)
+
+| Fixture | Purpose |
+|---------|----------|
+| `sample_schema` | 8-table warehouse schema with hyphenated columns |
+| `mock_generation_result` | Factory for SQLGenerationResult objects |
+| `mock_execution_result` | Factory for SQLExecutionResult objects |
+| `mock_llm_response` | Canned LLM responses (simple, aggregation, join) |
+| `tenant_value_mappings` | Predefined tenant mappings (bhiwandi→shakti, etc.) |
+| `query_test_bank` | 20 queries loaded from fixtures/query_cases.json |
+| `mock_executor` / `mock_validator` | Pre-wired mock services |
+| `test_settings` | Patched settings pointing at temp directories |
+| `test_client` | FastAPI TestClient with heavy services mocked |
+
+### Manual Test Scripts
+
+```bash
+# Legacy manual scripts (still available)
 python scripts/test_knowledge_base.py
-
-# Test intelligent responses
 python scripts/test_intelligent_responses.py
-
-# Check vector store
 python scripts/check_vector_store.py
 ```
 
-## 🔧 Configuration
+## � Evaluation Framework
+
+A **72-test-case evaluation suite** that benchmarks the full NL→SQL pipeline across **7 quality dimensions** and **30 categories**.
+
+### Quality Dimensions
+
+| Dimension | What it checks |
+|-----------|---------------|
+| **Table Selection** | Expected tables used, forbidden tables avoided |
+| **SQL Patterns** | Generated SQL contains expected keywords/clauses |
+| **Tenant Resolution** | Correct host-location value injected (bhiwandi→shakti, etc.) |
+| **Entity Resolution** | Entity IDs formatted correctly (bot 5 → BOT-0005) |
+| **Safety Gate** | Dangerous/out-of-scope queries blocked |
+| **Execution** | SQL executes without errors against the database |
+| **Latency** | <2s excellent, <5s good, <10s acceptable, >10s slow |
+
+### Test Categories (72 Cases)
+
+| Category | Count | Difficulty Mix |
+|----------|-------|---------------|
+| Single table (count, aggregation) | 8 | easy–medium |
+| Multi-table JOIN | 3 | medium |
+| Tenant resolution & multi-site | 4 | easy–medium |
+| Entity resolution (bot, wave, station, order) | 4 | medium |
+| Time filters | 4 | medium |
+| Enum/status filters | 3 | medium |
+| Complex aggregation | 4 | medium–hard |
+| Synonym resolution | 3 | easy–medium |
+| Archive vs live table selection | 2 | hard |
+| Domain operations (orders, put, audit, bots, bins, tasks, WMS, LPN, HW, SKU) | 24 | easy–hard |
+| Dashboard metrics | 2 | medium–hard |
+| Complex JOINs | 2 | hard |
+| Ambiguous / no-tenant / negative tests | 6 | easy |
+| Inventory, bin loading, reservation, maintenance | 5 | easy–medium |
+
+### Running Evaluations
+
+```bash
+# Full evaluation (requires DB connection)
+python -m evaluation.sql_service_evaluation
+
+# Dry-run — validate test cases without calling the pipeline
+python -m evaluation.sql_service_evaluation --dry-run
+
+# Filter by category or difficulty
+python -m evaluation.sql_service_evaluation --category tenant_resolution
+python -m evaluation.sql_service_evaluation --difficulty hard
+
+# Run specific test IDs
+python -m evaluation.sql_service_evaluation --ids 1,2,16,65
+
+# Skip saving results
+python -m evaluation.sql_service_evaluation --no-save
+```
+
+Results are saved to `evaluation/results/eval_{timestamp}.json` by default.
+
+### Evaluation Files
+
+| File | Purpose |
+|------|---------|
+| `evaluation/sql_service_evaluation.py` | Evaluation framework (7 checks, CLI, reporting) |
+| `data/sql_evaluation_data.json` | 72 test cases with expected tables, patterns, tenants |
+| `evaluation/results/` | Timestamped JSON result files |
+
+## 📥 Document & Code Ingestion
+
+A unified ingestion pipeline that processes documents (PDF, PPTX) and source code into a vector store for the Knowledge Base service.
+
+### Pipeline Architecture
+
+```
+Documents/Code → Loaders → Chunking → LLM Embedding → Vector Store (JSON)
+```
+
+| Component | File |
+|-----------|------|
+| Orchestrator | `backend/app/ingetion/ingest_unified.py` |
+| Document Loader | `backend/app/ingetion/loaders/ingest_documents.py` |
+| Code Loader | `backend/app/ingetion/loaders/ingest_code.py` |
+| Configuration | `backend/app/ingetion/ingestion_config.py` |
+| Vector Store | `backend/app/services/knowledge_base/vector_store_service.py` |
+
+### Supported Formats
+
+- **Documents**: PDF (with OCR via pytesseract), PPTX, TXT, Markdown
+- **Code**: C#, Python, JavaScript/TypeScript, Java, C++, SQL, HTML
+
+### Quick Start
+
+```bash
+cd Neo-Chatbot/backend
+
+# Full ingestion (documents + code)
+python -m app.ingetion.ingest_unified
+
+# Documents only
+python -m app.ingetion.loaders.ingest_documents
+
+# Check vector store status
+python scripts/check_vector_store.py
+```
+
+### Configuration
+
+Edit `backend/app/ingetion/ingestion_config.py`:
+- `CHUNK_SIZE` — Characters per chunk (default: 1000)
+- `CHUNK_OVERLAP` — Overlap for context (default: 200)
+- `ENABLE_OCR` — Toggle image OCR in PDFs
+- `SKIP_EXISTING` — Skip already-ingested files
+- `DOCUMENT_CATEGORIES` — Folder→category mapping
+- `CODE_REPOSITORIES` — Codebase paths for code ingestion
+
+> Full documentation: [docs/INGESTION_PIPELINE.md](docs/INGESTION_PIPELINE.md)
+
+## �🔧 Configuration
 
 ### LLM Providers Priority
 
@@ -283,6 +494,9 @@ Edit `backend/app/core/config.py` for advanced configuration.
 - [Quick Start Guide](docs/AGENTIC_QUICKSTART.md) - Getting started
 - [Configuration Guide](docs/CONFIGURATION_GUIDE.md) - Detailed configuration
 - [Integration Guide](docs/INTEGRATION_GUIDE.md) - Integration with other systems
+- [Ingestion Pipeline](docs/INGESTION_PIPELINE.md) - Document & code ingestion guide
+- [System Architecture](docs/NEO_SYSTEM_ARCHITECTURE_02_03_updated.md) - Full system architecture
+- [Embedding Classification](docs/EMBEDDING_CLASSIFICATION_GUIDE.md) - Query classification guide
 
 ## 🐛 Troubleshooting
 
@@ -320,16 +534,8 @@ Proprietary - NEO Development Team
 
 ## 👥 Authors
 
-NEO Development Team
+Falcon AI Team
 
----
 
-## 🎯 Next Steps
-
-1. **Customize the chatbot** for your specific use case
-2. **Add more documents** to improve knowledge base
-3. **Configure database** for SQL Assistant
-4. **Set up monitoring** and logging
-5. **Deploy to production** environment
 
 Need help? Contact the NEO Development Team.

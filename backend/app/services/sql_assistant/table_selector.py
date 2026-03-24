@@ -65,11 +65,13 @@ class TableSelector:
         business_attrs = meta.get("key_business_attributes", [])
         joins = meta.get("frequently_joined_with", [])
         analytics = meta.get("supports_analytics", [])
+        self_sufficient = meta.get("self_sufficient_for", [])
 
         return f"""
         TABLE: {table}
         DESCRIPTION: {description}
         BUSINESS ATTRIBUTES: {' '.join(business_attrs)}
+        SELF-SUFFICIENT FOR: {' '.join(self_sufficient)}
         COMMON JOINS: {' '.join(joins)}
         ANALYTICS: {' '.join(analytics)}
         COLUMNS: {' '.join(columns)}

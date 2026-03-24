@@ -29,6 +29,13 @@ class Settings:
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "root")
     DB_NAME: str = os.getenv("DB_NAME", "neo")
     
+    # Multi-Tenant Configuration
+    MULTI_TENANT_ENABLED: bool = os.getenv("MULTI_TENANT_ENABLED", "true").lower() == "true"
+    TENANT_COLUMN: str = os.getenv("TENANT_COLUMN", "host_location")
+    DEFAULT_TENANT: str = os.getenv("DEFAULT_TENANT", "frk")
+    TENANT_EXTRACTION_THRESHOLD: float = float(os.getenv("TENANT_EXTRACTION_THRESHOLD", "0.65"))
+    TENANT_DEFAULT_BEHAVIOR: str = os.getenv("TENANT_DEFAULT_BEHAVIOR", "smart_aggregate")  # Options: default_only, smart_aggregate, all_sites
+    
     # Data Paths
     DATA_DIR: Path = BASE_DIR / "data"
     DOCUMENTS_DIR: Path = DATA_DIR / "documents"

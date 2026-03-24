@@ -1,6 +1,14 @@
 """
 Enhanced SQL Generation Prompt with Few-Shot Examples, Guardrails, and Table Relationships.
 
+⚠️  DEPRECATED — March 23, 2026
+    This file is NOT used in the active pipeline.
+    - Imported ONLY by `nl_to_sql_generator.py` (which is itself dead/unused code).
+    - The ACTIVE prompt is `universal_sql_prompt.py` → used by `sql_engine.py`.
+    - Valuable content (TABLE_RELATIONSHIPS, COMMON_MISTAKES, GUARDRAILS, FEW-SHOT EXAMPLES)
+      has been merged into `universal_sql_prompt.py` as of March 23, 2026.
+    - Kept for reference only. Do NOT add new logic here.
+
 Every column, table, and JOIN in this file has been verified against Table_information.csv.
 Last verified: 2026-02-08
 """
