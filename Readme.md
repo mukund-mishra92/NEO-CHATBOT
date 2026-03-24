@@ -352,7 +352,122 @@ python scripts/test_intelligent_responses.py
 python scripts/check_vector_store.py
 ```
 
-## 🔧 Configuration
+## � Evaluation Framework
+
+A **72-test-case evaluation suite** that benchmarks the full NL→SQL pipeline across **7 quality dimensions** and **30 categories**.
+
+### Quality Dimensions
+
+| Dimension | What it checks |
+|-----------|---------------|
+| **Table Selection** | Expected tables used, forbidden tables avoided |
+| **SQL Patterns** | Generated SQL contains expected keywords/clauses |
+| **Tenant Resolution** | Correct host-location value injected (bhiwandi→shakti, etc.) |
+| **Entity Resolution** | Entity IDs formatted correctly (bot 5 → BOT-0005) |
+| **Safety Gate** | Dangerous/out-of-scope queries blocked |
+| **Execution** | SQL executes without errors against the database |
+| **Latency** | <2s excellent, <5s good, <10s acceptable, >10s slow |
+
+### Test Categories (72 Cases)
+
+| Category | Count | Difficulty Mix |
+|----------|-------|---------------|
+| Single table (count, aggregation) | 8 | easy–medium |
+| Multi-table JOIN | 3 | medium |
+| Tenant resolution & multi-site | 4 | easy–medium |
+| Entity resolution (bot, wave, station, order) | 4 | medium |
+| Time filters | 4 | medium |
+| Enum/status filters | 3 | medium |
+| Complex aggregation | 4 | medium–hard |
+| Synonym resolution | 3 | easy–medium |
+| Archive vs live table selection | 2 | hard |
+| Domain operations (orders, put, audit, bots, bins, tasks, WMS, LPN, HW, SKU) | 24 | easy–hard |
+| Dashboard metrics | 2 | medium–hard |
+| Complex JOINs | 2 | hard |
+| Ambiguous / no-tenant / negative tests | 6 | easy |
+| Inventory, bin loading, reservation, maintenance | 5 | easy–medium |
+
+### Running Evaluations
+
+```bash
+# Full evaluation (requires DB connection)
+python -m evaluation.sql_service_evaluation
+
+# Dry-run — validate test cases without calling the pipeline
+python -m evaluation.sql_service_evaluation --dry-run
+
+# Filter by category or difficulty
+python -m evaluation.sql_service_evaluation --category tenant_resolution
+python -m evaluation.sql_service_evaluation --difficulty hard
+
+# Run specific test IDs
+python -m evaluation.sql_service_evaluation --ids 1,2,16,65
+
+# Skip saving results
+python -m evaluation.sql_service_evaluation --no-save
+```
+
+Results are saved to `evaluation/results/eval_{timestamp}.json` by default.
+
+### Evaluation Files
+
+| File | Purpose |
+|------|---------|
+| `evaluation/sql_service_evaluation.py` | Evaluation framework (7 checks, CLI, reporting) |
+| `data/sql_evaluation_data.json` | 72 test cases with expected tables, patterns, tenants |
+| `evaluation/results/` | Timestamped JSON result files |
+
+## 📥 Document & Code Ingestion
+
+A unified ingestion pipeline that processes documents (PDF, PPTX) and source code into a vector store for the Knowledge Base service.
+
+### Pipeline Architecture
+
+```
+Documents/Code → Loaders → Chunking → LLM Embedding → Vector Store (JSON)
+```
+
+| Component | File |
+|-----------|------|
+| Orchestrator | `backend/app/ingetion/ingest_unified.py` |
+| Document Loader | `backend/app/ingetion/loaders/ingest_documents.py` |
+| Code Loader | `backend/app/ingetion/loaders/ingest_code.py` |
+| Configuration | `backend/app/ingetion/ingestion_config.py` |
+| Vector Store | `backend/app/services/knowledge_base/vector_store_service.py` |
+
+### Supported Formats
+
+- **Documents**: PDF (with OCR via pytesseract), PPTX, TXT, Markdown
+- **Code**: C#, Python, JavaScript/TypeScript, Java, C++, SQL, HTML
+
+### Quick Start
+
+```bash
+cd Neo-Chatbot/backend
+
+# Full ingestion (documents + code)
+python -m app.ingetion.ingest_unified
+
+# Documents only
+python -m app.ingetion.loaders.ingest_documents
+
+# Check vector store status
+python scripts/check_vector_store.py
+```
+
+### Configuration
+
+Edit `backend/app/ingetion/ingestion_config.py`:
+- `CHUNK_SIZE` — Characters per chunk (default: 1000)
+- `CHUNK_OVERLAP` — Overlap for context (default: 200)
+- `ENABLE_OCR` — Toggle image OCR in PDFs
+- `SKIP_EXISTING` — Skip already-ingested files
+- `DOCUMENT_CATEGORIES` — Folder→category mapping
+- `CODE_REPOSITORIES` — Codebase paths for code ingestion
+
+> Full documentation: [docs/INGESTION_PIPELINE.md](docs/INGESTION_PIPELINE.md)
+
+## �🔧 Configuration
 
 ### LLM Providers Priority
 
@@ -379,6 +494,9 @@ Edit `backend/app/core/config.py` for advanced configuration.
 - [Quick Start Guide](docs/AGENTIC_QUICKSTART.md) - Getting started
 - [Configuration Guide](docs/CONFIGURATION_GUIDE.md) - Detailed configuration
 - [Integration Guide](docs/INTEGRATION_GUIDE.md) - Integration with other systems
+- [Ingestion Pipeline](docs/INGESTION_PIPELINE.md) - Document & code ingestion guide
+- [System Architecture](docs/NEO_SYSTEM_ARCHITECTURE_02_03_updated.md) - Full system architecture
+- [Embedding Classification](docs/EMBEDDING_CLASSIFICATION_GUIDE.md) - Query classification guide
 
 ## 🐛 Troubleshooting
 

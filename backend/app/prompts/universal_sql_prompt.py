@@ -77,6 +77,35 @@ Follow those instructions — they override these general rules.
 5. Do NOT join tables unless business logic requires it.
 6. If multiple tables seem relevant, choose the table whose DESCRIPTION best matches the user question.
 
+================================================================================
+MINIMAL TABLE RULE (CRITICAL — PREVENTS WRONG COUNTS!)
+================================================================================
+
+BEFORE writing any JOIN, ask yourself:
+  "Does the PRIMARY table already have ALL columns I need to answer the question?"
+
+If YES → use ONLY that one table. Do NOT add any JOIN.
+If NO  → only JOIN the specific table that provides the missing column.
+
+Why this matters:
+- Unnecessary JOINs cause ROW MULTIPLICATION or ROW ELIMINATION.
+- A COUNT(*) or COUNT(DISTINCT ...) after an unnecessary JOIN returns WRONG numbers.
+- Example: "How many bins hold inventory?" → live_inventory_master alone has
+  BIN_ID, QUANTITY, IS_ACTIVE, `host-location`. No JOIN needed.
+  ❌ BAD:  JOIN store_bin_master sbm ON ... → may EXCLUDE bins not yet slotted → WRONG count.
+  ✅ GOOD: SELECT COUNT(DISTINCT lim.BIN_ID) FROM live_inventory_master lim WHERE ...
+
+SINGLE-TABLE SUFFICIENCY CHECKLIST:
+- Counting bins with inventory? → live_inventory_master alone (has BIN_ID, QUANTITY, IS_ACTIVE)
+- Counting active bots? → bot_master alone (has BOT_ID, STATUS)
+- Counting alarms? → bot_alarm_log alone (has ALARM_CODE, BOT_ID, IS_BYPASSED)
+- Counting tasks? → task_master_log alone (has TASK_ID, TASK_TYPE, STATUS)
+- Need aisle/tower? → NOW you must JOIN location_master (not in the source table)
+- Need SKU name? → NOW you must JOIN article_registered (live_inventory_master has only ARTICLE_ID)
+- Need expiry date? → NOW you must JOIN sku_batch_master
+
+================================================================================
+
 CRITICAL SCHEMA FACTS (VERIFIED 2026-03-23):
 ❌ NO 'article_master' table exists! Use 'article_registered' (aka sku_master)
 ❌ bot_master has NO BOT_NAME column — only BOT_ID (varchar(50))
@@ -194,6 +223,15 @@ COMMON MISTAKES TO AVOID (VERIFIED ERRORS FROM PRODUCTION)
    BAD:  JOIN bot_master bm ON bal.BOT_ID = bm.BOT_ID
    GOOD: JOIN bot_master bm ON bal.BOT_ID = bm.BOT_ID
          AND bal.`host-location` = bm.`host-location`
+
+❌ MISTAKE 13: Unnecessary JOIN that corrupts COUNT/aggregation results
+   Question: "How many bins hold inventory in FRK?"
+   BAD:  SELECT COUNT(*) FROM store_bin_master sbm
+         JOIN live_inventory_master lim ON lim.BIN_ID = sbm.BIN_ID ...
+         (Bins in live_inventory_master that have no store_bin_master row get DROPPED → wrong count)
+   GOOD: SELECT COUNT(DISTINCT lim.BIN_ID) FROM live_inventory_master lim
+         WHERE lim.QUANTITY > 0 AND lim.IS_ACTIVE = 1 AND lim.`host-location` = 'frk'
+   RULE: If the primary table has all needed columns, do NOT add a JOIN.
 
 ================================================================================
 

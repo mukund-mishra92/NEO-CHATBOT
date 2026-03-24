@@ -659,7 +659,7 @@ class SQLAssistantService:
                 logger.info(f"🧠 Using learned tables: {selected_tables}")
 
             else:
-                selected_tables = self.table_selector.select(clean_question, max_tables=20)
+                selected_tables = self.table_selector.select(clean_question, max_tables=12)
                 logger.info(f"🔍 Using heuristic selected tables: {selected_tables}")
 
             if not selected_tables:
@@ -683,6 +683,8 @@ class SQLAssistantService:
                         "key_business_attributes": business_info.get("key_business_attributes", []),
                         "frequently_joined_with": business_info.get("frequently_joined_with", []),
                         "supports_analytics": business_info.get("supports_analytics", []),
+                        "self_sufficient_for": business_info.get("self_sufficient_for", []),
+                        "not_needed_for": business_info.get("not_needed_for", []),
                     })
 
                 filtered_schema[table] = enriched

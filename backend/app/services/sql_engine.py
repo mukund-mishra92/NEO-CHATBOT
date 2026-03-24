@@ -186,12 +186,16 @@ class SQLEngine:
                     business_attributes = []
                     joins = []
                     analytics = []
+                    self_sufficient = []
+                    not_needed = []
                 else:
                     columns = table_info.get("columns", [])
                     description = table_info.get("description", "")
                     business_attributes = table_info.get("key_business_attributes", [])
                     joins = table_info.get("frequently_joined_with", [])
                     analytics = table_info.get("supports_analytics", [])
+                    self_sufficient = table_info.get("self_sufficient_for", [])
+                    not_needed = table_info.get("not_needed_for", [])
 
                 col_text = ", ".join(columns[:50])
 
@@ -218,6 +222,20 @@ class SQLEngine:
                     table_block += (
                         "ANALYTICS USE CASES: "
                         + "; ".join(analytics[:5])
+                        + "\n"
+                    )
+
+                if self_sufficient:
+                    table_block += (
+                        "SELF-SUFFICIENT FOR (no JOIN needed): "
+                        + "; ".join(self_sufficient[:5])
+                        + "\n"
+                    )
+
+                if not_needed:
+                    table_block += (
+                        "⚠️ NOT NEEDED FOR: "
+                        + "; ".join(not_needed[:5])
                         + "\n"
                     )
 
