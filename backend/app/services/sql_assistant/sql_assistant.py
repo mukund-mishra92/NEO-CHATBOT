@@ -98,11 +98,6 @@ class SQLAssistantService:
         self.formatter = SQLFormatter()
         self.retry_engine = SQLRetryEngine()
 
-        self.reuse_engine = QueryReuseEngine(
-            self.classification_service,
-            self.executor
-        )
-
         self.learning = QueryLearningManager(
             self.chat_history_service,
             self.classification_service
@@ -114,6 +109,14 @@ class SQLAssistantService:
         self.schema_validator = SchemaValidator(self.schema)
         self.semantic_validator = SemanticValidator()
         self.feedback_generator = SchemaFeedbackGenerator(self.schema)
+
+        # Reuse engine needs validator + schema_validator — must init after schema is loaded
+        self.reuse_engine = QueryReuseEngine(
+            self.classification_service,
+            self.executor,
+            validator=self.validator,
+            schema_validator=self.schema_validator
+        )
 
         validations_file = settings.DATA_DIR / "database" / "table_priority_validations.jsonl"
         self.table_priority_loader = TablePriorityLoader(validations_file)
@@ -393,6 +396,57 @@ class SQLAssistantService:
         
         return sql
 
+    def _replace_tenant_filter(self, sql: str, entities: dict) -> str:
+        """
+        Replace any existing tenant filter in SQL with the CURRENT session's tenant.
+        
+        Used by the reuse path: a classified query stored for 'shakti' must be
+        re-targeted to 'frk' if the current user is asking about FRK.
+        
+        Strategy:
+        1. Strip existing `host-location` = 'xxx' or IN ('x','y') conditions
+        2. Call _inject_tenant_filter() to add the correct one
+        """
+        import re
+        
+        tenant_col = self.tenant_column  # "host-location"
+        
+        # Check if tenant filter already present in SQL
+        # Pattern matches:  `host-location` = 'xxx'  or  `host-location` IN ('x','y')
+        # With optional table prefix like bal.`host-location`
+        escaped_col = re.escape(tenant_col)
+        
+        # Remove existing tenant filter (handles both = and IN, with optional backticks/prefix)
+        pattern = (
+            r"(?:\w+\.)?"                   # optional table_alias.
+            r"(?:`" + escaped_col + r"`|" + escaped_col + r")"  # `host-location` or host-location
+            r"\s*"                           # optional whitespace  
+            r"(?:"                           # either:
+            r"=\s*'[^']*'"                   #   = 'value'
+            r"|IN\s*\([^)]*\)"              #   IN ('v1', 'v2')
+            r")"
+        )
+        
+        # Try to remove the tenant condition from WHERE clause
+        sql_cleaned = sql
+        
+        # Remove "AND <tenant_filter>" or "<tenant_filter> AND"
+        and_pattern = r"\s*AND\s+" + pattern
+        sql_cleaned = re.sub(and_pattern, "", sql_cleaned, flags=re.IGNORECASE)
+        
+        pattern_and = pattern + r"\s+AND\s+"
+        sql_cleaned = re.sub(pattern_and, "", sql_cleaned, flags=re.IGNORECASE)
+        
+        # If the tenant was the ONLY WHERE condition: "WHERE <tenant_filter>"
+        where_only = r"WHERE\s+" + pattern + r"\s*(?=GROUP|ORDER|LIMIT|HAVING|;|$)"
+        sql_cleaned = re.sub(where_only, "", sql_cleaned, flags=re.IGNORECASE)
+        
+        if sql_cleaned != sql:
+            logger.info(f"🔄 Stripped old tenant filter from reused SQL for re-injection")
+        
+        # Now inject the correct tenant filter for the current session
+        return self._inject_tenant_filter(sql_cleaned, entities)
+
     def _detect_main_table_prefix(self, sql: str) -> str:
         """
         Detect table alias or name from FROM clause to avoid ambiguous column errors.
@@ -573,6 +627,14 @@ class SQLAssistantService:
 
         if reused:
             sql, execution_result = reused
+
+            # 🔥 Apply tenant filter to reused SQL (original may have been for a different tenant)
+            if self.multi_tenant_enabled and entities.get(self.tenant_column):
+                # Strip any existing tenant filter first — reused SQL may have been
+                # for a DIFFERENT site than what the current user is asking about.
+                sql = self._replace_tenant_filter(sql, entities)
+                execution_result = self.executor.execute(sql)
+
             generation_result = SQLGenerationResult(
                 sql=sql,
                 confidence=0.95,
@@ -758,19 +820,21 @@ class SQLAssistantService:
 
             logger.info(f"✅ Final SQL: {sql}")
 
-            # Restore semantic validation
-            try:
-                tenant_value = entities.get(self.tenant_column)
-                tenant_str = tenant_value[0] if isinstance(tenant_value, list) and tenant_value else tenant_value
-                self.semantic_validator.validate(
-                    execution_result,
-                    sql=generation_result.sql,
-                    tenant=tenant_str
-                )
-            except Exception as e:
-                logger.warning(f"Semantic validation warning: {e}")
-
             sql = generation_result.sql
+
+        # --------------------------------------------------
+        # SEMANTIC VALIDATION (both reuse + fresh paths)
+        # --------------------------------------------------
+        try:
+            tenant_value = entities.get(self.tenant_column)
+            tenant_str = tenant_value[0] if isinstance(tenant_value, list) and tenant_value else tenant_value
+            self.semantic_validator.validate(
+                execution_result,
+                sql=generation_result.sql,
+                tenant=tenant_str
+            )
+        except Exception as e:
+            logger.warning(f"Semantic validation warning: {e}")
 
         final_confidence = self.confidence.compute(
             generation_result,

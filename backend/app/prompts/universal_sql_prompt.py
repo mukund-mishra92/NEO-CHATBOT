@@ -1,6 +1,8 @@
 """
 Universal SQL Generation Prompt for NEO Warehouse Database
 =============================================================
+THE ONLY ACTIVE PROMPT FILE — `sql_engine.py` imports `build_universal_prompt` from here.
+
 Works for ANY query type without per-query business rules.
 Teaches the LLM HOW to construct queries autonomously using
 schema context, relationships, enums, and column facts from
@@ -13,9 +15,10 @@ The LLM is given:
     4. Critical column facts (non-existent columns, cross-refs)
     5. Multi-hop join paths for complex queries
     6. Entity resolution data (BOT-0008, STATION_ID, etc.)
+    7. Multi-tenant context (host-location value + instructions)
 
 Author: NEO Chatbot Team
-Date: 2026-02-08
+Last Updated: 2026-03-23  (composite-key migration + production hardening)
 """
 
 
@@ -33,6 +36,37 @@ ABSOLUTE RULES:
 5. Use the ENUM/VALID VALUES section for correct WHERE filter strings.
 6. Read the CRITICAL COLUMN FACTS section — it lists columns that DO NOT EXIST.
 7. ⚠️ MANDATORY: Every query MUST include a LIMIT clause (default LIMIT 100).
+   Exception: Aggregation queries (COUNT, SUM, AVG, MAX, MIN with GROUP BY) may omit LIMIT.
+
+================================================================================
+MULTI-TENANT COMPOSITE KEY ARCHITECTURE (CRITICAL — READ THIS FIRST!)
+================================================================================
+
+This database stores data from MULTIPLE warehouse sites in EVERY table.
+Each table has a `host-location` column (backtick-escaped due to hyphen).
+
+KEY RULES:
+- The primary key of every table is a COMPOSITE KEY: (original_PK + `host-location`).
+- The same BOT_ID, ORDER_ID, BIN_ID, TASK_ID, STATION_ID etc. can exist at MULTIPLE sites.
+- Example: BOT_ID = 'BOT-001' exists at BOTH 'frk' AND 'SHAKTI' — they are DIFFERENT bots.
+
+COUNTING RULES (CRITICAL):
+- ❌ NEVER use COUNT(DISTINCT <id_column>) — it treats the same ID at different sites as ONE.
+- ✅ Use COUNT(*) with a `host-location` filter for site-specific counts.
+- ✅ If you truly need globally unique counts: COUNT(DISTINCT <id_col>, `host-location`).
+
+JOIN RULES FOR MULTI-TENANT:
+- When JOINing two tables, ALWAYS include `host-location` equality in the ON clause.
+- This prevents cross-site data pollution (e.g., FRK bot joined with SHAKTI alarm).
+- Pattern:
+  FROM table_a a
+  JOIN table_b b ON a.SOME_ID = b.SOME_ID AND a.`host-location` = b.`host-location`
+
+NOTE: The ENTITY RESOLUTION section below will tell you the specific `host-location` value
+to filter by, or whether this is an all-sites / location-breakdown query.
+Follow those instructions — they override these general rules.
+
+================================================================================
 
 ## SCHEMA INTERPRETATION RULES:
 
@@ -43,19 +77,129 @@ ABSOLUTE RULES:
 5. Do NOT join tables unless business logic requires it.
 6. If multiple tables seem relevant, choose the table whose DESCRIPTION best matches the user question.
 
-CRITICAL SCHEMA FACTS (VERIFIED 2026-02-09):
+CRITICAL SCHEMA FACTS (VERIFIED 2026-03-23):
 ❌ NO 'article_master' table exists! Use 'article_registered' (aka sku_master)
-❌ bot_master has NO BOT_NAME column - only BOT_ID (varchar(50))
+❌ bot_master has NO BOT_NAME column — only BOT_ID (varchar(50))
 ❌ task_master_log primary key is LOG_ID, not TASK_MASTER_LOG_ID
-❌ store_bin_master has NO AISLE_ID/TOWER_ID - must join through location_master
+❌ store_bin_master has NO AISLE_ID/TOWER_ID — must join through location_master
+❌ store_bin_master has NO EXPIRY_DATE — must use sku_batch_master
+❌ live_inventory_master has NO EXPIRY_DATE — must use sku_batch_master
 ✓ bot_master.STATUS enum: 'ENABLED', 'DISABLED' (NOT 'ACTIVE'/'INACTIVE')
 ✓ bot_master.LOAD_CONDITION enum: 'UL', 'LD' (Unloaded/Loaded)
 ✓ bot_master.BATTERY_HEALTH enum: 'GOOD', 'AVERAGE', 'CRITICAL'
 ✓ location_master.AISLE_NUMBER enum: 'A01'-'A24', 'RA01'-'RA03', 'URA01'-'URA04'
 ✓ location_master.TOWER_NUMBER enum: 'T01'-'T10'
+✓ `host-location` column exists in EVERY table (backtick-escape required!)
+
+================================================================================
+VERIFIED TABLE RELATIONSHIPS (JOIN PATHS)
+================================================================================
+
+1) BIN → Physical Location (Aisle/Tower) — MOST COMMON!
+   store_bin_master.LOCATION_ID → location_master.LOCATION_ID
+   Gives: location_master.AISLE_NUMBER, location_master.TOWER_NUMBER
+   ❌ store_bin_master has NO AISLE_ID/TOWER_ID columns — MUST join location_master!
+
+2) BIN → Bin Details (Barcode):
+   store_bin_master.BIN_ID → bin_info_master.BIN_ID
+   Gives: bin_info_master.BIN_BARCODE, BIN_TYPE, BIN_SEGMENTS
+
+3) Inventory → SKU Info (Product Names):
+   live_inventory_master.ARTICLE_ID → article_registered.SKU_ID
+   (article_registered = sku_master — both are valid names)
+   Gives: SKU_NAME, CATEGORY, VELOCITY, HSN_CODE, PRIMARY_BARCODE
+   ❌ NO 'article_master' table exists!
+
+4) Inventory → Batch/Expiry Info — COMPOUND KEY REQUIRED:
+   live_inventory_master.ARTICLE_ID = sku_batch_master.SKU_ID
+   AND live_inventory_master.BATCH_ID = sku_batch_master.BATCH_ID
+   Gives: sku_batch_master.EXPIRY_DATE, BATCH_NUMBER, MRP, MFG_DATE, VENDOR_ID
+   ❌ EXPIRY_DATE only in sku_batch_master — not in live_inventory_master or store_bin_master!
+
+5) Task → Station (Presentations):
+   task_master_log.DESTINATION_LOCATION_ID → hw_station_master.LOCATION_ID (TO station)
+   task_master_log.SOURCE_LOCATION_ID → hw_station_master.LOCATION_ID (FROM station)
+   Filter: TASK_TYPE IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE') AND STATUS = 'COMPLETED'
+
+6) Task → Bot Assignment:
+   task_master_log.BOT_ID → bot_master.BOT_ID
+   Gives: bot_master.STATUS, BATTERY, BATTERY_HEALTH, LOAD_CONDITION, GRIDX, GRIDY
+   ❌ bot_master has NO BOT_NAME column — only BOT_ID!
+
+7) Bot → Alarms:
+   bot_master.BOT_ID → bot_alarm_log.BOT_ID
+
+8) Station → Location (Station Physical Position):
+   hw_station_master.LOCATION_ID → location_master.LOCATION_ID
+
+REMEMBER: ALL JOINs above must ALSO include:
+  AND t1.`host-location` = t2.`host-location`
+
+================================================================================
+COMMON MISTAKES TO AVOID (VERIFIED ERRORS FROM PRODUCTION)
+================================================================================
+
+❌ MISTAKE 1: Using article_master (DOES NOT EXIST!)
+   BAD:  JOIN article_master am ON lim.ARTICLE_ID = am.SKU_ID
+   GOOD: JOIN article_registered ar ON lim.ARTICLE_ID = ar.SKU_ID
+
+❌ MISTAKE 2: Accessing AISLE_ID/TOWER_ID from store_bin_master (DON'T EXIST!)
+   BAD:  SELECT sbm.AISLE_ID FROM store_bin_master sbm
+   GOOD: SELECT lm.AISLE_NUMBER FROM store_bin_master sbm
+         JOIN location_master lm ON sbm.LOCATION_ID = lm.LOCATION_ID
+
+❌ MISTAKE 3: Using BOT_NAME column (DOES NOT EXIST!)
+   BAD:  SELECT bm.BOT_NAME FROM bot_master bm
+   GOOD: SELECT bm.BOT_ID FROM bot_master bm
+
+❌ MISTAKE 4: Wrong primary key for task_master_log
+   BAD:  SELECT TASK_MASTER_LOG_ID FROM task_master_log
+   GOOD: SELECT LOG_ID FROM task_master_log
+
+❌ MISTAKE 5: Getting expiry date from wrong table
+   BAD:  SELECT lim.EXPIRY_DATE FROM live_inventory_master lim
+   GOOD: JOIN sku_batch_master skbm ON lim.ARTICLE_ID = skbm.SKU_ID
+         AND lim.BATCH_ID = skbm.BATCH_ID
+         SELECT skbm.EXPIRY_DATE
+
+❌ MISTAKE 6: Forgetting compound key for sku_batch_master
+   BAD:  JOIN sku_batch_master skbm ON lim.ARTICLE_ID = skbm.SKU_ID
+   GOOD: JOIN sku_batch_master skbm ON lim.ARTICLE_ID = skbm.SKU_ID
+         AND lim.BATCH_ID = skbm.BATCH_ID
+
+❌ MISTAKE 7: Wrong STATUS enum values for bot_master
+   BAD:  WHERE bm.STATUS = 'ACTIVE'
+   GOOD: WHERE bm.STATUS = 'ENABLED'
+
+❌ MISTAKE 8: Filtering product by ID when user gives a name
+   BAD:  WHERE lim.ARTICLE_ID LIKE '%Paracetamol%'
+   GOOD: JOIN article_registered ar ON lim.ARTICLE_ID = ar.SKU_ID
+         WHERE ar.SKU_NAME LIKE '%Paracetamol%'
+
+❌ MISTAKE 9: Not filtering active inventory records
+   BAD:  SELECT * FROM live_inventory_master WHERE BIN_ID = 431
+   GOOD: SELECT * FROM live_inventory_master
+         WHERE BIN_ID = 431 AND IS_ACTIVE = 1 AND QUANTITY > 0
+
+❌ MISTAKE 10: Using wrong timestamp for task_master_log
+   BAD:  WHERE DATE(tml.CREATED_TIMESTAMP) = CURDATE()
+   GOOD: WHERE DATE(tml.logged_timestamp) = CURDATE()
+
+❌ MISTAKE 11: COUNT(DISTINCT id) in multi-tenant database
+   BAD:  SELECT COUNT(DISTINCT BOT_ID) FROM bot_alarm_log
+         (BOT_ID 'BOT-001' at FRK and SHAKTI counted as 1!)
+   GOOD: SELECT COUNT(*) FROM bot_alarm_log WHERE `host-location` = 'frk'
+
+❌ MISTAKE 12: JOIN without host-location (cross-site pollution)
+   BAD:  JOIN bot_master bm ON bal.BOT_ID = bm.BOT_ID
+   GOOD: JOIN bot_master bm ON bal.BOT_ID = bm.BOT_ID
+         AND bal.`host-location` = bm.`host-location`
+
+================================================================================
 
 ENTITY RESOLUTION:
-- If RESOLVED_ENTITIES are provided...
+- If RESOLVED_ENTITIES are provided, use those EXACT values in your WHERE clause.
+- If RESOLVED_CANDIDATES with multiple matches, set needs_followup=true.
 
 SQL BEST PRACTICES:
 - Always use table aliases for readability (e.g., lim, ar, sbm, lm, tml, bm, hm).
@@ -63,10 +207,13 @@ SQL BEST PRACTICES:
 - For aggregations, include GROUP BY for every non-aggregated SELECT column.
 - For time-based queries, use the appropriate timestamp column from the schema.
 - ⚠️ CRITICAL: ALWAYS add LIMIT clause for safety (default: LIMIT 100).
+  Exception: Aggregation queries (COUNT, SUM, AVG) without detail rows may omit LIMIT.
 - Use DATE(timestamp_col) for date filtering, not string comparisons.
 - Use CURDATE() for "today", DATE_SUB(CURDATE(), INTERVAL n DAY) for "last N days".
 - For "yesterday": DATE(col) = DATE_SUB(CURDATE(), INTERVAL 1 DAY).
+- For hourly ranges: col >= (CURDATE() - INTERVAL 1 DAY) + INTERVAL 19 HOUR  (7pm)
 - For counts/aggregations, ORDER BY the count DESC unless user specifies otherwise.
+- Avoid SELECT * — list specific columns for performance and clarity.
 
 TABLE SELECTION PRIORITY RULES:
 
@@ -86,45 +233,79 @@ TABLE SELECTION PRIORITY RULES:
 5. Do NOT ignore CLASSIFIED_REQUIRED_TABLES.
 
 VERIFIED COMMON PATTERNS IN THIS DATABASE:
+
 1. Bot Current State:
-   SELECT * FROM bot_master WHERE BOT_ID = 'BOT-XXXX' AND STATUS = 'ENABLED';
+   SELECT BOT_ID, STATUS, BATTERY, BATTERY_HEALTH
+   FROM bot_master
+   WHERE STATUS = 'ENABLED' AND `host-location` = ?
+   ORDER BY BOT_ID LIMIT 100;
 
-2. Bot History:
-   SELECT * FROM bot_master_log WHERE BOT_ID = 'BOT-XXXX' ORDER BY LOG_TIMESTAMP DESC;
+2. Bot Alarms (today, single site):
+   SELECT bal.BOT_ID, bal.ALARM_CODE, bal.INSERTED_TIMESTAMP
+   FROM bot_alarm_log bal
+   WHERE DATE(bal.INSERTED_TIMESTAMP) = CURDATE()
+     AND bal.`host-location` = ?
+   ORDER BY bal.INSERTED_TIMESTAMP DESC LIMIT 100;
 
-3. Bot Alarms:
-   SELECT * FROM bot_alarm_log WHERE BOT_ID = 'BOT-XXXX' ORDER BY INSERTED_TIMESTAMP DESC;
-
-4. Inventory by SKU Name:
-   SELECT * FROM live_inventory_master lim
+3. Inventory by SKU Name:
+   SELECT lim.BIN_ID, ar.SKU_NAME, lim.QUANTITY, lim.SEGMENT_NO
+   FROM live_inventory_master lim
    JOIN article_registered ar ON lim.ARTICLE_ID = ar.SKU_ID
-   WHERE ar.SKU_NAME LIKE '%ProductName%' AND lim.IS_ACTIVE = 1;
+     AND lim.`host-location` = ar.`host-location`
+   WHERE ar.SKU_NAME LIKE '%ProductName%'
+     AND lim.IS_ACTIVE = 1 AND lim.QUANTITY > 0
+     AND lim.`host-location` = ?
+   LIMIT 100;
 
-5. Historical order data of sku:
-    SELECT * FROM wms_to_wcs_order_line_request_data_archive
-    WHERE SKU_ID = 'SKU-XXXX' AND ORDER_TIMESTAMP >= DATE_SUB(CURDATE(), INTERVAL 30 DAY);
-
-5. Bin Location (Aisle/Tower):
-   SELECT lm.AISLE_NUMBER, lm.TOWER_NUMBER
+4. Bin Location (Aisle/Tower):
+   SELECT sbm.BIN_ID, lm.AISLE_NUMBER, lm.TOWER_NUMBER
    FROM store_bin_master sbm
    JOIN location_master lm ON sbm.LOCATION_ID = lm.LOCATION_ID
-   WHERE sbm.BIN_ID = ?;
+     AND sbm.`host-location` = lm.`host-location`
+   WHERE sbm.BIN_ID = ? AND sbm.`host-location` = ?
+   LIMIT 100;
 
-6. Station Performance:
-   SELECT hm.STATION_ID, hm.STATION_ALIAS_NAME, COUNT(*) as presentations
+5. Station Performance (bin presentations):
+   SELECT hm.STATION_ID, hm.STATION_ALIAS_NAME, COUNT(*) AS presentations
    FROM task_master_log tml
    JOIN hw_station_master hm ON tml.DESTINATION_LOCATION_ID = hm.LOCATION_ID
+     AND tml.`host-location` = hm.`host-location`
    WHERE tml.TASK_TYPE IN ('STATION_TO_STATION', 'BIN_STORE_TO_ZONE')
      AND tml.STATUS = 'COMPLETED'
-   GROUP BY hm.STATION_ID, hm.STATION_ALIAS_NAME;
+     AND DATE(tml.logged_timestamp) = CURDATE()
+     AND tml.`host-location` = ?
+   GROUP BY hm.STATION_ID, hm.STATION_ALIAS_NAME
+   ORDER BY presentations DESC;
 
-7. Expiry Dates:
-   SELECT sb.EXPIRY_DATE FROM sku_batch_master sb
-   WHERE sb.SKU_ID = ? AND sb.BATCH_ID = ?;
+6. Expiry Dates (compound key):
+   SELECT skbm.EXPIRY_DATE, skbm.BATCH_NUMBER, ar.SKU_NAME, lim.BIN_ID
+   FROM sku_batch_master skbm
+   JOIN live_inventory_master lim ON skbm.SKU_ID = lim.ARTICLE_ID
+     AND skbm.BATCH_ID = lim.BATCH_ID
+     AND skbm.`host-location` = lim.`host-location`
+   JOIN article_registered ar ON skbm.SKU_ID = ar.SKU_ID
+     AND skbm.`host-location` = ar.`host-location`
+   WHERE skbm.EXPIRY_DATE BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY
+     AND lim.IS_ACTIVE = 1 AND lim.QUANTITY > 0
+     AND skbm.`host-location` = ?
+   ORDER BY skbm.EXPIRY_DATE ASC LIMIT 200;
+
+7. Location Breakdown (all sites, GROUP BY):
+   SELECT `host-location`, COUNT(*) AS total_bots
+   FROM bot_master
+   WHERE STATUS = 'ENABLED'
+   GROUP BY `host-location`
+   ORDER BY total_bots DESC;
+
+8. Historical order data of sku:
+   SELECT * FROM wms_to_wcs_order_line_request_data_archive
+   WHERE SKU_ID = 'SKU-XXXX'
+     AND ORDER_TIMESTAMP >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+   LIMIT 200;
 
 TABLE ALIAS CONVENTIONS:
 - bm = bot_master
-- tml = task_master_log  
+- tml = task_master_log
 - hm = hw_station_master
 - lm = location_master
 - lim = live_inventory_master
@@ -132,6 +313,7 @@ TABLE ALIAS CONVENTIONS:
 - sbm = store_bin_master
 - bim = bin_info_master
 - bal = bot_alarm_log
+- skbm = sku_batch_master
 
 RESPONSE FORMAT:
 Return valid JSON with this exact structure:

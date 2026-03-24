@@ -123,8 +123,9 @@ class QueryPreprocessor:
         # --------------------------------------------------
         else:
             threshold = settings.TENANT_EXTRACTION_THRESHOLD
-            # Lower bar for 'any signal' — catches known-location words that just scored below threshold
-            low_signal_threshold = 0.25
+            # Lower bar for 'any signal' — catches known-location words that scored below threshold
+            # 0.30 prevents generic words ('system', 'today', 'current') from falsely matching
+            low_signal_threshold = 0.30
             tenant_id, confidence, top_matches = self.tenant_resolver.extract_tenant(question, threshold=threshold)
             
             if tenant_id and confidence >= threshold:
@@ -158,7 +159,9 @@ class QueryPreprocessor:
         all_sites_keywords = [
             "all sites", "all locations", "all warehouses", "all plants",
             "all facilities", "every site", "every location", "every warehouse",
-            "across all", "company-wide", "organization-wide", "entire network"
+            "across all", "company-wide", "organization-wide", "entire network",
+            "in the system", "in our system", "in the entire system",
+            "whole system", "entire system", "system wide", "system-wide",
         ]
         return any(keyword in query_lower for keyword in all_sites_keywords)
 
@@ -343,7 +346,12 @@ class QueryPreprocessor:
                     raise ValueError("Could not determine site/location and no default configured.")
     
     def _apply_single_default_tenant(self, entities: Dict[str, Any]):
-        """Helper method to apply single default tenant"""
-        entities[settings.TENANT_COLUMN] = [settings.DEFAULT_TENANT.upper()]
+        """Helper method to apply single default tenant.
+        
+        Note: We keep the case as-is from settings.DEFAULT_TENANT.
+        The downstream _map_tenant_to_actual_values() step will resolve
+        it to the exact DB value via embedding similarity.
+        """
+        entities[settings.TENANT_COLUMN] = [settings.DEFAULT_TENANT]
         entities["_multi_tenant"] = False
         entities["_all_sites"] = False

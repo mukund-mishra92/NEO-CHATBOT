@@ -100,11 +100,24 @@ class TenantResolver:
                 "falcon", "falcon site", "falcon location",
             ],
             
-            # ===== SHAKTI Site =====
+            # ===== SHAKTI Site (Bhiwandi warehouse) =====
             "SHAKTI": [
                 "shakti", "shakti location", "shakti site", "shakti warehouse", 
                 "shakti plant", "at shakti", "in shakti", "from shakti",
-                "for shakti", "shakti facility", "shakti depot"
+                "for shakti", "shakti facility", "shakti depot",
+                # Bhiwandi city — where SHAKTI warehouse is physically located
+                "bhiwandi", "bhiwandi warehouse", "bhiwandi site", "bhiwandi plant",
+                "bhiwandi location", "bhiwandi facility", "bhiwandi depot",
+                "at bhiwandi", "in bhiwandi", "from bhiwandi", "for bhiwandi",
+                "biwandi", "bhivandi", "bhiwanid", "bhiwandii", "bhwndi",
+            ],
+            
+            # ===== CHENNAI Site =====
+            "CHENNAI": [
+                "chennai", "chennai warehouse", "chennai site", "chennai plant",
+                "chennai location", "chennai facility", "chennai depot",
+                "at chennai", "in chennai", "from chennai", "for chennai",
+                "madras", "at madras", "in madras", "chn", "chenai",
             ],
             
             # ===== Generic Site Variations =====

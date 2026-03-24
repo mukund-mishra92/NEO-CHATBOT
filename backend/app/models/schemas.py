@@ -54,7 +54,7 @@ class ChatResponse(BaseModel):
     """Response from chatbot"""
     response: str
     chatbot_type: ChatbotType
-    session_id: str
+    session_id: Optional[str] = None
     sources: Optional[List[SourceDocument]] = []
     confidence_score: Optional[float] = None
     suggested_actions: Optional[List[str]] = []
