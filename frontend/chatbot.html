@@ -1807,6 +1807,104 @@
             box-shadow: 0 4px 16px rgba(220, 38, 38, 0.45);
             transform: translateY(-1px);
         }
+
+        /* ─── Dashboard KPI Chart Styles ─── */
+        .kpi-viz-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            padding: 4px 12px;
+            border: 1px solid rgba(124,58,237,0.3);
+            background: rgba(255,255,255,0.9);
+            color: #7c3aed;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin: 6px 8px;
+        }
+        .kpi-viz-toggle:hover {
+            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+        }
+        .kpi-viz-toggle.expanded {
+            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            color: #fff;
+            border-color: transparent;
+        }
+        .kpi-viz-bar {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(59,130,246,0.08));
+            border-bottom: 1px solid rgba(124,58,237,0.15);
+            flex-wrap: wrap;
+            animation: kpiSlideDown 0.25s ease-out;
+        }
+        .kpi-viz-bar.visible {
+            display: flex;
+        }
+        @keyframes kpiSlideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .kpi-viz-bar .kpi-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #7c3aed;
+            white-space: nowrap;
+            margin-right: 4px;
+        }
+        .kpi-viz-btn {
+            font-size: 11px;
+            padding: 4px 10px;
+            border: 1px solid rgba(124,58,237,0.25);
+            background: rgba(255,255,255,0.8);
+            color: #4b5563;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .kpi-viz-btn:hover {
+            background: rgba(124,58,237,0.08);
+            border-color: rgba(124,58,237,0.4);
+            color: #7c3aed;
+        }
+        .kpi-viz-btn.active {
+            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+        }
+        .kpi-chart-container {
+            display: none;
+            padding: 12px;
+            min-height: 220px;
+            position: relative;
+        }
+        .kpi-chart-container.visible {
+            display: block;
+        }
+        .kpi-chart-container canvas {
+            max-height: 320px;
+        }
+        .kpi-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(124,58,237,0.1);
+            color: #7c3aed;
+            font-weight: 600;
+            margin-left: auto;
+        }
     </style>
 </head>
 <body>
@@ -1958,6 +2056,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script>
         // ========== Auth Check ==========
         function getNeoSession() {
@@ -3560,6 +3659,171 @@
                 .trim();
         }
 
+        // ═══════════════════════════════════════════
+        //  Dashboard KPI Chart Rendering (Chart.js)
+        // ═══════════════════════════════════════════
+
+        // Registry of active chart instances so we can destroy before re-rendering
+        const _kpiChartInstances = {};
+
+        const KPI_CHART_COLORS = [
+            '#7c3aed', '#6366f1', '#3b82f6', '#06b6d4', '#10b981',
+            '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#14b8a6',
+        ];
+
+        /**
+         * Render a Chart.js chart for dashboard KPI data.
+         * @param {string}   containerId  - DOM id of the canvas parent
+         * @param {string}   chartType    - 'bar chart'|'pie'|'stat'|'table'|'time series'|'bar gauge'|'state timeline'
+         * @param {object[]} rows         - query_results array of row dicts
+         * @param {string[]} columns      - column names
+         */
+        function renderKpiChart(containerId, chartType, rows, columns) {
+            const container = document.getElementById(containerId);
+            if (!container || !rows || rows.length === 0) return;
+
+            // Destroy previous chart
+            if (_kpiChartInstances[containerId]) {
+                _kpiChartInstances[containerId].destroy();
+                delete _kpiChartInstances[containerId];
+            }
+
+            // "table" — just show the table view (already rendered)
+            if (chartType === 'table') {
+                container.innerHTML = '<div style="padding:12px;color:#6b7280;font-size:13px;text-align:center;"><i class="fas fa-table"></i> Data displayed as table above</div>';
+                return;
+            }
+
+            // "stat" — show big number cards
+            if (chartType === 'stat') {
+                container.innerHTML = rows.map(r => {
+                    const vals = Object.entries(r);
+                    const label = vals.length > 0 ? String(vals[0][1]) : '';
+                    const value = vals.length > 1 ? String(vals[1][1]) : String(vals[0][1]);
+                    return `<div style="display:inline-block;text-align:center;padding:12px 20px;margin:6px;background:linear-gradient(135deg,rgba(124,58,237,0.08),rgba(59,130,246,0.08));border-radius:10px;min-width:120px;">
+                        <div style="font-size:24px;font-weight:700;color:#7c3aed;">${value}</div>
+                        <div style="font-size:11px;color:#6b7280;margin-top:4px;">${label}</div>
+                    </div>`;
+                }).join('');
+                return;
+            }
+
+            // For chart types, pick label column (first text-ish) and value columns (numeric)
+            const labelCol = columns.find(c => rows.some(r => isNaN(Number(r[c])))) || columns[0];
+            const valueCols = columns.filter(c => c !== labelCol && rows.some(r => !isNaN(Number(r[c]))));
+            if (valueCols.length === 0 && columns.length >= 2) {
+                valueCols.push(columns[columns.length - 1]);
+            }
+
+            const labels = rows.map(r => String(r[labelCol] ?? ''));
+
+            // Map our chart types to Chart.js types
+            const chartJsType = (() => {
+                switch (chartType) {
+                    case 'bar chart': case 'bar gauge': return 'bar';
+                    case 'pie': return rows.length > 10 ? 'bar' : 'pie';
+                    case 'time series': return 'line';
+                    case 'state timeline': return 'bar';
+                    default: return 'bar';
+                }
+            })();
+
+            const isHorizontal = chartType === 'bar gauge';
+
+            const datasets = valueCols.map((col, i) => ({
+                label: col.replace(/_/g, ' '),
+                data: rows.map(r => Number(r[col]) || 0),
+                backgroundColor: chartJsType === 'pie'
+                    ? rows.map((_, j) => KPI_CHART_COLORS[j % KPI_CHART_COLORS.length])
+                    : KPI_CHART_COLORS[i % KPI_CHART_COLORS.length] + 'cc',
+                borderColor: KPI_CHART_COLORS[i % KPI_CHART_COLORS.length],
+                borderWidth: chartJsType === 'line' ? 2 : 1,
+                borderRadius: chartJsType === 'bar' ? 4 : 0,
+                tension: 0.3,
+                fill: chartJsType === 'line',
+            }));
+
+            // Create canvas
+            container.innerHTML = '<canvas></canvas>';
+            const canvas = container.querySelector('canvas');
+
+            _kpiChartInstances[containerId] = new Chart(canvas, {
+                type: chartJsType,
+                data: { labels, datasets },
+                options: {
+                    indexAxis: isHorizontal ? 'y' : 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: valueCols.length > 1 || chartJsType === 'pie',
+                            position: 'top',
+                            labels: { font: { size: 11 }, padding: 8 }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17,24,39,0.9)',
+                            titleFont: { size: 12 },
+                            bodyFont: { size: 11 },
+                            padding: 8,
+                            cornerRadius: 6,
+                        }
+                    },
+                    scales: chartJsType === 'pie' ? {} : {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+                        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 } }, beginAtZero: true },
+                    },
+                    animation: { duration: 600 },
+                }
+            });
+        }
+
+        /**
+         * Switch the chart type for a KPI card.
+         */
+        function switchKpiChart(cardId, chartType) {
+            // Update active button
+            document.querySelectorAll(`#${cardId}_vizbar .kpi-viz-btn`).forEach(b => {
+                b.classList.toggle('active', b.dataset.chart === chartType);
+            });
+            // Ensure chart container is visible
+            const chartEl = document.getElementById(`${cardId}_chart`);
+            if (chartEl) chartEl.classList.add('visible');
+            // Re-render chart
+            const meta = window._kpiCardMeta?.[cardId];
+            if (meta) {
+                renderKpiChart(`${cardId}_chart`, chartType, meta.rows, meta.columns);
+            }
+        }
+
+        /**
+         * Toggle the visualization toolbar + chart container for a KPI card.
+         */
+        function toggleKpiViz(cardId) {
+            const vizBar = document.getElementById(`${cardId}_vizbar`);
+            const chartEl = document.getElementById(`${cardId}_chart`);
+            const toggleBtn = document.getElementById(`${cardId}_vizToggle`);
+            if (!vizBar) return;
+
+            const isExpanding = !vizBar.classList.contains('visible');
+            vizBar.classList.toggle('visible');
+            if (toggleBtn) toggleBtn.classList.toggle('expanded', isExpanding);
+
+            if (isExpanding) {
+                // Render the default chart on first open
+                if (chartEl) chartEl.classList.add('visible');
+                const meta = window._kpiCardMeta?.[cardId];
+                if (meta && meta.rows.length > 0 && typeof renderKpiChart === 'function') {
+                    renderKpiChart(`${cardId}_chart`, meta.defaultChart, meta.rows, meta.columns);
+                }
+            } else {
+                // Collapse: hide chart
+                if (chartEl) chartEl.classList.remove('visible');
+            }
+        }
+
+        // Store per-card metadata for chart switching
+        window._kpiCardMeta = {};
+
         function formatMessage(content, data, messageType = 'assistant') {
             const isAssistant = messageType === 'assistant';
             const isSqlAssistant = isAssistant && (data?.chatbot_type === 'sql_assistant');
@@ -3684,16 +3948,61 @@
                         </div>`;
                 }
 
+                // ── Dashboard KPI: build chart visualization (on-demand toggle) ──
+                const kpiMeta = data?.metadata?.dashboard_kpi;
+                let kpiToggleHtml = '';
+                let kpiVizBarHtml = '';
+                let kpiChartHtml = '';
+                if (kpiMeta && kpiMeta.source === 'dashboard_kpi') {
+                    const availableCharts = kpiMeta.available_chart_types || ['bar chart', 'pie', 'table', 'stat'];
+                    const defaultChart = kpiMeta.chart_type || 'bar chart';
+                    const chartIcons = {
+                        'bar chart': 'fa-chart-bar', 'pie': 'fa-chart-pie', 'table': 'fa-table',
+                        'stat': 'fa-hashtag', 'time series': 'fa-chart-line',
+                        'bar gauge': 'fa-chart-bar', 'state timeline': 'fa-stream',
+                    };
+                    const vizBtns = availableCharts.map(ct =>
+                        `<button class="kpi-viz-btn ${ct === defaultChart ? 'active' : ''}" data-chart="${ct}" onclick="switchKpiChart('${cardId}','${ct}')"><i class="fas ${chartIcons[ct] || 'fa-chart-bar'}"></i> ${ct.replace(/^\w/, c=>c.toUpperCase())}</button>`
+                    ).join('');
+
+                    // Compact toggle button (always visible)
+                    kpiToggleHtml = `
+                        <button class="kpi-viz-toggle" id="${cardId}_vizToggle" onclick="toggleKpiViz('${cardId}')">
+                            <i class="fas fa-chart-pie"></i> Visualize
+                            <span class="kpi-badge"><i class="fas fa-database"></i> ${kpiMeta.category.replace(/^\w/, c=>c.toUpperCase())} KPI</span>
+                        </button>`;
+
+                    // Expandable toolbar (hidden by default)
+                    kpiVizBarHtml = `
+                        <div class="kpi-viz-bar" id="${cardId}_vizbar">
+                            <span class="kpi-label"><i class="fas fa-chart-pie"></i> Chart type:</span>
+                            ${vizBtns}
+                        </div>`;
+
+                    // Chart container (hidden by default)
+                    kpiChartHtml = `<div class="kpi-chart-container" id="${cardId}_chart" style="height:300px;"></div>`;
+
+                    // Store row data for chart switching
+                    window._kpiCardMeta[cardId] = {
+                        rows: data.query_results || [],
+                        columns: kpiMeta.columns || [],
+                        defaultChart: defaultChart,
+                    };
+                }
+
                 const cardsHtml = `
                     <div class="sql-cards-layout" id="${cardId}_layout">
                         <div class="sql-card sql-card-data" id="${cardId}_data">
                             <div class="sql-card-header">
                                 <i class="fas fa-table"></i> Query Results ${rowCountBadge}
+                                ${kpiToggleHtml}
                                 <button class="sql-csv-download-btn" onclick="exportTableToCSV('${cardId}_dataBody')" title="Download as CSV">
                                     <i class="fas fa-download"></i> CSV
                                 </button>
                             </div>
+                            ${kpiVizBarHtml}
                             <div class="sql-card-body" id="${cardId}_dataBody">${html}</div>
+                            ${kpiChartHtml}
                         </div>
                         <div class="sql-right-column">
                             ${sqlCardHtml ? `

@@ -584,6 +584,66 @@ async def get_statistics():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ----------------------------------------------------------
+# 📊 DASHBOARD KPI ENDPOINTS
+# ----------------------------------------------------------
+
+@router.get("/dashboard/kpis")
+async def list_dashboard_kpis(category: str = None):
+    """
+    List all available dashboard KPIs.
+    Optional filter by category: bot | inventory | orders | station
+    """
+    try:
+        if sql_service.kpi_resolver:
+            kpis = sql_service.kpi_resolver.list_kpis(category=category)
+            categories = sql_service.kpi_resolver.get_categories()
+            return {
+                "total": len(kpis),
+                "categories": categories,
+                "kpis": kpis
+            }
+        return {"total": 0, "categories": [], "kpis": []}
+    except Exception as e:
+        logger.error(f"Error listing KPIs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/dashboard/kpis/match")
+async def match_dashboard_kpi(question: str, tenant: str = None, top_k: int = 3):
+    """
+    Find the best matching dashboard KPIs for a question.
+    Returns top-k matches with scores.
+    """
+    try:
+        if not sql_service.kpi_resolver:
+            return {"matches": []}
+
+        matches = sql_service.kpi_resolver.resolve_top_k(
+            question=question,
+            tenant_values=[tenant] if tenant else None,
+            top_k=top_k,
+        )
+        return {
+            "question": question,
+            "matches": [
+                {
+                    "kpi_id": m.kpi_id,
+                    "kpi_name": m.kpi_name,
+                    "category": m.category,
+                    "chart_type": m.chart_type,
+                    "match_score": round(m.match_score, 3),
+                    "logic": m.logic[:200],
+                    "tables_used": m.tables_used,
+                }
+                for m in matches
+            ]
+        }
+    except Exception as e:
+        logger.error(f"Error matching KPIs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.delete("/session/{session_id}")
 async def clear_session(session_id: str):
     """

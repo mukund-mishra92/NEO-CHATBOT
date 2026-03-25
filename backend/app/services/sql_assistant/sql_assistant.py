@@ -19,6 +19,7 @@ from .semantic_validator import SemanticValidator
 from .schema_feedback import SchemaFeedbackGenerator
 from .table_priority_loader import TablePriorityLoader
 from .table_selector import TableSelector
+from .kpi_resolver import DashboardKPIResolver
 
 
 import logging
@@ -138,6 +139,15 @@ class SQLAssistantService:
             f"Instead use COUNT(*) to count records. "
             f"If you truly need globally unique counts, use COUNT(DISTINCT <id_col>, `{self.tenant_column}`)."
         )
+
+        # 📊 Dashboard KPI Resolver — matches questions to pre-built Grafana KPIs
+        try:
+            kpi_registry_path = str(settings.DATA_DIR / "dashboard-data" / "kpi_registry.json")
+            self.kpi_resolver = DashboardKPIResolver(registry_path=kpi_registry_path)
+            logger.info(f"📊 Dashboard KPI resolver loaded with {len(self.kpi_resolver.kpis)} KPIs")
+        except Exception as e:
+            logger.warning(f"⚠️ Dashboard KPI resolver failed to load: {e}")
+            self.kpi_resolver = None
 
         logger.info(f"✅ SQLAssistantService initialized with {len(self.schema)} tables")
 
@@ -623,6 +633,14 @@ class SQLAssistantService:
         if cached:
             return cached
 
+        # --------------------------------------------------
+        # 📊 DASHBOARD KPI MATCH (pre-built Grafana queries)
+        # --------------------------------------------------
+        kpi_response = self._try_kpi_match(clean_question, entities, session_id)
+        if kpi_response:
+            self.cache.set(session_id, clean_question, kpi_response)
+            return kpi_response
+
         reused = self.reuse_engine.try_reuse(clean_question)
 
         if reused:
@@ -876,3 +894,113 @@ class SQLAssistantService:
         self.cache.set(session_id, clean_question, response)
 
         return response
+    # ----------------------------------------------------------
+    # 📊 DASHBOARD KPI MATCH
+    # ----------------------------------------------------------
+    def _try_kpi_match(self, clean_question: str, entities: dict, session_id: str):
+        """
+        Check if the user question matches a pre-built dashboard KPI.
+        If yes, execute the KPI query and return a ChatResponse with
+        dashboard metadata (chart_type, kpi_name, query_results etc.)
+        so the frontend can render charts dynamically.
+        """
+        if not self.kpi_resolver:
+            return None
+
+        # ── Extract tenant values (supports single / multi / all-sites) ──
+        tenant_values = entities.get(self.tenant_column)
+        all_sites = entities.get("_all_sites", False)
+
+        # Normalise to list
+        if isinstance(tenant_values, str):
+            tenant_values = [tenant_values]
+        elif not tenant_values:
+            tenant_values = None
+
+        try:
+            kpi_match = self.kpi_resolver.resolve(
+                question=clean_question,
+                tenant_values=tenant_values,
+                all_sites=all_sites,
+            )
+        except Exception as e:
+            logger.warning(f"KPI resolver error: {e}")
+            return None
+
+        if not kpi_match:
+            return None
+
+        logger.info(
+            f"📊 Dashboard KPI hit: '{kpi_match.kpi_name}' "
+            f"(score={kpi_match.match_score:.2f}, chart={kpi_match.chart_type})"
+        )
+        logger.info(f"📊 KPI tenant params: {kpi_match.parameters_applied}")
+        logger.debug(f"📊 KPI SQL (first 300): {kpi_match.sql[:300]}")
+
+        # Execute the KPI query
+        sql = kpi_match.sql
+        execution_result = self.executor.execute(sql)
+
+        row_count = execution_result.row_count
+        rows = execution_result.rows or []
+
+        # Format clean response text (NO KPI header — metadata drives the UI)
+        response_text = self.formatter.format(
+            clean_question, sql, execution_result, 0.95
+        )
+
+        # ── Build chart-ready data for frontend ──
+        columns = []
+        query_results = []
+        if rows:
+            columns = list(rows[0].keys()) if isinstance(rows[0], dict) else []
+            query_results = [dict(r) if hasattr(r, 'keys') else r for r in rows]
+
+        # Build dashboard visualization metadata for the frontend
+        dashboard_metadata = {
+            "kpi_id": kpi_match.kpi_id,
+            "kpi_name": kpi_match.kpi_name,
+            "category": kpi_match.category,
+            "chart_type": kpi_match.chart_type,
+            "logic": kpi_match.logic,
+            "match_score": kpi_match.match_score,
+            "tables_used": kpi_match.tables_used,
+            "parameters_applied": kpi_match.parameters_applied,
+            "source": "dashboard_kpi",
+            "columns": columns,
+            "available_chart_types": self._available_charts_for(kpi_match.chart_type, columns),
+        }
+
+        response = ChatResponse(
+            response=response_text,
+            chatbot_type=ChatbotType.SQL_ASSISTANT,
+            session_id=session_id,
+            sources=[],
+            confidence_score=0.95,
+            query_results=query_results,
+            metadata={
+                "sql_query": sql,
+                "row_count": row_count,
+                "resolved_entities": entities,
+                "dashboard_kpi": dashboard_metadata,
+            }
+        )
+
+        return response
+
+    # ----------------------------------------------------------
+    # CHART TYPE HELPERS
+    # ----------------------------------------------------------
+
+    @staticmethod
+    def _available_charts_for(default_chart: str, columns: list) -> list:
+        """
+        Return chart types the user can pick from.
+        First item is the recommended default from the KPI definition.
+        """
+        all_types = ["bar chart", "pie", "table", "stat", "time series", "bar gauge"]
+        result = [default_chart] if default_chart else []
+        for ct in all_types:
+            if ct not in result:
+                result.append(ct)
+        return result

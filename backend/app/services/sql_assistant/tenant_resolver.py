@@ -118,6 +118,7 @@ class TenantResolver:
                 "chennai location", "chennai facility", "chennai depot",
                 "at chennai", "in chennai", "from chennai", "for chennai",
                 "madras", "at madras", "in madras", "chn", "chenai",
+                "chenni", "channai", "chnnai",
             ],
             
             # ===== Generic Site Variations =====
@@ -165,7 +166,11 @@ class TenantResolver:
             "BANGALORE": [
                 "bangalore", "bengaluru", "bangalore warehouse", "bangalore site",
                 "bangalore plant", "blr", "in bangalore", "at bangalore",
-                "bengaluru facility"
+                "bengaluru facility", "for bangalore", "from bangalore",
+                # Common misspellings
+                "banglore", "bangaluru", "bangalor", "banglaore",
+                "bengalure", "bengluru", "bangluru", "bangalure",
+                "at banglore", "in banglore", "from banglore", "for banglore",
             ],
             
             "PUNE": [
@@ -266,6 +271,61 @@ class TenantResolver:
                         return tid
         return None
 
+    def _fuzzy_tenant_match(self, query_lower: str, cutoff: float = 0.80) -> Tuple[Optional[str], float]:
+        """
+        Stage 0.5: Fuzzy match for misspellings before falling back to embedding.
+
+        Extracts location-like words from the query and checks them against
+        all known tenant variation *base words* using difflib SequenceMatcher.
+        Only single-word variations (e.g., 'bangalore', 'bengaluru', 'banglore')
+        are checked to keep it fast and precise.
+
+        Returns:
+            (tenant_id, confidence) or (None, 0.0)
+        """
+        import difflib
+
+        if not self.tenant_metadata:
+            return None, 0.0
+
+        # Build a map: base_word → tenant_id  (single words only, skip prepositions)
+        skip_words = {"at", "in", "from", "for", "the", "a", "an", "of", "location",
+                      "site", "warehouse", "plant", "facility", "depot"}
+        base_map: Dict[str, str] = {}
+        for meta in self.tenant_metadata:
+            for w in meta["variation"].split():
+                if w not in skip_words and len(w) >= 3:
+                    base_map.setdefault(w, meta["tenant_id"])
+
+        # Extract candidate words from query (skip common stop words)
+        query_words = [w for w in query_lower.split() if w not in skip_words and len(w) >= 3]
+
+        best_tid = None
+        best_ratio = 0.0
+
+        for qw in query_words:
+            # Quick exact check first
+            if qw in base_map:
+                # Already handled by predefined/embedding — skip
+                continue
+            # Fuzzy match against all base words
+            matches = difflib.get_close_matches(qw, base_map.keys(), n=1, cutoff=cutoff)
+            if matches:
+                matched_word = matches[0]
+                ratio = difflib.SequenceMatcher(None, qw, matched_word).ratio()
+                if ratio > best_ratio:
+                    best_ratio = ratio
+                    best_tid = base_map[matched_word]
+
+        if best_tid and best_ratio >= cutoff:
+            logger.info(
+                f"✅ Stage 0.5 fuzzy match: query word matched → tenant_id='{best_tid}' "
+                f"(ratio={best_ratio:.3f})"
+            )
+            return best_tid, best_ratio
+
+        return None, 0.0
+
     def extract_tenant(self, query: str, threshold: float = 0.65) -> Tuple[Optional[str], float, List[Dict]]:
         """
         Extract SINGLE tenant from query (for simple queries).
@@ -287,6 +347,12 @@ class TenantResolver:
         predefined_tid = self._predefined_mapping_lookup(query_lower)
         if predefined_tid:
             return predefined_tid, 1.0, [{"tenant_id": predefined_tid, "variation": query_lower, "confidence": 1.0}]
+        # ─────────────────────────────────────────────────────────────────────
+
+        # ── Stage 0.5: Fuzzy match for misspellings ──────────────────────────
+        fuzzy_tid, fuzzy_conf = self._fuzzy_tenant_match(query_lower)
+        if fuzzy_tid:
+            return fuzzy_tid, fuzzy_conf, [{"tenant_id": fuzzy_tid, "variation": query_lower, "confidence": fuzzy_conf}]
         # ─────────────────────────────────────────────────────────────────────
         
         # 🔥 NEW: Extract location-specific phrase to improve matching
@@ -342,6 +408,12 @@ class TenantResolver:
         predefined_tid = self._predefined_mapping_lookup(query_lower)
         if predefined_tid:
             return [predefined_tid], [{"tenant_id": predefined_tid, "confidence": 1.0}]
+        # ─────────────────────────────────────────────────────────────────────
+
+        # ── Stage 0.5: Fuzzy match for misspellings ──────────────────────────
+        fuzzy_tid, fuzzy_conf = self._fuzzy_tenant_match(query_lower)
+        if fuzzy_tid:
+            return [fuzzy_tid], [{"tenant_id": fuzzy_tid, "confidence": fuzzy_conf}]
         # ─────────────────────────────────────────────────────────────────────
         
         # 🔥 NEW: Extract location-specific phrase to improve matching
