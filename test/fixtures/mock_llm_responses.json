@@ -1,0 +1,37 @@
+{
+    "simple_select": {
+        "choices": [{
+            "message": {
+                "content": "{\"sql\": \"SELECT article, quantity FROM bal_outbound_parcel_scan_dtl WHERE `host-location` = 'frk' LIMIT 100\", \"confidence\": 0.92, \"explanation\": \"Selecting articles from outbound scan\", \"assumptions\": [\"Using frk tenant\"], \"tables_used\": [\"bal_outbound_parcel_scan_dtl\"]}"
+            }
+        }]
+    },
+    "aggregation_count": {
+        "choices": [{
+            "message": {
+                "content": "{\"sql\": \"SELECT COUNT(*) AS total FROM bal_pick_dtl WHERE `host-location` = 'shakti'\", \"confidence\": 0.95, \"explanation\": \"Counting picks\", \"assumptions\": [\"Aggregation\"], \"tables_used\": [\"bal_pick_dtl\"]}"
+            }
+        }]
+    },
+    "join_query": {
+        "choices": [{
+            "message": {
+                "content": "{\"sql\": \"SELECT p.article, m.description, COUNT(*) AS picks FROM bal_pick_dtl p JOIN bal_master_article m ON p.article = m.article AND p.`host-location` = m.`host-location` WHERE p.`host-location` = 'frk' GROUP BY p.article, m.description ORDER BY picks DESC LIMIT 10\", \"confidence\": 0.88, \"explanation\": \"Top 10 picked articles with descriptions\", \"assumptions\": [\"Composite key join\"], \"tables_used\": [\"bal_pick_dtl\", \"bal_master_article\"]}"
+            }
+        }]
+    },
+    "invalid_json": {
+        "choices": [{
+            "message": {
+                "content": "Here is the SQL: SELECT * FROM bal_pick_dtl"
+            }
+        }]
+    },
+    "empty_response": {
+        "choices": [{
+            "message": {
+                "content": ""
+            }
+        }]
+    }
+}

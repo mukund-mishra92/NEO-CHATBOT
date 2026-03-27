@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Priority Validator - NEO AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --brand-start: #667eea;
+            --brand-end: #764ba2;
+            --surface-soft: #f7f8fc;
+            --surface-muted: #f1f3f9;
+            --border-soft: #e5e9f4;
+            --text-main: #1f2533;
+            --text-muted: #667085;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+            overflow: hidden;
+            color: var(--text-main);
+        }
+
+        /* ── Layout ── */
+        .page-wrap {
+            width: 100vw; height: 100vh;
+            display: flex; flex-direction: column;
+            background: #fff; overflow: hidden;
+        }
+
+        /* ── Header ── */
+        .page-header {
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+            color: white; padding: 12px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            flex-shrink: 0;
+        }
+        .page-header h1 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: 0.2px; }
+        .page-header h1 i { margin-right: 8px; opacity: 0.9; }
+        .page-header small { font-size: 13px; color: rgba(255,255,255,0.85); display: block; margin-top: 2px; }
+        .back-btn {
+            background: rgba(255,255,255,0.18); color: white;
+            border: 1px solid rgba(255,255,255,0.22);
+            padding: 8px 16px; border-radius: 999px;
+            cursor: pointer; transition: all 0.2s;
+            font-weight: 600; font-size: 13px;
+            text-decoration: none; display: inline-flex;
+            align-items: center; gap: 6px;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.3); color: white; transform: translateY(-1px); text-decoration: none; }
+
+        /* ── Content ── */
+        .page-content {
+            flex: 1; overflow-y: auto;
+            background: var(--surface-soft);
+            padding: 20px 24px;
+        }
+
+        /* ── Alerts ── */
+        .alert {
+            padding: 12px 16px; border-radius: 8px; margin-bottom: 14px;
+            display: none; font-size: 13px; font-weight: 500;
+            border-left: 4px solid transparent; position: relative;
+        }
+        .alert.show { display: flex; align-items: center; gap: 8px; }
+        .alert-success { background: #ecfdf5; color: #065f46; border-left-color: #10b981; }
+        .alert-error { background: #fef2f2; color: #991b1b; border-left-color: #ef4444; }
+
+        /* ── Grid layout ── */
+        .main-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 16px; margin-bottom: 16px;
+        }
+
+        /* ── Card ── */
+        .card {
+            background: #fff; border: 1px solid var(--border-soft);
+            border-radius: 12px; padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .card.full-width { grid-column: 1 / -1; }
+        .card-title {
+            font-size: 15px; font-weight: 700; color: var(--text-main);
+            margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+        }
+        .card-title i { color: var(--brand-start); font-size: 15px; }
+
+        /* ── Buttons ── */
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn {
+            padding: 9px 18px; border: none; border-radius: 8px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; display: inline-flex;
+            align-items: center; gap: 6px;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-brand { background: linear-gradient(135deg, var(--brand-start), var(--brand-end)); color: white; }
+        .btn-brand:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(102,126,234,0.35); transform: translateY(-1px); }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover:not(:disabled) { background: #059669; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-soft { background: var(--surface-muted); color: var(--text-main); }
+        .btn-soft:hover { background: var(--border-soft); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        /* ── Query input ── */
+        .query-input-section { margin-bottom: 20px; }
+        .query-input-section label {
+            display: block; margin-bottom: 8px; color: var(--text-main);
+            font-weight: 600; font-size: 13px;
+        }
+        .query-input-section textarea {
+            width: 100%; padding: 12px; border: 1px solid var(--border-soft);
+            border-radius: 8px; font-size: 13px; font-family: inherit;
+            resize: vertical; min-height: 90px; color: var(--text-main);
+            transition: border-color 0.2s; background: var(--surface-soft);
+        }
+        .query-input-section textarea:focus { outline: none; border-color: var(--brand-start); background: #fff; }
+
+        /* ── Loading ── */
+        .loading { display: none; text-align: center; padding: 24px; }
+        .loading.active { display: block; }
+        .loading p { color: var(--text-muted); font-size: 13px; }
+
+        /* ── Table cards (results) ── */
+        .results-section { margin-top: 16px; }
+        .table-card {
+            background: var(--surface-soft); border: 1px solid var(--border-soft);
+            border-radius: 10px; padding: 14px; margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        .table-card.validated-correct { border-color: #10b981; background: #ecfdf5; }
+        .table-card.validated-incorrect { border-color: #ef4444; background: #fef2f2; }
+        .table-card-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 8px;
+        }
+        .table-name { font-size: 15px; font-weight: 700; color: var(--brand-start); }
+        .table-score { display: flex; gap: 8px; align-items: center; }
+        .score-badge {
+            background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+            color: white; padding: 3px 12px; border-radius: 999px;
+            font-size: 12px; font-weight: 600;
+        }
+        .category-badge {
+            background: #fffbeb; color: #92400e; border: 1px solid #fef3c7;
+            padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
+        }
+        .table-description { color: var(--text-muted); font-size: 13px; margin-bottom: 8px; line-height: 1.5; }
+        .table-columns { color: #9ca3af; font-size: 12px; margin-bottom: 8px; max-height: 50px; overflow-y: auto; }
+        .validation-actions { display: flex; gap: 8px; }
+
+        /* ── Stats grid (right panel) ── */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 10px; margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+            color: white; padding: 16px; border-radius: 10px; text-align: center;
+        }
+        .stat-value { font-size: 26px; font-weight: 700; margin-bottom: 2px; }
+        .stat-label { font-size: 12px; opacity: 0.9; }
+
+        /* ── History items ── */
+        .history-item {
+            background: var(--surface-soft); border-left: 3px solid var(--brand-start);
+            padding: 12px 14px; margin-bottom: 10px; border-radius: 8px;
+        }
+        .history-query { font-weight: 600; color: var(--text-main); margin-bottom: 6px; font-size: 13px; }
+        .history-tables { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+        .history-table-tag {
+            padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 500;
+        }
+        .history-table-tag.correct { background: #ecfdf5; color: #065f46; }
+        .history-table-tag.incorrect { background: #fef2f2; color: #991b1b; }
+        .history-timestamp { color: var(--text-muted); font-size: 11px; }
+
+        /* ── Priority system section ── */
+        .info-callout {
+            background: #fffbeb; border-left: 4px solid #f59e0b;
+            padding: 14px 16px; margin-bottom: 20px; border-radius: 8px;
+            font-size: 13px; line-height: 1.6;
+        }
+        .info-callout h4 { color: #92400e; margin-bottom: 8px; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+        .info-callout p, .info-callout ul, .info-callout ol { color: #92400e; }
+        .info-callout-blue {
+            background: #eff6ff; border-left: 4px solid #3b82f6;
+            padding: 14px 16px; margin-top: 24px; border-radius: 8px;
+            font-size: 13px; line-height: 1.6;
+        }
+        .info-callout-blue h4 { color: #1e40af; margin-bottom: 8px; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+        .info-callout-blue ol { color: #1e40af; margin: 0; line-height: 1.8; padding-left: 18px; }
+
+        .priority-section { margin-top: 16px; padding: 16px; background: var(--surface-soft); border-radius: 10px; }
+        .priority-section h3 {
+            font-size: 14px; font-weight: 700; color: var(--text-main);
+            margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+        }
+        .priority-section h3 i { color: var(--brand-start); }
+        .priority-section p { color: var(--text-muted); font-size: 13px; margin-bottom: 12px; }
+        .priority-section ul { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; line-height: 1.8; padding-left: 18px; }
+
+        .priority-rule { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+        .priority-rule label { min-width: 240px; font-weight: 600; font-size: 13px; color: var(--text-main); }
+        .priority-rule input, .priority-rule select {
+            flex: 1; padding: 8px 12px; border: 1px solid var(--border-soft);
+            border-radius: 6px; font-size: 13px; color: var(--text-main);
+        }
+        .priority-rule input:focus, .priority-rule select:focus { outline: none; border-color: var(--brand-start); }
+
+        /* ── Search section ── */
+        .search-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-soft); }
+        .search-section h3 {
+            font-size: 14px; font-weight: 700; color: var(--text-main);
+            margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+        }
+        .search-section h3 i { color: var(--brand-start); }
+        .search-wrap { position: relative; margin-bottom: 12px; }
+        .search-wrap > i {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 13px; pointer-events: none;
+        }
+        .search-input {
+            width: 100%; padding: 10px 14px 10px 36px;
+            border: 1px solid var(--border-soft); border-radius: 8px;
+            font-size: 13px; color: var(--text-main); background: var(--surface-soft);
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { outline: none; border-color: var(--brand-start); background: #fff; }
+        .search-info {
+            color: var(--text-muted); font-size: 12px; margin-bottom: 12px;
+            padding: 8px 12px; background: var(--surface-soft); border-radius: 6px;
+        }
+        .search-results { max-height: 400px; overflow-y: auto; }
+
+        .table-card-compact {
+            background: #fff; border: 1px solid var(--border-soft);
+            border-radius: 8px; padding: 12px; margin-bottom: 8px;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .table-card-compact:hover { border-color: var(--brand-start); box-shadow: 0 2px 8px rgba(102,126,234,0.1); }
+        .table-card-compact .table-name { font-size: 14px; font-weight: 700; color: var(--brand-start); margin-bottom: 4px; }
+        .table-card-compact .table-category {
+            display: inline-block; background: #fffbeb; color: #92400e;
+            padding: 2px 8px; border-radius: 999px; font-size: 11px;
+            margin-bottom: 6px; font-weight: 500;
+        }
+        .table-card-compact .table-description { color: var(--text-muted); font-size: 12px; margin-bottom: 6px; line-height: 1.4; }
+
+        /* ── Empty state ── */
+        .empty-state { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
+        .no-results { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
+
+        /* ── Scrollbar ── */
+        .page-content::-webkit-scrollbar, .search-results::-webkit-scrollbar { width: 6px; }
+        .page-content::-webkit-scrollbar-track, .search-results::-webkit-scrollbar-track { background: transparent; }
+        .page-content::-webkit-scrollbar-thumb, .search-results::-webkit-scrollbar-thumb { background: #c5c9d6; border-radius: 10px; }
+
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+    <script>
+        (function() {
+            try {
+                const s = JSON.parse(localStorage.getItem('neo_session'));
+                if (!s || !s.name || !s.role) { window.location.href = '/login'; return; }
+                if (s.role !== 'admin') { alert('Admin privileges required.'); window.location.href = '/chatbot'; return; }
+            } catch(e) { window.location.href = '/login'; }
+        })();
+    </script>
+</head>
+<body>
+    <div class="page-wrap">
+        <div class="page-header">
+            <div>
+                <h1><i class="fas fa-crosshairs"></i> Table Priority Validator</h1>
+                <small>Test queries, validate table selections, and adjust priorities to improve SQL generation accuracy</small>
+            </div>
+            <a href="/chatbot" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Chatbot</a>
+        </div>
+
+        <div class="page-content">
+            <div class="alert alert-success" id="successAlert"></div>
+            <div class="alert alert-error" id="errorAlert"></div>
+
+            <div class="main-grid">
+                <!-- Left Panel: Query Testing -->
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-search"></i> Query Testing</div>
+
+                    <div class="query-input-section">
+                        <label for="testQuery">Enter Query:</label>
+                        <textarea id="testQuery" placeholder="e.g., give me bot locations, show station positions, list all active bots..."></textarea>
+                        <div class="btn-row" style="margin-top: 12px;">
+                            <button class="btn btn-brand" onclick="testQuery()"><i class="fas fa-play"></i> Test Query</button>
+                            <button class="btn btn-soft" onclick="clearResults()"><i class="fas fa-eraser"></i> Clear</button>
+                        </div>
+                    </div>
+
+                    <div class="loading" id="loadingIndicator">
+                        <p>Analyzing query and ranking tables...</p>
+                    </div>
+
+                    <div class="results-section" id="resultsSection"></div>
+
+                    <!-- Search Section -->
+                    <div class="search-section" id="searchSection" style="display: none;">
+                        <h3><i class="fas fa-search-plus"></i> Can't Find the Right Table? Search All Tables</h3>
+                        <div class="search-info">
+                            <strong>Tip:</strong> If the recommended tables above don't include the table you need,
+                            use this search to find and select the correct table from all available tables.
+                        </div>
+                        <div class="search-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="tableSearchInput" class="search-input"
+                                   placeholder="Search by table name, category, or description..." oninput="filterTables()">
+                        </div>
+                        <div id="tableCount" class="search-info" style="display: none;"></div>
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Stats & History -->
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-chart-bar"></i> Validation Statistics</div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="statTotalValidations">0</div>
+                            <div class="stat-label">Total Validations</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statCorrectSelections">0</div>
+                            <div class="stat-label">Correct Selections</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statAccuracyRate">0%</div>
+                            <div class="stat-label">Accuracy Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="card-title" style="margin-top: 8px;"><i class="fas fa-history"></i> Validation History</div>
+                    <div class="btn-row" style="margin-bottom: 14px;">
+                        <button class="btn btn-soft btn-sm" onclick="loadHistory()"><i class="fas fa-sync-alt"></i> Refresh History</button>
+                    </div>
+                    <div id="historySection"></div>
+                </div>
+            </div>
+
+            <!-- Full Width: Priority System -->
+            <div class="card full-width">
+                <div class="card-title"><i class="fas fa-cogs"></i> Smart Priority System</div>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+                    <strong>How it works:</strong> When you mark tables as correct or incorrect for specific queries,
+                    the system learns query-intent patterns and automatically applies them to similar future queries.
+                </p>
+
+                <div class="info-callout">
+                    <h4><i class="fas fa-lightbulb"></i> Example - Location Queries</h4>
+                    <p style="margin: 0; line-height: 1.6;">
+                        <strong>Query:</strong> "give me bot locations"<br>
+                        <strong>Wrong table selected:</strong> dashboard_bot_master (has LOCK_BY, UNLOCK_BY - admin metadata)<br>
+                        <strong>Right table:</strong> bot_master (has GRIDX, GRIDY, GRIDZ - actual position coordinates)<br><br>
+                        <strong>Solution:</strong><br>
+                        1. Test query "give me bot locations"<br>
+                        2. Mark dashboard_bot_master as Incorrect<br>
+                        3. Mark bot_master as Correct<br>
+                        4. System saves this validation<br>
+                        5. Next time any query mentions "bot locations" - bot_master gets 10x boost, dashboard_bot_master gets 0.01x penalty<br><br>
+                        <strong>Similarly for stations:</strong><br>
+                        "station locations" - hw_station_master (has LOCATION_ID, station data) = Correct<br>
+                        "station locations" - hardware_registered (generic hardware, not station-specific) = Incorrect
+                    </p>
+                </div>
+
+                <div class="priority-section">
+                    <h3><i class="fas fa-clipboard-list"></i> Validation-Based Learning (Query to Table Mapping)</h3>
+                    <p>Use the <strong>Test Query</strong> panel above to validate correct/incorrect tables.
+                        The system automatically learns from your validations and applies:</p>
+                    <ul>
+                        <li><strong>10x boost</strong> for validated correct tables</li>
+                        <li><strong>0.01x penalty</strong> for validated incorrect tables</li>
+                        <li>Exact query matching (case-insensitive)</li>
+                        <li>Stored persistently across sessions</li>
+                    </ul>
+
+                    <h3 style="margin-top: 20px;"><i class="fas fa-sliders-h"></i> Category Priority Multipliers (Fallback)</h3>
+                    <p>These are default multipliers applied when no validation exists for a query:</p>
+                    <div id="categoryPrioritiesSection">
+                        <div class="priority-rule">
+                            <label>bot_master (current bot state):</label>
+                            <input type="number" id="priority_bot_master" value="3.0" step="0.1" min="0">
+                        </div>
+                        <div class="priority-rule">
+                            <label>station_master (current station state):</label>
+                            <input type="number" id="priority_station_master" value="3.0" step="0.1" min="0">
+                        </div>
+                        <div class="priority-rule">
+                            <label>config_master (configuration tables):</label>
+                            <input type="number" id="priority_config_master" value="1.5" step="0.1" min="0">
+                        </div>
+                        <div class="priority-rule">
+                            <label>log_table (historical logs):</label>
+                            <input type="number" id="priority_log_table" value="0.5" step="0.1" min="0">
+                        </div>
+                        <div class="priority-rule">
+                            <label>telemetry_table (sensor data):</label>
+                            <input type="number" id="priority_telemetry_table" value="0.2" step="0.1" min="0">
+                        </div>
+                        <div class="priority-rule">
+                            <label>general_table (other tables):</label>
+                            <input type="number" id="priority_general_table" value="1.0" step="0.1" min="0">
+                        </div>
+                    </div>
+
+                    <div class="btn-row" style="margin-top: 16px;">
+                        <button class="btn btn-brand" onclick="savePriorities()"><i class="fas fa-save"></i> Save Category Priorities</button>
+                        <button class="btn btn-soft" onclick="resetPriorities()"><i class="fas fa-undo"></i> Reset to Defaults</button>
+                    </div>
+
+                    <div class="info-callout-blue">
+                        <h4><i class="fas fa-info-circle"></i> Priority Execution Order</h4>
+                        <ol>
+                            <li><strong>Validation Rules First:</strong> If exact query match found - apply 10x boost / 0.01x penalty</li>
+                            <li><strong>Category Multipliers Second:</strong> Apply category-based multipliers (bot_master: 3.0x, etc.)</li>
+                            <li><strong>Entity Boost Third:</strong> If query mentions "bot" - boost bot_* tables by 1.5x</li>
+                            <li><strong>TF-IDF Similarity Fourth:</strong> Match query keywords with table descriptions</li>
+                            <li><strong>Final Ranking:</strong> Top 8 tables with highest combined scores</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = `${window.location.protocol}//${window.location.host}`;
+        let currentTestResults = null;
+        let allTables = [];
+        let currentQuery = '';
+
+        async function testQuery() {
+            const query = document.getElementById('testQuery').value.trim();
+            if (!query) { showAlert('Please enter a query to test', 'error'); return; }
+
+            document.getElementById('loadingIndicator').classList.add('active');
+            document.getElementById('resultsSection').innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/table-priority/test-query`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                const data = await response.json();
+                currentTestResults = data;
+                currentQuery = query;
+
+                if (data.success) {
+                    displayResults(data.ranked_tables, query);
+                    await loadAllTables();
+                } else {
+                    showAlert(data.error || 'Failed to test query', 'error');
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('loadingIndicator').classList.remove('active');
+            }
+        }
+
+        function displayResults(tables, query) {
+            const resultsSection = document.getElementById('resultsSection');
+            if (!tables || tables.length === 0) {
+                resultsSection.innerHTML = '<div class="empty-state">No tables found</div>';
+                return;
+            }
+
+            let html = `<p style="font-size:13px;font-weight:700;color:var(--text-main);margin-bottom:12px;">Top ${tables.length} Tables:</p>`;
+            tables.forEach((table, index) => {
+                const rank = index + 1;
+                html += `
+                    <div class="table-card" id="table-card-${index}">
+                        <div class="table-card-header">
+                            <div>
+                                <span style="color:var(--text-muted);font-weight:700;margin-right:8px;font-size:13px;">#${rank}</span>
+                                <span class="table-name">${table.table_name}</span>
+                            </div>
+                            <div class="table-score">
+                                <span class="category-badge">${table.category || 'N/A'}</span>
+                                <span class="score-badge">Score: ${(table.score * 100).toFixed(1)}%</span>
+                            </div>
+                        </div>
+                        <div class="table-description">${table.description || 'No description available'}</div>
+                        <div class="table-columns"><strong>Columns:</strong> ${table.columns || 'N/A'}</div>
+                        <div class="validation-actions">
+                            <button class="btn btn-success btn-sm" onclick="validateTable('${table.table_name}', true, '${query}', ${index})">
+                                <i class="fas fa-check"></i> Correct
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="validateTable('${table.table_name}', false, '${query}', ${index})">
+                                <i class="fas fa-times"></i> Incorrect
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            resultsSection.innerHTML = html;
+        }
+
+        async function validateTable(tableName, isCorrect, query, index) {
+            try {
+                const response = await fetch(`${API_BASE}/api/table-priority/validate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, table_name: tableName, is_correct: isCorrect })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const card = document.getElementById(`table-card-${index}`);
+                    if (isCorrect) { card.classList.add('validated-correct'); card.classList.remove('validated-incorrect'); }
+                    else { card.classList.add('validated-incorrect'); card.classList.remove('validated-correct'); }
+                    showAlert(`Validated: ${tableName} is ${isCorrect ? 'CORRECT' : 'INCORRECT'} for this query`, 'success');
+                    loadHistory();
+                } else {
+                    showAlert(data.error || 'Validation failed', 'error');
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/api/table-priority/history`);
+                const data = await response.json();
+                if (data.success) {
+                    displayHistory(data.validations);
+                    updateStats(data.stats);
+                } else {
+                    showAlert(data.error || 'Failed to load history', 'error');
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function displayHistory(validations) {
+            const historySection = document.getElementById('historySection');
+            if (!validations || validations.length === 0) {
+                historySection.innerHTML = '<div class="empty-state">No validation history yet</div>';
+                return;
+            }
+            let html = '';
+            validations.slice(0, 10).forEach(validation => {
+                const timestamp = new Date(validation.timestamp).toLocaleString();
+                html += `
+                    <div class="history-item">
+                        <div class="history-query">${validation.query}</div>
+                        <div class="history-tables">
+                            ${validation.correct_tables.map(t => `<span class="history-table-tag correct"><i class="fas fa-check" style="margin-right:3px;font-size:10px"></i> ${t}</span>`).join('')}
+                            ${validation.incorrect_tables.map(t => `<span class="history-table-tag incorrect"><i class="fas fa-times" style="margin-right:3px;font-size:10px"></i> ${t}</span>`).join('')}
+                        </div>
+                        <div class="history-timestamp">${timestamp}</div>
+                    </div>
+                `;
+            });
+            historySection.innerHTML = html;
+        }
+
+        function updateStats(stats) {
+            document.getElementById('statTotalValidations').textContent = stats.total_validations || 0;
+            document.getElementById('statCorrectSelections').textContent = stats.correct_selections || 0;
+            document.getElementById('statAccuracyRate').textContent = stats.accuracy_rate || '0%';
+        }
+
+        async function savePriorities() {
+            const priorities = {
+                bot_master: parseFloat(document.getElementById('priority_bot_master').value),
+                station_master: parseFloat(document.getElementById('priority_station_master').value),
+                config_master: parseFloat(document.getElementById('priority_config_master').value),
+                log_table: parseFloat(document.getElementById('priority_log_table').value),
+                telemetry_table: parseFloat(document.getElementById('priority_telemetry_table').value),
+                general_table: parseFloat(document.getElementById('priority_general_table').value)
+            };
+            try {
+                const response = await fetch(`${API_BASE}/api/table-priority/set-priorities`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ priorities })
+                });
+                const data = await response.json();
+                if (data.success) { showAlert('Priority settings saved successfully!', 'success'); }
+                else { showAlert(data.error || 'Failed to save priorities', 'error'); }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function resetPriorities() {
+            document.getElementById('priority_bot_master').value = '3.0';
+            document.getElementById('priority_station_master').value = '3.0';
+            document.getElementById('priority_config_master').value = '1.5';
+            document.getElementById('priority_log_table').value = '0.5';
+            document.getElementById('priority_telemetry_table').value = '0.2';
+            document.getElementById('priority_general_table').value = '1.0';
+            showAlert('Priorities reset to defaults (not saved yet)', 'success');
+        }
+
+        async function loadAllTables() {
+            try {
+                const response = await fetch(`${API_BASE}/api/table-priority/all-tables`);
+                const data = await response.json();
+                if (data.success) {
+                    allTables = data.tables;
+                    document.getElementById('searchSection').style.display = 'block';
+                    document.getElementById('tableCount').textContent = `Found ${data.count} tables in database`;
+                    document.getElementById('tableCount').style.display = 'block';
+                    displaySearchResults(allTables);
+                } else {
+                    console.error('Failed to load tables:', data.error);
+                }
+            } catch (error) {
+                console.error('Error loading tables:', error);
+            }
+        }
+
+        function filterTables() {
+            const searchTerm = document.getElementById('tableSearchInput').value.toLowerCase().trim();
+            if (!searchTerm) { displaySearchResults(allTables); return; }
+            const filtered = allTables.filter(table => {
+                const n = (table.table_name || '').toLowerCase();
+                const c = (table.category || '').toLowerCase();
+                const d = (table.description || '').toLowerCase();
+                const col = (table.columns || '').toLowerCase();
+                return n.includes(searchTerm) || c.includes(searchTerm) || d.includes(searchTerm) || col.includes(searchTerm);
+            });
+            displaySearchResults(filtered);
+        }
+
+        function displaySearchResults(tables) {
+            const searchResults = document.getElementById('searchResults');
+            if (!tables || tables.length === 0) {
+                searchResults.innerHTML = '<div class="no-results">No tables found matching your search</div>';
+                return;
+            }
+            let html = '';
+            tables.forEach(table => {
+                html += `
+                    <div class="table-card-compact">
+                        <div class="table-name">${table.table_name}</div>
+                        ${table.category ? `<span class="table-category">${table.category}</span>` : ''}
+                        <div class="table-description">${table.description || 'No description available'}</div>
+                        <div style="color:var(--text-muted);font-size:11px;margin-bottom:8px;">
+                            <strong>Columns:</strong> ${(table.columns || 'N/A').substring(0, 150)}${(table.columns || '').length > 150 ? '...' : ''}
+                        </div>
+                        <div class="validation-actions">
+                            <button class="btn btn-success btn-sm" onclick="validateTableFromSearch('${table.table_name}', true)">
+                                <i class="fas fa-check"></i> This is Correct
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="validateTableFromSearch('${table.table_name}', false)">
+                                <i class="fas fa-times"></i> This is Wrong
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            searchResults.innerHTML = html;
+        }
+
+        async function validateTableFromSearch(tableName, isCorrect) {
+            if (!currentQuery) { showAlert('Please test a query first before validating tables', 'error'); return; }
+            try {
+                const response = await fetch(`${API_BASE}/api/table-priority/validate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: currentQuery, table_name: tableName, is_correct: isCorrect })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showAlert(`Validated: ${tableName} is ${isCorrect ? 'CORRECT' : 'INCORRECT'} for this query`, 'success');
+                    loadHistory();
+                } else {
+                    showAlert(data.error || 'Validation failed', 'error');
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('testQuery').value = '';
+            document.getElementById('resultsSection').innerHTML = '';
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('tableSearchInput').value = '';
+            document.getElementById('searchResults').innerHTML = '';
+            currentTestResults = null;
+            currentQuery = '';
+            allTables = [];
+        }
+
+        function showAlert(message, type) {
+            const alertId = type === 'success' ? 'successAlert' : 'errorAlert';
+            const alert = document.getElementById(alertId);
+            alert.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+            alert.classList.add('show');
+            setTimeout(() => { alert.classList.remove('show'); }, 5000);
+        }
+
+        window.addEventListener('load', () => { loadHistory(); });
+    </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+2026-01-23 17:24:30 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 17:24:48 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the bot ids...
+2026-01-23 17:24:48 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-23 17:24:48 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-23 17:24:48 - app.services.sql_assistant.query.semantic_frame_extractor - INFO - 🤖 LLM Response: {
+  "base_table": "bot_master",
+  "dimensions": ["BOT_ID"],
+  "metrics": ["BOT_ID"],
+  "filters": [],
+  "group_by": [],
+  "order_by": ["BOT_ID"],
+  "limit": 1000
+}
+2026-01-23 17:24:48 - app.services.sql_assistant.core - INFO - 🧠 Raw Semantic Frame: {'base_table': 'bot_master', 'dimensions': ['BOT_ID'], 'metrics': ['BOT_ID'], 'filters': [], 'group_by': [], 'order_by': ['BOT_ID'], 'limit': 1000}
+2026-01-23 17:24:48 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: 'SchemaGraph' object has no attribute 'degree'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 142, in process_query
+    resolved_base = self.base_table_resolver.resolve(
+        frame,
+        chat_request.message,
+    )
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\query\base_table_resolver.py", line 31, in resolve
+    score += self.schema_graph.degree(table) * 0.1
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SchemaGraph' object has no attribute 'degree'
+2026-01-23 17:24:48 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.67s
+2026-01-23 17:24:48 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-23 17:28:10 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 17:54:32 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 17:56:21 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the sku_id who are not ordered from la...
+2026-01-23 17:56:21 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-23 17:56:21 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: historical (confidence: 0.70)
+2026-01-23 17:56:22 - app.services.sql_assistant.query.semantic_frame_extractor - INFO - 🤖 LLM Response: {
+  "base_table": "article_registered",
+  "dimensions": ["SKU_ID"],
+  "metrics": [],
+  "filters": ["SKU_ID NOT IN (SELECT SKU_ID FROM order_master WHERE ORDER_DATE > NOW() - INTERVAL 1 YEAR)"],
+  "group_by": [],
+  "order_by": [],
+  "limit": 1000
+}
+2026-01-23 17:56:22 - app.services.sql_assistant.core - INFO - 🧠 Raw Semantic Frame: {'base_table': 'article_registered', 'dimensions': ['SKU_ID'], 'metrics': [], 'filters': ['SKU_ID NOT IN (SELECT SKU_ID FROM order_master WHERE ORDER_DATE > NOW() - INTERVAL 1 YEAR)'], 'group_by': [], 'order_by': [], 'limit': 1000}
+2026-01-23 17:56:22 - app.services.sql_assistant.core - INFO - 🔁 Base table corrected: article_registered → stock_audit_wave_order_master
+2026-01-23 17:56:22 - app.services.sql_assistant.core - INFO - 🧠 Normalized Semantic Frame: {'base_table': 'stock_audit_wave_order_master', 'dimensions': ['sku_master'], 'metrics': [], 'filters': ['SKU_ID NOT IN (SELECT SKU_ID FROM order_master WHERE ORDER_DATE > NOW() - INTERVAL 1 YEAR)'], 'group_by': [], 'order_by': [], 'limit': 1000}
+2026-01-23 17:56:22 - app.services.sql_assistant.core - INFO - 🧾 Final SQL: SELECT  FROM stock_audit_wave_order_master JOIN sku_batch_master ON stock_audit_wave_order_master.SKU_ID = sku_batch_master.SKU_ID JOIN sku_master ON sku_batch_master.SKU_ID = sku_master.SKU_ID WHERE SKU_ID NOT IN (SELECT SKU_ID FROM order_master WHERE ORDER_DATE > NOW() - INTERVAL 1 YEAR) LIMIT 1000
+2026-01-23 17:56:22 - app.services.sql_assistant.schema.validator - WARNING - ⚠️ SQL uses non-existent tables: ['order_master']
+2026-01-23 17:56:22 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: Generated SQL failed schema validation
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 191, in process_query
+    raise ValueError("Generated SQL failed schema validation")
+ValueError: Generated SQL failed schema validation
+2026-01-23 17:56:22 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.97s
+2026-01-23 17:56:22 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-23 18:05:30 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 18:06:05 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 18:40:36 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 19:01:53 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 19:07:17 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 19:12:51 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the sku name and sku id who is not ord...
+2026-01-23 19:12:51 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-23 19:12:51 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-23 19:12:52 - app.services.sql_assistant.query.semantic_frame_extractor - INFO - 🤖 LLM Response: {
+  "base_table": "article_registered",
+  "dimensions": ["SKU_NAME", "SKU_ID"],
+  "metrics": [],
+  "filters": ["SKU_ID NOT IN (SELECT SKU_ID FROM order_master WHERE ORDER_DATE > NOW() - INTERVAL 1 YEAR)"],
+  "group_by": [],
+  "order_by": [],
+  "limit": 1000
+}
+2026-01-23 19:12:52 - app.services.sql_assistant.core - INFO - 🧠 Raw Semantic Frame: {'base_table': 'article_registered', 'dimensions': ['SKU_NAME', 'SKU_ID'], 'metrics': [], 'filters': ['SKU_ID NOT IN (SELECT SKU_ID FROM order_master WHERE ORDER_DATE > NOW() - INTERVAL 1 YEAR)'], 'group_by': [], 'order_by': [], 'limit': 1000}
+2026-01-23 19:12:52 - app.services.sql_assistant.core - INFO - 🔁 Base table corrected: article_registered → stock_audit_wave_order_master
+2026-01-23 19:12:52 - app.services.sql_assistant.core - INFO - 🧠 Normalized Semantic Frame: {'base_table': 'stock_audit_wave_order_master', 'dimensions': ['sku_master_dsb_upload_validation', 'put_wave_wms_data_archive'], 'metrics': [], 'filters': ['SKU_ID NOT IN (SELECT SKU_ID FROM order_master WHERE ORDER_DATE > NOW() - INTERVAL 1 YEAR)'], 'group_by': [], 'order_by': [], 'limit': 1000}
+2026-01-23 19:12:52 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: No join path from stock_audit_wave_order_master to sku_master_dsb_upload_validation
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 173, in process_query
+    raise ValueError(
+        f"No join path from {frame.base_table} to {dim_table}"
+    )
+ValueError: No join path from stock_audit_wave_order_master to sku_master_dsb_upload_validation
+2026-01-23 19:12:52 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.74s
+2026-01-23 19:12:52 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-23 19:16:06 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 19:16:42 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 19:17:15 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 19:17:48 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 19:18:20 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 19:19:52 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260123.log
+2026-01-23 19:19:57 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the sku name and sku id who is not ord...
+2026-01-23 19:19:57 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-23 19:19:57 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.50)
+2026-01-23 19:19:57 - app.services.sql_assistant.query.semantic_frame_extractor - INFO - 🤖 LLM Response: {
+  "base_table": "article_registered",
+  "dimensions": ["SKU_NAME", "SKU_ID"],
+  "metrics": [],
+  "filters": ["SKU_ID NOT IN (SELECT SKU_ID FROM order_master WHERE ORDER_DATE > NOW() - INTERVAL 1 YEAR)"],
+  "group_by": [],
+  "order_by": [],
+  "limit": 1000
+}
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🧠 Raw Semantic Frame: {'base_table': 'article_registered', 'dimensions': ['SKU_NAME', 'SKU_ID'], 'metrics': [], 'filters': ['SKU_ID NOT IN (SELECT SKU_ID FROM order_master WHERE ORDER_DATE > NOW() - INTERVAL 1 YEAR)'], 'group_by': [], 'order_by': [], 'limit': 1000}
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🔁 Attempt 1: Base table corrected: article_registered → sku_master
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🧠 Attempt 1 Frame: base=sku_master, dims=['pick_wave_wms_data_dsb_upload_validation', 'sku_master']
+2026-01-23 19:19:57 - app.services.sql_assistant.core - WARNING - ⚠️ Attempt 1: No JOIN path from sku_master to pick_wave_wms_data_dsb_upload_validation
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🔄 Attempt 1 failed, trying next base table...
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🔁 Attempt 2: Trying alternative base table: stock_audit_wave_order_master (score: 3.70)
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🧠 Attempt 2 Frame: base=stock_audit_wave_order_master, dims=['pick_wave_wms_data_dsb_upload_validation', 'sku_master']
+2026-01-23 19:19:57 - app.services.sql_assistant.core - WARNING - ⚠️ Attempt 2: No JOIN path from stock_audit_wave_order_master to pick_wave_wms_data_dsb_upload_validation
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🔄 Attempt 2 failed, trying next base table...
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🔁 Attempt 3: Trying alternative base table: pick_wave_wms_data (score: 3.30)
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🧠 Attempt 3 Frame: base=pick_wave_wms_data, dims=['pick_wave_wms_data_dsb_upload_validation', 'sku_master']
+2026-01-23 19:19:57 - app.services.sql_assistant.core - WARNING - ⚠️ Attempt 3: No JOIN path from pick_wave_wms_data to pick_wave_wms_data_dsb_upload_validation
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🔄 Attempt 3 failed, trying next base table...
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🔁 Attempt 4: Trying alternative base table: put_wave_order_master (score: 3.20)
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🧠 Attempt 4 Frame: base=put_wave_order_master, dims=['pick_wave_wms_data_dsb_upload_validation', 'sku_master']
+2026-01-23 19:19:57 - app.services.sql_assistant.core - WARNING - ⚠️ Attempt 4: No JOIN path from put_wave_order_master to pick_wave_wms_data_dsb_upload_validation
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🔄 Attempt 4 failed, trying next base table...
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🔁 Attempt 5: Trying alternative base table: stock_audit_wave_wms_data (score: 3.10)
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🧠 Attempt 5 Frame: base=stock_audit_wave_wms_data, dims=['pick_wave_wms_data_dsb_upload_validation', 'sku_master']
+2026-01-23 19:19:57 - app.services.sql_assistant.core - WARNING - ⚠️ Attempt 5: No JOIN path from stock_audit_wave_wms_data to pick_wave_wms_data_dsb_upload_validation
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - 🔄 Attempt 5 failed, trying next base table...
+2026-01-23 19:19:57 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: Could not resolve JOIN paths after 5 attempts. Tried tables: sku_master, stock_audit_wave_order_master, pick_wave_wms_data, put_wave_order_master, stock_audit_wave_wms_data. Required dimensions: pick_wave_wms_data_dsb_upload_validation, sku_master
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 233, in process_query
+    raise ValueError(error_msg)
+ValueError: Could not resolve JOIN paths after 5 attempts. Tried tables: sku_master, stock_audit_wave_order_master, pick_wave_wms_data, put_wave_order_master, stock_audit_wave_wms_data. Required dimensions: pick_wave_wms_data_dsb_upload_validation, sku_master
+2026-01-23 19:19:57 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.62s
+2026-01-23 19:19:57 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00
+2026-01-23 19:25:44 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=show me all the active bots with their assigned ta...
+2026-01-23 19:25:44 - app.services.sql_assistant.context.conversation - INFO - 📚 Extracted context: 0 tables, 0 corrections
+2026-01-23 19:25:44 - app.services.sql_assistant.intent.temporal - INFO - 🕐 Temporal scope: current (confidence: 0.70)
+2026-01-23 19:25:44 - app.services.sql_assistant.query.semantic_frame_extractor - INFO - 🤖 LLM Response: {
+  "base_table": "bot_master",
+  "dimensions": ["BOT_ID", "STATUS"],
+  "metrics": ["COUNT(*)"],
+  "filters": ["AUTO_MANUAL = 'AUTO'"],
+  "group_by": ["BOT_ID"],
+  "order_by": ["BOT_ID DESC"],
+  "limit": 100
+}
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🧠 Raw Semantic Frame: {'base_table': 'bot_master', 'dimensions': ['BOT_ID', 'STATUS'], 'metrics': ['COUNT(*)'], 'filters': ["AUTO_MANUAL = 'AUTO'"], 'group_by': ['BOT_ID'], 'order_by': ['BOT_ID DESC'], 'limit': 100}
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🧠 Attempt 1 Frame: base=bot_master, dims=['task_detail_log', 'hw_ptl_master']
+2026-01-23 19:25:44 - app.services.sql_assistant.core - WARNING - ⚠️ Attempt 1: No JOIN path from bot_master to task_detail_log
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🔄 Attempt 1 failed, trying next base table...
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🔁 Attempt 2: Trying alternative base table: bot_master_log (score: 3.00)
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🧠 Attempt 2 Frame: base=bot_master_log, dims=['task_detail_log', 'hw_ptl_master']
+2026-01-23 19:25:44 - app.services.sql_assistant.core - WARNING - ⚠️ Attempt 2: No JOIN path from bot_master_log to task_detail_log
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🔄 Attempt 2 failed, trying next base table...
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🔁 Attempt 3: Trying alternative base table: stock_audit_wave_order_master (score: 0.70)
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🧠 Attempt 3 Frame: base=stock_audit_wave_order_master, dims=['task_detail_log', 'hw_ptl_master']
+2026-01-23 19:25:44 - app.services.sql_assistant.core - WARNING - ⚠️ Attempt 3: No JOIN path from stock_audit_wave_order_master to task_detail_log
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🔄 Attempt 3 failed, trying next base table...
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🔁 Attempt 4: Trying alternative base table: wave_station_rule_mapping (score: 0.50)
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🧠 Attempt 4 Frame: base=wave_station_rule_mapping, dims=['task_detail_log', 'hw_ptl_master']
+2026-01-23 19:25:44 - app.services.sql_assistant.core - WARNING - ⚠️ Attempt 4: No JOIN path from wave_station_rule_mapping to task_detail_log
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🔄 Attempt 4 failed, trying next base table...
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🔁 Attempt 5: Trying alternative base table: wms_to_wcs_order_line_request_data (score: 0.50)
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🧠 Attempt 5 Frame: base=wms_to_wcs_order_line_request_data, dims=['task_detail_log', 'hw_ptl_master']
+2026-01-23 19:25:44 - app.services.sql_assistant.core - WARNING - ⚠️ Attempt 5: No JOIN path from wms_to_wcs_order_line_request_data to task_detail_log
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - 🔄 Attempt 5 failed, trying next base table...
+2026-01-23 19:25:44 - app.services.sql_assistant.core - ERROR - ❌ SQL Assistant error: Could not resolve JOIN paths after 5 attempts. Tried tables: bot_master, bot_master_log, stock_audit_wave_order_master, wave_station_rule_mapping, wms_to_wcs_order_line_request_data. Required dimensions: task_detail_log, hw_ptl_master
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\core.py", line 233, in process_query
+    raise ValueError(error_msg)
+ValueError: Could not resolve JOIN paths after 5 attempts. Tried tables: bot_master, bot_master_log, stock_audit_wave_order_master, wave_station_rule_mapping, wms_to_wcs_order_line_request_data. Required dimensions: task_detail_log, hw_ptl_master
+2026-01-23 19:25:44 - app.services.sql_assistant.core - INFO - ⏱️ Query processed in 0.54s
+2026-01-23 19:25:44 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00

@@ -1,0 +1,324 @@
+2026-02-13 23:07:25 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:07:25 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-13 23:14:19 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:14:20 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:14:20 - app.services.query_classification_service - INFO - ✅ Loaded 1503 classified queries
+2026-02-13 23:14:20 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 23:14:20 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1503 classified queries
+2026-02-13 23:14:20 - app.main - INFO - ✅ Classification service initialized
+2026-02-13 23:15:40 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:15:40 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:15:40 - app.services.query_classification_service - INFO - ✅ Loaded 1503 classified queries
+2026-02-13 23:15:40 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 23:15:40 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1503 classified queries
+2026-02-13 23:15:40 - app.main - INFO - ✅ Classification service initialized
+2026-02-13 23:17:42 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:17:42 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:17:42 - app.services.query_classification_service - INFO - ✅ Loaded 1503 classified queries
+2026-02-13 23:17:42 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 23:17:42 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1503 classified queries
+2026-02-13 23:17:42 - app.main - INFO - ✅ Classification service initialized
+2026-02-13 23:18:55 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:18:55 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:18:55 - app.services.query_classification_service - INFO - ✅ Loaded 1503 classified queries
+2026-02-13 23:18:55 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 23:18:55 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1503 classified queries
+2026-02-13 23:18:55 - app.main - INFO - ✅ Classification service initialized
+2026-02-13 23:26:41 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:26:41 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-13 23:27:11 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:27:11 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:27:11 - app.services.query_classification_service - INFO - ✅ Loaded 1503 classified queries
+2026-02-13 23:27:11 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 23:27:11 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1503 classified queries
+2026-02-13 23:27:11 - app.main - INFO - ✅ Classification service initialized
+2026-02-13 23:32:34 - app.utils.session_manager - INFO - 🆕 New session created: 91d513cf-0d4 (type: sql_assistant)
+2026-02-13 23:32:34 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 91d513cf-0d4 (type: sql_assistant)
+2026-02-13 23:32:34 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the alram we have got in last one mont...
+2026-02-13 23:32:34 - app.api.chatbot_endpoints - ERROR - ❌ Error in chat endpoint: 'QueryClassificationService' object has no attribute 'find_similar_queries'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\api\chatbot_endpoints.py", line 146, in chat
+    response = sql_service.process_query(request)
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\sql_assistant.py", line 78, in process_query
+    reused = self.reuse_engine.try_reuse(question)
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\reuse_engine.py", line 8, in try_reuse
+    matches = self.classification_service.find_similar_queries(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'QueryClassificationService' object has no attribute 'find_similar_queries'
+2026-02-13 23:34:59 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:34:59 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-13 23:35:59 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:35:59 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-13 23:36:36 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:36:36 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:36:36 - app.services.query_classification_service - INFO - ✅ Loaded 1503 classified queries
+2026-02-13 23:36:36 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 23:36:36 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1503 classified queries
+2026-02-13 23:36:36 - app.main - INFO - ✅ Classification service initialized
+2026-02-13 23:37:26 - app.utils.session_manager - INFO - 🆕 New session created: a20c251e-9ce (type: sql_assistant)
+2026-02-13 23:37:26 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: a20c251e-9ce (type: sql_assistant)
+2026-02-13 23:37:26 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the alram we have got in last one mont...
+2026-02-13 23:37:34 - app.api.chatbot_endpoints - ERROR - ❌ Error in chat endpoint: 'explanation'
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\api\chatbot_endpoints.py", line 146, in chat
+    response = sql_service.process_query(request)
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\sql_assistant.py", line 99, in process_query
+    generation_result, execution_result = self.retry_engine.run(
+                                          ~~~~~~~~~~~~~~~~~~~~~^
+        generate_fn,
+        ^^^^^^^^^^^^
+        self.validator,
+        ^^^^^^^^^^^^^^^
+        self.executor
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\retry_engine.py", line 13, in run
+    result = generate_fn(feedback, previous_sql)
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\sql_assistant.py", line 94, in generate_fn
+    explanation=result["explanation"],
+                ~~~~~~^^^^^^^^^^^^^^^
+KeyError: 'explanation'
+2026-02-13 23:39:42 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:39:42 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-13 23:40:19 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:40:19 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:40:19 - app.services.query_classification_service - INFO - ✅ Loaded 1503 classified queries
+2026-02-13 23:40:19 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 23:40:19 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1503 classified queries
+2026-02-13 23:40:19 - app.main - INFO - ✅ Classification service initialized
+2026-02-13 23:40:42 - app.utils.session_manager - INFO - 🆕 New session created: 8003dfed-a1d (type: sql_assistant)
+2026-02-13 23:40:42 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 8003dfed-a1d (type: sql_assistant)
+2026-02-13 23:40:42 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the alram we have got in last one mont...
+2026-02-13 23:41:00 - app.api.chatbot_endpoints - ERROR - ❌ Error in chat endpoint: SQL generation failed after retries.
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\api\chatbot_endpoints.py", line 146, in chat
+    response = sql_service.process_query(request)
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\sql_assistant.py", line 120, in process_query
+    generation_result, execution_result = self.retry_engine.run(
+                                          ~~~~~~~~~~~~~~~~~~~~~^
+        generate_fn,
+        ^^^^^^^^^^^^
+        self.validator,
+        ^^^^^^^^^^^^^^^
+        self.executor
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\retry_engine.py", line 25, in run
+    raise Exception("SQL generation failed after retries.")
+Exception: SQL generation failed after retries.
+2026-02-13 23:42:57 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:42:57 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-13 23:43:39 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:43:39 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:43:39 - app.services.query_classification_service - INFO - ✅ Loaded 1503 classified queries
+2026-02-13 23:43:39 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 23:43:39 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1503 classified queries
+2026-02-13 23:43:39 - app.main - INFO - ✅ Classification service initialized
+2026-02-13 23:43:52 - app.utils.session_manager - INFO - 🆕 New session created: 70088b43-914 (type: sql_assistant)
+2026-02-13 23:43:52 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 70088b43-914 (type: sql_assistant)
+2026-02-13 23:43:52 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the alram we have got in last one mont...
+2026-02-13 23:43:52 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-13 23:43:59 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  bal.BOT_ID,
+  bal.ALARM_DATE
+FROM bot_alarm_log bal
+WHERE bal.BOT_ID = 'BO 1'
+  AND DATE(ba...
+2026-02-13 23:43:59 - app.services.sql_assistant.retry_engine - WARNING - ❌ Attempt 1 failed: LIMIT clause required for safety.
+2026-02-13 23:43:59 - app.services.sql_assistant.retry_engine - INFO - 🔄 Retrying with feedback...
+2026-02-13 23:43:59 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 2/3
+2026-02-13 23:44:04 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  bal.BOT_ID,
+  bal.ALARM_DATE
+FROM bot_alarm_log bal
+WHERE bal.BOT_ID = 'BO 1'
+  AND DATE(ba...
+2026-02-13 23:44:04 - app.services.sql_assistant.retry_engine - WARNING - ❌ Attempt 2 failed: LIMIT clause required for safety.
+2026-02-13 23:44:04 - app.services.sql_assistant.retry_engine - INFO - 🔄 Retrying with feedback...
+2026-02-13 23:44:04 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 3/3
+2026-02-13 23:44:08 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  bal.BOT_ID,
+  bal.ALARM_DATE
+FROM bot_alarm_log bal
+WHERE bal.BOT_ID = 'BO 1'
+  AND DATE(ba...
+2026-02-13 23:44:08 - app.services.sql_assistant.retry_engine - WARNING - ❌ Attempt 3 failed: LIMIT clause required for safety.
+2026-02-13 23:44:08 - app.services.sql_assistant.retry_engine - ERROR - ❌ SQL generation failed after 3 attempts. Last error: LIMIT clause required for safety.
+2026-02-13 23:44:08 - app.api.chatbot_endpoints - ERROR - ❌ Error in chat endpoint: SQL generation failed after retries: LIMIT clause required for safety.
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\api\chatbot_endpoints.py", line 146, in chat
+    response = sql_service.process_query(request)
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\sql_assistant.py", line 120, in process_query
+    generation_result, execution_result = self.retry_engine.run(
+                                          ~~~~~~~~~~~~~~~~~~~~~^
+        generate_fn,
+        ^^^^^^^^^^^^
+        self.validator,
+        ^^^^^^^^^^^^^^^
+        self.executor
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\retry_engine.py", line 42, in run
+    raise Exception(f"SQL generation failed after retries: {last_error}")
+Exception: SQL generation failed after retries: LIMIT clause required for safety.
+2026-02-13 23:44:41 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the alram we have got in last one mont...
+2026-02-13 23:44:41 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: give me all the alram we have got in last one month for bo 1...
+2026-02-13 23:44:41 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-13 23:44:49 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  bal.ID,
+  bal.BOT_ID,
+  bal.ALARM_CODE,
+  bal.ALARM_DESCRIPTION,
+  bal.TASK_TYPE,
+  bal.ALA...
+2026-02-13 23:44:49 - app.services.sql_assistant.retry_engine - WARNING - ❌ Attempt 1 failed: LIMIT clause required for safety.
+2026-02-13 23:44:49 - app.services.sql_assistant.retry_engine - INFO - 🔄 Retrying with feedback...
+2026-02-13 23:44:49 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 2/3
+2026-02-13 23:44:57 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  bal.ID,
+  bal.BOT_ID,
+  bal.ALARM_CODE,
+  bal.ALARM_DESCRIPTION,
+  bal.TASK_TYPE,
+  bal.ALA...
+2026-02-13 23:44:57 - app.services.sql_assistant.retry_engine - WARNING - ❌ Attempt 2 failed: LIMIT clause required for safety.
+2026-02-13 23:44:57 - app.services.sql_assistant.retry_engine - INFO - 🔄 Retrying with feedback...
+2026-02-13 23:44:57 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 3/3
+2026-02-13 23:45:04 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  bal.ID,
+  bal.BOT_ID,
+  bal.ALARM_CODE,
+  bal.ALARM_DESCRIPTION,
+  bal.TASK_TYPE,
+  bal.ALA...
+2026-02-13 23:45:04 - app.services.sql_assistant.retry_engine - WARNING - ❌ Attempt 3 failed: LIMIT clause required for safety.
+2026-02-13 23:45:04 - app.services.sql_assistant.retry_engine - ERROR - ❌ SQL generation failed after 3 attempts. Last error: LIMIT clause required for safety.
+2026-02-13 23:45:04 - app.api.chatbot_endpoints - ERROR - ❌ Error in chat endpoint: SQL generation failed after retries: LIMIT clause required for safety.
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\api\chatbot_endpoints.py", line 146, in chat
+    response = sql_service.process_query(request)
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\sql_assistant.py", line 120, in process_query
+    generation_result, execution_result = self.retry_engine.run(
+                                          ~~~~~~~~~~~~~~~~~~~~~^
+        generate_fn,
+        ^^^^^^^^^^^^
+        self.validator,
+        ^^^^^^^^^^^^^^^
+        self.executor
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\sql_assistant\retry_engine.py", line 42, in run
+    raise Exception(f"SQL generation failed after retries: {last_error}")
+Exception: SQL generation failed after retries: LIMIT clause required for safety.
+2026-02-13 23:47:57 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:48:42 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:48:42 - __main__ - INFO - 🚀 Starting NEO Chatbot server...
+2026-02-13 23:49:17 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:49:18 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\logs\chatbot_20260213.log
+2026-02-13 23:49:18 - app.services.query_classification_service - INFO - ✅ Loaded 1503 classified queries
+2026-02-13 23:49:18 - app.services.query_classification_service - INFO - ✅ Loaded learned patterns
+2026-02-13 23:49:18 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 1503 classified queries
+2026-02-13 23:49:18 - app.main - INFO - ✅ Classification service initialized
+2026-02-13 23:49:36 - app.utils.session_manager - INFO - 🆕 New session created: 953a66cc-47a (type: sql_assistant)
+2026-02-13 23:49:36 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 953a66cc-47a (type: sql_assistant)
+2026-02-13 23:49:36 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me all the alram we have got in last one mont...
+2026-02-13 23:49:36 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-13 23:49:42 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  bal.ID,
+  bal.BOT_ID,
+  bal.ALARM_CODE,
+  bal.ALARM_DESCRIPTION,
+  bal.TASK_TYPE,
+  bal.ALA...
+2026-02-13 23:49:42 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-13 23:49:42 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 0 rows
+2026-02-13 23:49:42 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 20fe833d-4ef9-4b8a-bdfe-8bba8e34109e
+2026-02-13 23:49:42 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 20fe833d-4ef9-4b8a-bdfe-8bba8e34109e
+2026-02-13 23:49:42 - app.services.query_classification_service - INFO - 📝 Stored query 953a66cc-47a_20260213234942890621 for classification (cache now has 1504 queries)
+2026-02-13 23:49:42 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.72, session=953a66cc-47a
+2026-02-13 23:50:13 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=list out all the bots we have...
+2026-02-13 23:50:13 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: give me all the alram we have got in last one month for bot 1
+ASSISTANT: ### SQL Query
+```sql
+...
+2026-02-13 23:50:13 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-13 23:50:18 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  bm.BOT_ID,
+  bm.STATUS,
+  bm.AUTO_MANUAL,
+  bm.BATTERY,
+  bm.BATTERY_HEALTH,
+  bm.LOAD_COND...
+2026-02-13 23:50:18 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-13 23:50:18 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 0 rows
+2026-02-13 23:50:18 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: fa743988-377a-4787-be6e-3a2db564ce71
+2026-02-13 23:50:18 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: fa743988-377a-4787-be6e-3a2db564ce71
+2026-02-13 23:50:19 - app.services.query_classification_service - INFO - 📝 Stored query 953a66cc-47a_20260213235018999492 for classification (cache now has 1505 queries)
+2026-02-13 23:50:19 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.72, session=953a66cc-47a
+2026-02-13 23:50:28 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me top 5 ordered skus...
+2026-02-13 23:50:28 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: give me all the alram we have got in last one month for bot 1
+ASSISTANT: ### SQL Query
+```sql
+...
+2026-02-13 23:50:28 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-13 23:50:35 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  pwom.SKU_ID,
+  sm.SKU_NAME,
+  COUNT(DISTINCT pwom.ORDER_ID) AS orders_count,
+  SUM(pwom.EXP...
+2026-02-13 23:50:35 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-13 23:50:35 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 0 rows
+2026-02-13 23:50:35 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: b748f546-1160-4df4-8719-915dad094aff
+2026-02-13 23:50:35 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: b748f546-1160-4df4-8719-915dad094aff
+2026-02-13 23:50:35 - app.services.query_classification_service - INFO - 📝 Stored query 953a66cc-47a_20260213235035389481 for classification (cache now has 1506 queries)
+2026-02-13 23:50:35 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.64, session=953a66cc-47a
+2026-02-13 23:51:07 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me top 5 most frequently ordered skus...
+2026-02-13 23:51:07 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: list out all the bots we have
+ASSISTANT: ### SQL Query
+```sql
+SELECT
+  bm.BOT_ID,
+  bm.STATUS,...
+2026-02-13 23:51:07 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-13 23:51:13 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  sm.SKU_ID,
+  sm.SKU_NAME,
+  COUNT(DISTINCT pwom.ORDER_ID) AS order_count,
+  COUNT(*) AS ord...
+2026-02-13 23:51:13 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-13 23:51:13 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 0 rows
+2026-02-13 23:51:13 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: a4a02902-7913-4d21-9c77-7358aed8ff8d
+2026-02-13 23:51:13 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: a4a02902-7913-4d21-9c77-7358aed8ff8d
+2026-02-13 23:51:13 - app.services.query_classification_service - INFO - 📝 Stored query 953a66cc-47a_20260213235113977013 for classification (cache now has 1507 queries)
+2026-02-13 23:51:13 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.72, session=953a66cc-47a
+2026-02-13 23:51:35 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-13 23:51:35 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-13 23:51:35 - app.services.schema_registry - INFO - SchemaRegistry: 166 tables, 68 edges
+2026-02-13 23:51:35 - app.services.sql_engine - INFO - SQLEngine initialized: model=gpt-4o, tables=166
+2026-02-13 23:52:15 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me top 5 most frequently ordered skus...
+2026-02-13 23:52:15 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: give me top 5 ordered skus
+ASSISTANT: ### SQL Query
+```sql
+SELECT
+  pwom.SKU_ID,
+  sm.SKU_NAME...
+2026-02-13 23:52:15 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.72, session=953a66cc-47a
+2026-02-13 23:52:25 - app.utils.session_manager - INFO - 🆕 New session created: e299aff5-694 (type: sql_assistant)
+2026-02-13 23:52:25 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: e299aff5-694 (type: sql_assistant)
+2026-02-13 23:52:25 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=give me top 5 most frequently ordered skus...
+2026-02-13 23:52:25 - app.services.sql_assistant.retry_engine - INFO - 🔄 SQL generation attempt 1/3
+2026-02-13 23:52:32 - app.services.sql_assistant.retry_engine - INFO - ✅ Generated SQL: SELECT
+  pwm.SKU_ID,
+  sm.SKU_NAME,
+  COUNT(DISTINCT pwm.ORDER_ID) AS order_count,
+  SUM(pwm.EXPECTE...
+2026-02-13 23:52:32 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL validation passed
+2026-02-13 23:52:32 - app.services.sql_assistant.retry_engine - INFO - ✅ SQL execution succeeded: 0 rows
+2026-02-13 23:52:32 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 4a72e2b3-b152-46db-a6c4-0b6ef09e34a3
+2026-02-13 23:52:32 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 4a72e2b3-b152-46db-a6c4-0b6ef09e34a3
+2026-02-13 23:52:32 - app.services.query_classification_service - INFO - 📝 Stored query e299aff5-694_20260213235232268672 for classification (cache now has 1508 queries)
+2026-02-13 23:52:32 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.72, session=e299aff5-694

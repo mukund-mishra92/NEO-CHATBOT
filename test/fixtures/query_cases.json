@@ -1,0 +1,182 @@
+[
+    {
+        "id": "simple_count",
+        "query": "show total picks today",
+        "intent": {"aggregation": "count", "time_filter": "today"},
+        "expected_tables": ["bal_pick_dtl"],
+        "expected_sql_contains": ["COUNT", "bal_pick_dtl"],
+        "tenant": null,
+        "category": "aggregation"
+    },
+    {
+        "id": "top_n_articles",
+        "query": "top 5 articles picked at bhiwandi last week",
+        "intent": {"aggregation": "count", "time_filter": "last_week", "limit": 5},
+        "expected_tables": ["bal_pick_dtl"],
+        "expected_sql_contains": ["LIMIT", "GROUP BY", "ORDER BY"],
+        "tenant": "shakti",
+        "category": "aggregation_with_tenant"
+    },
+    {
+        "id": "simple_select",
+        "query": "show me all scans at station 5",
+        "intent": {"entity": "station", "filter": "station_id"},
+        "expected_tables": ["bal_outbound_parcel_scan_dtl"],
+        "expected_sql_contains": ["STATION-0005"],
+        "tenant": null,
+        "category": "entity_filter"
+    },
+    {
+        "id": "multi_tenant",
+        "query": "compare picks between bhiwandi and faridabad",
+        "intent": {"aggregation": "count", "comparison": true},
+        "expected_tables": ["bal_pick_dtl"],
+        "expected_sql_contains": ["IN", "host-location"],
+        "tenant": ["shakti", "frk"],
+        "category": "multi_tenant"
+    },
+    {
+        "id": "all_sites",
+        "query": "show picks across all sites",
+        "intent": {"aggregation": "count", "scope": "all_sites"},
+        "expected_tables": ["bal_pick_dtl"],
+        "expected_sql_contains": ["host-location"],
+        "tenant": "all_sites",
+        "category": "all_sites"
+    },
+    {
+        "id": "join_query",
+        "query": "show article descriptions for top 10 picked items at FRK",
+        "intent": {"aggregation": "count", "limit": 10, "join": true},
+        "expected_tables": ["bal_pick_dtl", "bal_master_article"],
+        "expected_sql_contains": ["JOIN", "host-location"],
+        "tenant": "frk",
+        "category": "join"
+    },
+    {
+        "id": "bot_entity",
+        "query": "what is bot 4 doing",
+        "intent": {"entity": "bot", "filter": "bot_id"},
+        "expected_tables": ["bal_master_bot"],
+        "expected_sql_contains": ["BOT-0004"],
+        "tenant": null,
+        "category": "entity_filter"
+    },
+    {
+        "id": "wave_entity",
+        "query": "details of wave 1234",
+        "intent": {"entity": "wave", "filter": "wave_id"},
+        "expected_tables": ["bal_pick_dtl"],
+        "expected_sql_contains": ["WAVE-001234"],
+        "tenant": null,
+        "category": "entity_filter"
+    },
+    {
+        "id": "inbound_receipt",
+        "query": "how many items received today at bangalore",
+        "intent": {"aggregation": "count", "time_filter": "today"},
+        "expected_tables": ["bal_inbound_receipt_dtl"],
+        "expected_sql_contains": ["COUNT", "BLR"],
+        "tenant": "BLR",
+        "category": "aggregation_with_tenant"
+    },
+    {
+        "id": "date_range",
+        "query": "show all put away between 1st march and 15th march",
+        "intent": {"time_filter": "range"},
+        "expected_tables": ["bal_put_dtl"],
+        "expected_sql_contains": ["BETWEEN", "bal_put_dtl"],
+        "tenant": null,
+        "category": "date_range"
+    },
+    {
+        "id": "location_breakdown",
+        "query": "show picks breakdown by location",
+        "intent": {"aggregation": "count", "scope": "breakdown"},
+        "expected_tables": ["bal_pick_dtl"],
+        "expected_sql_contains": ["GROUP BY", "host-location"],
+        "tenant": "all_sites",
+        "category": "breakdown"
+    },
+    {
+        "id": "no_data_scenario",
+        "query": "show scans for article XYZ-NONEXISTENT",
+        "intent": {"filter": "article"},
+        "expected_tables": ["bal_outbound_parcel_scan_dtl"],
+        "expected_sql_contains": ["XYZ-NONEXISTENT"],
+        "tenant": null,
+        "category": "edge_case"
+    },
+    {
+        "id": "specific_bin",
+        "query": "show items in bin 23",
+        "intent": {"entity": "bin", "filter": "bin_id"},
+        "expected_tables": ["bal_master_bin"],
+        "expected_sql_contains": ["BIN-0023"],
+        "tenant": null,
+        "category": "entity_filter"
+    },
+    {
+        "id": "order_lookup",
+        "query": "status of order 456",
+        "intent": {"entity": "order", "filter": "order_id"},
+        "expected_tables": ["bal_outbound_parcel_scan_dtl"],
+        "expected_sql_contains": ["ORD-000456"],
+        "tenant": null,
+        "category": "entity_filter"
+    },
+    {
+        "id": "synonym_sku",
+        "query": "how many skus were picked today",
+        "intent": {"aggregation": "count_distinct", "time_filter": "today"},
+        "expected_tables": ["bal_pick_dtl"],
+        "expected_sql_contains": ["article"],
+        "tenant": null,
+        "category": "synonym"
+    },
+    {
+        "id": "synonym_robot",
+        "query": "which robots are active",
+        "intent": {"filter": "status"},
+        "expected_tables": ["bal_master_bot"],
+        "expected_sql_contains": ["bot"],
+        "tenant": null,
+        "category": "synonym"
+    },
+    {
+        "id": "smart_aggregate_default",
+        "query": "how many picks today",
+        "intent": {"aggregation": "count", "time_filter": "today"},
+        "expected_tables": ["bal_pick_dtl"],
+        "expected_sql_contains": ["COUNT"],
+        "tenant": null,
+        "category": "smart_aggregate"
+    },
+    {
+        "id": "session_query",
+        "query": "what have we discussed so far",
+        "intent": {"type": "session_history"},
+        "expected_tables": [],
+        "expected_sql_contains": [],
+        "tenant": null,
+        "category": "session"
+    },
+    {
+        "id": "dangerous_injection",
+        "query": "DROP TABLE bal_pick_dtl; SELECT 1",
+        "intent": {"type": "injection_attempt"},
+        "expected_tables": [],
+        "expected_sql_contains": [],
+        "tenant": null,
+        "category": "security"
+    },
+    {
+        "id": "chennai_tenant",
+        "query": "show scans at chennai today",
+        "intent": {"aggregation": "count", "time_filter": "today"},
+        "expected_tables": ["bal_outbound_parcel_scan_dtl"],
+        "expected_sql_contains": ["chennai", "host-location"],
+        "tenant": "chennai",
+        "category": "tenant_resolution"
+    }
+]

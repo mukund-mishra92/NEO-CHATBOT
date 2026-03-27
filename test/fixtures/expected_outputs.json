@@ -1,0 +1,37 @@
+{
+    "simple_count": {
+        "sql_pattern": "SELECT COUNT\\(\\*\\).*FROM\\s+bal_pick_dtl",
+        "required_keywords": ["COUNT", "bal_pick_dtl"],
+        "forbidden_keywords": ["DROP", "DELETE", "INSERT"],
+        "expected_row_count_range": [1, 1],
+        "description": "Should return a single aggregation row"
+    },
+    "top_n_articles": {
+        "sql_pattern": "SELECT.*FROM\\s+bal_pick_dtl.*GROUP BY.*ORDER BY.*DESC.*LIMIT\\s+5",
+        "required_keywords": ["GROUP BY", "ORDER BY", "DESC", "LIMIT"],
+        "forbidden_keywords": [],
+        "expected_row_count_range": [1, 5],
+        "description": "Should return 1 to 5 rows sorted descending"
+    },
+    "join_query": {
+        "sql_pattern": "JOIN\\s+bal_master_article",
+        "required_keywords": ["JOIN", "bal_pick_dtl", "bal_master_article", "host-location"],
+        "forbidden_keywords": [],
+        "expected_row_count_range": [1, 10],
+        "description": "Must JOIN on composite key (article + host-location)"
+    },
+    "multi_tenant": {
+        "sql_pattern": "host-location.*IN\\s*\\(",
+        "required_keywords": ["IN", "host-location"],
+        "forbidden_keywords": [],
+        "expected_row_count_range": [1, 1000],
+        "description": "Multi-tenant query must use IN() for multiple sites"
+    },
+    "all_sites": {
+        "sql_pattern": "GROUP BY.*host-location",
+        "required_keywords": ["GROUP BY", "host-location"],
+        "forbidden_keywords": [],
+        "expected_row_count_range": [1, 50],
+        "description": "All-sites should group by host-location for breakdown"
+    }
+}

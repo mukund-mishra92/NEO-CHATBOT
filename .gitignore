@@ -1,0 +1,125 @@
+# Log files
+# *.log
+logs/
+backend/logs/
+# *.log.*
+# log_*.txt
+# mining_logs/
+# association_logs/
+# debug.log
+# error.log
+# access.log
+# app.log
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+NEO/
+
+# Environment variables
+backend/.env
+backend/.env.example
+.env.local
+.env.production
+.env.staging
+.env.development
+
+# Database files (if using SQLite for testing)
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# pytest cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Mining output files (optional - uncomment if you don't want to track results)
+# results/
+# output/
+# recommendations/
+
+# Vector stores / embeddings (large binary files)
+app/modules/neo_chatbot/data/vector_store*.json
+app/modules/neo_chatbot/data/*.faiss
+app/modules/neo_chatbot/data/*.index
+app/modules/neo_chatbot/data/*.pkl
+*.faiss
+*.index
+*.pkl
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+#*.bak
+*.backup
+*.old
+
+# Large data files (uncomment if you have large datasets)
+*.parquet
+*.xlsx
+*.xls
+data/
+docs/
+scripts/
+
+# app/modules/neo_chatbot/data/**
+
+# Local LLM models (large binary files - download separately)
+app/modules/neo_chatbot/data/models/*.gguf
+app/modules/neo_chatbot/data/models/

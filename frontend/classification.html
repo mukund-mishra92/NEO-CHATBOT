@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Classification - NEO AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --brand-start: #667eea;
+            --brand-end: #764ba2;
+            --surface-soft: #f7f8fc;
+            --surface-muted: #f1f3f9;
+            --border-soft: #e5e9f4;
+            --text-main: #1f2533;
+            --text-muted: #667085;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+            overflow: hidden;
+            color: var(--text-main);
+        }
+
+        /* ── Layout ── */
+        .page-wrap {
+            width: 100vw; height: 100vh;
+            display: flex; flex-direction: column;
+            background: #fff; overflow: hidden;
+        }
+
+        /* ── Header ── */
+        .page-header {
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+            color: white; padding: 12px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            flex-shrink: 0;
+        }
+        .page-header h1 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: 0.2px; }
+        .page-header h1 i { margin-right: 8px; opacity: 0.9; }
+        .page-header small { font-size: 13px; color: rgba(255,255,255,0.85); display: block; margin-top: 2px; }
+        .back-btn {
+            background: rgba(255,255,255,0.18); color: white;
+            border: 1px solid rgba(255,255,255,0.22);
+            padding: 8px 16px; border-radius: 999px;
+            cursor: pointer; transition: all 0.2s;
+            font-weight: 600; font-size: 13px;
+            text-decoration: none; display: inline-flex;
+            align-items: center; gap: 6px;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.3); color: white; transform: translateY(-1px); text-decoration: none; }
+
+        /* ── Content ── */
+        .page-content {
+            flex: 1; overflow-y: auto;
+            background: var(--surface-soft);
+            padding: 20px 24px;
+        }
+
+        /* ── Stats ── */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(6, 1fr);
+            gap: 12px; margin-bottom: 16px;
+        }
+        .stat-card {
+            background: #fff; border: 1px solid var(--border-soft);
+            border-radius: 10px; padding: 16px; text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .stat-value {
+            font-size: 26px; font-weight: 700; color: var(--brand-start);
+        }
+        .stat-label {
+            font-size: 11px; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-top: 4px; display: flex; align-items: center;
+            justify-content: center; gap: 4px;
+        }
+        .stat-label i { font-size: 11px; }
+        .stat-label i.text-success { color: #10b981; }
+        .stat-label i.text-danger { color: #ef4444; }
+        .stat-label i.text-warning { color: #f59e0b; }
+        .stat-label i.text-info { color: #3b82f6; }
+
+        /* ── Card ── */
+        .card {
+            background: #fff; border: 1px solid var(--border-soft);
+            border-radius: 12px; padding: 20px; margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        /* ── Buttons ── */
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding: 14px 16px;
+        }
+        .toolbar-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .toolbar-summary {
+            font-size: 13px;
+            color: var(--text-muted);
+            background: var(--surface-soft);
+            border: 1px solid var(--border-soft);
+            border-radius: 999px;
+            padding: 6px 12px;
+            white-space: nowrap;
+        }
+        .btn {
+            padding: 9px 18px; border: none; border-radius: 8px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; display: inline-flex;
+            align-items: center; gap: 6px;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-brand { background: linear-gradient(135deg, var(--brand-start), var(--brand-end)); color: white; }
+        .btn-brand:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(102,126,234,0.35); transform: translateY(-1px); }
+        .btn-info { background: #3b82f6; color: white; }
+        .btn-info:hover { background: #2563eb; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-soft { background: var(--surface-muted); color: var(--text-main); }
+        .btn-soft:hover { background: var(--border-soft); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        .btn-execute {
+            padding: 6px 14px; background: #10b981; color: white;
+            border: none; border-radius: 6px; cursor: pointer;
+            font-size: 12px; font-weight: 600; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .btn-execute:hover { background: #059669; transform: scale(1.03); }
+
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .pagination-info {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .pagination-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            color: var(--text-main);
+            border-radius: 8px;
+            min-width: 36px;
+            height: 34px;
+            padding: 0 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--brand-start);
+            color: var(--brand-start);
+        }
+        .page-btn.active {
+            background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+            color: #fff;
+            border-color: transparent;
+        }
+        .page-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .page-ellipsis {
+            color: var(--text-muted);
+            font-size: 12px;
+            padding: 0 4px;
+        }
+
+        /* ── Query cards ── */
+        .queries-list {
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .query-card {
+            background: #fff; border: 1px solid var(--border-soft);
+            border-left: 4px solid var(--brand-start);
+            padding: 18px; border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .query-card:hover {
+            box-shadow: 0 3px 12px rgba(102,126,234,0.1);
+            transform: translateX(3px);
+        }
+        .query-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 12px;
+        }
+        .query-id {
+            font-size: 12px; color: var(--text-muted);
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        .confidence-badge {
+            padding: 3px 10px; border-radius: 999px;
+            font-size: 12px; font-weight: 600;
+        }
+        .confidence-high { background: #ecfdf5; color: #065f46; }
+        .confidence-medium { background: #fffbeb; color: #92400e; }
+        .confidence-low { background: #fef2f2; color: #991b1b; }
+
+        .query-text {
+            font-size: 14px; color: var(--text-main);
+            margin-bottom: 12px; font-weight: 500; line-height: 1.5;
+        }
+        .sql-block {
+            background: #1e1e2e; color: #cdd6f4;
+            padding: 14px 16px; border-radius: 8px;
+            overflow-x: auto; margin-bottom: 12px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px; line-height: 1.5;
+        }
+        .query-meta {
+            display: flex; gap: 16px; align-items: center;
+            font-size: 12px; color: var(--text-muted);
+            margin-bottom: 12px; flex-wrap: wrap;
+        }
+        .query-meta span { display: inline-flex; align-items: center; gap: 4px; }
+        .query-meta i { font-size: 11px; }
+
+        .classification-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+        .notes-input {
+            width: 100%; padding: 10px 12px;
+            border: 1px solid var(--border-soft); border-radius: 8px;
+            margin: 10px 0; font-family: inherit; font-size: 13px;
+            color: var(--text-main); transition: border-color 0.2s;
+        }
+        .notes-input:focus { outline: none; border-color: var(--brand-start); }
+
+        /* ── Query results inline ── */
+        .query-results {
+            background: var(--surface-soft); padding: 14px;
+            border-radius: 8px; margin-bottom: 12px; display: none;
+        }
+        .query-results.show { display: block; }
+        .results-summary { color: #10b981; font-weight: 600; margin-bottom: 8px; font-size: 13px; }
+        .results-error { color: #ef4444; font-weight: 600; padding: 10px; background: #fef2f2; border-radius: 6px; font-size: 13px; }
+        .results-table {
+            width: 100%; border-collapse: collapse; background: #fff;
+            border-radius: 8px; overflow: hidden; font-size: 13px;
+        }
+        .results-table thead { background: var(--surface-muted); }
+        .results-table th, .results-table td {
+            padding: 8px 12px; text-align: left;
+            border: 1px solid var(--border-soft);
+        }
+        .results-table th { font-weight: 600; color: var(--text-main); font-size: 12px; }
+        .results-table tbody tr:nth-child(even) { background: var(--surface-soft); }
+        .results-table tbody tr:hover { background: #eef2ff; }
+
+        /* ── Loading / Empty ── */
+        .loading { text-align: center; padding: 30px; }
+        .spinner {
+            border: 3px solid var(--border-soft); border-top: 3px solid var(--brand-start);
+            border-radius: 50%; width: 36px; height: 36px;
+            animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+        }
+        .loading p { color: var(--text-muted); font-size: 13px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 40px; opacity: 0.3; display: block; margin-bottom: 12px; }
+        .empty-state h3 { font-size: 16px; color: var(--text-main); margin-bottom: 6px; }
+        .empty-state p { font-size: 13px; }
+
+        /* ── Toast ── */
+        .toast-container {
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+        }
+        .toast {
+            background: #fff; padding: 14px 20px;
+            border-radius: 10px; border: 1px solid var(--border-soft);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            display: none; font-size: 13px; font-weight: 500;
+            color: var(--text-main); min-width: 260px;
+            animation: toastIn 0.3s ease;
+        }
+        .toast.show { display: block; }
+        @keyframes toastIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* ── Scrollbar ── */
+        .page-content::-webkit-scrollbar { width: 6px; }
+        .page-content::-webkit-scrollbar-track { background: transparent; }
+        .page-content::-webkit-scrollbar-thumb { background: #c5c9d6; border-radius: 10px; }
+
+        @media (max-width: 900px) {
+            .stats-row { grid-template-columns: repeat(3, 1fr); }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .toolbar-summary {
+                width: fit-content;
+            }
+        }
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .pagination-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+    <script>
+        (function() {
+            try {
+                const s = JSON.parse(localStorage.getItem('neo_session'));
+                if (!s || !s.name || !s.role) { window.location.href = '/login'; return; }
+                if (s.role !== 'admin') { alert('Admin privileges required.'); window.location.href = '/chatbot'; return; }
+            } catch(e) { window.location.href = '/login'; }
+        })();
+    </script>
+</head>
+<body>
+    <div class="page-wrap">
+        <div class="page-header">
+            <div>
+                <h1><i class="fas fa-tags"></i> Query Classification Tool</h1>
+                <small>Review and classify SQL queries to improve system accuracy</small>
+            </div>
+            <a href="/chatbot" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Chatbot</a>
+        </div>
+
+        <div class="page-content">
+            <!-- Stats -->
+            <div class="stats-row" id="stats">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Controls -->
+            <div class="card toolbar">
+                <div class="toolbar-actions">
+                    <button class="btn btn-brand" onclick="loadUnclassified(1)">
+                        <i class="fas fa-sync-alt"></i> Refresh Queries
+                    </button>
+                    <button class="btn btn-info" onclick="exportDataset()">
+                        <i class="fas fa-file-export"></i> Export Training Dataset
+                    </button>
+                </div>
+                <div class="toolbar-summary" id="pageSummary">Showing 0 of 0 unclassified queries</div>
+            </div>
+
+            <div class="pagination-bar" id="paginationTop"></div>
+
+            <!-- Query list -->
+            <div class="queries-list" id="queriesList">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="pagination-bar" id="paginationBottom"></div>
+        </div>
+    </div>
+
+    <div class="toast-container">
+        <div class="toast" id="toast">
+            <div id="toastMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = `${window.location.protocol}//${window.location.host}/api/classification`;
+        const PAGE_SIZE = 30;
+        const viewState = {
+            currentPage: 1,
+            totalUnclassified: 0,
+            totalPages: 1
+        };
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const stats = await response.json();
+                viewState.totalUnclassified = stats.unclassified || 0;
+                viewState.totalPages = Math.max(1, Math.ceil(viewState.totalUnclassified / PAGE_SIZE));
+
+                document.getElementById('stats').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.total_queries}</div>
+                        <div class="stat-label">Total Queries</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.correct}</div>
+                        <div class="stat-label"><i class="fas fa-check-circle text-success"></i> Correct</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.incorrect}</div>
+                        <div class="stat-label"><i class="fas fa-times-circle text-danger"></i> Incorrect</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.needs_review}</div>
+                        <div class="stat-label"><i class="fas fa-clock text-warning"></i> Needs Review</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.unclassified}</div>
+                        <div class="stat-label"><i class="fas fa-clipboard-list text-info"></i> Unclassified</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${(stats.accuracy * 100).toFixed(1)}%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                `;
+
+                return stats;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                return null;
+            }
+        }
+
+        function updatePageSummary(start, end) {
+            const summary = document.getElementById('pageSummary');
+            if (!summary) {
+                return;
+            }
+
+            if (viewState.totalUnclassified === 0) {
+                summary.textContent = 'Showing 0 of 0 unclassified queries';
+                return;
+            }
+
+            summary.textContent = `Showing ${start}-${end} of ${viewState.totalUnclassified} unclassified queries`;
+        }
+
+        function buildPaginationHtml() {
+            if (viewState.totalUnclassified === 0) {
+                return '';
+            }
+
+            const current = viewState.currentPage;
+            const total = viewState.totalPages;
+            const pageButtons = [];
+            const startPage = Math.max(1, current - 2);
+            const endPage = Math.min(total, current + 2);
+
+            if (startPage > 1) {
+                pageButtons.push(`<button class="page-btn" onclick="goToPage(1)">1</button>`);
+                if (startPage > 2) {
+                    pageButtons.push('<span class="page-ellipsis">...</span>');
+                }
+            }
+
+            for (let p = startPage; p <= endPage; p += 1) {
+                pageButtons.push(`<button class="page-btn ${p === current ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`);
+            }
+
+            if (endPage < total) {
+                if (endPage < total - 1) {
+                    pageButtons.push('<span class="page-ellipsis">...</span>');
+                }
+                pageButtons.push(`<button class="page-btn" onclick="goToPage(${total})">${total}</button>`);
+            }
+
+            return `
+                <div class="pagination-info">Page ${current} of ${total} (${PAGE_SIZE} per page)</div>
+                <div class="pagination-controls">
+                    <button class="page-btn" onclick="goToPage(${current - 1})" ${current <= 1 ? 'disabled' : ''}>Prev</button>
+                    ${pageButtons.join('')}
+                    <button class="page-btn" onclick="goToPage(${current + 1})" ${current >= total ? 'disabled' : ''}>Next</button>
+                </div>
+            `;
+        }
+
+        function renderPagination() {
+            const html = buildPaginationHtml();
+            document.getElementById('paginationTop').innerHTML = html;
+            document.getElementById('paginationBottom').innerHTML = html;
+        }
+
+        function goToPage(page) {
+            if (page < 1 || page > viewState.totalPages || page === viewState.currentPage) {
+                return;
+            }
+
+            loadUnclassified(page);
+            document.querySelector('.page-content').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderQueries(queries) {
+            return queries.map(query => {
+                const confidenceClass = query.confidence >= 0.8 ? 'confidence-high' :
+                    query.confidence >= 0.6 ? 'confidence-medium' : 'confidence-low';
+                const tables = Array.isArray(query.tables_used) && query.tables_used.length > 0
+                    ? query.tables_used.join(', ')
+                    : 'N/A';
+                const queryId = String(query.query_id);
+                const escapedQueryId = queryId.replace(/'/g, "\\'");
+                const rowsReturned = query.rows_returned ?? 0;
+
+                return `
+                    <div class="query-card" id="query-${queryId}" data-edit-mode="false">
+                        <div class="query-header">
+                            <div class="query-id">${query.query_id}</div>
+                            <div class="confidence-badge ${confidenceClass}">
+                                Confidence: ${(query.confidence * 100).toFixed(0)}%
+                            </div>
+                        </div>
+
+                        <div class="query-text" id="query-text-${queryId}">
+                            <strong>User Query:</strong> "${escapeHtml(query.user_query)}"
+                        </div>
+                        <textarea class="notes-input" id="query-edit-${queryId}"
+                                  style="display:none;" placeholder="Edit user query...">${escapeHtml(query.user_query)}</textarea>
+
+                        <div class="sql-block" id="sql-display-${queryId}">${escapeHtml(query.generated_sql)}</div>
+                        <textarea class="notes-input" id="sql-edit-${queryId}"
+                                  style="display:none;font-family:'Consolas','Courier New',monospace;"
+                                  placeholder="Edit SQL query..." rows="4">${escapeHtml(query.generated_sql)}</textarea>
+
+                        <div class="query-meta">
+                            <span><i class="far fa-calendar"></i> ${new Date(query.timestamp).toLocaleString()}</span>
+                            <span><i class="fas fa-table"></i> ${rowsReturned} rows</span>
+                            <span><i class="fas fa-layer-group"></i> Tables: ${escapeHtml(tables)}</span>
+                            <button class="btn-execute" onclick="executeQuery('${escapedQueryId}', \`${escapeForJs(query.generated_sql)}\`)">
+                                <i class="fas fa-play"></i> Execute
+                            </button>
+                        </div>
+
+                        <div class="query-results" id="results-${queryId}"></div>
+
+                        <textarea class="notes-input" id="notes-${queryId}"
+                                  placeholder="Optional notes about this query..."></textarea>
+
+                        <div class="classification-controls" id="controls-${queryId}">
+                            <button class="btn btn-soft btn-sm" onclick="toggleEdit('${escapedQueryId}')">
+                                <i class="fas fa-pen"></i> Edit
+                            </button>
+                            <button class="btn btn-success btn-sm" onclick="classify('${escapedQueryId}', 'correct')">
+                                <i class="fas fa-check"></i> Correct
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="classify('${escapedQueryId}', 'incorrect')">
+                                <i class="fas fa-times"></i> Incorrect
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="classify('${escapedQueryId}', 'needs_review')">
+                                <i class="fas fa-clock"></i> Needs Review
+                            </button>
+                        </div>
+                        <div class="classification-controls" id="edit-controls-${queryId}" style="display:none;">
+                            <button class="btn btn-success btn-sm" onclick="saveEdit('${escapedQueryId}')">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="cancelEdit('${escapedQueryId}')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadUnclassified(page = viewState.currentPage) {
+            const queriesList = document.getElementById('queriesList');
+            queriesList.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading queries...</p></div>';
+
+            try {
+                await loadStats();
+                viewState.currentPage = Math.min(Math.max(page, 1), viewState.totalPages);
+                const offset = (viewState.currentPage - 1) * PAGE_SIZE;
+
+                const response = await fetch(`${API_BASE}/unclassified?limit=${PAGE_SIZE}&offset=${offset}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load query list');
+                }
+
+                const queries = await response.json();
+
+                if (viewState.totalUnclassified === 0) {
+                    queriesList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-check-double"></i>
+                            <h3>All caught up!</h3>
+                            <p>No queries awaiting classification</p>
+                        </div>
+                    `;
+                    updatePageSummary(0, 0);
+                    renderPagination();
+                    return;
+                }
+
+                if (queries.length === 0 && viewState.currentPage > 1) {
+                    viewState.currentPage -= 1;
+                    loadUnclassified(viewState.currentPage);
+                    return;
+                }
+
+                queriesList.innerHTML = renderQueries(queries);
+
+                const start = offset + 1;
+                const end = offset + queries.length;
+                updatePageSummary(start, end);
+                renderPagination();
+            } catch (error) {
+                console.error('Error loading queries:', error);
+                queriesList.innerHTML = '<div class="empty-state"><h3>Error loading queries</h3></div>';
+                updatePageSummary(0, 0);
+            }
+        }
+
+        function toggleEdit(queryId) {
+            const card = document.getElementById(`query-${queryId}`);
+            const isEditMode = card.getAttribute('data-edit-mode') === 'true';
+            if (!isEditMode) {
+                document.getElementById(`query-text-${queryId}`).style.display = 'none';
+                document.getElementById(`query-edit-${queryId}`).style.display = 'block';
+                document.getElementById(`sql-display-${queryId}`).style.display = 'none';
+                document.getElementById(`sql-edit-${queryId}`).style.display = 'block';
+                document.getElementById(`controls-${queryId}`).style.display = 'none';
+                document.getElementById(`edit-controls-${queryId}`).style.display = 'flex';
+                card.setAttribute('data-edit-mode', 'true');
+            }
+        }
+
+        async function saveEdit(queryId) {
+            const newQuery = document.getElementById(`query-edit-${queryId}`).value;
+            const newSQL = document.getElementById(`sql-edit-${queryId}`).value;
+            const notes = document.getElementById(`notes-${queryId}`).value;
+            try {
+                const response = await fetch(`${API_BASE}/update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query_id: queryId, user_query: newQuery, generated_sql: newSQL, notes: notes || null })
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    showToast('Query updated successfully');
+                    document.getElementById(`query-text-${queryId}`).innerHTML = `<strong>User Query:</strong> "${escapeHtml(newQuery)}"`;
+                    document.getElementById(`sql-display-${queryId}`).textContent = newSQL;
+                    cancelEdit(queryId);
+                    setTimeout(() => loadUnclassified(viewState.currentPage), 300);
+                } else {
+                    showToast(`Failed to update: ${result.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error updating:', error);
+                showToast('Error updating query');
+            }
+        }
+
+        function cancelEdit(queryId) {
+            const card = document.getElementById(`query-${queryId}`);
+            document.getElementById(`query-text-${queryId}`).style.display = 'block';
+            document.getElementById(`query-edit-${queryId}`).style.display = 'none';
+            document.getElementById(`sql-display-${queryId}`).style.display = 'block';
+            document.getElementById(`sql-edit-${queryId}`).style.display = 'none';
+            document.getElementById(`controls-${queryId}`).style.display = 'flex';
+            document.getElementById(`edit-controls-${queryId}`).style.display = 'none';
+            card.setAttribute('data-edit-mode', 'false');
+        }
+
+        function escapeForJs(text) {
+            return text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function executeQuery(queryId, sql) {
+            const resultsDiv = document.getElementById(`results-${queryId}`);
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Executing query...</p></div>';
+            try {
+                const response = await fetch(`${window.location.protocol}//${window.location.host}/api/sql/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sql_query: sql })
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    resultsDiv.innerHTML = `<div class="results-error">Error: ${result.detail || 'Query execution failed'}</div>`;
+                    return;
+                }
+                if (result.results && result.results.length > 0) {
+                    const columns = Object.keys(result.results[0]);
+                    const rowCount = result.results.length;
+                    let tableHtml = `
+                        <div class="results-summary"><i class="fas fa-check-circle"></i> ${rowCount} row${rowCount !== 1 ? 's' : ''} returned</div>
+                        <div style="overflow-x:auto;"><table class="results-table"><thead><tr>${columns.map(col => `<th>${escapeHtml(col)}</th>`).join('')}</tr></thead><tbody>`;
+                    result.results.forEach(row => {
+                        tableHtml += '<tr>';
+                        columns.forEach(col => {
+                            const value = row[col];
+                            tableHtml += `<td>${value !== null && value !== undefined ? escapeHtml(String(value)) : '<em style="color:#aaa">NULL</em>'}</td>`;
+                        });
+                        tableHtml += '</tr>';
+                    });
+                    tableHtml += '</tbody></table></div>';
+                    resultsDiv.innerHTML = tableHtml;
+                } else {
+                    resultsDiv.innerHTML = '<div class="results-summary"><i class="fas fa-check-circle"></i> Query executed - 0 rows returned</div>';
+                }
+            } catch (error) {
+                console.error('Error executing query:', error);
+                resultsDiv.innerHTML = `<div class="results-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function classify(queryId, classification) {
+            const notes = document.getElementById(`notes-${queryId}`).value;
+            try {
+                const response = await fetch(`${API_BASE}/classify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query_id: queryId, classification: classification, notes: notes || null })
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    showToast(`Query classified as: ${classification}`);
+                    const card = document.getElementById(`query-${queryId}`);
+                    if (card) {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateX(20px)';
+                        card.style.transition = 'all 0.3s ease';
+                        setTimeout(() => card.remove(), 300);
+                    }
+                    setTimeout(() => loadUnclassified(viewState.currentPage), 400);
+                } else {
+                    showToast(`Failed to classify: ${result.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error classifying:', error);
+                showToast('Error classifying query');
+            }
+        }
+
+        async function exportDataset() {
+            try {
+                const response = await fetch(`${API_BASE}/export`, { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(`Dataset exported to: ${result.path}`);
+                } else {
+                    showToast('Export failed');
+                }
+            } catch (error) {
+                console.error('Error exporting:', error);
+                showToast('Error exporting dataset');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        window.onload = () => {
+            loadUnclassified(1);
+        };
+    </script>
+</body>
+</html>
