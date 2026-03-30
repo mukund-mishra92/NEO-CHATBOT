@@ -25,6 +25,8 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
+from .match_utils import strip_matching_noise
+
 logger = logging.getLogger(__name__)
 
 
@@ -171,6 +173,12 @@ class DashboardKPIResolver:
         self.kpis: List[KPIEntry] = []
         self._load_registry(registry_path)
 
+        # ── Centralised embeddings folder ──
+        from app.core.config import settings
+        self._embeddings_dir = settings.EMBEDDINGS_DIR
+        self._embeddings_dir.mkdir(parents=True, exist_ok=True)
+        self._embeddings_path = self._embeddings_dir / "kpi_embeddings.npz"
+
         # ── Pre-compute KPI embeddings for semantic matching ──
         self.kpi_embeddings: Dict[str, np.ndarray] = {}
         self._embeddings_available = False
@@ -223,10 +231,15 @@ class DashboardKPIResolver:
 
     def _init_embeddings(self):
         """
-        Pre-compute embeddings for all KPI descriptions.
-        Uses the same EmbeddingService as TableSelector.
+        Load cached KPI embeddings from disk, or compute fresh ones via
+        OpenAI and persist them to data/embeddings/kpi_embeddings.npz.
         Falls back to keyword-only matching if unavailable.
         """
+        # 1. Try loading from disk
+        if self._load_embeddings_from_disk():
+            return
+
+        # 2. Compute fresh embeddings via OpenAI
         try:
             from app.services.embedding_service import embedding_service
 
@@ -239,12 +252,61 @@ class DashboardKPIResolver:
             self._embeddings_available = True
             logger.info(f"✅ KPI embeddings computed for {len(self.kpis)} KPIs")
 
+            # Persist to disk
+            self._save_embeddings_to_disk()
+
         except Exception as e:
             logger.warning(
                 f"⚠️ KPI embedding init failed ({e}). "
                 f"Falling back to keyword-only matching (threshold={self.KEYWORD_ONLY_THRESHOLD})"
             )
             self._embeddings_available = False
+
+    def _load_embeddings_from_disk(self) -> bool:
+        """Load saved KPI embeddings from data/embeddings/kpi_embeddings.npz."""
+        if not self._embeddings_path.exists():
+            return False
+
+        try:
+            data = np.load(str(self._embeddings_path), allow_pickle=True)
+            ids = data["ids"].tolist()
+            matrix = data["matrix"]
+
+            # Validate: must match current registry IDs
+            kpi_id_set = {kpi.id for kpi in self.kpis}
+            if set(ids) != kpi_id_set:
+                logger.info("📊 KPI registry changed — rebuilding embeddings")
+                return False
+
+            for kpi_id, emb in zip(ids, matrix):
+                self.kpi_embeddings[kpi_id] = emb
+
+            self._embeddings_available = True
+            logger.info(f"💾 Restored {len(ids)} KPI embeddings from disk cache")
+            return True
+
+        except Exception as e:
+            logger.warning(f"⚠️ Could not load KPI embeddings from disk: {e}")
+            return False
+
+    def _save_embeddings_to_disk(self):
+        """Persist KPI embeddings to data/embeddings/kpi_embeddings.npz."""
+        if not self.kpi_embeddings:
+            return
+
+        try:
+            ids = list(self.kpi_embeddings.keys())
+            matrix = np.array([self.kpi_embeddings[k] for k in ids])
+
+            np.savez_compressed(
+                str(self._embeddings_path),
+                ids=np.array(ids, dtype=object),
+                matrix=matrix,
+            )
+            logger.info(f"💾 Saved {len(ids)} KPI embeddings to {self._embeddings_path}")
+
+        except Exception as e:
+            logger.warning(f"⚠️ Could not save KPI embeddings: {e}")
 
     def _embedding_similarity(self, question: str, kpi: KPIEntry) -> float:
         """
@@ -277,7 +339,12 @@ class DashboardKPIResolver:
         otherwise blended with the embedding score.
         """
         q_lower = question.lower()
-        q_words = set(re.sub(r'[^a-z0-9\s]', ' ', q_lower).split())
+
+        # ── CRITICAL: normalise underscores → spaces ──
+        # User may type ACTIVE_BOTS or BIN_PRESENTATION which should
+        # match keywords like "active", "bots", "bin presentation"
+        q_normalized = q_lower.replace('_', ' ')
+        q_words = set(re.sub(r'[^a-z0-9\s]', ' ', q_normalized).split())
 
         # Expand question words with synonyms
         expanded_q = set(q_words)
@@ -295,20 +362,29 @@ class DashboardKPIResolver:
         intersection = expanded_q & kpi_keywords
         keyword_score = len(intersection) / max(len(kpi_keywords), 1)
 
-        # 2. KPI name substring match (strong signal)
-        #    Split hyphens so "Station-wise" → {"station", "wise"}
+        # 2. KPI name full-phrase match (strongest signal)
+        #    e.g., question "show active bots" matches KPI "Active Bots"
         name_lower = kpi.kpi_name.lower().strip()
-        name_words = set(re.sub(r'[^a-z0-9\s]', ' ', name_lower).split())
+        name_normalized = re.sub(r'[^a-z0-9\s]', ' ', name_lower)
+        name_words = set(name_normalized.split())
         stop_words = {"per", "vs", "by", "wise"}
-        name_overlap = len(expanded_q & name_words - stop_words)
-        name_total = len(name_words - stop_words)
-        name_score = name_overlap / max(name_total, 1) if name_total > 0 else 0
+
+        name_bonus = 0.0
+        # Full phrase match: "active bots" in normalized question
+        if name_normalized.strip() in q_normalized:
+            name_bonus = 0.5
+        else:
+            # Word-level overlap
+            meaningful = name_words - stop_words
+            if meaningful:
+                overlap = len(expanded_q & meaningful)
+                name_bonus = 0.5 * (overlap / len(meaningful))
 
         # 3. Category boost — if question mentions the category
         category_boost = 0.0
         cat_kws = CATEGORY_KEYWORDS.get(kpi.category, [])
         for ckw in cat_kws:
-            if ckw in q_lower:
+            if ckw in q_normalized:
                 category_boost = 0.15
                 break
 
@@ -316,10 +392,18 @@ class DashboardKPIResolver:
         dashboard_boost = 0.0
         dashboard_keywords = ["kpi", "dashboard", "chart", "grafana", "metric",
                               "analytics", "visualization", "trend", "report"]
-        if any(dkw in q_lower for dkw in dashboard_keywords):
+        if any(dkw in q_normalized for dkw in dashboard_keywords):
             dashboard_boost = 0.1
 
-        score = (name_score * 0.5) + (keyword_score * 0.3) + category_boost + dashboard_boost
+        # 5. Output column match — user may reference column names
+        col_bonus = 0.0
+        if kpi.tables_used:
+            for t in kpi.tables_used:
+                if t.lower() in q_normalized:
+                    col_bonus += 0.03
+            col_bonus = min(0.1, col_bonus)
+
+        score = name_bonus + (keyword_score * 0.3) + category_boost + dashboard_boost + col_bonus
         return min(score, 1.0)
 
     def _hybrid_score(self, question: str, kpi: KPIEntry,
@@ -392,8 +476,13 @@ class DashboardKPIResolver:
         if category_filter:
             candidates = [k for k in candidates if k.category == category_filter]
 
-        # Embed question once (reused for all candidates)
-        q_embedding = self._get_question_embedding(question)
+        # ── Strip tenant/time noise for scoring only ──
+        # Original `question` is preserved for parameter substitution.
+        match_question = strip_matching_noise(question)
+        logger.debug(f"📊 KPI match_question: '{match_question}' (raw: '{question}')")
+
+        # Embed the *cleaned* question once (reused for all candidates)
+        q_embedding = self._get_question_embedding(match_question)
 
         # Choose threshold based on available scoring method
         threshold = (self.MATCH_THRESHOLD if self._embeddings_available
@@ -401,7 +490,7 @@ class DashboardKPIResolver:
 
         scored = []
         for kpi in candidates:
-            score = self._hybrid_score(question, kpi, q_embedding)
+            score = self._hybrid_score(match_question, kpi, q_embedding)
             if score >= threshold:
                 scored.append((score, kpi))
 
@@ -413,7 +502,7 @@ class DashboardKPIResolver:
 
         # Log scoring breakdown for diagnostics
         if q_embedding is not None:
-            kw_only = self._score_match(question, best_kpi)
+            kw_only = self._score_match(match_question, best_kpi)
             emb_only = float(np.dot(q_embedding, self.kpi_embeddings.get(best_kpi.id, np.zeros(1))))
             logger.info(
                 f"📊 KPI scoring: keyword={kw_only:.3f}, embedding={emb_only:.3f}, "
@@ -422,7 +511,8 @@ class DashboardKPIResolver:
 
         # Substitute Grafana variables
         sql, params_applied = self._substitute_params(
-            best_kpi.query, tenant_values, time_from, time_to, all_sites
+            best_kpi.query, tenant_values, time_from, time_to, all_sites,
+            question=question,
         )
 
         match = KPIMatch(
@@ -461,13 +551,15 @@ class DashboardKPIResolver:
         if isinstance(tenant_values, str):
             tenant_values = [tenant_values]
 
-        q_embedding = self._get_question_embedding(question)
+        # ── Strip noise for scoring ──
+        match_question = strip_matching_noise(question)
+        q_embedding = self._get_question_embedding(match_question)
         threshold = (self.MATCH_THRESHOLD if self._embeddings_available
                      else self.KEYWORD_ONLY_THRESHOLD)
 
         scored = []
         for kpi in self.kpis:
-            score = self._hybrid_score(question, kpi, q_embedding)
+            score = self._hybrid_score(match_question, kpi, q_embedding)
             if score >= threshold:
                 scored.append((score, kpi))
 
@@ -476,7 +568,8 @@ class DashboardKPIResolver:
         results = []
         for score, kpi in scored[:top_k]:
             sql, params = self._substitute_params(
-                kpi.query, tenant_values, time_from, time_to, all_sites
+                kpi.query, tenant_values, time_from, time_to, all_sites,
+                question=question,
             )
             results.append(KPIMatch(
                 kpi_id=kpi.id,
@@ -496,6 +589,55 @@ class DashboardKPIResolver:
         return results
 
     # ----------------------------------------------------------
+    # TIME-RANGE PARSING
+    # ----------------------------------------------------------
+
+    def _parse_time_range(self, question: str) -> timedelta:
+        """Extract time delta from natural-language expressions in the question."""
+        q = question.lower()
+
+        # "last N days"
+        m = re.search(r'last\s+(\d+)\s+days?', q)
+        if m:
+            return timedelta(days=int(m.group(1)))
+
+        # "last N hours"
+        m = re.search(r'last\s+(\d+)\s+hours?', q)
+        if m:
+            return timedelta(hours=int(m.group(1)))
+
+        # "yesterday"
+        if 'yesterday' in q:
+            return timedelta(days=1)
+
+        # "today"
+        if re.search(r'\btoday\b', q):
+            return timedelta(days=0)
+
+        # "last (one|1)? week(s)"
+        m = re.search(r'last\s+(?:one|1)?\s*weeks?', q)
+        if m:
+            return timedelta(weeks=1)
+
+        # "last N weeks"
+        m = re.search(r'last\s+(\d+)\s+weeks?', q)
+        if m:
+            return timedelta(weeks=int(m.group(1)))
+
+        # "last (one|1)? month(s)"
+        m = re.search(r'last\s+(?:one|1)?\s*months?', q)
+        if m:
+            return timedelta(days=30)
+
+        # "last N months"
+        m = re.search(r'last\s+(\d+)\s+months?', q)
+        if m:
+            return timedelta(days=30 * int(m.group(1)))
+
+        # Default: 1 day (Grafana default)
+        return timedelta(days=1)
+
+    # ----------------------------------------------------------
     # PARAMETER SUBSTITUTION
     # ----------------------------------------------------------
 
@@ -505,6 +647,7 @@ class DashboardKPIResolver:
         time_from: Optional[str],
         time_to: Optional[str],
         all_sites: bool = False,
+        question: str = "",
     ) -> tuple:
         """
         Replace Grafana template variables with actual values.
@@ -518,6 +661,7 @@ class DashboardKPIResolver:
             $location / IN ($location) → actual host-location value(s)
             $__timeFrom() → start datetime
             $__timeTo()   → end datetime
+            $Category     → category value or ALL (wildcard)
         """
         params = {}
         sql = query
@@ -571,11 +715,14 @@ class DashboardKPIResolver:
             )
             params["location"] = tenant_values
 
-        # 2. Time range substitution
+        # 2. Time range substitution — parse from question if no explicit range
         now = datetime.now()
         if not time_from:
-            # Default: last 24 hours
-            t_from = (now - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+            delta = self._parse_time_range(question) if question else timedelta(days=1)
+            if delta.total_seconds() == 0:
+                t_from = now.strftime("%Y-%m-%d 00:00:00")
+            else:
+                t_from = (now - delta).strftime("%Y-%m-%d %H:%M:%S")
         else:
             t_from = time_from
         if not time_to:
@@ -599,8 +746,59 @@ class DashboardKPIResolver:
         sql = sql.replace("$__timeFrom()", f"'{t_from}'")
         sql = sql.replace("$__timeTo()", f"'{t_to}'")
 
+        # ── Params CTE pattern (7 KPIs: kpi_062–064, 076–077, 081–082) ──
+        # TIMESTAMP('2026-01-03 00:00:00') AS from_ts  →  actual computed from
+        # TIMESTAMP('2026-01-03 23:59:59') AS to_ts    →  actual computed to
+        sql = re.sub(
+            r"TIMESTAMP\s*\(\s*'[^']+'\s*\)\s*(AS\s+from_ts)",
+            f"TIMESTAMP('{t_from}') \\1",
+            sql, flags=re.IGNORECASE,
+        )
+        # to_ts should be end-of-day 23:59:59 for the Params CTE pattern
+        t_to_eod = t_to.split(" ")[0] + " 23:59:59"
+        sql = re.sub(
+            r"TIMESTAMP\s*\(\s*'[^']+'\s*\)\s*(AS\s+to_ts)",
+            f"TIMESTAMP('{t_to_eod}') \\1",
+            sql, flags=re.IGNORECASE,
+        )
+
+        # ── CAST date equality pattern (31 KPIs: kpi_048–085) ──
+        # CAST(col AS DATE) = '2026-01-03'  →  CAST(col AS DATE) BETWEEN 'from' AND 'to'
+        # These KPIs use single-day snapshots; for multi-day ranges we convert
+        # = 'hardcoded_date' to BETWEEN '{from_date}' AND '{to_date}'
+        t_from_date = t_from.split(" ")[0]   # '2026-03-24'
+        t_to_date = t_to.split(" ")[0]       # '2026-03-27'
+        sql = re.sub(
+            r"(CAST\s*\([^)]+AS\s+DATE\s*\))\s*=?\s*'(\d{4}-\d{2}-\d{2})'",
+            rf"\1 BETWEEN '{t_from_date}' AND '{t_to_date}'",
+            sql, flags=re.IGNORECASE,
+        )
+
         params["time_from"] = t_from
         params["time_to"] = t_to
+
+        # 3. $Category substitution — remove filter or replace with '%'
+        if "$Category" in sql:
+            sql = re.sub(
+                r"AND\s+\w*\.?`?CATEGORY`?\s*=\s*'\$Category'",
+                "/* all categories */",
+                sql, flags=re.IGNORECASE
+            )
+            sql = sql.replace("$Category", "%")
+            params["category"] = "all"
+
+        # 4. ${bot_id:sqlstring} — no bot_id extraction yet, remove filter
+        if "${bot_id:sqlstring}" in sql:
+            sql = re.sub(
+                r"AND\s+\w*\.?\w+\s+IN\s*\(\$\{bot_id:sqlstring\}\)",
+                "/* all bots */",
+                sql, flags=re.IGNORECASE
+            )
+            sql = sql.replace("${bot_id:sqlstring}", "'%'")
+            params["bot_id"] = "all"
+
+        # 5. Catch any remaining ${var:sqlstring} patterns — replace with $var
+        sql = re.sub(r'\$\{(\w+):sqlstring\}', r"$\1", sql)
 
         return sql, params
 

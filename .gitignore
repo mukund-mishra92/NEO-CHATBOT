@@ -11,6 +11,10 @@ backend/logs/
 # access.log
 # app.log
 
+#planning folder
+
+to-be-implemented/
+
 # Python cache and compiled files
 __pycache__/
 *.py[cod]
@@ -81,6 +85,7 @@ htmlcov/
 *.temp
 temp/
 tmp/
+
 
 # Mining output files (optional - uncomment if you don't want to track results)
 # results/

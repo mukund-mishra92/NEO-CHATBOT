@@ -20,6 +20,7 @@ from .schema_feedback import SchemaFeedbackGenerator
 from .table_priority_loader import TablePriorityLoader
 from .table_selector import TableSelector
 from .kpi_resolver import DashboardKPIResolver
+from .sp_resolver import SPResolver
 
 
 import logging
@@ -148,6 +149,18 @@ class SQLAssistantService:
         except Exception as e:
             logger.warning(f"⚠️ Dashboard KPI resolver failed to load: {e}")
             self.kpi_resolver = None
+
+        try:
+            sp_registry_path = str(settings.DATA_DIR / "BROI_SP" / "SP_registry.json")
+            self.sp_resolver = SPResolver(
+                registry_path=sp_registry_path,
+                tenant_column=self.tenant_column,
+                schema=self.schema,
+            )
+            logger.info(f"⚙️ SP resolver loaded with {len(self.sp_resolver.sps)} SPs")
+        except Exception as e:
+            logger.warning(f"⚠️ SP resolver failed to load: {e}")
+            self.sp_resolver = None
 
         logger.info(f"✅ SQLAssistantService initialized with {len(self.schema)} tables")
 
@@ -641,6 +654,11 @@ class SQLAssistantService:
             self.cache.set(session_id, clean_question, kpi_response)
             return kpi_response
 
+        sp_response = self._try_sp_match(clean_question, entities)
+        if sp_response:
+            self.cache.set(session_id, clean_question, sp_response)
+            return sp_response
+
         reused = self.reuse_engine.try_reuse(clean_question)
 
         if reused:
@@ -899,19 +917,23 @@ class SQLAssistantService:
     # ----------------------------------------------------------
     def _try_kpi_match(self, clean_question: str, entities: dict, session_id: str):
         """
-        Check if the user question matches a pre-built dashboard KPI.
-        If yes, execute the KPI query and return a ChatResponse with
-        dashboard metadata (chart_type, kpi_name, query_results etc.)
-        so the frontend can render charts dynamically.
+        📊  DASHBOARD KPI PIPELINE  (deterministic — NO LLM fallback)
+
+        Flow:
+            question → KPI matcher → inject time + tenant + variables
+            → execute (trusted, no READ ONLY) → return result
+            → if fails → return error ChatResponse to user
+            → NEVER fall through to LLM
+
+        KPI = pre-defined business logic.  Inventing SQL is a bug.
         """
         if not self.kpi_resolver:
             return None
 
-        # ── Extract tenant values (supports single / multi / all-sites) ──
+        # ── Extract tenant values ──
         tenant_values = entities.get(self.tenant_column)
         all_sites = entities.get("_all_sites", False)
 
-        # Normalise to list
         if isinstance(tenant_values, str):
             tenant_values = [tenant_values]
         elif not tenant_values:
@@ -930,6 +952,11 @@ class SQLAssistantService:
         if not kpi_match:
             return None
 
+        # ═══════════════════════════════════════════════════════
+        #  KPI MATCHED — from here on, this is the ONLY path.
+        #  NO LLM fallback under any circumstances.
+        # ═══════════════════════════════════════════════════════
+
         logger.info(
             f"📊 Dashboard KPI hit: '{kpi_match.kpi_name}' "
             f"(score={kpi_match.match_score:.2f}, chart={kpi_match.chart_type})"
@@ -937,26 +964,64 @@ class SQLAssistantService:
         logger.info(f"📊 KPI tenant params: {kpi_match.parameters_applied}")
         logger.debug(f"📊 KPI SQL (first 300): {kpi_match.sql[:300]}")
 
-        # Execute the KPI query
         sql = kpi_match.sql
-        execution_result = self.executor.execute(sql)
 
+        # ── Execute with execute_trusted (no READ ONLY) ──
+        # KPI queries may contain complex CTEs (WITH task_lifecycle AS …)
+        # whose materialisation creates internal temp tables —
+        # READ ONLY blocks that.
+        try:
+            execution_result = self.executor.execute_trusted(
+                sql, label=f"KPI:{kpi_match.kpi_name}"
+            )
+        except Exception as e:
+            logger.error(
+                f"🚫 KPI '{kpi_match.kpi_name}' matched "
+                f"(score={kpi_match.match_score:.2f}) but execution "
+                f"failed: {e}. Returning error — no LLM fallback."
+            )
+
+            error_response = (
+                f"Your question matches a predefined dashboard KPI "
+                f"(**{kpi_match.kpi_name}**), but execution failed:\n\n"
+                f"```\n{e}\n```\n\n"
+                f"This is a database permission or schema issue — "
+                f"no alternative SQL was generated to avoid incorrect data."
+            )
+
+            return ChatResponse(
+                response=error_response,
+                chatbot_type=ChatbotType.SQL_ASSISTANT,
+                session_id=session_id,
+                sources=[],
+                confidence_score=0.0,
+                query_results=[],
+                metadata={
+                    "sql_query": sql,
+                    "error": str(e),
+                    "dashboard_kpi": {
+                        "kpi_name": kpi_match.kpi_name,
+                        "match_score": kpi_match.match_score,
+                        "source": "dashboard_kpi",
+                        "status": "execution_failed",
+                    },
+                },
+            )
+
+        # ── Success ──
         row_count = execution_result.row_count
         rows = execution_result.rows or []
 
-        # Format clean response text (NO KPI header — metadata drives the UI)
         response_text = self.formatter.format(
             clean_question, sql, execution_result, 0.95
         )
 
-        # ── Build chart-ready data for frontend ──
         columns = []
         query_results = []
         if rows:
             columns = list(rows[0].keys()) if isinstance(rows[0], dict) else []
             query_results = [dict(r) if hasattr(r, 'keys') else r for r in rows]
 
-        # Build dashboard visualization metadata for the frontend
         dashboard_metadata = {
             "kpi_id": kpi_match.kpi_id,
             "kpi_name": kpi_match.kpi_name,
@@ -971,7 +1036,7 @@ class SQLAssistantService:
             "available_chart_types": self._available_charts_for(kpi_match.chart_type, columns),
         }
 
-        response = ChatResponse(
+        return ChatResponse(
             response=response_text,
             chatbot_type=ChatbotType.SQL_ASSISTANT,
             session_id=session_id,
@@ -983,10 +1048,171 @@ class SQLAssistantService:
                 "row_count": row_count,
                 "resolved_entities": entities,
                 "dashboard_kpi": dashboard_metadata,
-            }
+            },
         )
 
         return response
+    
+    def _try_sp_match(self, clean_question: str, entities: dict):
+        """
+        ⚙️  STORED PROCEDURE PIPELINE  (deterministic — NO LLM fallback)
+
+        Flow:
+            question → SP matcher → resolve uses query_sql (SELECT)
+            → execute_trusted (no READ ONLY) → return result
+            → if fails → CALL fallback → return result
+            → if both fail → return error ChatResponse to user
+            → NEVER fall through to LLM
+
+        SP = authoritative business logic.  Inventing SQL is a bug.
+        """
+        if not self.sp_resolver:
+            return None
+
+        # ── Extract tenant values ──
+        tenant_values = entities.get(self.tenant_column)
+        all_sites = entities.get("_all_sites", False)
+
+        if isinstance(tenant_values, str):
+            tenant_values = [tenant_values]
+        elif not tenant_values:
+            tenant_values = None
+
+        # ── Resolve SP match ──
+        try:
+            sp_match = self.sp_resolver.resolve(
+                question=clean_question,
+                tenant_values=tenant_values,
+                all_sites=all_sites,
+            )
+        except Exception as e:
+            logger.warning(f"SP resolver error: {e}")
+            return None
+
+        if not sp_match:
+            return None
+
+        # ═══════════════════════════════════════════════════════
+        #  SP MATCHED — from here on, this is the ONLY path.
+        #  NO LLM fallback under any circumstances.
+        # ═══════════════════════════════════════════════════════
+
+        logger.info(
+            f"⚙️ SP hit: '{sp_match.sp_name}' "
+            f"(score={sp_match.match_score:.2f})"
+        )
+        logger.info(f"⚙️ SP params: {sp_match.parameters_applied}")
+        logger.debug(f"⚙️ SP SQL (first 500): {sp_match.sql[:500]}")
+
+        sql = sp_match.sql
+        execution_error = None
+        used_call_fallback = False
+
+        # ── Strategy 1: Execute query SQL / SP body SQL (trusted, no READ ONLY) ──
+        try:
+            execution_result = self.executor.execute_trusted(
+                sql, label=f"SP:{sp_match.sp_name}"
+            )
+        except Exception as e:
+            logger.warning(
+                f"⚠️ SP query SQL failed: {e} — trying CALL fallback"
+            )
+            execution_result = None
+            execution_error = str(e)
+
+        # ── Strategy 2: CALL fallback (DEFINER=root@%, needs EXECUTE priv) ──
+        if execution_result is None:
+            try:
+                call_sql = self.sp_resolver.build_call_statement(sp_match)
+                logger.info(f"⚙️ CALL fallback: {call_sql}")
+                execution_result = self.executor.execute_call(call_sql)
+                sql = call_sql
+                used_call_fallback = True
+                logger.info(
+                    f"✅ SP CALL succeeded: {execution_result.row_count} rows"
+                )
+            except Exception as call_err:
+                logger.error(f"❌ SP CALL also failed: {call_err}")
+                execution_error = (
+                    f"Query: {execution_error}  |  CALL: {call_err}"
+                )
+
+        # ── Both strategies failed → return error to user, NO LLM ──
+        if execution_result is None:
+            logger.error(
+                f"🚫 SP '{sp_match.sp_name}' matched "
+                f"(score={sp_match.match_score:.2f}) but ALL execution "
+                f"strategies failed. Returning error — no LLM fallback."
+            )
+
+            error_response = (
+                f"Your question matches a predefined report "
+                f"(**{sp_match.sp_name}**), but execution failed:\n\n"
+                f"```\n{execution_error}\n```\n\n"
+                f"This is a database permission or schema issue — "
+                f"no alternative SQL was generated to avoid incorrect data.\n\n"
+                f"**Action required:** Ask your DBA to grant EXECUTE "
+                f"privilege on this stored procedure to the service account."
+            )
+
+            return ChatResponse(
+                response=error_response,
+                chatbot_type=ChatbotType.SQL_ASSISTANT,
+                session_id=None,
+                sources=[],
+                confidence_score=0.0,
+                query_results=[],
+                metadata={
+                    "sql_query": sp_match.sql,
+                    "error": execution_error,
+                    "stored_procedure": {
+                        "sp_name": sp_match.sp_name,
+                        "match_score": sp_match.match_score,
+                        "source": "stored_procedure",
+                        "status": "execution_failed",
+                    },
+                },
+            )
+
+        # ── Success ──
+        row_count = execution_result.row_count
+        rows = execution_result.rows or []
+
+        response_text = self.formatter.format(
+            clean_question, sql, execution_result, 0.95
+        )
+
+        columns = []
+        query_results = []
+        if rows:
+            columns = list(rows[0].keys()) if isinstance(rows[0], dict) else []
+            query_results = [dict(r) if hasattr(r, 'keys') else r for r in rows]
+
+        sp_metadata = {
+            "sp_id": sp_match.sp_id,
+            "sp_name": sp_match.sp_name,
+            "description": sp_match.description,
+            "match_score": sp_match.match_score,
+            "parameters_applied": sp_match.parameters_applied,
+            "source": "stored_procedure",
+            "used_call_fallback": used_call_fallback,
+            "columns": columns,
+        }
+
+        return ChatResponse(
+            response=response_text,
+            chatbot_type=ChatbotType.SQL_ASSISTANT,
+            session_id=None,
+            sources=[],
+            confidence_score=0.95,
+            query_results=query_results,
+            metadata={
+                "sql_query": sql,
+                "row_count": row_count,
+                "resolved_entities": entities,
+                "stored_procedure": sp_metadata,
+            },
+        )
 
     # ----------------------------------------------------------
     # CHART TYPE HELPERS

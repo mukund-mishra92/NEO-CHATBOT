@@ -35,8 +35,11 @@ class TenantResolver:
             self.model = None
         
         self.data_dir = data_dir or Path("data")
-        self.embeddings_path = self.data_dir / "tenant_embeddings.npz"
-        self.metadata_path = self.data_dir / "tenant_metadata.json"
+        # Centralised embeddings folder
+        embeddings_dir = self.data_dir / "embeddings"
+        embeddings_dir.mkdir(parents=True, exist_ok=True)
+        self.embeddings_path = embeddings_dir / "tenant_embeddings.npz"
+        self.metadata_path = embeddings_dir / "tenant_metadata.json"
         self.mappings_path = self.data_dir / "tenant_value_mappings.json"
         
         self.tenant_embeddings = None

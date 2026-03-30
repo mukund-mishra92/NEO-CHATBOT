@@ -89,7 +89,10 @@ class QueryClassificationService:
         # File paths
         self.queries_file      = self.storage_path / "classified_queries.jsonl"
         self.patterns_file     = self.storage_path / "learned_patterns.json"
-        self.embeddings_file   = self.storage_path / "query_embeddings.npz"   # numpy compressed
+        # Centralised embeddings folder
+        _embeddings_dir = self.storage_path.parent / "embeddings"
+        _embeddings_dir.mkdir(parents=True, exist_ok=True)
+        self.embeddings_file   = _embeddings_dir / "query_embeddings.npz"   # numpy compressed
 
         # In-memory cache
         self.classified_queries_cache: List[Dict[str, Any]] = []

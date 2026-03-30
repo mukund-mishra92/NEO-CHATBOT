@@ -23,6 +23,15 @@ class SynonymResolver:
         "workstation": "station",
         "stations": "workstations",
         "container": "bin",
+        # Domain synonyms for matching accuracy
+        "putaway": "put",
+        "put-away": "put",
+        "stock": "inventory",
+        "stocks": "inventory",
+        "failure": "error",
+        "failures": "errors",
+        "fault": "error",
+        "faults": "errors",
     }
 
     def __init__(self, synonyms: Dict[str, str] = None):

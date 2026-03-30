@@ -43,6 +43,7 @@ class Settings:
     SUPPORT_DIR: Path = DATA_DIR / "support"
     MODELS_DIR: Path = DATA_DIR / "models"
     RLHF_DIR: Path = DATA_DIR / "rlhf"
+    EMBEDDINGS_DIR: Path = DATA_DIR / "embeddings"
     VECTOR_STORE_PATH: Path = DATA_DIR / "vector_store.json"
     
     # LLM Configuration
@@ -91,4 +92,5 @@ settings.DATABASE_DIR.mkdir(exist_ok=True)
 settings.SUPPORT_DIR.mkdir(exist_ok=True)
 settings.MODELS_DIR.mkdir(exist_ok=True)
 settings.RLHF_DIR.mkdir(exist_ok=True)
+settings.EMBEDDINGS_DIR.mkdir(exist_ok=True)
 (BASE_DIR / "logs").mkdir(exist_ok=True)
