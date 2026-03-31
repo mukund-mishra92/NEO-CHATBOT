@@ -61,6 +61,7 @@ class ChatResponse(BaseModel):
     sql_query: Optional[str] = None  # For SQL assistant responses
     query_results: Optional[List[Dict[str, Any]]] = None  # For SQL results
     metadata: Optional[Dict[str, Any]] = None  # Agent metadata (format_decision, etc.)
+    images: Optional[List[Dict[str, Any]]] = []  # Multimodal: images to display
     timestamp: datetime = Field(default_factory=datetime.now)
 
 

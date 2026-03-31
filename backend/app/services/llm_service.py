@@ -257,6 +257,45 @@ class LLMService:
                 logger.error(f"❌ Groq error: {e}")
                 raise
     
+    # Models that require max_completion_tokens instead of max_tokens.
+    # OpenAI reasoning / newer models use this parameter exclusively.
+    _MAX_COMPLETION_TOKENS_MODELS = {
+        "o1", "o1-mini", "o1-preview",
+        "o3", "o3-mini",
+        "o4-mini",
+        "gpt-4o", "gpt-4o-mini",
+        "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano",
+        "gpt-5", "gpt-5-mini", "gpt-5.1", "gpt-5.2",
+    }
+
+    # Models that do NOT support the 'temperature' parameter.
+    _NO_TEMPERATURE_MODELS = {
+        "o1", "o1-mini", "o1-preview",
+        "o3", "o3-mini",
+    }
+
+    @classmethod
+    def _uses_max_completion_tokens(cls, model: str) -> bool:
+        """Check if a model needs max_completion_tokens instead of max_tokens."""
+        model_lower = model.lower().strip()
+        # Exact match first
+        if model_lower in cls._MAX_COMPLETION_TOKENS_MODELS:
+            return True
+        # Prefix match (covers dated snapshots like gpt-4o-2024-11-20)
+        for prefix in cls._MAX_COMPLETION_TOKENS_MODELS:
+            if model_lower.startswith(prefix):
+                return True
+        return False
+
+    @classmethod
+    def _supports_temperature(cls, model: str) -> bool:
+        """Check if a model supports the temperature parameter."""
+        model_lower = model.lower().strip()
+        for prefix in cls._NO_TEMPERATURE_MODELS:
+            if model_lower == prefix or model_lower.startswith(prefix + "-"):
+                return False
+        return True
+
     def _generate_openai(
         self, 
         messages: List[Dict[str, str]], 
@@ -269,15 +308,25 @@ class LLMService:
         if system_prompt:
             full_messages.append({"role": "system", "content": system_prompt})
         full_messages.extend(messages)
-        
-        response = self.openai_client.chat.completions.create(
-            model=self.openai_chat_model,
-            messages=full_messages,
-            max_tokens=max_tokens,
-            stream=True,
-            temperature=temperature
-        )
-        
+
+        # Build model-aware kwargs
+        kwargs: Dict[str, Any] = {
+            "model": self.openai_chat_model,
+            "messages": full_messages,
+        }
+
+        # Token limit parameter depends on the model family
+        if self._uses_max_completion_tokens(self.openai_chat_model):
+            kwargs["max_completion_tokens"] = max_tokens
+        else:
+            kwargs["max_tokens"] = max_tokens
+
+        # Some reasoning models don't accept temperature
+        if self._supports_temperature(self.openai_chat_model):
+            kwargs["temperature"] = temperature
+
+        response = self.openai_client.chat.completions.create(**kwargs)
+
         return response.choices[0].message.content
     
     def _generate_anthropic(

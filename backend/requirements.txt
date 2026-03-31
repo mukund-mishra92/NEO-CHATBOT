@@ -39,6 +39,12 @@ python-pptx>=0.6.21
 pytesseract>=0.3.10  # For OCR (requires Tesseract OCR installed)
 Pillow>=10.0.0  # For image processing
 beautifulsoup4>=4.12.0  # For HTML parsing
+pdfplumber>=0.10.0  # Advanced PDF text+table extraction
+PyMuPDF>=1.23.0  # PDF image extraction & fallback text
+
+# Vector Store & Retrieval
+chromadb>=0.4.0  # Persistent vector database
+rank-bm25>=0.2.2  # Sparse BM25 keyword search
 
 # Text Processing & Embeddings
 sentence-transformers>=2.2.0  # For local embeddings

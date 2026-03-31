@@ -8,10 +8,11 @@ Edit this file to customize what gets ingested
 # ============================================================================
 
 # Base path where documents are stored
-DOCUMENTS_BASE_PATH = "app/modules/neo_chatbot/data/documents"
+DOCUMENTS_BASE_PATH = r"C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\data\documents"
 
 # Document categories to ingest
 # Format: "folder_path": "category_name"
+# NOTE: Use "ROOT" (special key) for root-level files only (non-recursive)
 DOCUMENT_CATEGORIES = {
     # Proposal documents
     "proposals/type-1": "proposals_sorting_conveyor",
@@ -24,12 +25,18 @@ DOCUMENT_CATEGORIES = {
     "specifications": "technical_specifications",
     "sops": "standard_operating_procedures",
     
-    # Training materials
-    "training_docs/Training_Decks": "training_materials",
+    # Training materials — ALL subfolders explicitly listed to avoid duplication
+    "training_docs/Training_Decks": "training_decks",
+    "training_docs/Cross_belt_sorter_segment_wise_detailed_ppts": "training_cbs_detailed",
+    "training_docs/sorter_modules_ppts_IT": "training_sorter_modules",
+    "training_docs/Sorting_system_pdfs": "training_sorting_systems",
     
-    # Root level documents (use "." for base path)
-    ".": "general_documentation"
+    # Root-level files ONLY (does NOT recurse into subfolders — no duplicates)
+    "ROOT": "general_documentation",
 }
+
+# Maximum embeddings per OpenAI batch API call (OpenAI limit = 2048)
+EMBEDDING_BATCH_SIZE = 64
 
 # ============================================================================
 # CODE INGESTION CONFIGURATION

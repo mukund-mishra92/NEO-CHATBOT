@@ -988,6 +988,25 @@
             margin-left: 10px;
         }
 
+        /* Figure reference links in text */
+        a.figure-ref {
+            color: #6366f1;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px dashed #6366f1;
+            padding: 0 2px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        a.figure-ref:hover {
+            color: #4338ca;
+            border-bottom-style: solid;
+        }
+        /* Highlight animation when scrolling to a figure */
+        .rag-image-card:target {
+            box-shadow: 0 0 0 3px #6366f1, 0 4px 12px rgba(99,102,241,0.25) !important;
+            transition: box-shadow 0.3s;
+        }
+
         .sql-code {
             background: #282c34;
             color: #abb2bf;
@@ -4033,6 +4052,49 @@
                     html += `<span class="source-tag"><i class="fas fa-file"></i> ${doc.filename || 'Document'}</span>`;
                 });
                 html += '</div>';
+            }
+
+            // Add images gallery if available (multimodal RAG) — with Figure numbering
+            if (isAssistant && data.images && data.images.length > 0) {
+                // Build Figure N → url map for inline reference linking
+                const figureMap = {};
+                data.images.forEach((img, idx) => {
+                    figureMap[idx + 1] = (img.image_path || '').replace(/^extracted_images\//, '');
+                });
+
+                // Replace "Figure N" text in the response HTML with clickable links
+                html = html.replace(/\bFigure\s+(\d+)\b/gi, (match, num) => {
+                    const n = parseInt(num);
+                    if (n >= 1 && n <= data.images.length) {
+                        return `<a href="#rag-fig-${n}" class="figure-ref" onclick="document.getElementById('rag-fig-${n}')?.scrollIntoView({behavior:'smooth',block:'center'}); return false;">${match}</a>`;
+                    }
+                    return match;
+                });
+
+                html += '<div class="rag-image-gallery" style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px;">';
+                html += '<div class="rag-image-gallery-header" style="font-size: 0.9em; font-weight: 600; color: #334155; margin-bottom: 10px;"><i class="fas fa-images" style="color: #6366f1;"></i> Figures</div>';
+                html += '<div class="rag-image-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">';
+                data.images.forEach((img, idx) => {
+                    const figNum = idx + 1;
+                    const pathSuffix = (img.image_path || '').replace(/^extracted_images\//, '');
+                    const imgUrl = `/api/images/${pathSuffix}`;
+                    const caption = img.caption || img.source_document || '';
+                    // Truncate long captions for display
+                    const shortCaption = caption.length > 80 ? caption.substring(0, 77) + '...' : caption;
+                    const pageInfo = img.page_number ? `Page ${img.page_number}` : '';
+                    const sourceDoc = img.source_document || '';
+                    const tooltip = [caption, pageInfo, sourceDoc].filter(Boolean).join(' — ');
+                    html += `
+                        <div id="rag-fig-${figNum}" class="rag-image-card" style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; background: #fafbfc;" title="${tooltip}" onclick="window.open('${imgUrl}', '_blank')" onmouseenter="this.style.boxShadow='0 4px 12px rgba(99,102,241,0.15)'; this.style.transform='translateY(-2px)'" onmouseleave="this.style.boxShadow='none'; this.style.transform='none'">
+                            <div style="position: relative;">
+                                <img src="${imgUrl}" alt="${caption}" style="width: 100%; height: auto; max-height: 180px; object-fit: cover; display: block;" loading="lazy" onerror="this.closest('.rag-image-card').style.display='none'">
+                                <span style="position: absolute; top: 6px; left: 6px; background: rgba(99,102,241,0.85); color: #fff; font-size: 0.7em; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Figure ${figNum}</span>
+                            </div>
+                            ${shortCaption ? `<div style="padding: 6px 10px; font-size: 0.78em; color: #334155; line-height: 1.35;">${shortCaption}</div>` : ''}
+                            ${(pageInfo || sourceDoc) ? `<div style="padding: 2px 10px 8px; font-size: 0.68em; color: #94a3b8; display: flex; gap: 6px; align-items: center;">${sourceDoc ? `<i class="fas fa-file-alt" style="font-size: 0.85em;"></i> ${sourceDoc}` : ''}${pageInfo ? `<span style="margin-left: auto;">${pageInfo}</span>` : ''}</div>` : ''}
+                        </div>`;
+                });
+                html += '</div></div>';
             }
 
             // Add suggested actions if available

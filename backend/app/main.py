@@ -4,7 +4,8 @@ FastAPI-based chatbot with knowledge base, SQL assistant, and diagnostic support
 """
 
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import logging
@@ -51,6 +52,15 @@ app.include_router(table_priority_router)  # Table priority validation routes (/
 app.include_router(sql_execution_router)  # SQL execution routes (/api/sql)
 app.include_router(ai_config_router)  # AI config routes (/api/ai-config)
 app.include_router(auth_router)  # Authentication routes (/api/auth)
+
+# ── Static file serving for extracted images ──
+_extracted_images_dir = Path(__file__).parent.parent.parent / "data" / "extracted_images"
+_extracted_images_dir.mkdir(parents=True, exist_ok=True)
+app.mount(
+    "/api/images",
+    StaticFiles(directory=str(_extracted_images_dir)),
+    name="extracted_images",
+)
 
 def serve_html_file(filename: str, fallback_message: str = "Page not found"):
     """Helper function to serve HTML files"""

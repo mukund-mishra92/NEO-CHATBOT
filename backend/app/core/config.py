@@ -82,6 +82,11 @@ class Settings:
     SERVER_PORT: int = int(os.getenv("SERVER_PORT", "8000"))
     SERVER_RELOAD: bool = os.getenv("SERVER_RELOAD", "true").lower() == "true"
 
+    # ── Multimodal RAG Feature Flags ──
+    MULTIMODAL_IMAGES_ENABLED: bool = os.getenv("MULTIMODAL_IMAGES_ENABLED", "true").lower() == "true"
+    MULTIMODAL_MAX_DISPLAY_IMAGES: int = int(os.getenv("MULTIMODAL_MAX_DISPLAY_IMAGES", "5"))
+    MULTIMODAL_VISION_DESCRIPTIONS: bool = os.getenv("MULTIMODAL_VISION_DESCRIPTIONS", "false").lower() == "true"
+
 # Create settings instance
 settings = Settings()
 

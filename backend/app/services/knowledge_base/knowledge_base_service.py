@@ -15,6 +15,14 @@ from ..rlhf_service import RLHFService
 from ..diagnostic.diagnostic_support_service import DiagnosticSupportService
 from ...models.schemas import ChatRequest, ChatResponse, SourceDocument, ChatbotType, MessageRole
 from ...utils.session_manager import get_session_manager, SessionType
+from ...core.config import settings
+
+# RAG Pipeline (ChromaDB-backed hybrid retrieval)
+try:
+    from app.ingetion.pipeline import RAGPipeline
+    RAG_AVAILABLE = True
+except ImportError:
+    RAG_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +36,34 @@ class KnowledgeBaseService:
     def __init__(self):
         """Initialize knowledge base service"""
         self.llm_service = LLMService()
-        self.vector_store = VectorStoreService()
+        self.vector_store = VectorStoreService()  # Legacy JSON vector store (fallback)
         self.rlhf_service = RLHFService()
         self.diagnostic_service = DiagnosticSupportService()  # Add diagnostic support
         self.session_manager = get_session_manager()
+
+        # ── ChromaDB RAG Pipeline (primary retrieval) ──
+        self.rag_pipeline = None
+        if RAG_AVAILABLE:
+            try:
+                from pathlib import Path
+                chroma_dir = str(Path(__file__).resolve().parents[4] / "data" / "chroma_db")
+                self.rag_pipeline = RAGPipeline(
+                    chroma_persist_dir=chroma_dir,
+                    enable_images=settings.MULTIMODAL_IMAGES_ENABLED,
+                    enable_ocr=False,
+                    llm_service=self.llm_service,
+                    max_display_images=settings.MULTIMODAL_MAX_DISPLAY_IMAGES,
+                    enable_vision_descriptions=settings.MULTIMODAL_VISION_DESCRIPTIONS,
+                )
+                status = self.rag_pipeline.get_status()
+                if status["total_chunks"] > 0:
+                    logger.info(f"✅ RAG Pipeline (ChromaDB) active: {status['total_chunks']} chunks")
+                else:
+                    logger.warning("⚠️ RAG Pipeline initialized but ChromaDB is empty — will fall back to JSON vector store")
+                    self.rag_pipeline = None
+            except Exception as e:
+                logger.warning(f"⚠️ RAG Pipeline init failed, falling back to JSON vector store: {e}")
+                self.rag_pipeline = None
         
         self.system_prompt = """You are NEO Assistant, an expert on the NEO Warehouse Management System.
 
@@ -119,8 +151,12 @@ Always prioritize clarity and user understanding."""
                     has_attached_document = True
                     logger.info(f"📎 Attached document detected: {attached_filename} ({len(attached_doc_text)} chars)")
 
-            # Check if vector store has documents (skip if we have an attached doc)
-            if not has_attached_document and len(self.vector_store.documents) == 0:
+            # Check if any knowledge base has documents
+            has_kb_content = (
+                self.rag_pipeline is not None
+                or len(self.vector_store.documents) > 0
+            )
+            if not has_attached_document and not has_kb_content:
                 return self._handle_empty_knowledge_base(chat_request)
             
             # Step 2: Check if this is a troubleshooting query
@@ -136,33 +172,43 @@ Always prioritize clarity and user understanding."""
             query_type = self._classify_query(chat_request.message)
             logger.info(f"📊 Query classified as: {query_type}")
             
-            # Step 4: Generate query embedding
-            query_embedding = self.llm_service.generate_embedding(chat_request.message)
-            
-            # Step 5: Search for relevant documents (with balanced category distribution)
-            # Don't pass attached_document context as vector store filter
-            vector_filter = None
-            if chat_request.context and isinstance(chat_request.context, dict):
-                # Only pass actual metadata filters, not the attached document
-                vector_filter = {k: v for k, v in chat_request.context.items() 
-                                if k not in ("attached_document", "attached_filename")}
-                if not vector_filter:
-                    vector_filter = None
+            # Step 4+5: Retrieve relevant documents
+            # PRIMARY: ChromaDB RAG Pipeline (hybrid vector + BM25 + rerank)
+            # FALLBACK: Legacy JSON vector store
+            if self.rag_pipeline is not None:
+                logger.info("🔗 Using ChromaDB RAG Pipeline for retrieval")
+                top_k = 8 if not has_attached_document else 4
+                rag_result = self.rag_pipeline.retrieve_context(
+                    chat_request.message, top_k=top_k
+                )
+                # Convert RAG results to KB service format
+                kb_context = rag_result["context"]
+                source_documents = self._extract_source_documents_from_rag(rag_result)
+                filtered_results = self._convert_rag_to_legacy_format(rag_result)
+            else:
+                logger.info("📦 Using legacy JSON vector store for retrieval")
+                # Generate query embedding
+                query_embedding = self.llm_service.generate_embedding(chat_request.message)
+                
+                # Search with balanced category distribution
+                vector_filter = None
+                if chat_request.context and isinstance(chat_request.context, dict):
+                    vector_filter = {k: v for k, v in chat_request.context.items() 
+                                    if k not in ("attached_document", "attached_filename")}
+                    if not vector_filter:
+                        vector_filter = None
 
-            search_results = self.vector_store.search_balanced(
-                query_embedding=query_embedding,
-                top_k=8 if not has_attached_document else 4,  # Fewer KB results when doc is primary
-                filter_metadata=vector_filter,
-                min_similarity=0.25,  # Lower threshold to catch more relevant content
-                diversify=True  # Reduce proposal bias
-            )
-            
-            # Filter and re-rank results
-            filtered_results = self._filter_and_rerank(search_results, chat_request.message)
-            
-            # Step 6: Build context from retrieved documents
-            kb_context = self._build_context(filtered_results)
-            source_documents = self._extract_source_documents(filtered_results)
+                search_results = self.vector_store.search_balanced(
+                    query_embedding=query_embedding,
+                    top_k=8 if not has_attached_document else 4,
+                    filter_metadata=vector_filter,
+                    min_similarity=0.25,
+                    diversify=True
+                )
+                
+                filtered_results = self._filter_and_rerank(search_results, chat_request.message)
+                kb_context = self._build_context(filtered_results)
+                source_documents = self._extract_source_documents(filtered_results)
 
             # Step 6.5: If attached document exists, build combined context (doc = primary, KB = secondary)
             if has_attached_document:
@@ -195,11 +241,17 @@ Always prioritize clarity and user understanding."""
             if not conversation_history:
                 conversation_history = self.session_manager.get_context_for_llm(session_id, max_messages=10) if session_id else []
             
+            # Gather display images for LLM figure-awareness
+            display_images = rag_result.get("images", []) if self.rag_pipeline is not None else []
+
             # Step 8: Generate response using LLM with adaptive strategy
-            messages = self._build_adaptive_messages(chat_request, context, query_type, conversation_history)
+            messages = self._build_adaptive_messages(
+                chat_request, context, query_type, conversation_history,
+                images=display_images,
+            )
             
             # Adjust LLM parameters based on query type
-            max_tokens, temperature = self._get_llm_parameters(query_type)
+            max_tokens, temperature = self._get_llm_parameters(query_type, has_images=bool(display_images))
             
             # Increase max_tokens when processing attached documents (richer answers needed)
             if has_attached_document:
@@ -245,7 +297,8 @@ Always prioritize clarity and user understanding."""
                 session_id=chat_request.session_id or str(uuid.uuid4()),
                 sources=source_documents,
                 confidence_score=confidence,
-                suggested_actions=self._generate_suggested_actions(chat_request.message, response_text)
+                suggested_actions=self._generate_suggested_actions(chat_request.message, response_text),
+                images=rag_result.get("images", []) if self.rag_pipeline is not None else [],
             )
             
         except Exception as e:
@@ -345,14 +398,19 @@ Always prioritize clarity and user understanding."""
     def _get_adaptive_system_prompt(self, query_type: str) -> str:
         """Get system prompt based on query type"""
         
-        base_prompt = """You are NEO Assistant, an expert on the NEO Warehouse Management System.
+        base_prompt = """You are NEO Assistant, an expert on the NEO Warehouse Management System and Falcon Autotech products.
 
-CRITICAL FORMATTING RULES:
-- DO NOT use emoji or special characters in citations
-- Put ALL source citations at the END in a 'Sources:' line
-- DO NOT cite sources inline with [Document 1], [Document 2] etc
-- Use clean markdown: ## for headings, - for bullets, **bold** for emphasis
+RESPONSE QUALITY RULES:
+- Write naturally and authoritatively — you ARE the domain expert
+- Structure content DYNAMICALLY based on information richness — do NOT follow rigid templates
+- Use clean markdown: ## for section headings, **bold** for key terms, bullet points for lists
 - Add blank lines between sections for readability
+- Cite source documents naturally in-line: "According to [Document Name]..." or "(Source: Document Name)"
+- Do NOT add a separate "Source References" or "Sources:" section at the end — weave citations into the text
+- When figures are listed in the context, reference them naturally: "The carrier design (Figure 1) shows..." or "As illustrated in Figure 2..."
+- Be SPECIFIC with data — include dimensions, capacities, percentages, model numbers when available
+- Never repeat the same information in different sections
+- Keep a professional, confident tone throughout
 """
         
         if query_type == "SIMPLE_FACT":
@@ -469,39 +527,71 @@ Be helpful, not rigid. Offer alternatives.
         else:  # EXPLORATORY
             return base_prompt + """
 
-TASK: Provide a comprehensive, well-structured explanation.
+TASK: Provide a comprehensive, intelligent, and well-structured response.
 
-FORMAT:
-**Overview**
-[2-3 sentence summary]
-
-**Key Points**
-• [Main point 1]
-• [Main point 2]
-• [Main point 3]
-
-**Additional Details**
-[Relevant specifics, examples, or context]
-
-**Source References**
-[Document names]
+APPROACH:
+- Open with an engaging 2-3 sentence summary that captures the core concept
+- Organise into LOGICAL sections using ## headings — choose heading names that FIT the content (e.g. "## How It Works", "## Technical Specifications", "## Key Advantages"), NOT generic ones like "Key Points" or "Additional Details"
+- Mix formatting NATURALLY: paragraphs for explanations, bullets for features/specs, numbered lists for sequential processes, markdown tables for comparisons or specifications
+- When technical specifications are available (dimensions, weights, speeds, capacities), present them in a clean markdown table or formatted spec block
+- If figures are available, reference them IN CONTEXT where they add value: "The sorter track layout (Figure 1) demonstrates..." — don't just list them
+- CONNECT ideas — explain WHY things work the way they do, not just WHAT they are
+- End with a practical insight or key takeaway — something actionable or memorable
+- Vary sentence length and structure for readability — avoid monotonous bullet-only responses
+- Do NOT include a separate sources section at the end — cite sources inline only
 """
     
-    def _get_llm_parameters(self, query_type: str) -> tuple:
+    def _get_llm_parameters(self, query_type: str, *, has_images: bool = False) -> tuple:
         """Get max_tokens and temperature based on query type"""
         
         params = {
-            "SIMPLE_FACT": (300, 0.2),      # Short, focused
-            "DEFINITION": (500, 0.3),       # Medium, precise
-            "PROCEDURAL": (1000, 0.3),      # Detailed, structured
-            "COMPARISON": (800, 0.3),       # Analytical
-            "GENERATIVE": (400, 0.5),       # Helpful redirection
-            "EXPLORATORY": (1500, 0.4),     # Comprehensive
+            "SIMPLE_FACT": (400, 0.2),      # Short, focused
+            "DEFINITION": (600, 0.3),       # Medium, precise
+            "PROCEDURAL": (1200, 0.3),      # Detailed, structured
+            "COMPARISON": (1000, 0.3),      # Analytical
+            "GENERATIVE": (500, 0.5),       # Helpful redirection
+            "CODE_QUERY": (1500, 0.3),      # Code-heavy
+            "EXPLORATORY": (2000, 0.35),    # Comprehensive, dynamic
         }
         
-        return params.get(query_type, (1000, 0.4))
+        tokens, temp = params.get(query_type, (1200, 0.35))
+        
+        # Boost tokens when images are available — LLM needs room for figure references
+        if has_images:
+            tokens = min(tokens + 300, 3000)
+        
+        return tokens, temp
     
-    def _build_adaptive_messages(self, chat_request: ChatRequest, context: str, query_type: str, conversation_history: List[Dict[str, str]] = None) -> List[Dict[str, str]]:
+    def _build_image_context(self, images: List[Dict[str, Any]]) -> str:
+        """Format image metadata so the LLM can reference figures in its response."""
+        if not images:
+            return ""
+
+        parts = ["\n📷 AVAILABLE FIGURES (reference as 'Figure 1', 'Figure 2', etc. where relevant):"]
+        for i, img in enumerate(images, 1):
+            caption = (img.get("caption") or "").strip()
+            source = img.get("source_document", "")
+            page = img.get("page_number", 0)
+
+            desc = f"  Figure {i}"
+            if caption:
+                # Truncate long captions
+                if len(caption) > 120:
+                    caption = caption[:117] + "..."
+                desc += f": {caption}"
+            meta_bits = []
+            if source:
+                meta_bits.append(source)
+            if page:
+                meta_bits.append(f"page {page}")
+            if meta_bits:
+                desc += f" ({', '.join(meta_bits)})"
+            parts.append(desc)
+
+        parts.append("")
+        return "\n".join(parts)
+
+    def _build_adaptive_messages(self, chat_request: ChatRequest, context: str, query_type: str, conversation_history: List[Dict[str, str]] = None, *, images: Optional[List[Dict[str, Any]]] = None) -> List[Dict[str, str]]:
         """Build messages with adaptive prompting based on query type, with conversation context FIRST"""
         messages = []
         
@@ -591,12 +681,13 @@ Instead:
 Be conversational and helpful, not robotic."""
         
         else:
+            image_context = self._build_image_context(images or [])
             user_message = f"""{doc_priority_note}Documentation:
 {context}
-
+{image_context}
 Question: {chat_request.message}
 
-Provide a clear, well-structured answer using the documentation. Follow the response format for {query_type} queries."""
+Provide a clear, intelligent, well-structured answer using the documentation above. Structure the response dynamically to match the content — use the formatting approach best suited to the information available."""
         
         messages.append({
             "role": "user",
@@ -606,16 +697,24 @@ Provide a clear, well-structured answer using the documentation. Follow the resp
         return messages
     
     def _format_adaptive_response(self, response_text: str, query_type: str) -> str:
-        """Format response based on query type"""
+        """Format and polish response — clean up common LLM artefacts."""
         
         # Minimal formatting for simple facts
         if query_type == "SIMPLE_FACT":
-            # Just clean up extra newlines
             response_text = re.sub(r'\n{2,}', '\n', response_text)
             return response_text.strip()
         
-        # Standard formatting for others
+        # Remove any trailing "Sources:" block the LLM may have added despite instructions
+        response_text = re.sub(
+            r'\n+(?:#{1,3}\s*)?(?:Source\s*References?|Sources?)\s*:?\s*\n'
+            r'(?:[-•*]?\s*\[?[^\n]+\]?\n?)+\s*$',
+            '', response_text, flags=re.IGNORECASE
+        )
+        
+        # Collapse 3+ newlines into double
         response_text = re.sub(r'\n{3,}', '\n\n', response_text)
+        
+        # Remove leading/trailing whitespace
         response_text = response_text.strip()
         
         return response_text
@@ -972,9 +1071,59 @@ Category: {category} | Relevance: {similarity:.1%}
             logger.error(f"❌ Error in diagnostic query handling: {e}", exc_info=True)
             return None  # Fall back to normal RAG
     
+    def _extract_source_documents_from_rag(self, rag_result: Dict[str, Any]) -> List[SourceDocument]:
+        """Convert RAG pipeline sources to SourceDocument list."""
+        sources = []
+        for src in rag_result.get("sources", []):
+            # src is a Source dataclass from ingetion.models
+            doc_name = getattr(src, 'document_title', '') or Path(getattr(src, 'source_path', '')).name
+            page_nums = getattr(src, 'page_numbers', [])
+            section = getattr(src, 'section', '')
+            sources.append(SourceDocument(
+                document_name=doc_name,
+                content_snippet=section[:200] if section else doc_name,
+                relevance_score=getattr(src, 'relevance_score', 0.5),
+                page_number=page_nums[0] if page_nums else None,
+                document_type="rag_chroma"
+            ))
+        return sources
+
+    def _convert_rag_to_legacy_format(self, rag_result: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Convert RAG retrieved chunks to legacy search_results format for confidence calc."""
+        results = []
+        for chunk in rag_result.get("retrieved_chunks", []):
+            results.append({
+                "similarity": chunk.score,
+                "boosted_similarity": chunk.score,
+                "document": {
+                    "content": chunk.content,
+                    "metadata": {
+                        "filename": Path(chunk.source_path).name if chunk.source_path else "unknown",
+                        "category": chunk.metadata.get("category", "unknown"),
+                    }
+                }
+            })
+        return results
+
     def get_statistics(self) -> Dict[str, Any]:
         """Get knowledge base statistics"""
         stats = self.vector_store.get_statistics()
         stats["llm_provider"] = self.llm_service.get_provider_info()
+        
+        # Add ChromaDB stats if available
+        if self.rag_pipeline:
+            try:
+                rag_status = self.rag_pipeline.get_status()
+                stats["chroma_db"] = {
+                    "active": True,
+                    "total_chunks": rag_status["total_chunks"],
+                    "collections": rag_status["collections"],
+                    "persist_directory": rag_status["persist_directory"],
+                }
+            except Exception:
+                stats["chroma_db"] = {"active": False}
+        else:
+            stats["chroma_db"] = {"active": False}
+        
         return stats
 
