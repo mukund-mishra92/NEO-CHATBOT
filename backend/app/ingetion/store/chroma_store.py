@@ -140,7 +140,9 @@ class ChromaStore:
 
         for chunk, emb in zip(chunks, embeddings):
             ids.append(chunk.chunk_id)
-            documents.append(chunk.content)
+            # Store embeddable content (text + image context) as the document
+            # so BM25 indexes image captions/OCR alongside text (Phase 1 fix)
+            documents.append(chunk.get_embeddable_content())
             embs.append(emb)
 
             meta = {
@@ -152,6 +154,8 @@ class ChromaStore:
                 "section_path": " > ".join(chunk.section_path),
                 "page_numbers": ",".join(str(p) for p in chunk.page_numbers),
                 "element_types": ",".join(chunk.element_types),
+                # Phase 1: store separated content streams
+                "display_text": chunk.get_display_content()[:8000] if hasattr(chunk, 'get_display_content') else chunk.content[:8000],
             }
             # Multimodal: serialise image references as JSON string
             if chunk.images:
@@ -240,7 +244,7 @@ class ChromaStore:
 
             chunks.append(RetrievedChunk(
                 chunk_id=cid,
-                content=doc,
+                content=(meta.get("display_text") or doc) if meta else doc,  # Phase 1: prefer clean display text
                 score=score,
                 level=int(meta.get("level", 2)),
                 parent_id=meta.get("parent_id", "") or None,
@@ -291,7 +295,7 @@ class ChromaStore:
 
             chunks.append(RetrievedChunk(
                 chunk_id=cid,
-                content=doc or "",
+                content=(meta.get("display_text") or doc or "") if meta else (doc or ""),  # Phase 1: prefer clean display text
                 score=1.0,  # Fetched by ID, not by similarity
                 level=int(meta.get("level", 2)) if meta else 2,
                 parent_id=(meta.get("parent_id", "") or None) if meta else None,

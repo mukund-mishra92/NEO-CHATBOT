@@ -33,6 +33,9 @@ DOCUMENT_CATEGORIES = {
     
     # Root-level files ONLY (does NOT recurse into subfolders — no duplicates)
     "ROOT": "general_documentation",
+    "Cient_BRDS": "brds",
+    "Support_manuals" : "neo_support" 
+    ""
 }
 
 # Maximum embeddings per OpenAI batch API call (OpenAI limit = 2048)

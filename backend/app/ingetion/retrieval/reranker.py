@@ -131,6 +131,12 @@ class Reranker:
             elif chunk.level == 0:
                 bonus -= 0.05
 
+            # 6. Image relevance boost — if query mentions visual terms, boost image chunks (Phase 5)
+            visual_terms = {"image", "diagram", "figure", "picture", "chart", "graph",
+                           "schematic", "layout", "screenshot", "drawing", "illustration"}
+            if query_tokens & visual_terms and chunk.has_images:
+                bonus += 0.15
+
             chunk.score = chunk.score + bonus
 
         chunks.sort(key=lambda c: c.score, reverse=True)

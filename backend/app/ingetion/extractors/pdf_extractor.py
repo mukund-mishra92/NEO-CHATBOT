@@ -279,6 +279,16 @@ class PDFExtractor:
 
                         page_num = page_idx + 1
 
+                        # ── Capture image bounding box (Phase 2) ──
+                        img_bbox = None
+                        try:
+                            rects = fitz_page.get_image_rects(xref)
+                            if rects:
+                                r = rects[0]  # first placement of this image
+                                img_bbox = (float(r.x0), float(r.y0), float(r.x1), float(r.y1))
+                        except Exception:
+                            pass  # bbox is optional — continue without it
+
                         # ── Save image to disk ──
                         image_path = ""
                         if self.image_store:
@@ -327,6 +337,7 @@ class PDFExtractor:
                         img_ref = ImageReference(
                             image_path=image_path,
                             page_number=page_num,
+                            bbox=img_bbox,
                             caption=caption,
                             ocr_text="",
                             description=description,

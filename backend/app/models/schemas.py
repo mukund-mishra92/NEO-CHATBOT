@@ -50,6 +50,21 @@ class SourceDocument(BaseModel):
     document_type: str  # pdf, docx, code, proposal
 
 
+class ResponseSection(BaseModel):
+    """A structured section in an answer (Phase 8)."""
+    heading: str
+    content: str
+    figures: Optional[List[int]] = []  # Figure numbers referenced in this section
+
+
+class StructuredResponse(BaseModel):
+    """Structured answer format (Phase 8) — rich alternative to flat response string."""
+    summary: str = ""
+    sections: List[ResponseSection] = []
+    figures: Optional[List[Dict[str, Any]]] = []  # {figure_number, image_path, caption, ...}
+    citations: Optional[List[Dict[str, str]]] = []  # {document, page, snippet}
+
+
 class ChatResponse(BaseModel):
     """Response from chatbot"""
     response: str
@@ -62,6 +77,7 @@ class ChatResponse(BaseModel):
     query_results: Optional[List[Dict[str, Any]]] = None  # For SQL results
     metadata: Optional[Dict[str, Any]] = None  # Agent metadata (format_decision, etc.)
     images: Optional[List[Dict[str, Any]]] = []  # Multimodal: images to display
+    structured_response: Optional[StructuredResponse] = None  # Phase 8: structured answer
     timestamp: datetime = Field(default_factory=datetime.now)
 
 

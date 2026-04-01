@@ -117,13 +117,11 @@ class HierarchicalChunker:
                 images=sec_images,
                 image_count=len(sec_images),
             )
-            # Build combined_content for richer embeddings
-            if sec_images:
-                img_texts = [img.get_searchable_text() for img in sec_images]
-                combined_parts = [sec_text] + [f"[Image: {t}]" for t in img_texts if t]
-                sec_chunk.combined_content = "\n".join(combined_parts)
-
             doc_chunk.children_ids.append(sec_id)
+
+            # Build content streams for section chunk (Phase 1)
+            sec_chunk.build_content_streams()
+
             all_chunks.append(sec_chunk)
 
             # ── Level 2: Paragraph / leaf chunks ──
@@ -154,10 +152,8 @@ class HierarchicalChunker:
                     images=l2_images,
                     image_count=len(l2_images),
                 )
-                if l2_images:
-                    img_texts = [img.get_searchable_text() for img in l2_images]
-                    combined = [leaf_text] + [f"[Image: {t}]" for t in img_texts if t]
-                    leaf_chunk.combined_content = "\n".join(combined)
+                # Build content streams for leaf chunk (Phase 1)
+                leaf_chunk.build_content_streams()
 
                 sec_chunk.children_ids.append(leaf_id)
                 all_chunks.append(leaf_chunk)
@@ -364,16 +360,54 @@ class HierarchicalChunker:
         num_leaves: int,
     ) -> Dict[int, List[ImageReference]]:
         """
-        Assign section-level images to leaf chunks.
+        Assign section-level images to the most relevant leaf chunk.
 
-        Simple heuristic: all images go to the first leaf (index 0)
-        since we don't have fine-grained positional data.
-        If the section has only one leaf, all images are on that leaf.
+        Strategy (Phase 2 upgrade):
+          1. If only one leaf — all images go there.
+          2. For each image, compute word-overlap between the image's
+             searchable text (caption + OCR + description) and each
+             leaf's text. Assign the image to the best-matching leaf.
+          3. If no overlap is found for an image, fall back to the first leaf.
         """
         if not images or num_leaves == 0:
             return {}
-        # Assign all to first leaf (keeps text+image together for retrieval)
-        return {0: images}
+
+        # Fast path: single leaf
+        if num_leaves == 1:
+            return {0: list(images)}
+
+        result: Dict[int, List[ImageReference]] = {}
+
+        # Pre-tokenize leaves (lowercase words ≥ 2 chars)
+        leaf_tokens = []
+        for text in leaves:
+            tokens = set(w.lower() for w in re.findall(r"\w+", text) if len(w) >= 2)
+            leaf_tokens.append(tokens)
+
+        for img in images:
+            img_text = img.get_searchable_text()
+            if not img_text:
+                # No text to match — assign to first leaf
+                result.setdefault(0, []).append(img)
+                continue
+
+            img_tokens = set(w.lower() for w in re.findall(r"\w+", img_text) if len(w) >= 2)
+            if not img_tokens:
+                result.setdefault(0, []).append(img)
+                continue
+
+            # Find the leaf with the highest word overlap
+            best_idx = 0
+            best_score = 0
+            for idx, lt in enumerate(leaf_tokens):
+                overlap = len(img_tokens & lt)
+                if overlap > best_score:
+                    best_score = overlap
+                    best_idx = idx
+
+            result.setdefault(best_idx, []).append(img)
+
+        return result
 
     @staticmethod
     def _doc_id(doc: ExtractedDocument) -> str:

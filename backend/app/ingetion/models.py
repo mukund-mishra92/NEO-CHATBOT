@@ -155,13 +155,61 @@ class HierarchicalChunk:
     image_count: int = 0
     combined_content: Optional[str] = None   # text + image-derived text for embedding
 
+    # ── Separated content streams (Phase 1 upgrade) ──
+    embedding_text: Optional[str] = None     # optimised text for embedding (text + captions + OCR)
+    display_text: Optional[str] = None       # clean text for user-facing display
+    image_text: Optional[str] = None         # concatenated image captions/OCR/descriptions
+
     @property
     def has_images(self) -> bool:
         return self.image_count > 0 or len(self.images) > 0
 
     def get_embeddable_content(self) -> str:
-        """Return combined_content if available, else plain content."""
-        return self.combined_content or self.content
+        """Return the best available text for embedding generation.
+
+        Priority: embedding_text > combined_content > content.
+        embedding_text merges the display text with all image-derived
+        text (captions, OCR, descriptions) so that image-related
+        queries can match the correct chunks.
+        """
+        return self.embedding_text or self.combined_content or self.content
+
+    def get_display_content(self) -> str:
+        """Return clean text suitable for showing to the user."""
+        return self.display_text or self.content
+
+    def get_image_text(self) -> str:
+        """Return concatenated image-derived text (captions + OCR + descriptions)."""
+        if self.image_text:
+            return self.image_text
+        if not self.images:
+            return ""
+        parts = [img.get_searchable_text() for img in self.images]
+        return " ".join(p for p in parts if p).strip()
+
+    def build_content_streams(self) -> None:
+        """Populate embedding_text, display_text, image_text from images + content.
+
+        Call this after images have been assigned to the chunk.
+        """
+        self.display_text = self.content
+        # Build image_text from all image references
+        img_parts = []
+        for img in self.images:
+            txt = img.get_searchable_text()
+            if txt:
+                img_parts.append(txt)
+        self.image_text = " ".join(img_parts) if img_parts else ""
+
+        # Build embedding_text = display_text + image_text
+        if self.image_text:
+            self.embedding_text = f"{self.content}\n\n[Image context: {self.image_text}]"
+        else:
+            self.embedding_text = self.content
+
+        # Also update combined_content for backward compat
+        self.combined_content = self.embedding_text
+        self.image_count = len(self.images)
 
     def serialise_images_json(self) -> str:
         """Serialise image list to JSON string (for ChromaDB metadata)."""
@@ -203,6 +251,9 @@ class RetrievedChunk:
     # ── Multimodal fields ──
     images: List[ImageReference] = field(default_factory=list)
     image_count: int = 0
+    embedding_text: Optional[str] = None     # text used for embedding (includes image context)
+    display_text: Optional[str] = None       # clean text for display
+    image_text: Optional[str] = None         # concatenated image captions/OCR/descriptions
 
     @property
     def has_images(self) -> bool:

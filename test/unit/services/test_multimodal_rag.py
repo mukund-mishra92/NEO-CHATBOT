@@ -426,3 +426,329 @@ class TestChatResponseImages:
         serialized = resp.model_dump()
         assert "images" in serialized
         assert len(serialized["images"]) == 1
+
+
+# ═══════════════════════════════════════════════════════
+#  Phase 1 — Content Streams & Embedding Fix
+# ═══════════════════════════════════════════════════════
+class TestContentStreams:
+    """Tests for the new embedding_text / display_text / image_text fields."""
+
+    def test_build_content_streams_no_images(self):
+        """Chunk without images should have embedding_text == content."""
+        chunk = HierarchicalChunk(
+            chunk_id="test_cs_001",
+            content="Plain paragraph about warehouse operations.",
+            level=2,
+        )
+        chunk.build_content_streams()
+        assert chunk.display_text == chunk.content
+        assert chunk.image_text == ""
+        assert chunk.embedding_text == chunk.content
+        assert chunk.combined_content == chunk.content
+
+    def test_build_content_streams_with_images(self):
+        """Chunk with images should include image text in embedding_text."""
+        img = ImageReference(
+            image_path="img/p1.png",
+            caption="Conveyor layout diagram",
+            ocr_text="Belt A → Belt B",
+            description="Schematic of conveyor flow",
+        )
+        chunk = HierarchicalChunk(
+            chunk_id="test_cs_002",
+            content="The conveyor system routes packages.",
+            level=2,
+            images=[img],
+            image_count=1,
+        )
+        chunk.build_content_streams()
+        assert chunk.display_text == "The conveyor system routes packages."
+        assert "Conveyor layout diagram" in chunk.image_text
+        assert "Belt A" in chunk.image_text
+        assert "[Image context:" in chunk.embedding_text
+        assert "Conveyor layout diagram" in chunk.embedding_text
+        # combined_content should match embedding_text
+        assert chunk.combined_content == chunk.embedding_text
+
+    def test_get_embeddable_content_priority(self):
+        """get_embeddable_content() should prefer embedding_text > combined_content > content."""
+        chunk = HierarchicalChunk(
+            chunk_id="test_cs_003",
+            content="fallback",
+            level=2,
+        )
+        assert chunk.get_embeddable_content() == "fallback"
+
+        chunk.combined_content = "combined"
+        assert chunk.get_embeddable_content() == "combined"
+
+        chunk.embedding_text = "embedding"
+        assert chunk.get_embeddable_content() == "embedding"
+
+    def test_get_display_content_priority(self):
+        """get_display_content() should prefer display_text > content."""
+        chunk = HierarchicalChunk(
+            chunk_id="test_cs_004",
+            content="raw content",
+            level=2,
+        )
+        assert chunk.get_display_content() == "raw content"
+
+        chunk.display_text = "clean display"
+        assert chunk.get_display_content() == "clean display"
+
+    def test_get_image_text_from_images(self):
+        """get_image_text() should concatenate text from all image references."""
+        img1 = ImageReference(image_path="a.png", caption="First image caption")
+        img2 = ImageReference(image_path="b.png", caption="Second image caption", ocr_text="OCR text")
+        chunk = HierarchicalChunk(
+            chunk_id="test_cs_005",
+            content="Text",
+            level=2,
+            images=[img1, img2],
+        )
+        text = chunk.get_image_text()
+        assert "First image caption" in text
+        assert "Second image caption" in text
+        assert "OCR text" in text
+
+    def test_build_content_streams_multiple_images(self):
+        """Multiple images should all contribute to image_text and embedding_text."""
+        imgs = [
+            ImageReference(image_path="a.png", caption="Diagram A"),
+            ImageReference(image_path="b.png", caption="Diagram B", ocr_text="Step 1"),
+            ImageReference(image_path="c.png", description="Overview chart"),
+        ]
+        chunk = HierarchicalChunk(
+            chunk_id="test_cs_006",
+            content="Warehouse overview section.",
+            level=2,
+            images=imgs,
+            image_count=3,
+        )
+        chunk.build_content_streams()
+        assert "Diagram A" in chunk.image_text
+        assert "Diagram B" in chunk.image_text
+        assert "Step 1" in chunk.image_text
+        assert "Overview chart" in chunk.image_text
+        assert "Warehouse overview section." in chunk.embedding_text
+        assert "[Image context:" in chunk.embedding_text
+
+    def test_retrieved_chunk_has_new_fields(self):
+        """RetrievedChunk should have embedding_text, display_text, image_text fields."""
+        rc = RetrievedChunk(
+            chunk_id="rc_001",
+            content="Display text",
+            score=0.9,
+            embedding_text="enriched text with images",
+            display_text="Display text",
+            image_text="caption from image",
+        )
+        assert rc.embedding_text == "enriched text with images"
+        assert rc.display_text == "Display text"
+        assert rc.image_text == "caption from image"
+
+
+# ═══════════════════════════════════════════════════════
+#  Phase 2 — Image Distribution / Correlation
+# ═══════════════════════════════════════════════════════
+from app.ingetion.chunkers.hierarchical_chunker import HierarchicalChunker
+
+
+class TestImageDistribution:
+    """Tests for _distribute_images_to_leaves (Phase 2 upgrade)."""
+
+    def test_single_leaf_gets_all_images(self):
+        """With only one leaf, all images should go to index 0."""
+        imgs = [
+            ImageReference(image_path="a.png", caption="Conveyor layout"),
+            ImageReference(image_path="b.png", caption="Pick station"),
+        ]
+        result = HierarchicalChunker._distribute_images_to_leaves(imgs, ["text"], 1)
+        assert len(result[0]) == 2
+
+    def test_empty_images(self):
+        """No images should produce empty result."""
+        result = HierarchicalChunker._distribute_images_to_leaves([], ["text1", "text2"], 2)
+        assert result == {}
+
+    def test_empty_leaves(self):
+        """No leaves should produce empty result."""
+        imgs = [ImageReference(image_path="a.png", caption="test")]
+        result = HierarchicalChunker._distribute_images_to_leaves(imgs, [], 0)
+        assert result == {}
+
+    def test_image_assigned_to_matching_leaf(self):
+        """Image with caption matching leaf text should go to that leaf."""
+        imgs = [
+            ImageReference(
+                image_path="conveyor.png",
+                caption="conveyor belt layout with sorting",
+            ),
+        ]
+        leaves = [
+            "The warehouse has many storage racks and bins arranged in rows.",
+            "The conveyor belt system handles sorting and routing of packages.",
+        ]
+        result = HierarchicalChunker._distribute_images_to_leaves(imgs, leaves, 2)
+        # Image caption matches "conveyor" and "sorting" in leaf 1 (index 1)
+        assert 1 in result
+        assert len(result[1]) == 1
+        assert result[1][0].image_path == "conveyor.png"
+
+    def test_multiple_images_different_leaves(self):
+        """Different images should be assigned to their best-matching leaves."""
+        imgs = [
+            ImageReference(image_path="robot.png", caption="robot arm picking items"),
+            ImageReference(image_path="rack.png", caption="storage rack configuration"),
+        ]
+        leaves = [
+            "The robotic arm picks items from bins and places them on conveyor.",
+            "Storage racks are configured in a grid pattern for optimal space.",
+        ]
+        result = HierarchicalChunker._distribute_images_to_leaves(imgs, leaves, 2)
+        # robot image → leaf 0 (robot, picking, items)
+        # rack image → leaf 1 (storage, rack, configuration)
+        assert 0 in result
+        assert any(img.image_path == "robot.png" for img in result.get(0, []))
+        assert 1 in result
+        assert any(img.image_path == "rack.png" for img in result.get(1, []))
+
+    def test_no_text_image_falls_back_to_first_leaf(self):
+        """Image with no searchable text should default to first leaf."""
+        imgs = [ImageReference(image_path="mystery.png")]
+        leaves = ["First leaf text.", "Second leaf text."]
+        result = HierarchicalChunker._distribute_images_to_leaves(imgs, leaves, 2)
+        assert 0 in result
+        assert len(result[0]) == 1
+
+
+# ════════════════════════════════════════════════════════════
+#  Phase 7 — Answer Planner tests
+# ════════════════════════════════════════════════════════════
+
+class TestAnswerPlanner:
+    """Tests for AnswerPlanner query classification and plan building."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        from app.services.answer_planner import AnswerPlanner
+        self.planner = AnswerPlanner()
+
+    def _make_chunk(self, cid="c1", content="some content", source="doc.pdf", score=0.9):
+        return RetrievedChunk(
+            chunk_id=cid,
+            content=content,
+            source_path=source,
+            score=score,
+            section_path=["Doc", "Section"],
+        )
+
+    def test_classify_factual(self):
+        assert self.planner._classify_query("What is the NEO system?") == "factual"
+        assert self.planner._classify_query("How many warehouses are supported?") == "factual"
+
+    def test_classify_procedural(self):
+        assert self.planner._classify_query("How to configure the robot arm?") == "procedural"
+        assert self.planner._classify_query("Steps to setup the database") == "procedural"
+
+    def test_classify_comparison(self):
+        assert self.planner._classify_query("Compare FIFO and LIFO strategies") == "comparison"
+        assert self.planner._classify_query("Difference between A and B") == "comparison"
+
+    def test_classify_exploratory(self):
+        assert self.planner._classify_query("Explain the architecture of NEO") == "exploratory"
+
+    def test_classify_default_exploratory(self):
+        assert self.planner._classify_query("Tell me everything") == "exploratory"
+
+    def test_plan_factual_sections(self):
+        chunks = [self._make_chunk(f"c{i}") for i in range(5)]
+        plan = self.planner.plan("What is NEO?", chunks)
+        assert plan.query_type == "factual"
+        assert len(plan.sections) >= 1
+        assert plan.sections[0].heading == "Answer"
+
+    def test_plan_procedural_sections(self):
+        chunks = [self._make_chunk(f"c{i}") for i in range(8)]
+        plan = self.planner.plan("How to configure the system?", chunks)
+        assert plan.query_type == "procedural"
+        headings = [s.heading for s in plan.sections]
+        assert "Overview" in headings
+        assert "Steps" in headings
+
+    def test_plan_with_images(self):
+        chunks = [self._make_chunk()]
+        images = [{"image_path": "img1.png", "caption": "Test image"}]
+        plan = self.planner.plan("What is this?", chunks, images=images)
+        assert plan.total_figures >= 1
+
+    def test_to_prompt_context(self):
+        chunks = [self._make_chunk()]
+        plan = self.planner.plan("What is NEO?", chunks)
+        ctx = plan.to_prompt_context()
+        assert "ANSWER PLAN" in ctx
+        assert "Section 1" in ctx
+
+
+# ════════════════════════════════════════════════════════════
+#  Phase 8 — Response Structurer tests
+# ════════════════════════════════════════════════════════════
+
+class TestResponseStructurer:
+    """Tests for ResponseStructurer parsing."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        from app.services.response_structurer import ResponseStructurer
+        self.structurer = ResponseStructurer()
+
+    def test_empty_response(self):
+        result = self.structurer.structure("")
+        assert result.summary == ""
+        assert result.sections == []
+
+    def test_single_paragraph(self):
+        result = self.structurer.structure("NEO is a warehouse management system.")
+        assert len(result.sections) == 1
+        assert "NEO" in result.summary
+
+    def test_heading_split(self):
+        text = "## Overview\nNEO manages warehouses.\n\n## Features\nRobotic automation and more."
+        result = self.structurer.structure(text)
+        assert len(result.sections) == 2
+        assert result.sections[0].heading == "Overview"
+        assert result.sections[1].heading == "Features"
+
+    def test_figure_references(self):
+        text = "## Details\nSee Figure 1 and Figure 2 for the architecture."
+        images = [
+            {"image_path": "arch.png", "caption": "Architecture"},
+            {"image_path": "flow.png", "caption": "Flow"},
+        ]
+        result = self.structurer.structure(text, images=images)
+        assert result.sections[0].figures == [1, 2]
+        assert len(result.figures) == 2
+        assert result.figures[0]["figure_number"] == 1
+
+    def test_citations_from_sources(self):
+        from app.models.schemas import SourceDocument
+        sources = [
+            SourceDocument(document_name="guide.pdf", content_snippet="WMS overview", relevance_score=0.9, document_type="pdf"),
+            SourceDocument(document_name="spec.docx", content_snippet="API spec", relevance_score=0.8, page_number=5, document_type="docx"),
+        ]
+        result = self.structurer.structure("Some answer text.", source_documents=sources)
+        assert len(result.citations) == 2
+        assert result.citations[0]["document"] == "guide.pdf"
+        assert result.citations[1]["page"] == "5"
+
+    def test_bold_heading_split(self):
+        text = "First para.\n\n**Key Features**\nFeature list here."
+        result = self.structurer.structure(text)
+        assert any(s.heading == "Key Features" for s in result.sections)
+
+    def test_summary_truncation(self):
+        long_text = "A" * 500 + ". Next sentence."
+        result = self.structurer.structure(long_text)
+        assert len(result.summary) <= 401  # 400 + "..."

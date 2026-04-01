@@ -68,13 +68,16 @@ class HybridRetriever:
         """
         collections = collections or list(ChromaStore.COLLECTION_NAMES)
 
+        # Dynamic top_k based on query type (Phase 5)
+        dynamic_top_k = self._compute_dynamic_top_k(query)
+
         # ── 1. Dense vector search ──
         vector_results: List[RetrievedChunk] = []
         for col_name in collections:
             results = self.store.search(
                 query_embedding=query_embedding,
                 collection_name=col_name,
-                top_k=self.vector_top_k,
+                top_k=max(self.vector_top_k, dynamic_top_k),
                 where=filter_metadata,
             )
             vector_results.extend(results)
@@ -91,13 +94,36 @@ class HybridRetriever:
 
         # ── 5. Deduplicate & truncate ──
         fused = self._deduplicate(fused)
-        fused = fused[: self.final_top_k]
+        fused = fused[: max(self.final_top_k, dynamic_top_k)]
 
         logger.info(
             f"🔍 Hybrid retrieval: {len(vector_results)} vector + "
-            f"{len(bm25_results)} BM25 → {len(fused)} fused results"
+            f"{len(bm25_results)} BM25 → {len(fused)} fused results (top_k={dynamic_top_k})"
         )
         return fused
+
+    def _compute_dynamic_top_k(self, query: str) -> int:
+        """Choose top_k dynamically based on query characteristics (Phase 5).
+
+        - Image/diagram queries: higher k to capture visual evidence
+        - Broad/comparison queries: higher k for diversity
+        - Specific/factual queries: lower k for precision
+        """
+        q = query.lower()
+        # Image-related queries need more results
+        image_terms = {"image", "diagram", "figure", "picture", "photo", "screenshot",
+                       "chart", "graph", "schematic", "layout", "drawing", "illustration"}
+        if any(term in q for term in image_terms):
+            return 15
+
+        # Broad comparison queries
+        comparison_terms = {"compare", "difference", "versus", "vs", "between",
+                           "all", "every", "overview", "summary"}
+        if any(term in q for term in comparison_terms):
+            return 12
+
+        # Default
+        return self.final_top_k
 
     # ────────────────────────────────────────────────────
     #  BM25 sparse search
@@ -170,10 +196,13 @@ class HybridRetriever:
                     if not doc:
                         continue
                     all_ids.append(cid)
+                    # BM25 tokenizes the stored document text (now includes image context)
                     all_tokenized.append(self._tokenize(doc))
+                    # Use clean display_text for user-facing content when available
+                    display = (meta.get("display_text") or doc) if meta else doc
                     all_chunks.append(RetrievedChunk(
                         chunk_id=cid,
-                        content=doc,
+                        content=display,
                         score=0.0,
                         level=int(meta.get("level", 2)) if meta else 2,
                         parent_id=(meta.get("parent_id") or None) if meta else None,
@@ -281,8 +310,17 @@ class HybridRetriever:
         if not parent_ids_needed:
             return chunks
 
-        # Fetch parents from store
-        parents = self.store.get_by_ids(list(parent_ids_needed))
+        # Fetch parents from store — search across all collections (Phase 1 fix)
+        parents: List[RetrievedChunk] = []
+        for col_name in ChromaStore.COLLECTION_NAMES:
+            found = self.store.get_by_ids(list(parent_ids_needed), collection_name=col_name)
+            if found:
+                parents.extend(found)
+                # Remove found IDs so we don't fetch them again from other collections
+                found_ids = {p.chunk_id for p in found}
+                parent_ids_needed -= found_ids
+                if not parent_ids_needed:
+                    break
         if parents:
             # Assign a slightly lower score than child
             min_score = min(c.score for c in chunks) if chunks else 0.0

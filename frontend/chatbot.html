@@ -1007,6 +1007,18 @@
             transition: box-shadow 0.3s;
         }
 
+        /* Phase 9: Inline figures within answer sections */
+        .rag-inline-figures {
+            margin: 12px 0 16px;
+            padding: 10px 0;
+            border-top: 1px dashed #e2e8f0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .rag-inline-figures .rag-image-card {
+            flex: 1 1 200px;
+            max-width: 260px;
+        }
+
         .sql-code {
             background: #282c34;
             color: #abb2bf;
@@ -4055,6 +4067,7 @@
             }
 
             // Add images gallery if available (multimodal RAG) — with Figure numbering
+            // Phase 9: Prefer inline rendering when structured_response has section figure data
             if (isAssistant && data.images && data.images.length > 0) {
                 // Build Figure N → url map for inline reference linking
                 const figureMap = {};
@@ -4071,30 +4084,125 @@
                     return match;
                 });
 
-                html += '<div class="rag-image-gallery" style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px;">';
-                html += '<div class="rag-image-gallery-header" style="font-size: 0.9em; font-weight: 600; color: #334155; margin-bottom: 10px;"><i class="fas fa-images" style="color: #6366f1;"></i> Figures</div>';
-                html += '<div class="rag-image-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">';
-                data.images.forEach((img, idx) => {
-                    const figNum = idx + 1;
-                    const pathSuffix = (img.image_path || '').replace(/^extracted_images\//, '');
-                    const imgUrl = `/api/images/${pathSuffix}`;
-                    const caption = img.caption || img.source_document || '';
-                    // Truncate long captions for display
-                    const shortCaption = caption.length > 80 ? caption.substring(0, 77) + '...' : caption;
-                    const pageInfo = img.page_number ? `Page ${img.page_number}` : '';
-                    const sourceDoc = img.source_document || '';
-                    const tooltip = [caption, pageInfo, sourceDoc].filter(Boolean).join(' — ');
-                    html += `
-                        <div id="rag-fig-${figNum}" class="rag-image-card" style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; background: #fafbfc;" title="${tooltip}" onclick="window.open('${imgUrl}', '_blank')" onmouseenter="this.style.boxShadow='0 4px 12px rgba(99,102,241,0.15)'; this.style.transform='translateY(-2px)'" onmouseleave="this.style.boxShadow='none'; this.style.transform='none'">
-                            <div style="position: relative;">
-                                <img src="${imgUrl}" alt="${caption}" style="width: 100%; height: auto; max-height: 180px; object-fit: cover; display: block;" loading="lazy" onerror="this.closest('.rag-image-card').style.display='none'">
-                                <span style="position: absolute; top: 6px; left: 6px; background: rgba(99,102,241,0.85); color: #fff; font-size: 0.7em; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Figure ${figNum}</span>
-                            </div>
-                            ${shortCaption ? `<div style="padding: 6px 10px; font-size: 0.78em; color: #334155; line-height: 1.35;">${shortCaption}</div>` : ''}
-                            ${(pageInfo || sourceDoc) ? `<div style="padding: 2px 10px 8px; font-size: 0.68em; color: #94a3b8; display: flex; gap: 6px; align-items: center;">${sourceDoc ? `<i class="fas fa-file-alt" style="font-size: 0.85em;"></i> ${sourceDoc}` : ''}${pageInfo ? `<span style="margin-left: auto;">${pageInfo}</span>` : ''}</div>` : ''}
-                        </div>`;
-                });
-                html += '</div></div>';
+                // Phase 9: Inline images within sections when structured_response is available
+                const sr = data.structured_response;
+                if (sr && sr.sections && sr.sections.length > 0) {
+                    // Build a map: figure_number → image data
+                    const figDataMap = {};
+                    data.images.forEach((img, idx) => {
+                        figDataMap[idx + 1] = img;
+                    });
+
+                    // Collect which figures are placed inline (to avoid duplicates in gallery)
+                    const inlinedFigures = new Set();
+
+                    // For each section, find its heading in the HTML and inject figures after it
+                    sr.sections.forEach(section => {
+                        if (!section.figures || section.figures.length === 0) return;
+
+                        // Build inline figure HTML for this section
+                        let inlineFigHtml = '<div class="rag-inline-figures" style="margin: 12px 0; display: flex; flex-wrap: wrap; gap: 10px;">';
+                        section.figures.forEach(figNum => {
+                            const img = figDataMap[figNum];
+                            if (!img) return;
+                            inlinedFigures.add(figNum);
+                            const pathSuffix = (img.image_path || '').replace(/^extracted_images\//, '');
+                            const imgUrl = `/api/images/${pathSuffix}`;
+                            const caption = img.caption || img.source_document || '';
+                            const shortCaption = caption.length > 80 ? caption.substring(0, 77) + '...' : caption;
+                            const pageInfo = img.page_number ? `Page ${img.page_number}` : '';
+                            const tooltip = [caption, pageInfo].filter(Boolean).join(' — ');
+                            inlineFigHtml += `
+                                <div id="rag-fig-${figNum}" class="rag-image-card" style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; background: #fafbfc; max-width: 260px; flex: 1 1 200px;" title="${tooltip}" onclick="window.open('${imgUrl}', '_blank')" onmouseenter="this.style.boxShadow='0 4px 12px rgba(99,102,241,0.15)'; this.style.transform='translateY(-2px)'" onmouseleave="this.style.boxShadow='none'; this.style.transform='none'">
+                                    <div style="position: relative;">
+                                        <img src="${imgUrl}" alt="${caption}" style="width: 100%; height: auto; max-height: 160px; object-fit: cover; display: block;" loading="lazy" onerror="this.closest('.rag-image-card').style.display='none'">
+                                        <span style="position: absolute; top: 6px; left: 6px; background: rgba(99,102,241,0.85); color: #fff; font-size: 0.7em; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Figure ${figNum}</span>
+                                    </div>
+                                    ${shortCaption ? `<div style="padding: 5px 8px; font-size: 0.75em; color: #334155; line-height: 1.3;">${shortCaption}</div>` : ''}
+                                </div>`;
+                        });
+                        inlineFigHtml += '</div>';
+
+                        // Try to find the section heading in HTML and inject figures after it
+                        if (section.heading) {
+                            // Match heading in various HTML tag formats
+                            const escapedHeading = section.heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            const headingPattern = new RegExp(
+                                `(<(?:h[1-6]|strong)[^>]*>[^<]*${escapedHeading}[^<]*<\/(?:h[1-6]|strong)>(?:\\s*<\/?(?:br|p)[^>]*>)*)`,
+                                'i'
+                            );
+                            const headingMatch = html.match(headingPattern);
+                            if (headingMatch) {
+                                // Find the end of the next paragraph/section after heading to place image
+                                const insertIdx = html.indexOf(headingMatch[0]) + headingMatch[0].length;
+                                // Find next paragraph break or heading after the heading
+                                const afterHeading = html.substring(insertIdx);
+                                const nextBreakMatch = afterHeading.match(/<\/(?:p|ul|ol|div|blockquote)>|<(?:h[1-6]|hr)[^>]*>/i);
+                                if (nextBreakMatch) {
+                                    const breakIdx = insertIdx + nextBreakMatch.index + nextBreakMatch[0].length;
+                                    html = html.substring(0, breakIdx) + inlineFigHtml + html.substring(breakIdx);
+                                } else {
+                                    // No break found — append after heading
+                                    html = html.substring(0, insertIdx) + inlineFigHtml + html.substring(insertIdx);
+                                }
+                            }
+                        }
+                    });
+
+                    // Render remaining non-inlined images in a compact gallery at bottom
+                    const remainingImages = data.images.filter((_, idx) => !inlinedFigures.has(idx + 1));
+                    if (remainingImages.length > 0) {
+                        html += '<div class="rag-image-gallery" style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px;">';
+                        html += '<div class="rag-image-gallery-header" style="font-size: 0.9em; font-weight: 600; color: #334155; margin-bottom: 10px;"><i class="fas fa-images" style="color: #6366f1;"></i> Additional Figures</div>';
+                        html += '<div class="rag-image-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">';
+                        remainingImages.forEach((img) => {
+                            const origIdx = data.images.indexOf(img);
+                            const figNum = origIdx + 1;
+                            const pathSuffix = (img.image_path || '').replace(/^extracted_images\//, '');
+                            const imgUrl = `/api/images/${pathSuffix}`;
+                            const caption = img.caption || img.source_document || '';
+                            const shortCaption = caption.length > 80 ? caption.substring(0, 77) + '...' : caption;
+                            const pageInfo = img.page_number ? `Page ${img.page_number}` : '';
+                            const sourceDoc = img.source_document || '';
+                            const tooltip = [caption, pageInfo, sourceDoc].filter(Boolean).join(' — ');
+                            html += `
+                                <div id="rag-fig-${figNum}" class="rag-image-card" style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; background: #fafbfc;" title="${tooltip}" onclick="window.open('${imgUrl}', '_blank')" onmouseenter="this.style.boxShadow='0 4px 12px rgba(99,102,241,0.15)'; this.style.transform='translateY(-2px)'" onmouseleave="this.style.boxShadow='none'; this.style.transform='none'">
+                                    <div style="position: relative;">
+                                        <img src="${imgUrl}" alt="${caption}" style="width: 100%; height: auto; max-height: 180px; object-fit: cover; display: block;" loading="lazy" onerror="this.closest('.rag-image-card').style.display='none'">
+                                        <span style="position: absolute; top: 6px; left: 6px; background: rgba(99,102,241,0.85); color: #fff; font-size: 0.7em; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Figure ${figNum}</span>
+                                    </div>
+                                    ${shortCaption ? `<div style="padding: 6px 10px; font-size: 0.78em; color: #334155; line-height: 1.35;">${shortCaption}</div>` : ''}
+                                    ${(pageInfo || sourceDoc) ? `<div style="padding: 2px 10px 8px; font-size: 0.68em; color: #94a3b8; display: flex; gap: 6px; align-items: center;">${sourceDoc ? `<i class="fas fa-file-alt" style="font-size: 0.85em;"></i> ${sourceDoc}` : ''}${pageInfo ? `<span style="margin-left: auto;">${pageInfo}</span>` : ''}</div>` : ''}
+                                </div>`;
+                        });
+                        html += '</div></div>';
+                    }
+                } else {
+                    // Fallback: render all images in gallery at bottom (legacy behavior)
+                    html += '<div class="rag-image-gallery" style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px;">';
+                    html += '<div class="rag-image-gallery-header" style="font-size: 0.9em; font-weight: 600; color: #334155; margin-bottom: 10px;"><i class="fas fa-images" style="color: #6366f1;"></i> Figures</div>';
+                    html += '<div class="rag-image-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">';
+                    data.images.forEach((img, idx) => {
+                        const figNum = idx + 1;
+                        const pathSuffix = (img.image_path || '').replace(/^extracted_images\//, '');
+                        const imgUrl = `/api/images/${pathSuffix}`;
+                        const caption = img.caption || img.source_document || '';
+                        const shortCaption = caption.length > 80 ? caption.substring(0, 77) + '...' : caption;
+                        const pageInfo = img.page_number ? `Page ${img.page_number}` : '';
+                        const sourceDoc = img.source_document || '';
+                        const tooltip = [caption, pageInfo, sourceDoc].filter(Boolean).join(' — ');
+                        html += `
+                            <div id="rag-fig-${figNum}" class="rag-image-card" style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; background: #fafbfc;" title="${tooltip}" onclick="window.open('${imgUrl}', '_blank')" onmouseenter="this.style.boxShadow='0 4px 12px rgba(99,102,241,0.15)'; this.style.transform='translateY(-2px)'" onmouseleave="this.style.boxShadow='none'; this.style.transform='none'">
+                                <div style="position: relative;">
+                                    <img src="${imgUrl}" alt="${caption}" style="width: 100%; height: auto; max-height: 180px; object-fit: cover; display: block;" loading="lazy" onerror="this.closest('.rag-image-card').style.display='none'">
+                                    <span style="position: absolute; top: 6px; left: 6px; background: rgba(99,102,241,0.85); color: #fff; font-size: 0.7em; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Figure ${figNum}</span>
+                                </div>
+                                ${shortCaption ? `<div style="padding: 6px 10px; font-size: 0.78em; color: #334155; line-height: 1.35;">${shortCaption}</div>` : ''}
+                                ${(pageInfo || sourceDoc) ? `<div style="padding: 2px 10px 8px; font-size: 0.68em; color: #94a3b8; display: flex; gap: 6px; align-items: center;">${sourceDoc ? `<i class="fas fa-file-alt" style="font-size: 0.85em;"></i> ${sourceDoc}` : ''}${pageInfo ? `<span style="margin-left: auto;">${pageInfo}</span>` : ''}</div>` : ''}
+                            </div>`;
+                    });
+                    html += '</div></div>';
+                }
             }
 
             // Add suggested actions if available

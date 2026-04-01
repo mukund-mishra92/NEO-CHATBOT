@@ -13,6 +13,8 @@ from .vector_store_service import VectorStoreService
 from app.services.llm_service import LLMService  # shared llm_service at services root
 from ..rlhf_service import RLHFService
 from ..diagnostic.diagnostic_support_service import DiagnosticSupportService
+from ..answer_planner import AnswerPlanner
+from ..response_structurer import ResponseStructurer
 from ...models.schemas import ChatRequest, ChatResponse, SourceDocument, ChatbotType, MessageRole
 from ...utils.session_manager import get_session_manager, SessionType
 from ...core.config import settings
@@ -40,6 +42,8 @@ class KnowledgeBaseService:
         self.rlhf_service = RLHFService()
         self.diagnostic_service = DiagnosticSupportService()  # Add diagnostic support
         self.session_manager = get_session_manager()
+        self.answer_planner = AnswerPlanner()  # Phase 7: structured answer planning
+        self.response_structurer = ResponseStructurer()  # Phase 8: structured response format
 
         # ── ChromaDB RAG Pipeline (primary retrieval) ──
         self.rag_pipeline = None
@@ -244,10 +248,21 @@ Always prioritize clarity and user understanding."""
             # Gather display images for LLM figure-awareness
             display_images = rag_result.get("images", []) if self.rag_pipeline is not None else []
 
+            # Phase 7: Build structured answer plan from retrieved evidence
+            answer_plan = None
+            if self.rag_pipeline is not None and not has_attached_document:
+                retrieved_chunks = rag_result.get("retrieved_chunks", [])
+                answer_plan = self.answer_planner.plan(
+                    chat_request.message,
+                    retrieved_chunks,
+                    images=display_images,
+                )
+
             # Step 8: Generate response using LLM with adaptive strategy
             messages = self._build_adaptive_messages(
                 chat_request, context, query_type, conversation_history,
                 images=display_images,
+                answer_plan=answer_plan,
             )
             
             # Adjust LLM parameters based on query type
@@ -266,6 +281,15 @@ Always prioritize clarity and user understanding."""
             
             # Format response based on query type
             response_text = self._format_adaptive_response(response_text, query_type)
+
+            # Phase 8: Build structured response
+            display_images_list = rag_result.get("images", []) if self.rag_pipeline is not None else []
+            structured = self.response_structurer.structure(
+                response_text,
+                answer_plan=answer_plan,
+                source_documents=source_documents,
+                images=display_images_list,
+            )
             
             # Note: Session message management is handled by the endpoint, not here
             
@@ -299,6 +323,7 @@ Always prioritize clarity and user understanding."""
                 confidence_score=confidence,
                 suggested_actions=self._generate_suggested_actions(chat_request.message, response_text),
                 images=rag_result.get("images", []) if self.rag_pipeline is not None else [],
+                structured_response=structured,
             )
             
         except Exception as e:
@@ -591,7 +616,7 @@ APPROACH:
         parts.append("")
         return "\n".join(parts)
 
-    def _build_adaptive_messages(self, chat_request: ChatRequest, context: str, query_type: str, conversation_history: List[Dict[str, str]] = None, *, images: Optional[List[Dict[str, Any]]] = None) -> List[Dict[str, str]]:
+    def _build_adaptive_messages(self, chat_request: ChatRequest, context: str, query_type: str, conversation_history: List[Dict[str, str]] = None, *, images: Optional[List[Dict[str, Any]]] = None, answer_plan=None) -> List[Dict[str, str]]:
         """Build messages with adaptive prompting based on query type, with conversation context FIRST"""
         messages = []
         
@@ -682,12 +707,16 @@ Be conversational and helpful, not robotic."""
         
         else:
             image_context = self._build_image_context(images or [])
+            # Phase 7: Inject structured answer plan when available
+            plan_context = ""
+            if answer_plan:
+                plan_context = f"\n\n{answer_plan.to_prompt_context()}\n"
             user_message = f"""{doc_priority_note}Documentation:
 {context}
-{image_context}
+{image_context}{plan_context}
 Question: {chat_request.message}
 
-Provide a clear, intelligent, well-structured answer using the documentation above. Structure the response dynamically to match the content — use the formatting approach best suited to the information available."""
+Provide a clear, intelligent, well-structured answer using the documentation above.{' Follow the ANSWER PLAN sections to organize your response.' if answer_plan else ' Structure the response dynamically to match the content — use the formatting approach best suited to the information available.'}"""
         
         messages.append({
             "role": "user",

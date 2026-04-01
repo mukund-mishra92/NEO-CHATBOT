@@ -36,6 +36,7 @@ from .retrieval.reranker import Reranker
 from .retrieval.context_assembler import ContextAssembler
 from .retrieval.answer_synthesizer import AnswerSynthesizer
 from .retrieval.image_display_engine import ImageDisplayEngine
+from .ingestion_manifest import IngestionManifest
 from .models import ExtractedDocument, HierarchicalChunk, SynthesizedAnswer
 
 logger = logging.getLogger(__name__)
@@ -88,7 +89,10 @@ class RAGPipeline:
             image_describer=self.image_describer,
             image_store=self.image_store,
         )
-        self.docx_extractor = DOCXExtractor(image_describer=self.image_describer)
+        self.docx_extractor = DOCXExtractor(
+            image_describer=self.image_describer,
+            image_store=self.image_store,
+        )
         self.ppt_extractor = PPTExtractor(
             image_describer=self.image_describer,
             image_store=self.image_store,
@@ -110,6 +114,9 @@ class RAGPipeline:
         self.context_assembler = ContextAssembler()
         self.answer_synthesizer = AnswerSynthesizer(llm_service=self._llm)
         self.image_display_engine = ImageDisplayEngine(max_images=max_display_images) if enable_images else None
+
+        # ── Ingestion manifest (Phase 4) ──
+        self.manifest = IngestionManifest()
 
     def close(self):
         """Release ChromaDB file handles."""
@@ -224,6 +231,10 @@ class RAGPipeline:
                 logger.error(f"❌ Failed to ingest {file_path.name}: {exc}", exc_info=True)
 
         stats["time_seconds"] = round(time.time() - start, 2)
+
+        # Save manifest after directory ingestion (Phase 4)
+        self.manifest.save()
+
         logger.info(
             f"✅ Ingestion complete: {stats['files_processed']}/{stats['files_found']} files, "
             f"{stats['chunks_created']} chunks in {stats['time_seconds']}s"
@@ -245,6 +256,10 @@ class RAGPipeline:
         """
         path = Path(file_path)
         suffix = path.suffix.lower()
+
+        # ── 0. Hash-based skip (Phase 4 manifest) ──
+        if skip_existing and not self.manifest.needs_ingestion(str(path)):
+            return {"skipped": True, "reason": "unchanged (manifest hash match)"}
 
         # ── 1. Extract ──
         logger.debug(f"Extracting {path.name} ({suffix})...")
@@ -327,6 +342,9 @@ class RAGPipeline:
 
         # Invalidate BM25 index (new data added)
         self.retriever.invalidate_bm25_index()
+
+        # Record in manifest (Phase 4)
+        self.manifest.record(str(path), chunk_count=total, category=category)
 
         logger.info(f"📄 Ingested {path.name}: {total} chunks")
         return {
@@ -534,12 +552,21 @@ class RAGPipeline:
         if self.image_display_engine:
             display_images = self.image_display_engine.select_images(reranked, question)
 
+        # 7. Separate evidence types (Phase 6)
+        text_chunks = [c for c in reranked if not c.has_images and "table" not in set(c.element_types)]
+        image_chunks = [c for c in reranked if c.has_images]
+        table_chunks = [c for c in reranked if "table" in set(c.element_types)]
+
         return {
             "context": context,
             "sources": sources,
             "retrieved_chunks": reranked,
             "confidence": confidence,
             "images": [img.to_dict() for img in display_images],
+            # Phase 6: typed evidence lists
+            "text_chunks": text_chunks,
+            "image_chunks": image_chunks,
+            "table_chunks": table_chunks,
         }
 
     # ════════════════════════════════════════════════════
@@ -566,8 +593,9 @@ class RAGPipeline:
         if total == 0:
             return []
 
-        # Prepare texts (truncate to 8000 chars for API limits)
-        texts = [c.content[:8000] for c in chunks]
+        # Prepare texts — use image-enriched embeddable content (Phase 1 fix)
+        # get_embeddable_content() returns embedding_text > combined_content > content
+        texts = [c.get_embeddable_content()[:8000] for c in chunks]
 
         # Try batch embedding via OpenAI first (MUCH faster).
         # Guard: only use batch if openai_client is a real OpenAI object, not a mock.
