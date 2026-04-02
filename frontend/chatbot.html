@@ -968,25 +968,7 @@
             }
         }
 
-        .source-tag {
-            display: inline-block;
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin: 5px 5px 5px 0;
-        }
-
-        .confidence-badge {
-            display: inline-block;
-            background: #28a745;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-left: 10px;
-        }
+        /* .source-tag and .confidence-badge moved to Phase 11 block */
 
         /* Figure reference links in text */
         a.figure-ref {
@@ -1008,15 +990,214 @@
         }
 
         /* Phase 9: Inline figures within answer sections */
-        .rag-inline-figures {
-            margin: 12px 0 16px;
-            padding: 10px 0;
-            border-top: 1px dashed #e2e8f0;
-            border-bottom: 1px dashed #e2e8f0;
+        /* Phase 9 inline figures — consolidated into Phase 11 */
+
+        /* === Enhanced content presentation (Phase 11) === */
+
+        /* ── Image card base (replaces inline styles) ── */
+        .rag-image-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+            background: #fafbfc;
         }
+        .rag-image-card:hover {
+            box-shadow: 0 4px 12px rgba(99,102,241,0.15);
+            transform: translateY(-2px);
+        }
+        .rag-image-card img {
+            width: 100%;
+            height: auto;
+            max-height: 180px;
+            object-fit: cover;
+            display: block;
+            transition: opacity 0.3s ease, transform 0.25s ease;
+        }
+        .rag-image-card:hover img {
+            transform: scale(1.03);
+        }
+        .rag-image-card .fig-badge {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: rgba(99,102,241,0.85);
+            color: #fff;
+            font-size: 0.7em;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .rag-image-card .fig-caption {
+            padding: 6px 10px;
+            font-size: 0.78em;
+            color: #334155;
+            line-height: 1.35;
+        }
+        .rag-image-card .fig-meta {
+            padding: 2px 10px 8px;
+            font-size: 0.68em;
+            color: #94a3b8;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .rag-image-card .fig-meta .fig-src {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .rag-image-card .fig-meta .fig-page {
+            margin-left: auto;
+        }
+
+        /* Inline figures within answer sections */
         .rag-inline-figures .rag-image-card {
-            flex: 1 1 200px;
             max-width: 260px;
+            flex: 1 1 200px;
+        }
+        .rag-inline-figures .rag-image-card img {
+            max-height: 160px;
+        }
+
+        /* Gallery */
+        .rag-image-gallery {
+            margin-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+            animation: ragFadeIn 0.35s ease;
+        }
+        @keyframes ragFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .rag-image-gallery-header {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 10px;
+            user-select: none;
+        }
+        .rag-image-gallery-header i {
+            color: #6366f1;
+        }
+        .rag-image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        /* ── Confidence badge tiers ── */
+        .confidence-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .confidence-badge.conf-high {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .confidence-badge.conf-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .confidence-badge.conf-low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* ── Source tags deduped ── */
+        .source-tags-bar {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .source-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(102, 126, 234, 0.08);
+            color: #4f5fad;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            border: 1px solid rgba(102, 126, 234, 0.12);
+            transition: background 0.15s;
+        }
+        .source-tag:hover {
+            background: rgba(102, 126, 234, 0.16);
+        }
+
+        /* ── Collapsible long-response sections ── */
+        .response-section {
+            margin-bottom: 4px;
+        }
+        .response-section-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+            padding: 4px 0;
+        }
+        .response-section-toggle .sec-chevron {
+            font-size: 10px;
+            color: #94a3b8;
+            transition: transform 0.2s ease;
+        }
+        .response-section.collapsed .sec-chevron {
+            transform: rotate(-90deg);
+        }
+        .response-section.collapsed .response-section-body {
+            display: none;
+        }
+
+        /* ── Scroll-pinned indicator ── */
+        .scroll-bottom-btn {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(102,126,234,0.35);
+            z-index: 10;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .scroll-bottom-btn:hover {
+            box-shadow: 0 6px 20px rgba(102,126,234,0.5);
+        }
+        .scroll-bottom-btn.visible {
+            display: inline-flex;
+        }
+
+        /* Responsive: single column on mobile */
+        @media (max-width: 600px) {
+            .rag-image-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .rag-inline-figures {
+                flex-direction: column !important;
+            }
+            .rag-inline-figures .rag-image-card {
+                max-width: 100%;
+            }
         }
 
         .sql-code {
@@ -2010,6 +2191,11 @@
                 <!-- Typing indicator is injected dynamically by showTypingIndicator() -->
             </div>
 
+            <!-- Scroll-to-bottom button (appears when user scrolls up during streaming) -->
+            <button class="scroll-bottom-btn" id="scrollBottomBtn" onclick="scrollChatToBottom()">
+                <i class="fas fa-arrow-down"></i> New content below
+            </button>
+
             <!-- Sidebar Toggle Button -->
             <button class="sidebar-toggle-btn expand" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Toggle sidebar">
                 <i class="fas fa-chevron-right"></i>
@@ -2426,6 +2612,10 @@
             // Hide empty state
             document.getElementById('emptyState').style.display = 'none';
 
+            // User just sent a message — pin scroll to bottom
+            _userNearBottom = true;
+            _hideScrollBtn();
+
             // Add user message and get its DOM element for positioning
             const userMessageElement = addMessage('user', message);
             input.value = '';
@@ -2615,7 +2805,7 @@
                 contentDiv.innerHTML = content;
             }
             
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            smartScroll(messagesContainer);
         }
 
         async function createSOPWorkflowCard(result) {
@@ -2749,7 +2939,7 @@
             
             cardDiv.innerHTML = cardHTML;
             messagesContainer.appendChild(cardDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            smartScroll(messagesContainer);
             
             messageCount++;
             document.getElementById('messageCount').textContent = messageCount;
@@ -3000,8 +3190,8 @@
                 `;
             }
             
-            // Scroll to bottom
-            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+            // Smart-scroll to latest content
+            smartScroll(document.getElementById('chatMessages'));
         }
 
         function showSOPProblemSelection(candidates) {
@@ -3056,7 +3246,7 @@
             
             cardDiv.innerHTML = html;
             messagesContainer.appendChild(cardDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            smartScroll(messagesContainer);
             
             messageCount++;
             document.getElementById('messageCount').textContent = messageCount;
@@ -3269,6 +3459,57 @@
             await markSOPNotResolved();
         }
 
+        // ═══════════════════════════════════════════
+        //  Smart Scroll (Phase 11)
+        //  Only auto-scroll when user is near bottom;
+        //  show a "new content below" button otherwise.
+        // ═══════════════════════════════════════════
+
+        let _userNearBottom = true;
+
+        function isUserNearBottom(container) {
+            if (!container) return true;
+            const threshold = 120; // px from bottom
+            return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+        }
+
+        function smartScroll(container) {
+            if (!container) return;
+            if (_userNearBottom) {
+                container.scrollTop = container.scrollHeight;
+                _hideScrollBtn();
+            } else {
+                _showScrollBtn();
+            }
+        }
+
+        function scrollChatToBottom() {
+            const c = document.getElementById('chatMessages');
+            if (c) { c.scrollTop = c.scrollHeight; }
+            _userNearBottom = true;
+            _hideScrollBtn();
+        }
+
+        function _showScrollBtn() {
+            const btn = document.getElementById('scrollBottomBtn');
+            if (btn) btn.classList.add('visible');
+        }
+        function _hideScrollBtn() {
+            const btn = document.getElementById('scrollBottomBtn');
+            if (btn) btn.classList.remove('visible');
+        }
+
+        // Attach scroll listener once DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const mc = document.getElementById('chatMessages');
+            if (mc) {
+                mc.addEventListener('scroll', () => {
+                    _userNearBottom = isUserNearBottom(mc);
+                    if (_userNearBottom) _hideScrollBtn();
+                });
+            }
+        });
+
         // Streaming/Typewriter Effect Configuration
         const STREAMING_CONFIG = {
             enabled: true,
@@ -3308,11 +3549,8 @@
                     
                     for (const word of words) {
                         textNode.textContent += word;
-                        // Scroll to bottom during streaming
-                        const messagesContainer = document.getElementById('chatMessages');
-                        if (messagesContainer) {
-                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                        }
+                        // Smart-scroll: only auto-scroll if user is near bottom
+                        smartScroll(document.getElementById('chatMessages'));
                         await new Promise(resolve => setTimeout(resolve, delay));
                     }
                 } else if (child.nodeType === Node.ELEMENT_NODE) {
@@ -3332,10 +3570,7 @@
                         child.classList.contains('sql-cards-layout') ||
                         child.tagName === 'IMG' || child.tagName === 'SVG') {
                         newElement.innerHTML = child.innerHTML;
-                        const messagesContainer = document.getElementById('chatMessages');
-                        if (messagesContainer) {
-                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                        }
+                        smartScroll(document.getElementById('chatMessages'));
                     } else {
                         // Recursively stream child elements
                         await streamNode(child, newElement, speed);
@@ -3413,8 +3648,8 @@
                 addResponseActions(messageDiv, data);
             }
 
-            // Scroll to bottom
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // Smart-scroll to bottom
+            smartScroll(messagesContainer);
             
             // Return the message element for reference
             return messageDiv;
@@ -3680,11 +3915,11 @@
         }
 
         function sanitizeAssistantText(text) {
-            // Remove replacement chars and emojis from assistant output for cleaner professional UI.
+            // Remove replacement chars and problematic invisible chars, but preserve
+            // useful structural emojis (📋 🔧 ⚙️ 📊 ✅ ❌ etc.) that LLMs use for visual org.
             return (text || '')
-                .replace(/\uFFFD/g, '')
-                .replace(/[\u200D\uFE0F]/g, '')
-                .replace(/\p{Extended_Pictographic}/gu, '')
+                .replace(/\uFFFD/g, '')           // replacement char
+                .replace(/[\u200D\uFE0F]/g, '')   // ZWJ / variation selector
                 .replace(/[ \t]{2,}/g, ' ')
                 .replace(/\n{3,}/g, '\n\n')
                 .trim();
@@ -3854,6 +4089,71 @@
 
         // Store per-card metadata for chart switching
         window._kpiCardMeta = {};
+
+        // ═══════════════════════════════════════════
+        //  Shared image card builder (Phase 11 dedup)
+        // ═══════════════════════════════════════════
+
+        /**
+         * Build HTML for a single RAG image card.
+         * Relies on CSS .rag-image-card classes — no inline style soup.
+         * @param {object} img       – image object {image_path, caption, source_document, page_number}
+         * @param {number} figNum    – 1-based figure number
+         * @param {object} opts      – optional overrides {compact: bool}
+         */
+        function buildImageCard(img, figNum, opts = {}) {
+            const pathSuffix = (img.image_path || '').replace(/^extracted_images\//, '');
+            const imgUrl = `/api/images/${pathSuffix}`;
+            const caption = img.caption || img.source_document || '';
+            const maxCaptLen = opts.compact ? 60 : 80;
+            const shortCaption = caption.length > maxCaptLen ? caption.substring(0, maxCaptLen - 3) + '...' : caption;
+            const pageInfo = img.page_number ? `Page ${img.page_number}` : '';
+            const sourceDoc = img.source_document || '';
+            const tooltip = [caption, pageInfo].filter(Boolean).join(' — ');
+
+            const captionHtml = shortCaption
+                ? `<div class="fig-caption">${shortCaption}</div>`
+                : '';
+            const metaHtml = (pageInfo || sourceDoc)
+                ? `<div class="fig-meta">${sourceDoc ? `<span class="fig-src"><i class="fas fa-file-alt"></i> ${sourceDoc}</span>` : ''}${pageInfo ? `<span class="fig-page">${pageInfo}</span>` : ''}</div>`
+                : '';
+
+            return `
+                <div id="rag-fig-${figNum}" class="rag-image-card" title="${tooltip}" onclick="window.open('${imgUrl}', '_blank')">
+                    <div style="position:relative;">
+                        <img src="${imgUrl}" alt="${caption}" loading="lazy" onerror="this.closest('.rag-image-card').style.display='none'">
+                        <span class="fig-badge">Figure ${figNum}</span>
+                    </div>
+                    ${captionHtml}
+                    ${metaHtml}
+                </div>`;
+        }
+
+        /**
+         * Wrap long KB responses with collapsible sections.
+         * Detects h1/h2/h3 headings and wraps subsequent content in toggleable sections.
+         */
+        function wrapCollapsibleSections(html) {
+            // Only activate for responses that have multiple headings (long answers)
+            const headingCount = (html.match(/<h[1-3][^>]*>/gi) || []).length;
+            if (headingCount < 3) return html;
+
+            // Split on h1/h2/h3 and wrap each section
+            return html.replace(
+                /(<h[1-3][^>]*>)([\s\S]*?)(<\/h[1-3]>)([\s\S]*?)(?=<h[1-3][^>]*>|$)/gi,
+                (match, openTag, headingContent, closeTag, body) => {
+                    if (!body.trim()) return match;
+                    const secId = 'sec_' + Math.random().toString(36).substr(2, 6);
+                    return `<div class="response-section" id="${secId}">
+                        <div class="response-section-toggle" onclick="this.parentElement.classList.toggle('collapsed')">
+                            <i class="fas fa-chevron-down sec-chevron"></i>
+                            ${openTag}${headingContent}${closeTag}
+                        </div>
+                        <div class="response-section-body">${body}</div>
+                    </div>`;
+                }
+            );
+        }
 
         function formatMessage(content, data, messageType = 'assistant') {
             const isAssistant = messageType === 'assistant';
@@ -4051,17 +4351,26 @@
             }
 
             // Non-SQL assistant paths
-            // Add confidence badge if available
+            // Add confidence badge with color tiers
             if (isAssistant && data.confidence_score) {
-                const confidence = (data.confidence_score * 100).toFixed(0);
-                html += `<span class="confidence-badge">${confidence}% Confident</span>`;
+                const pct = (data.confidence_score * 100).toFixed(0);
+                const tier = pct >= 75 ? 'conf-high' : pct >= 45 ? 'conf-medium' : 'conf-low';
+                const icon = pct >= 75 ? 'fa-check-circle' : pct >= 45 ? 'fa-exclamation-circle' : 'fa-question-circle';
+                html += `<span class="confidence-badge ${tier}"><i class="fas ${icon}"></i> ${pct}% Confident</span>`;
             }
 
-            // Add source documents if available
+            // Add source documents — deduplicated
             if (isAssistant && data.source_documents && data.source_documents.length > 0) {
-                html += '<div style="margin-top: 10px;">';
-                data.source_documents.forEach(doc => {
-                    html += `<span class="source-tag"><i class="fas fa-file"></i> ${doc.filename || 'Document'}</span>`;
+                const seen = new Set();
+                const uniqueDocs = data.source_documents.filter(doc => {
+                    const name = (doc.filename || 'Document').toLowerCase();
+                    if (seen.has(name)) return false;
+                    seen.add(name);
+                    return true;
+                });
+                html += '<div class="source-tags-bar">';
+                uniqueDocs.forEach(doc => {
+                    html += `<span class="source-tag"><i class="fas fa-file-alt"></i> ${doc.filename || 'Document'}</span>`;
                 });
                 html += '</div>';
             }
@@ -4084,122 +4393,62 @@
                     return match;
                 });
 
-                // Phase 9: Inline images within sections when structured_response is available
+                // Phase 11: Inline images within sections when structured_response is available
                 const sr = data.structured_response;
                 if (sr && sr.sections && sr.sections.length > 0) {
-                    // Build a map: figure_number → image data
                     const figDataMap = {};
-                    data.images.forEach((img, idx) => {
-                        figDataMap[idx + 1] = img;
-                    });
-
-                    // Collect which figures are placed inline (to avoid duplicates in gallery)
+                    data.images.forEach((img, idx) => { figDataMap[idx + 1] = img; });
                     const inlinedFigures = new Set();
 
-                    // For each section, find its heading in the HTML and inject figures after it
                     sr.sections.forEach(section => {
                         if (!section.figures || section.figures.length === 0) return;
-
-                        // Build inline figure HTML for this section
-                        let inlineFigHtml = '<div class="rag-inline-figures" style="margin: 12px 0; display: flex; flex-wrap: wrap; gap: 10px;">';
+                        let inlineFigHtml = '<div class="rag-inline-figures" style="margin:12px 0;display:flex;flex-wrap:wrap;gap:10px;">';
                         section.figures.forEach(figNum => {
                             const img = figDataMap[figNum];
                             if (!img) return;
                             inlinedFigures.add(figNum);
-                            const pathSuffix = (img.image_path || '').replace(/^extracted_images\//, '');
-                            const imgUrl = `/api/images/${pathSuffix}`;
-                            const caption = img.caption || img.source_document || '';
-                            const shortCaption = caption.length > 80 ? caption.substring(0, 77) + '...' : caption;
-                            const pageInfo = img.page_number ? `Page ${img.page_number}` : '';
-                            const tooltip = [caption, pageInfo].filter(Boolean).join(' — ');
-                            inlineFigHtml += `
-                                <div id="rag-fig-${figNum}" class="rag-image-card" style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; background: #fafbfc; max-width: 260px; flex: 1 1 200px;" title="${tooltip}" onclick="window.open('${imgUrl}', '_blank')" onmouseenter="this.style.boxShadow='0 4px 12px rgba(99,102,241,0.15)'; this.style.transform='translateY(-2px)'" onmouseleave="this.style.boxShadow='none'; this.style.transform='none'">
-                                    <div style="position: relative;">
-                                        <img src="${imgUrl}" alt="${caption}" style="width: 100%; height: auto; max-height: 160px; object-fit: cover; display: block;" loading="lazy" onerror="this.closest('.rag-image-card').style.display='none'">
-                                        <span style="position: absolute; top: 6px; left: 6px; background: rgba(99,102,241,0.85); color: #fff; font-size: 0.7em; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Figure ${figNum}</span>
-                                    </div>
-                                    ${shortCaption ? `<div style="padding: 5px 8px; font-size: 0.75em; color: #334155; line-height: 1.3;">${shortCaption}</div>` : ''}
-                                </div>`;
+                            inlineFigHtml += buildImageCard(img, figNum, { compact: true });
                         });
                         inlineFigHtml += '</div>';
 
-                        // Try to find the section heading in HTML and inject figures after it
                         if (section.heading) {
-                            // Match heading in various HTML tag formats
                             const escapedHeading = section.heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                             const headingPattern = new RegExp(
-                                `(<(?:h[1-6]|strong)[^>]*>[^<]*${escapedHeading}[^<]*<\/(?:h[1-6]|strong)>(?:\\s*<\/?(?:br|p)[^>]*>)*)`,
-                                'i'
+                                `(<(?:h[1-6]|strong)[^>]*>[^<]*${escapedHeading}[^<]*<\/(?:h[1-6]|strong)>(?:\\s*<\/?(?:br|p)[^>]*>)*)`, 'i'
                             );
                             const headingMatch = html.match(headingPattern);
                             if (headingMatch) {
-                                // Find the end of the next paragraph/section after heading to place image
                                 const insertIdx = html.indexOf(headingMatch[0]) + headingMatch[0].length;
-                                // Find next paragraph break or heading after the heading
                                 const afterHeading = html.substring(insertIdx);
                                 const nextBreakMatch = afterHeading.match(/<\/(?:p|ul|ol|div|blockquote)>|<(?:h[1-6]|hr)[^>]*>/i);
                                 if (nextBreakMatch) {
                                     const breakIdx = insertIdx + nextBreakMatch.index + nextBreakMatch[0].length;
                                     html = html.substring(0, breakIdx) + inlineFigHtml + html.substring(breakIdx);
                                 } else {
-                                    // No break found — append after heading
                                     html = html.substring(0, insertIdx) + inlineFigHtml + html.substring(insertIdx);
                                 }
                             }
                         }
                     });
 
-                    // Render remaining non-inlined images in a compact gallery at bottom
+                    // Remaining non-inlined images in gallery
                     const remainingImages = data.images.filter((_, idx) => !inlinedFigures.has(idx + 1));
                     if (remainingImages.length > 0) {
-                        html += '<div class="rag-image-gallery" style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px;">';
-                        html += '<div class="rag-image-gallery-header" style="font-size: 0.9em; font-weight: 600; color: #334155; margin-bottom: 10px;"><i class="fas fa-images" style="color: #6366f1;"></i> Additional Figures</div>';
-                        html += '<div class="rag-image-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">';
-                        remainingImages.forEach((img) => {
-                            const origIdx = data.images.indexOf(img);
-                            const figNum = origIdx + 1;
-                            const pathSuffix = (img.image_path || '').replace(/^extracted_images\//, '');
-                            const imgUrl = `/api/images/${pathSuffix}`;
-                            const caption = img.caption || img.source_document || '';
-                            const shortCaption = caption.length > 80 ? caption.substring(0, 77) + '...' : caption;
-                            const pageInfo = img.page_number ? `Page ${img.page_number}` : '';
-                            const sourceDoc = img.source_document || '';
-                            const tooltip = [caption, pageInfo, sourceDoc].filter(Boolean).join(' — ');
-                            html += `
-                                <div id="rag-fig-${figNum}" class="rag-image-card" style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; background: #fafbfc;" title="${tooltip}" onclick="window.open('${imgUrl}', '_blank')" onmouseenter="this.style.boxShadow='0 4px 12px rgba(99,102,241,0.15)'; this.style.transform='translateY(-2px)'" onmouseleave="this.style.boxShadow='none'; this.style.transform='none'">
-                                    <div style="position: relative;">
-                                        <img src="${imgUrl}" alt="${caption}" style="width: 100%; height: auto; max-height: 180px; object-fit: cover; display: block;" loading="lazy" onerror="this.closest('.rag-image-card').style.display='none'">
-                                        <span style="position: absolute; top: 6px; left: 6px; background: rgba(99,102,241,0.85); color: #fff; font-size: 0.7em; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Figure ${figNum}</span>
-                                    </div>
-                                    ${shortCaption ? `<div style="padding: 6px 10px; font-size: 0.78em; color: #334155; line-height: 1.35;">${shortCaption}</div>` : ''}
-                                    ${(pageInfo || sourceDoc) ? `<div style="padding: 2px 10px 8px; font-size: 0.68em; color: #94a3b8; display: flex; gap: 6px; align-items: center;">${sourceDoc ? `<i class="fas fa-file-alt" style="font-size: 0.85em;"></i> ${sourceDoc}` : ''}${pageInfo ? `<span style="margin-left: auto;">${pageInfo}</span>` : ''}</div>` : ''}
-                                </div>`;
+                        html += '<div class="rag-image-gallery">';
+                        html += '<div class="rag-image-gallery-header"><i class="fas fa-images"></i> Additional Figures</div>';
+                        html += '<div class="rag-image-grid">';
+                        remainingImages.forEach(img => {
+                            html += buildImageCard(img, data.images.indexOf(img) + 1);
                         });
                         html += '</div></div>';
                     }
                 } else {
-                    // Fallback: render all images in gallery at bottom (legacy behavior)
-                    html += '<div class="rag-image-gallery" style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px;">';
-                    html += '<div class="rag-image-gallery-header" style="font-size: 0.9em; font-weight: 600; color: #334155; margin-bottom: 10px;"><i class="fas fa-images" style="color: #6366f1;"></i> Figures</div>';
-                    html += '<div class="rag-image-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">';
+                    // Legacy fallback: all images in gallery
+                    html += '<div class="rag-image-gallery">';
+                    html += '<div class="rag-image-gallery-header"><i class="fas fa-images"></i> Figures</div>';
+                    html += '<div class="rag-image-grid">';
                     data.images.forEach((img, idx) => {
-                        const figNum = idx + 1;
-                        const pathSuffix = (img.image_path || '').replace(/^extracted_images\//, '');
-                        const imgUrl = `/api/images/${pathSuffix}`;
-                        const caption = img.caption || img.source_document || '';
-                        const shortCaption = caption.length > 80 ? caption.substring(0, 77) + '...' : caption;
-                        const pageInfo = img.page_number ? `Page ${img.page_number}` : '';
-                        const sourceDoc = img.source_document || '';
-                        const tooltip = [caption, pageInfo, sourceDoc].filter(Boolean).join(' — ');
-                        html += `
-                            <div id="rag-fig-${figNum}" class="rag-image-card" style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; background: #fafbfc;" title="${tooltip}" onclick="window.open('${imgUrl}', '_blank')" onmouseenter="this.style.boxShadow='0 4px 12px rgba(99,102,241,0.15)'; this.style.transform='translateY(-2px)'" onmouseleave="this.style.boxShadow='none'; this.style.transform='none'">
-                                <div style="position: relative;">
-                                    <img src="${imgUrl}" alt="${caption}" style="width: 100%; height: auto; max-height: 180px; object-fit: cover; display: block;" loading="lazy" onerror="this.closest('.rag-image-card').style.display='none'">
-                                    <span style="position: absolute; top: 6px; left: 6px; background: rgba(99,102,241,0.85); color: #fff; font-size: 0.7em; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Figure ${figNum}</span>
-                                </div>
-                                ${shortCaption ? `<div style="padding: 6px 10px; font-size: 0.78em; color: #334155; line-height: 1.35;">${shortCaption}</div>` : ''}
-                                ${(pageInfo || sourceDoc) ? `<div style="padding: 2px 10px 8px; font-size: 0.68em; color: #94a3b8; display: flex; gap: 6px; align-items: center;">${sourceDoc ? `<i class="fas fa-file-alt" style="font-size: 0.85em;"></i> ${sourceDoc}` : ''}${pageInfo ? `<span style="margin-left: auto;">${pageInfo}</span>` : ''}</div>` : ''}
-                            </div>`;
+                        html += buildImageCard(img, idx + 1);
                     });
                     html += '</div></div>';
                 }
@@ -4212,6 +4461,11 @@
                     html += `<button class="action-btn" onclick="executeSuggestedAction('${action}')">${action}</button>`;
                 });
                 html += '</div>';
+            }
+
+            // Wrap long KB responses with collapsible heading-sections
+            if (isAssistant) {
+                html = wrapCollapsibleSections(html);
             }
 
             // Professional response surface for assistant outputs
@@ -4325,40 +4579,45 @@
                 return tableHTML;
             });
             
-            // Convert headers (must be done before bold to avoid conflicts)
-            html = html.replace(/^### (.*?)$/gm, '<h3 style="font-weight: 600; font-size: 1.1em; margin: 15px 0 10px 0; color: #333;">$1</h3>');
-            html = html.replace(/^## (.*?)$/gm, '<h2 style="font-weight: 600; font-size: 1.2em; margin: 20px 0 10px 0; color: #333;">$1</h2>');
-            html = html.replace(/^# (.*?)$/gm, '<h1 style="font-weight: 700; font-size: 1.3em; margin: 20px 0 10px 0; color: #333;">$1</h1>');
+            // Convert headers — rely on .message-content h1/h2/h3 CSS (no inline styles)
+            html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
             
-            // Convert **bold** text
-            html = html.replace(/\*\*([^*]+)\*\*/g, '<strong style="font-weight: 600; color: #2c3e50;">$1</strong>');
+            // Convert **bold** text (rely on .message-content strong CSS)
+            html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
             
             // Convert *italic* text
             html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
             
-            // Convert [Document Name] references to styled badges (no emoji)
-            html = html.replace(/\[([^\]]+)\]/g, '<span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; font-weight: 500;">$1</span>');
+            // Convert [Document Name] references to styled badges
+            // ONLY match [text] NOT followed by ( to avoid breaking markdown links [text](url)
+            html = html.replace(/\[([^\]]+)\](?!\()/g, '<span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; font-weight: 500;">$1</span>');
             
-            // Convert bullet points with • symbol
-            html = html.replace(/^[•·]\s*(.+)$/gm, '<li style="margin-left: 20px; margin-bottom: 5px;">$1</li>');
+            // Convert markdown links [text](url) to proper anchor tags
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color: #667eea; font-weight: 500; text-decoration: underline;">$1</a>');
             
-            // Convert numbered lists (1. 2. 3.)
-            html = html.replace(/^(\d+)\.\s+(.+)$/gm, '<div style="margin-left: 20px; margin-bottom: 8px;"><strong style="color: #667eea;">$1.</strong> $2</div>');
+            // Convert bullet points with - or • symbol
+            html = html.replace(/^[•·]\s*(.+)$/gm, '<li>$1</li>');
+            html = html.replace(/^-\s+(.+)$/gm, '<li>$1</li>');
             
-            // Wrap consecutive <li> items in <ul>
-            html = html.replace(/(<li[^>]*>.*?<\/li>\s*)+/g, function(match) {
-                return '<ul style="list-style: none; padding-left: 0; margin: 10px 0;">' + match + '</ul>';
+            // Convert numbered lists (1. 2. 3.) — use proper <li> semantics
+            html = html.replace(/^(\d+)\.\s+(.+)$/gm, '<li value="$1">$2</li>');
+            
+            // Wrap consecutive <li> items in <ul> (unordered) or <ol> (numbered)
+            // Detect numbered vs bullet by checking if items have value= attribute
+            html = html.replace(/(<li[^>]*>[\s\S]*?<\/li>\s*)+/g, function(match) {
+                const isNumbered = match.includes('value="');
+                const tag = isNumbered ? 'ol' : 'ul';
+                return `<${tag}>${match}</${tag}>`;
             });
             
             // Convert line breaks
             html = html.replace(/\n\n/g, '<br><br>');
             html = html.replace(/\n/g, '<br>');
             
-            // Convert inline code `code`
-            html = html.replace(/`([^`]+)`/g, '<code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 0.9em; color: #d63384;">$1</code>');
-            
-            // Add spacing after headers
-            html = html.replace(/<\/(h[1-3])>/g, '</$1><br>');
+            // Convert inline code `code` (rely on .message-content code CSS)
+            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
             
             return html;
         }
