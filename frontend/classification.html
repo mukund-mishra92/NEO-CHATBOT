@@ -116,6 +116,31 @@
             padding: 6px 12px;
             white-space: nowrap;
         }
+        .add-query-panel {
+            margin-top: -4px;
+            display: none;
+        }
+        .add-query-panel.show {
+            display: block;
+        }
+        .add-query-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .field-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .add-query-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
         .btn {
             padding: 9px 18px; border: none; border-radius: 8px;
             font-size: 13px; font-weight: 600; cursor: pointer;
@@ -310,6 +335,7 @@
 
         @media (max-width: 900px) {
             .stats-row { grid-template-columns: repeat(3, 1fr); }
+            .add-query-grid { grid-template-columns: 1fr; }
             .toolbar {
                 flex-direction: column;
                 align-items: stretch;
@@ -361,8 +387,32 @@
                     <button class="btn btn-info" onclick="exportDataset()">
                         <i class="fas fa-file-export"></i> Export Training Dataset
                     </button>
+                    <button class="btn btn-soft" id="addQueryToggleBtn" onclick="toggleAddQueryForm()">
+                        <i class="fas fa-plus"></i> Add Query
+                    </button>
                 </div>
                 <div class="toolbar-summary" id="pageSummary">Showing 0 of 0 unclassified queries</div>
+            </div>
+
+            <div class="card add-query-panel" id="addQueryPanel">
+                <div class="add-query-grid">
+                    <div>
+                        <label class="field-label" for="newUserQuery">Question</label>
+                        <textarea id="newUserQuery" class="notes-input" rows="4" placeholder="Enter the user question..."></textarea>
+                    </div>
+                    <div>
+                        <label class="field-label" for="newGeneratedSql">SQL Query</label>
+                        <textarea id="newGeneratedSql" class="notes-input" rows="4" style="font-family:'Consolas','Courier New',monospace;" placeholder="Enter SQL query..."></textarea>
+                    </div>
+                </div>
+                <label class="field-label" for="newQueryTables">Tables Used <span style="font-weight:400;color:var(--text-muted);">(comma-separated)</span></label>
+                <input type="text" id="newQueryTables" class="notes-input" style="margin:0 0 10px 0;" placeholder="e.g. bot_alarm_log, task_log">
+                <label class="field-label" for="newQueryNotes">Notes (optional)</label>
+                <textarea id="newQueryNotes" class="notes-input" rows="2" placeholder="Optional note for reviewers..."></textarea>
+                <div class="add-query-actions">
+                    <button class="btn btn-success" onclick="saveNewQuery()"><i class="fas fa-save"></i> Save Query</button>
+                    <button class="btn btn-danger" onclick="closeAddQueryForm()"><i class="fas fa-times"></i> Cancel</button>
+                </div>
             </div>
 
             <div class="pagination-bar" id="paginationTop"></div>
@@ -617,6 +667,74 @@
                 console.error('Error loading queries:', error);
                 queriesList.innerHTML = '<div class="empty-state"><h3>Error loading queries</h3></div>';
                 updatePageSummary(0, 0);
+            }
+        }
+
+        function toggleAddQueryForm() {
+            const panel = document.getElementById('addQueryPanel');
+            if (!panel) {
+                return;
+            }
+            if (panel.classList.contains('show')) {
+                closeAddQueryForm();
+                return;
+            }
+            panel.classList.add('show');
+            document.getElementById('addQueryToggleBtn').innerHTML = '<i class="fas fa-minus"></i> Close Add Query';
+            document.getElementById('newUserQuery').focus();
+        }
+
+        function closeAddQueryForm() {
+            const panel = document.getElementById('addQueryPanel');
+            if (!panel) {
+                return;
+            }
+            panel.classList.remove('show');
+            document.getElementById('addQueryToggleBtn').innerHTML = '<i class="fas fa-plus"></i> Add Query';
+            document.getElementById('newUserQuery').value = '';
+            document.getElementById('newGeneratedSql').value = '';
+            document.getElementById('newQueryTables').value = '';
+            document.getElementById('newQueryNotes').value = '';
+        }
+
+        async function saveNewQuery() {
+            const userQuery = document.getElementById('newUserQuery').value.trim();
+            const generatedSql = document.getElementById('newGeneratedSql').value.trim();
+            const tablesRaw = document.getElementById('newQueryTables').value.trim();
+            const notes = document.getElementById('newQueryNotes').value.trim();
+
+            if (!userQuery || !generatedSql) {
+                showToast('Question and SQL query are required');
+                return;
+            }
+
+            const tablesUsed = tablesRaw
+                ? tablesRaw.split(',').map(t => t.trim()).filter(t => t.length > 0)
+                : [];
+
+            try {
+                const response = await fetch(`${API_BASE}/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_query: userQuery,
+                        generated_sql: generatedSql,
+                        tables_used: tablesUsed,
+                        notes: notes || null
+                    })
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.detail || 'Failed to add query');
+                }
+
+                showToast('Query added successfully');
+                closeAddQueryForm();
+                await loadUnclassified(1);
+            } catch (error) {
+                console.error('Error adding query:', error);
+                showToast(`Error adding query: ${error.message}`);
             }
         }
 

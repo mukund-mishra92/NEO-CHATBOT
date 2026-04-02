@@ -860,6 +860,12 @@ class SQLAssistantService:
             if not selected_tables:
                 selected_tables = list(self.schema.keys())[:5]
 
+            # Filter out _archive tables — the archive handler decides
+            # when to use them; the AI model should never target them directly
+            selected_tables = [
+                t for t in selected_tables if not t.endswith('_archive')
+            ]
+
             # --------------------------------------------------
             # ENRICHED SCHEMA
             # --------------------------------------------------

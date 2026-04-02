@@ -44,6 +44,13 @@ class UpdateQueryRequest(BaseModel):
     notes: Optional[str] = Field(None, description="Update notes")
 
 
+class AddQueryRequest(BaseModel):
+    user_query: str = Field(..., min_length=1, description="User question text")
+    generated_sql: str = Field(..., min_length=1, description="SQL query text")
+    tables_used: Optional[List[str]] = Field(default_factory=list, description="Tables used in the query")
+    notes: Optional[str] = Field(None, description="Optional notes")
+
+
 class QueryResponse(BaseModel):
     query_id: str
     timestamp: str
@@ -212,6 +219,48 @@ async def update_query(request: UpdateQueryRequest):
         raise
     except Exception as e:
         logger.error(f"❌ Error updating query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/add", response_model=QueryResponse)
+async def add_query(request: AddQueryRequest):
+    """
+    Add a new user question + SQL query pair for manual classification.
+
+    The entry is persisted to classified_queries.jsonl immediately.
+    """
+    try:
+        if not classification_service:
+            raise HTTPException(status_code=500, detail="Classification service not initialized")
+
+        created = classification_service.add_manual_query(
+            user_query=request.user_query.strip(),
+            generated_sql=request.generated_sql.strip(),
+            tables_used=request.tables_used or [],
+            notes=request.notes.strip() if request.notes else None
+        )
+
+        if not created:
+            raise HTTPException(status_code=500, detail="Failed to add query")
+
+        return QueryResponse(
+            query_id=created["query_id"],
+            timestamp=created["timestamp"],
+            user_query=created["user_query"],
+            generated_sql=created["generated_sql"],
+            classification=created["classification"],
+            rows_returned=created.get("rows_returned"),
+            confidence=created.get("confidence", 0.0),
+            tables_used=created.get("tables_used", []),
+            execution_status=created.get("execution_status"),
+            session_id=created.get("session_id"),
+            metadata=created.get("metadata")
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Error adding query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

@@ -151,6 +151,29 @@ class TestClassificationStats:
         unclassified = self.svc.get_unclassified_queries(limit=10)
         assert len(unclassified) == 3
 
+    def test_add_manual_query_updates_jsonl_runtime(self):
+        created = self.svc.add_manual_query(
+            user_query="How many active bots are there?",
+            generated_sql="SELECT COUNT(*) FROM bot_master WHERE status='ENABLED'",
+            notes="added from classification ui"
+        )
+
+        assert created is not None
+        assert created["classification"] == "unclassified"
+        assert len(self.svc.classified_queries_cache) == 1
+
+        jsonl_file = self.svc.storage_path / "classified_queries.jsonl"
+        assert jsonl_file.exists()
+
+        with open(jsonl_file, "r", encoding="utf-8") as f:
+            lines = [line.strip() for line in f if line.strip()]
+
+        assert len(lines) == 1
+        payload = json.loads(lines[0])
+        assert payload["query_id"] == created["query_id"]
+        assert payload["user_query"] == "How many active bots are there?"
+        assert payload["generated_sql"].startswith("SELECT COUNT(*)")
+
 
 @pytest.mark.integration
 class TestClassificationPersistence:

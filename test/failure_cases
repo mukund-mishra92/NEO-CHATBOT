@@ -1,0 +1,46 @@
+
+1. KPI Hit FP :
+a. list the alarms rasied by Bot 1 at frk in last 3 months?\
+
+WITH bot_contributions AS (
+
+ SELECT
+ b.BOT_ID,
+ b.ALARM_CODE,
+ CONCAT(b.ALARM_CODE, ': ', b.ALARM_DESCRIPTION) AS alarm_name,
+ COUNT(*) AS alarm_count
+ FROM bot_alarm_log b
+ WHERE `host-location` ='frk' AND b.INSERTED_TIMESTAMP BETWEEN '2026-03-29 15:29:32' AND '2026-03-30 15:29:32'
+ AND b.task_type <> 'Manual'
+ AND b.ALARM_CODE <> 12
+ GROUP BY
+ b.BOT_ID,
+ b.ALARM_CODE,
+ b.ALARM_DESCRIPTION
+
+ UNION ALL 
+
+ SELECT
+ b.BOT_ID,
+ b.ALARM_CODE,
+ CONCAT(b.ALARM_CODE, ': ', b.ALARM_DESCRIPTION) AS alarm_name,
+ COUNT(*) AS alarm_count
+ FROM bot_alarm_log_archive b
+ WHERE `host-location` ='frk' AND b.INSERTED_TIMESTAMP BETWEEN '2026-03-29 15:29:32' AND '2026-03-30 15:29:32'
+ AND b.task_type <> 'Manual'
+ AND b.ALARM_CODE <> 12
+ GROUP BY
+ b.BOT_ID,
+ b.ALARM_CODE,
+ b.ALARM_DESCRIPTION
+)
+
+SELECT
+ alarm_name,
+ BOT_ID,
+ alarm_count
+FROM bot_contributions
+ORDER BY alarm_count DESC;
+
+
+Issue : The query is designed to list the alarms raised by Bot 1 at the 'frk' location in the last 3 months. However, it seems that the date range specified in the query is only for one day (from '2026-03-29 15:29:32' to '2026-03-30 15:29:32'), which does not cover the entire 3-month period.

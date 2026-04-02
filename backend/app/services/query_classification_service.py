@@ -112,6 +112,63 @@ class QueryClassificationService:
         except Exception as e:
             logger.error(f"❌ Error storing query: {e}")
             return ""
+
+    def add_manual_query(
+        self,
+        user_query: str,
+        generated_sql: str,
+        tables_used: Optional[List[str]] = None,
+        notes: Optional[str] = None
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Add a query manually from the classification UI.
+
+        The record is appended to JSONL and cache in real time so it appears
+        immediately in the unclassified list.
+
+        Args:
+            user_query: Natural language question
+            generated_sql: SQL query text
+            notes: Optional note to store in metadata
+
+        Returns:
+            Created query record or None on failure
+        """
+        try:
+            timestamp = datetime.now().isoformat()
+            query_id = f"manual_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
+
+            query_record = {
+                "query_id": query_id,
+                "timestamp": timestamp,
+                "session_id": "manual_entry",
+                "user_query": user_query,
+                "generated_sql": generated_sql,
+                "execution_status": "manual",
+                "rows_returned": 0,
+                "confidence": 1.0,
+                "tables_used": tables_used or [],
+                "classification": "unclassified",
+                "classification_timestamp": None,
+                "classification_notes": notes,
+                "corrected_sql": None,
+                "metadata": {
+                    "source": "classification_ui_manual_entry",
+                    "created_at": timestamp
+                }
+            }
+
+            with open(self.queries_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(query_record, ensure_ascii=False) + "\n")
+
+            self.classified_queries_cache.append(query_record)
+            logger.info(f"📝 Manually added query {query_id}")
+
+            return query_record
+
+        except Exception as e:
+            logger.error(f"❌ Error adding manual query: {e}")
+            return None
     
     def classify_query(
         self,

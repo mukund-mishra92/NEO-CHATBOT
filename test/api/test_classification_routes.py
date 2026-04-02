@@ -38,6 +38,19 @@ def client():
         "needs_review": 0, "unclassified": 20, "accuracy": 0.75
     }
     mock_cs.classify_query.return_value = True
+    mock_cs.add_manual_query.return_value = {
+        "query_id": "manual_001",
+        "timestamp": "2026-03-30T10:00:00",
+        "user_query": "manual question",
+        "generated_sql": "SELECT 1",
+        "classification": "unclassified",
+        "rows_returned": 0,
+        "confidence": 1.0,
+        "tables_used": [],
+        "execution_status": "manual",
+        "session_id": "manual_entry",
+        "metadata": {"source": "classification_ui_manual_entry"}
+    }
     mock_cs.get_high_confidence_queries.return_value = []
     mock_cs.search_queries.return_value = []
 
@@ -92,3 +105,19 @@ class TestClassify:
             "classification": "correct"
         })
         assert resp.status_code == 200
+
+
+# ===================================================================
+# POST /add
+# ===================================================================
+class TestAddQuery:
+
+    def test_add_query(self, client):
+        resp = client.post("/api/classification/add", json={
+            "user_query": "How many completed orders today?",
+            "generated_sql": "SELECT COUNT(*) FROM orders WHERE status='completed'"
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["query_id"] == "manual_001"
+        assert data["classification"] == "unclassified"

@@ -143,10 +143,10 @@ class DashboardKPIResolver:
     # ── Thresholds ──
     # Hybrid score = 0.65 * embedding_similarity + 0.35 * keyword_score
     # Only scores above this are considered valid matches.
-    MATCH_THRESHOLD = 0.55
+    MATCH_THRESHOLD = 0.75
 
     # If embedding API is unavailable, use keyword-only with a stricter gate
-    KEYWORD_ONLY_THRESHOLD = 0.55
+    KEYWORD_ONLY_THRESHOLD = 0.75
 
     # Weight split for hybrid scoring
     EMBEDDING_WEIGHT = 0.65

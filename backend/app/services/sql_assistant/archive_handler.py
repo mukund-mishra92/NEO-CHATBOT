@@ -220,6 +220,9 @@ class ArchiveHandler:
             main_max = date_info['main_table_max_date']
 
             # Determine if archive is needed
+            # Archive tables contain OLD historical data that has been moved out
+            # of the main table. We only need the archive when the user requests
+            # data OLDER than what the main table still holds (start < main_min).
             needs_archive = False
 
             if requested_start_date:
@@ -228,15 +231,6 @@ class ArchiveHandler:
                     logger.info(
                         f"📦 Archive needed: Requested start {requested_start_date} "
                         f"is BEFORE main table min {main_min}"
-                    )
-                    needs_archive = True
-
-            if requested_end_date and not needs_archive:
-                # If user is asking for data AFTER the main table's maximum date
-                if requested_end_date > main_max:
-                    logger.info(
-                        f"📦 Archive needed: Requested end {requested_end_date} "
-                        f"is AFTER main table max {main_max}"
                     )
                     needs_archive = True
 
@@ -465,6 +459,64 @@ class ArchiveHandler:
                 return (datetime.combine(start_date_extracted, datetime.min.time()), None)
             except ValueError as e:
                 logger.warning(f"⚠️ Failed to parse after date: {e}")
+
+        # Pattern: "this year" / "current year"
+        if re.search(r'(?:this|current)\s+year\b', question_lower):
+            start_date = today.replace(month=1, day=1)
+            logger.info(f"📅 Extracted 'this year': {start_date} to {end_date}")
+            return (
+                datetime.combine(start_date, datetime.min.time()),
+                datetime.combine(end_date, datetime.max.time())
+            )
+
+        # Pattern: "this month" / "current month"
+        if re.search(r'(?:this|current)\s+month\b', question_lower):
+            start_date = today.replace(day=1)
+            logger.info(f"📅 Extracted 'this month': {start_date} to {end_date}")
+            return (
+                datetime.combine(start_date, datetime.min.time()),
+                datetime.combine(end_date, datetime.max.time())
+            )
+
+        # Pattern: "this week" / "current week"
+        if re.search(r'(?:this|current)\s+week\b', question_lower):
+            start_date = today - timedelta(days=today.weekday())
+            logger.info(f"📅 Extracted 'this week': {start_date} to {end_date}")
+            return (
+                datetime.combine(start_date, datetime.min.time()),
+                datetime.combine(end_date, datetime.max.time())
+            )
+
+        # Pattern: "today"
+        if re.search(r'\btoday\b', question_lower):
+            logger.info(f"📅 Extracted 'today': {today} to {today}")
+            return (
+                datetime.combine(today, datetime.min.time()),
+                datetime.combine(today, datetime.max.time())
+            )
+
+        # Pattern: "yesterday"
+        if re.search(r'\byesterday\b', question_lower):
+            yesterday = today - timedelta(days=1)
+            logger.info(f"📅 Extracted 'yesterday': {yesterday} to {yesterday}")
+            return (
+                datetime.combine(yesterday, datetime.min.time()),
+                datetime.combine(yesterday, datetime.max.time())
+            )
+
+        # Pattern: "in YYYY" / "in year YYYY" (e.g., "in 2025")
+        in_year_match = re.search(r'\bin\s+(?:year\s+)?(\d{4})\b', question_lower)
+        if in_year_match:
+            year = int(in_year_match.group(1))
+            if 2000 <= year <= 2100:
+                start_date = datetime(year, 1, 1).date()
+                year_end = datetime(year, 12, 31).date()
+                actual_end = min(year_end, today)
+                logger.info(f"📅 Extracted 'in {year}': {start_date} to {actual_end}")
+                return (
+                    datetime.combine(start_date, datetime.min.time()),
+                    datetime.combine(actual_end, datetime.max.time())
+                )
 
         logger.debug(f"ℹ️ No date range pattern found in question")
         return None, None
