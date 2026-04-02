@@ -6,10 +6,14 @@ Answers questions about NEO documentation, code, and proposals
 import logging
 import re
 import json
+import time
 import uuid
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 from .vector_store_service import VectorStoreService
+from .content_optimizer import ContentOptimizer
+from .response_cache import ResponseCache
+from .query_analytics import QueryAnalytics
 from app.services.llm_service import LLMService  # shared llm_service at services root
 from ..rlhf_service import RLHFService
 from ..diagnostic.diagnostic_support_service import DiagnosticSupportService
@@ -44,6 +48,11 @@ class KnowledgeBaseService:
         self.session_manager = get_session_manager()
         self.answer_planner = AnswerPlanner()  # Phase 7: structured answer planning
         self.response_structurer = ResponseStructurer()  # Phase 8: structured response format
+
+        # ── New: Content Optimizer, Response Cache, Analytics ──
+        self.content_optimizer = ContentOptimizer(self.llm_service)
+        self.response_cache = ResponseCache(ttl_seconds=3600)  # 1-hour TTL
+        self.query_analytics = QueryAnalytics()
 
         # ── ChromaDB RAG Pipeline (primary retrieval) ──
         self.rag_pipeline = None
@@ -133,6 +142,8 @@ Always prioritize clarity and user understanding."""
         Returns:
             Chat response with answer and sources
         """
+        start_time = time.time()
+        _cached = False
         try:
             logger.info(f"🔍 Processing knowledge base query: {chat_request.message[:50]}...")
             
@@ -171,6 +182,24 @@ Always prioritize clarity and user understanding."""
                 if diagnostic_result:
                     # Just return - endpoint handles session management
                     return diagnostic_result
+
+            # Step 2.5: Check response cache (skip when attached-doc or active conversation)
+            if not has_attached_document and len(conversation_history) <= 1:
+                cached = self.response_cache.get(chat_request.message)
+                if cached:
+                    logger.info("🚀 Returning cached KB response")
+                    _cached = True
+                    resp = ChatResponse(**cached)
+                    resp.session_id = session_id or resp.session_id
+                    # Log a cache-hit metric
+                    self.query_analytics.log_query(
+                        query=chat_request.message,
+                        response_time_ms=(time.time() - start_time) * 1000,
+                        confidence_score=resp.confidence_score or 0.0,
+                        num_sources=len(resp.sources) if resp.sources else 0,
+                        cached=True,
+                    )
+                    return resp
             
             # Step 3: Classify query type
             query_type = self._classify_query(chat_request.message)
@@ -189,6 +218,11 @@ Always prioritize clarity and user understanding."""
                 kb_context = rag_result["context"]
                 source_documents = self._extract_source_documents_from_rag(rag_result)
                 filtered_results = self._convert_rag_to_legacy_format(rag_result)
+
+                # Content optimization — trim RAG context to stay within token budget
+                kb_context = self.content_optimizer.optimize_rag_context(
+                    kb_context, chat_request.message, max_tokens=6000
+                )
             else:
                 logger.info("📦 Using legacy JSON vector store for retrieval")
                 # Generate query embedding
@@ -202,15 +236,24 @@ Always prioritize clarity and user understanding."""
                     if not vector_filter:
                         vector_filter = None
 
-                search_results = self.vector_store.search_balanced(
+                search_results = self.vector_store.search_with_token_budget(
                     query_embedding=query_embedding,
                     top_k=8 if not has_attached_document else 4,
+                    max_tokens=6000,
                     filter_metadata=vector_filter,
                     min_similarity=0.25,
-                    diversify=True
+                    diversify=True,
+                    max_chunks_per_source=3,
                 )
                 
                 filtered_results = self._filter_and_rerank(search_results, chat_request.message)
+
+                # Content optimization — trim legacy chunks to reduce token usage
+                filtered_results = self.content_optimizer.optimize_chunks(
+                    filtered_results, chat_request.message,
+                    target_length="medium", max_chunk_length=800,
+                )
+
                 kb_context = self._build_context(filtered_results)
                 source_documents = self._extract_source_documents(filtered_results)
 
@@ -315,7 +358,7 @@ Always prioritize clarity and user understanding."""
             except Exception as e:
                 logger.warning(f"Failed to record RLHF feedback: {e}")
             
-            return ChatResponse(
+            final_response = ChatResponse(
                 response=response_text,
                 chatbot_type=ChatbotType.KNOWLEDGE_BASE,
                 session_id=chat_request.session_id or str(uuid.uuid4()),
@@ -325,12 +368,43 @@ Always prioritize clarity and user understanding."""
                 images=rag_result.get("images", []) if self.rag_pipeline is not None else [],
                 structured_response=structured,
             )
+
+            # ── Cache the response (only for non-attached, high-confidence) ──
+            if not has_attached_document and confidence >= 0.5:
+                try:
+                    self.response_cache.set(
+                        chat_request.message,
+                        final_response.dict() if hasattr(final_response, 'dict') else final_response.model_dump(),
+                    )
+                except Exception as cache_err:
+                    logger.warning(f"⚠️ Cache store failed: {cache_err}")
+
+            # ── Log analytics ──
+            elapsed_ms = (time.time() - start_time) * 1000
+            self.query_analytics.log_query(
+                query=chat_request.message,
+                response_time_ms=elapsed_ms,
+                confidence_score=confidence,
+                num_sources=len(source_documents),
+                cached=False,
+                query_type=query_type,
+            )
+
+            return final_response
             
         except Exception as e:
             error_msg = str(e)
             logger.error(f"❌ Error processing knowledge base query: {error_msg}", exc_info=True)
             logger.error(f"Query was: {chat_request.message}")
             logger.error(f"Error type: {type(e).__name__}")
+            # Log error to analytics
+            self.query_analytics.log_query(
+                query=chat_request.message,
+                response_time_ms=(time.time() - start_time) * 1000,
+                confidence_score=0.0,
+                num_sources=0,
+                error=error_msg,
+            )
             return ChatResponse(
                 response=f"I apologize, but I encountered an error while processing your question. Error: {error_msg}. Please try rephrasing or contact support.",
                 chatbot_type=ChatbotType.KNOWLEDGE_BASE,

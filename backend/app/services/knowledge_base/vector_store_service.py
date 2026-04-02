@@ -323,7 +323,73 @@ class VectorStoreService:
         
         logger.info(f"📊 Balanced search: {len(balanced_results)} results from {len(categories_used)} categories")
         return balanced_results[:top_k]
-    
+
+    def search_with_token_budget(
+        self,
+        query_embedding: List[float],
+        top_k: int = 10,
+        max_tokens: int = 6000,
+        filter_metadata: Optional[Dict[str, Any]] = None,
+        diversify: bool = True,
+        min_similarity: float = 0.0,
+        max_chunks_per_source: int = 3,
+    ) -> List[Dict[str, Any]]:
+        """
+        Token-aware search — selects chunks until the token budget is reached,
+        while enforcing per-source diversity limits.
+
+        Args:
+            query_embedding: Query vector.
+            top_k: Maximum chunks to return.
+            max_tokens: Token budget (1 token ≈ 4 chars).
+            filter_metadata: Optional metadata filter.
+            diversify: Enforce per-source limits.
+            min_similarity: Minimum cosine similarity.
+            max_chunks_per_source: Max chunks from one document.
+
+        Returns:
+            List of search results within token budget.
+        """
+        # Get more candidates than needed so we can filter
+        all_results = self.search_balanced(
+            query_embedding=query_embedding,
+            top_k=top_k * 2,
+            filter_metadata=filter_metadata,
+            min_similarity=min_similarity,
+            diversify=diversify,
+        )
+        if not all_results:
+            return []
+
+        selected: List[Dict[str, Any]] = []
+        token_count = 0
+        source_counts: Dict[str, int] = {}
+
+        for result in all_results:
+            content = result["document"].get("content", "")
+            est_tokens = len(content) // 4  # rough token estimate
+
+            source_doc = result["document"]["metadata"].get("filename", "unknown")
+            src_count = source_counts.get(source_doc, 0)
+
+            if diversify and src_count >= max_chunks_per_source:
+                continue
+            if token_count + est_tokens > max_tokens:
+                break
+
+            selected.append(result)
+            token_count += est_tokens
+            source_counts[source_doc] = src_count + 1
+
+            if len(selected) >= top_k:
+                break
+
+        logger.info(
+            f"📊 Token-budget search: {len(selected)}/{len(all_results)} chunks, "
+            f"~{token_count}/{max_tokens} tokens from {len(source_counts)} sources"
+        )
+        return selected
+
     def delete_document(self, document_id: str) -> bool:
         """Delete document from vector store"""
         initial_count = len(self.documents)

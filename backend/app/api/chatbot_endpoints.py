@@ -700,13 +700,99 @@ async def get_session_history(session_id: str):
 @router.get("/health")
 async def health_check():
     """
-    Simple health check endpoint
+    Comprehensive health check — reports component status, cache stats,
+    vector store info, and recent analytics summary.
     """
-    return {
-        "status": "healthy",
-        "service": "NEO Chatbot API",
-        "version": "1.0.0"
-    }
+    try:
+        # Vector store status
+        vs_docs = len(kb_service.vector_store.documents)
+
+        # ChromaDB RAG status
+        rag_info: dict = {"active": False}
+        if kb_service.rag_pipeline:
+            try:
+                rag_status = kb_service.rag_pipeline.get_status()
+                rag_info = {
+                    "active": True,
+                    "total_chunks": rag_status.get("total_chunks", 0),
+                }
+            except Exception:
+                rag_info = {"active": False, "error": "status check failed"}
+
+        # Cache stats
+        cache_stats = kb_service.response_cache.get_stats()
+
+        # Analytics snapshot (last 24 h)
+        analytics_24h = kb_service.query_analytics.get_performance_report(days=1)
+
+        # LLM provider
+        llm_info = (
+            kb_service.llm_service.get_provider_info()
+            if hasattr(kb_service.llm_service, "get_provider_info")
+            else "available"
+        )
+
+        from datetime import datetime as _dt
+        return {
+            "status": "healthy",
+            "service": "NEO Chatbot API",
+            "version": "1.1.0",
+            "timestamp": _dt.now().isoformat(),
+            "components": {
+                "vector_store": {
+                    "status": "loaded" if vs_docs > 0 else "empty",
+                    "document_count": vs_docs,
+                },
+                "chroma_rag": rag_info,
+                "cache": cache_stats,
+                "llm": llm_info,
+            },
+            "performance_24h": analytics_24h,
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Health check error: {e}", exc_info=True)
+        from datetime import datetime as _dt
+        return {
+            "status": "degraded",
+            "error": str(e),
+            "timestamp": _dt.now().isoformat(),
+        }
+
+
+@router.get("/analytics/performance")
+async def get_kb_performance_analytics(days: int = 7):
+    """
+    Knowledge Base performance analytics for the last *days* days.
+    Includes average response time, confidence, cache hit rate, etc.
+    """
+    try:
+        report = kb_service.query_analytics.get_performance_report(days=days)
+        return report
+    except Exception as e:
+        logger.error(f"❌ Error getting KB analytics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/analytics/recent-queries")
+async def get_recent_kb_queries(limit: int = 20):
+    """Return the most recent Knowledge Base query metrics."""
+    try:
+        return kb_service.query_analytics.get_recent_queries(limit=limit)
+    except Exception as e:
+        logger.error(f"❌ Error getting recent queries: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/cache/clear")
+async def clear_response_cache():
+    """Clear all cached Knowledge Base responses."""
+    try:
+        count = kb_service.response_cache.clear()
+        return {"status": "ok", "entries_removed": count}
+    except Exception as e:
+        logger.error(f"❌ Error clearing cache: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ===== User Chat History Endpoints =====
