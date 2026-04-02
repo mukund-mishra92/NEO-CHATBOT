@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Config - NEO AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --brand-start: #667eea;
+            --brand-end: #764ba2;
+            --surface-soft: #f7f8fc;
+            --border-soft: #e5e9f4;
+            --text-main: #1f2533;
+            --text-muted: #667085;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+            overflow: hidden;
+            color: var(--text-main);
+        }
+        .page-wrap { width: 100vw; height: 100vh; display: flex; flex-direction: column; background: #fff; }
+        .page-header {
+            background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        .page-header h1 { font-size: 22px; font-weight: 600; }
+        .page-header small { font-size: 13px; color: rgba(255,255,255,0.85); display: block; margin-top: 2px; }
+        .back-btn {
+            background: rgba(255,255,255,0.18);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.22);
+            padding: 8px 16px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .page-content { flex: 1; overflow-y: auto; background: var(--surface-soft); padding: 20px 24px; }
+        .card {
+            background: #fff;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            margin-bottom: 16px;
+        }
+        .card-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .card-title i { color: var(--brand-start); }
+        .status {
+            display: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 12px;
+            border-left: 4px solid transparent;
+        }
+        .status.show { display: block; }
+        .status.success { background: #ecfdf5; color: #065f46; border-left-color: #10b981; }
+        .status.error { background: #fef2f2; color: #991b1b; border-left-color: #ef4444; }
+        .status.info { background: #eff6ff; color: #1e40af; border-left-color: #3b82f6; }
+
+        .global-provider-row {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .global-provider-row label { font-size: 13px; font-weight: 600; color: var(--text-main); }
+
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid var(--border-soft);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .config-table th, .config-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-soft);
+            text-align: left;
+            font-size: 13px;
+        }
+        .config-table th {
+            background: #f5f7ff;
+            color: #38445f;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .config-table tr:last-child td { border-bottom: none; }
+
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border-soft);
+            border-radius: 7px;
+            font-size: 13px;
+            background: white;
+        }
+
+        .btn-row { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--brand-start), var(--brand-end)); color: white; }
+        .btn-soft { background: #eef2ff; color: #364264; }
+        .hint { color: var(--text-muted); font-size: 12px; margin-top: 10px; }
+    </style>
+    <script>
+        (function() {
+            try {
+                const s = JSON.parse(localStorage.getItem('neo_session'));
+                if (!s || !s.name || !s.role) { window.location.href = '/login'; return; }
+                if (s.role !== 'admin') { alert('Admin privileges required.'); window.location.href = '/chatbot'; return; }
+            } catch(e) { window.location.href = '/login'; }
+        })();
+    </script>
+</head>
+<body>
+    <div class="page-wrap">
+        <div class="page-header">
+            <div>
+                <h1><i class="fas fa-sliders-h"></i> AI Config</h1>
+                <small>Admin global model settings. Changes apply to all users until updated again.</small>
+            </div>
+            <a href="/chatbot" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Chatbot</a>
+        </div>
+
+        <div class="page-content">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-robot"></i> Global AI Runtime Configuration</div>
+                <div id="status" class="status"></div>
+
+                <div class="global-provider-row">
+                    <label for="activeProvider">Active Provider</label>
+                    <select id="activeProvider"></select>
+                </div>
+
+                <table class="config-table">
+                    <thead>
+                        <tr>
+                            <th>Functionality</th>
+                            <th>Provider</th>
+                            <th>Model</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>General Chat</td>
+                            <td id="provider-chat_model">-</td>
+                            <td><select id="chat_model"></select></td>
+                        </tr>
+                        <tr>
+                            <td>SQL Generation</td>
+                            <td id="provider-sql_model">-</td>
+                            <td><select id="sql_model"></select></td>
+                        </tr>
+                        <tr>
+                            <td>Agentic Workflow</td>
+                            <td id="provider-agent_model">-</td>
+                            <td><select id="agent_model"></select></td>
+                        </tr>
+                        <tr>
+                            <td>Vision</td>
+                            <td id="provider-vision_model">-</td>
+                            <td><select id="vision_model"></select></td>
+                        </tr>
+                        <tr>
+                            <td>Embedding</td>
+                            <td id="provider-embedding_model">-</td>
+                            <td><select id="embedding_model"></select></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="saveConfig()"><i class="fas fa-save"></i> Save AI Config</button>
+                    <button class="btn btn-soft" onclick="loadConfig()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+                <div class="hint">Note: some provider/functionality combinations may automatically fallback to a supported default model.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let catalog = {};
+        let config = {};
+        const modelKeys = ['chat_model', 'sql_model', 'agent_model', 'vision_model', 'embedding_model'];
+
+        function showStatus(type, message) {
+            const el = document.getElementById('status');
+            el.className = `status show ${type}`;
+            el.textContent = message;
+        }
+
+        function renderProviderSelect(activeProvider) {
+            const providerSelect = document.getElementById('activeProvider');
+            providerSelect.innerHTML = '';
+
+            Object.keys(catalog).forEach(provider => {
+                const opt = document.createElement('option');
+                opt.value = provider;
+                opt.textContent = provider.toUpperCase();
+                if (provider === activeProvider) opt.selected = true;
+                providerSelect.appendChild(opt);
+            });
+        }
+
+        function setProviderLabels(provider) {
+            modelKeys.forEach(key => {
+                const label = document.getElementById(`provider-${key}`);
+                if (label) {
+                    label.textContent = provider.toUpperCase();
+                }
+            });
+        }
+
+        function renderModelOptions(provider) {
+            setProviderLabels(provider);
+            modelKeys.forEach(key => {
+                const functionality = key.replace('_model', '');
+                const options = (catalog[provider] && catalog[provider][functionality]) ? catalog[provider][functionality] : [];
+                const select = document.getElementById(key);
+                const currentValue = config[key];
+
+                select.innerHTML = '';
+
+                if (options.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.value = currentValue || '';
+                    opt.textContent = currentValue || 'Not supported';
+                    select.appendChild(opt);
+                    select.disabled = true;
+                    return;
+                }
+
+                select.disabled = false;
+                options.forEach(model => {
+                    const opt = document.createElement('option');
+                    opt.value = model;
+                    opt.textContent = model;
+                    if (model === currentValue) opt.selected = true;
+                    select.appendChild(opt);
+                });
+
+                if (!options.includes(currentValue)) {
+                    select.value = options[0];
+                }
+            });
+        }
+
+        async function loadConfig() {
+            try {
+                showStatus('info', 'Loading AI config...');
+                const res = await fetch('/api/ai-config');
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Failed to load config');
+
+                catalog = data.catalog || {};
+                config = data.config || {};
+
+                renderProviderSelect(config.active_provider || 'openai');
+                renderModelOptions(config.active_provider || 'openai');
+                showStatus('success', 'AI config loaded.');
+            } catch (err) {
+                showStatus('error', err.message || 'Failed to load AI config.');
+            }
+        }
+
+        async function saveConfig() {
+            try {
+                const provider = document.getElementById('activeProvider').value;
+                const payload = {
+                    active_provider: provider,
+                    chat_model: document.getElementById('chat_model').value,
+                    sql_model: document.getElementById('sql_model').value,
+                    agent_model: document.getElementById('agent_model').value,
+                    vision_model: document.getElementById('vision_model').value,
+                    embedding_model: document.getElementById('embedding_model').value,
+                };
+
+                const res = await fetch('/api/ai-config', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    throw new Error(data.detail || data.message || 'Failed to save config');
+                }
+
+                config = data.config || payload;
+                renderModelOptions(config.active_provider || provider);
+                showStatus('success', 'AI configuration saved. All users will now use this configuration.');
+            } catch (err) {
+                showStatus('error', err.message || 'Failed to save AI config.');
+            }
+        }
+
+        document.getElementById('activeProvider').addEventListener('change', (e) => {
+            const provider = e.target.value;
+            config.active_provider = provider;
+            renderModelOptions(provider);
+        });
+
+        loadConfig();
+    </script>
+</body>
+</html>

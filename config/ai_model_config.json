@@ -1,0 +1,8 @@
+{
+  "active_provider": "openai",
+  "chat_model": "gpt-5.2",
+  "sql_model": "gpt-5.2",
+  "agent_model": "gpt-5.2",
+  "vision_model": "gpt-5.2",
+  "embedding_model": "text-embedding-3-small"
+}

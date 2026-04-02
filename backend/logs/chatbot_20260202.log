@@ -1,0 +1,148 @@
+2026-02-02 17:58:09 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 17:58:09 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 17:58:09 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 17:58:09 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:06:15 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:06:15 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:06:15 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:06:15 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:06:38 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:06:38 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:06:38 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:06:38 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:06:58 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:06:58 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:06:58 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:06:58 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:07:20 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:07:20 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:07:20 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:07:20 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:07:40 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:07:40 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:07:40 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:07:40 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:08:51 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:08:52 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:08:52 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:08:52 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:12:21 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:12:21 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:12:21 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:12:21 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:12:38 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:12:38 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:12:38 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:12:38 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:13:08 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:13:08 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:13:08 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:13:08 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:13:26 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:13:26 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:13:26 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:13:26 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:14:02 - app.utils.session_manager - INFO - 🆕 New session created: de47d985-afa (type: semi_auto_diagnostic)
+2026-02-02 18:14:02 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: de47d985-afa (type: semi_auto_diagnostic)
+2026-02-02 18:14:18 - app.utils.session_manager - INFO - 🆕 New session created: f9763dec-4cd (type: knowledge_base)
+2026-02-02 18:14:18 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: f9763dec-4cd (type: knowledge_base)
+2026-02-02 18:14:18 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.KNOWLEDGE_BASE, message=bot 8 not moving...
+2026-02-02 18:14:18 - app.api.chatbot_endpoints - INFO - 🤖 Using Agentic AI (multi-agent verification system)
+2026-02-02 18:14:18 - app.services.knowledge_base_service - INFO - 🔍 Processing knowledge base query: bot 8 not moving...
+2026-02-02 18:14:18 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.00, session=f9763dec-4cd
+2026-02-02 18:22:05 - app.utils.session_manager - INFO - 🆕 New session created: 64f43a23-589 (type: semi_auto_diagnostic)
+2026-02-02 18:22:05 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 64f43a23-589 (type: semi_auto_diagnostic)
+2026-02-02 18:26:44 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:26:44 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:26:44 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:26:44 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:26:57 - app.utils.session_manager - INFO - 🆕 New session created: f735a0f5-107 (type: semi_auto_diagnostic)
+2026-02-02 18:26:57 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: f735a0f5-107 (type: semi_auto_diagnostic)
+2026-02-02 18:34:35 - app.utils.session_manager - INFO - 🆕 New session created: 1b1dcaaa-2cc (type: semi_auto_diagnostic)
+2026-02-02 18:34:35 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 1b1dcaaa-2cc (type: semi_auto_diagnostic)
+2026-02-02 18:39:23 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:39:23 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:39:23 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:39:23 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:39:37 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:39:37 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:39:37 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:39:37 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:44:49 - app.core.logging - INFO - 📋 Logging configured - Level: INFO, File: D:\Projects\4. Neo_Chatbot\NEO-CHATBOT\backend\logs\chatbot_20260202.log
+2026-02-02 18:44:49 - app.services.query_classification_service - INFO - 📁 No classified queries file found - will create on first store
+2026-02-02 18:44:49 - app.services.query_classification_service - INFO - ✅ Query Classification Service initialized | 0 classified queries
+2026-02-02 18:44:49 - app.main - INFO - ✅ Classification service initialized
+2026-02-02 18:45:14 - app.utils.session_manager - INFO - 🆕 New session created: e9c98d5b-5ce (type: semi_auto_diagnostic)
+2026-02-02 18:45:14 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: e9c98d5b-5ce (type: semi_auto_diagnostic)
+2026-02-02 18:48:42 - app.utils.session_manager - INFO - 🆕 New session created: 9ef1b2f1-810 (type: sql_assistant)
+2026-02-02 18:48:42 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: 9ef1b2f1-810 (type: sql_assistant)
+2026-02-02 18:48:42 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Give me the bot's ID which are currently running a...
+2026-02-02 18:48:42 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Give me the bot's ID which are currently running a...
+2026-02-02 18:48:42 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-02 18:48:42 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-02 18:48:42 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-02 18:48:42 - app.services.chat_history_service - INFO - 📊 Retrieved 11 common query patterns
+2026-02-02 18:48:42 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-02 18:48:42 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-02 18:48:46 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 74.00%)
+2026-02-02 18:48:46 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT bm.BOT_ID
+FROM bot_master AS bm
+WHERE bm.STATUS = 'ENABLED'
+  AND bm.AUTO_MANUAL = 'auto'
+  A...
+2026-02-02 18:48:47 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 5 rows returned
+2026-02-02 18:48:47 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=74.00%, validation=95.00%, combined=82.40%
+2026-02-02 18:48:47 - app.services.sql_assistant_integrated - INFO - ✅ ACCEPTABLE CONFIDENCE (82.40%) - Using result
+2026-02-02 18:48:47 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-02 18:48:47 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 5 rows returned
+2026-02-02 18:48:47 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-02 18:48:47 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 1)
+2026-02-02 18:48:47 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: fec701c7-cb74-4c9b-a7cd-7575d7abb5bf
+2026-02-02 18:48:47 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: fec701c7-cb74-4c9b-a7cd-7575d7abb5bf
+2026-02-02 18:48:47 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.82, session=9ef1b2f1-810
+2026-02-02 18:52:39 - app.api.chatbot_endpoints - INFO - 📨 Chat request: type=ChatbotType.SQL_ASSISTANT, message=Give me the bot's ID who are close to the stations...
+2026-02-02 18:52:39 - app.api.chatbot_endpoints - INFO - 📚 Context summary: USER: Give me the bot's ID which are currently running and battery percentage is between 60-70 perce...
+2026-02-02 18:52:39 - app.services.sql_assistant_integrated - INFO - 🔍 Processing SQL query: Give me the bot's ID who are close to the stations...
+2026-02-02 18:52:39 - app.services.sql_assistant_integrated - INFO - 📋 STEP 1: Checking session cache...
+2026-02-02 18:52:39 - app.services.sql_assistant_integrated - INFO - 📚 STEP 2: Checking classified queries...
+2026-02-02 18:52:39 - app.services.sql_assistant_integrated - INFO - 📊 STEP 3: Checking chat history patterns...
+2026-02-02 18:52:40 - app.services.chat_history_service - INFO - 📊 Retrieved 11 common query patterns
+2026-02-02 18:52:40 - app.services.sql_assistant_integrated - INFO - 🤖 STEP 4: Generating new SQL...
+2026-02-02 18:52:40 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 1/3 with nl_to_sql_generator...
+2026-02-02 18:52:49 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 46.00%)
+2026-02-02 18:52:49 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT DISTINCT b.BOT_ID
+FROM bot_master AS b
+JOIN controller_reservations_master AS r
+  ON r.BOT_ID...
+2026-02-02 18:52:49 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 1 rows returned
+2026-02-02 18:52:49 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=46.00%, validation=95.00%, combined=65.60%
+2026-02-02 18:52:49 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (65.60%) - Retrying with feedback
+2026-02-02 18:52:49 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 2/3 with nl_to_sql_generator...
+2026-02-02 18:52:56 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 74.00%)
+2026-02-02 18:52:56 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT DISTINCT b.BOT_ID
+FROM bot_master AS b
+JOIN controller_reservations_master AS r
+  ON r.BOT_ID...
+2026-02-02 18:52:56 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-02 18:52:56 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=74.00%, validation=30.00%, combined=56.40%
+2026-02-02 18:52:56 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (56.40%) - Retrying with feedback
+2026-02-02 18:52:56 - app.services.sql_assistant_integrated - INFO - 🔄 Attempt 3/3 with nl_to_sql_generator...
+2026-02-02 18:53:06 - app.services.sql_assistant_integrated - INFO - ✅ nl_to_sql_generator generated SQL (confidence: 72.00%)
+2026-02-02 18:53:06 - app.services.sql_assistant_integrated - INFO -    SQL: SELECT DISTINCT b.BOT_ID
+FROM bot_master AS b
+JOIN controller_reservations_master AS r
+  ON r.BOT_ID...
+2026-02-02 18:53:06 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-02 18:53:06 - app.services.sql_assistant_integrated - INFO - 📊 Confidence: generator=72.00%, validation=30.00%, combined=55.20%
+2026-02-02 18:53:06 - app.services.sql_assistant_integrated - WARNING - ⚠️ LOW CONFIDENCE (55.20%) - Retrying with feedback
+2026-02-02 18:53:06 - app.services.sql_assistant_integrated - WARNING - ⚠️ Last attempt - using result despite low confidence
+2026-02-02 18:53:06 - app.services.sql_assistant_integrated - INFO - ⚡ STEP 5: Executing final SQL query...
+2026-02-02 18:53:07 - app.services.sql_assistant_integrated - INFO - ✅ Query executed: 0 rows returned
+2026-02-02 18:53:07 - app.services.sql_assistant_integrated - INFO - 💾 STEP 6: Storing successful query...
+2026-02-02 18:53:07 - app.services.sql_assistant_integrated - INFO - 💾 Stored successful query in session cache (total: 2)
+2026-02-02 18:53:07 - app.services.chat_history_service - INFO - 💾 Logged chat interaction: 6fcb08a3-13e8-463e-a5d6-3d979a086b25
+2026-02-02 18:53:07 - app.services.chat_history_service - INFO - 💾 Logged SQL query for chat: 6fcb08a3-13e8-463e-a5d6-3d979a086b25
+2026-02-02 18:53:07 - app.api.chatbot_endpoints - INFO - ✅ Chat response generated: confidence=0.55, session=9ef1b2f1-810
+2026-02-02 19:39:16 - app.api.chatbot_endpoints - INFO - 🏥 Checking system health...
+2026-02-02 21:24:17 - app.utils.session_manager - INFO - 🆕 New session created: e1cab7d6-ad2 (type: semi_auto_diagnostic)
+2026-02-02 21:24:17 - app.api.chatbot_endpoints - INFO - 🆕 Created new session: e1cab7d6-ad2 (type: semi_auto_diagnostic)

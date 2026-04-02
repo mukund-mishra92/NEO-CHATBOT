@@ -1,0 +1,100 @@
+[
+  {
+    "query": "total number of bot we have in frk location",
+    "status": "PASS",
+    "info": "1 rows, confidence=0.93",
+    "sql": "SELECT COUNT(*) AS total_bots\nFROM bot_master bm\nWHERE bm.`host-location` = 'frk'\nLIMIT 100;",
+    "time_s": 7.3
+  },
+  {
+    "query": "give me total number of alarms logged at location banglore",
+    "status": "PASS",
+    "info": "1 rows, confidence=0.90",
+    "sql": "SELECT COUNT(*) AS total_alarms_logged\nFROM bot_alarm_log bal\nWHERE bal.`host-location` = 'BLR'\nLIMIT 100;",
+    "time_s": 10.0
+  },
+  {
+    "query": "How many alarms were triggered by bots today at faruknagar",
+    "status": "PASS",
+    "info": "1 rows, confidence=0.90",
+    "sql": "SELECT COUNT(*) AS alarms_triggered_today\nFROM bot_alarm_log bal\nWHERE DATE(bal.INSERTED_TIMESTAMP) = CURDATE()\n  AND bal.`host-location` = 'frk'\nLIMIT 100;",
+    "time_s": 13.8
+  },
+  {
+    "query": "total bin in faruknagar",
+    "status": "PASS",
+    "info": "1 rows, confidence=0.85",
+    "sql": "SELECT COUNT(*) AS total_bins\nFROM bin_info_master bim\nWHERE bim.`host-location` = 'frk'\nLIMIT 100;",
+    "time_s": 7.4
+  },
+  {
+    "query": "how many total bots we have in the system",
+    "status": "PASS",
+    "info": "1 rows, confidence=0.95",
+    "sql": "SELECT COUNT(*) AS total_bots\nFROM bot_master bm\nLIMIT 100;",
+    "time_s": 2.0
+  },
+  {
+    "query": "tell me total number of bins across all locations",
+    "status": "PASS",
+    "info": "1 rows, confidence=0.90",
+    "sql": "SELECT COUNT(*) AS total_bins_across_all_locations\nFROM store_bin_master sbm\nWHERE sbm.BIN_ID IS NOT NULL\nLIMIT 100;",
+    "time_s": 9.6
+  },
+  {
+    "query": "Which alarm code occurred most frequently across all sites today",
+    "status": "PASS",
+    "info": "45 rows, confidence=0.85",
+    "sql": "SELECT\n  bal.ALARM_CODE,\n  COUNT(*) AS alarm_count\nFROM bot_alarm_log bal\nWHERE DATE(bal.INSERTED_TIMESTAMP) = CURDATE()\nGROUP BY bal.ALARM_CODE\nORDER BY alarm_count DESC\nLIMIT 100;",
+    "time_s": 7.8
+  },
+  {
+    "query": "how many bin loading happened at each station in each location in last one day",
+    "status": "PASS",
+    "info": "40 rows, confidence=0.76",
+    "sql": "SELECT\n  obm.`host-location` AS host_location,\n  obm.STATION_ID AS station_id,\n  COUNT(*) AS bin_loadings_last_1_day\nFROM order_bin_mapping obm\nWHERE obm.TYPE IN ('RACK_PICK', 'RECOVERY_PICK', 'LOCATION_PICK')\n  AND obm.STATUS IN ('BIN_PICKED', 'ON_STATION', 'TASK_COMPLETED', 'OPERATION_COMPLETED', 'PRE_ON_STATION', 'POST_ON_STATION')\n  AND obm.INSERTED_TIMESTAMP >= DATE_SUB(NOW(), INTERVAL 1 DAY)\nGROUP BY obm.`host-location`, obm.STATION_ID\nORDER BY obm.`host-location`, bin_loadings_last_1_day DESC\nLIMIT 100;",
+    "time_s": 12.1
+  },
+  {
+    "query": "can you give me site wise bot alram logged today for bots",
+    "status": "PASS",
+    "info": "100 rows, confidence=0.85",
+    "sql": "SELECT\n  bal.`host-location` AS site,\n  bal.BOT_ID,\n  COUNT(*) AS alarms_logged_today\nFROM bot_alarm_log bal\nWHERE DATE(bal.INSERTED_TIMESTAMP) = CURDATE()\nGROUP BY bal.`host-location`, bal.BOT_ID\nORDER BY bal.`host-location`, alarms_logged_today DESC\nLIMIT 100;",
+    "time_s": 7.4
+  },
+  {
+    "query": "how many bin loading happened at each station in Faruknagar location in last one day",
+    "status": "PASS",
+    "info": "0 rows, confidence=0.64",
+    "sql": "SELECT\n  hm.STATION_ID,\n  hm.STATION_ALIAS_NAME,\n  COUNT(*) AS bin_loadings_last_1_day\nFROM put_wave_order_master pwom\nJOIN hw_station_master hm\n  ON pwom.STATION_ID = hm.STATION_ID\nWHERE pwom.`host-location` = 'frk'\n  AND hm.`host-location` = 'frk'\n  AND pwom.STATUS = 'PUT_COMPLETED'\n  AND pwom.PUT_TIMESTAMP >= DATE_SUB(NOW(), INTERVAL 1 DAY)\nGROUP BY\n  hm.STATION_ID,\n  hm.STATION_ALIAS_NAME\nORDER BY\n  bin_loadings_last_1_day DESC\nLIMIT 100;",
+    "time_s": 9.3
+  },
+  {
+    "query": "give me total number of alarms logged at shakti site",
+    "status": "PASS",
+    "info": "1 rows, confidence=0.90",
+    "sql": "SELECT COUNT(*) AS total_alarms_logged\nFROM bot_alarm_log bal\nWHERE bal.`host-location` = 'shakti'\nLIMIT 100;",
+    "time_s": 7.2
+  },
+  {
+    "query": "how many bot are enabled",
+    "status": "PASS",
+    "info": "1 rows, confidence=0.95",
+    "sql": "SELECT COUNT(*) AS enabled_bot_count\nFROM bot_master bm\nWHERE bm.STATUS = 'ENABLED'\nLIMIT 100;",
+    "time_s": 2.1
+  },
+  {
+    "query": "List alarms that have not been resolved yet",
+    "status": "PASS",
+    "info": "100 rows, confidence=0.90",
+    "sql": "SELECT\n  bal.ID,\n  bal.BOT_ID,\n  bal.ALARM_CODE,\n  bal.ALARM_DESCRIPTION,\n  bal.TASK_TYPE,\n  bal.IS_BYPASSED,\n  bal.INSERTED_TIMESTAMP,\n  bal.RECOVERY_TIMESTAMP,\n  bal.`host-location`\nFROM bot_alarm_log bal\nWHERE bal.RECOVERY_TIMESTAMP IS NULL\nORDER BY bal.INSERTED_TIMESTAMP DESC\nLIMIT 100;",
+    "time_s": 8.5
+  },
+  {
+    "query": "Which alarm code occurred most frequently?",
+    "status": "PASS",
+    "info": "1 rows, confidence=0.85",
+    "sql": "SELECT\n  bal.ALARM_CODE,\n  COUNT(*) AS occurrence_count\nFROM bot_alarm_log bal\nWHERE `host-location` = 'frk'\nGROUP BY bal.ALARM_CODE\nORDER BY occurrence_count DESC\nLIMIT 1;",
+    "time_s": 12.1
+  }
+]
