@@ -265,19 +265,19 @@
             border-bottom-left-radius: 6px;
             box-shadow: 0 6px 20px rgba(24, 33, 61, 0.08);
             border: 1px solid #e7ebf5;
-            line-height: 1.45;
+            line-height: 1.4;
         }
 
         .message-content h1,
         .message-content h2,
         .message-content h3 {
-            margin-top: 10px;
-            margin-bottom: 6px;
-            line-height: 1.3;
+            margin-top: 6px;
+            margin-bottom: 3px;
+            line-height: 1.25;
         }
 
         .message-content p {
-            margin: 0 0 8px;
+            margin: 0 0 4px;
         }
 
         .message-content p:last-child {
@@ -285,19 +285,19 @@
         }
 
         .message-content h1 {
-            font-size: 1.3em;
+            font-size: 1.2em;
             color: #2c3e50;
             border-bottom: 2px solid #667eea;
-            padding-bottom: 5px;
+            padding-bottom: 3px;
         }
 
         .message-content h2 {
-            font-size: 1.2em;
+            font-size: 1.1em;
             color: #34495e;
         }
 
         .message-content h3 {
-            font-size: 1.1em;
+            font-size: 1.05em;
             color: #34495e;
         }
 
@@ -307,17 +307,17 @@
         }
 
         .message-content ul {
-            margin: 6px 0;
+            margin: 3px 0;
             padding-left: 18px;
         }
 
         .message-content ol {
-            margin: 6px 0;
+            margin: 3px 0;
             padding-left: 18px;
         }
 
         .message-content li {
-            margin-bottom: 3px;
+            margin-bottom: 1px;
             position: relative;
             padding-left: 2px;
         }
@@ -546,25 +546,30 @@
 
         .input-group {
             display: flex;
-            gap: 10px;
-            align-items: flex-end;
-            padding: 4px;
+            gap: 8px;
+            align-items: center;
+            padding: 6px;
             border: 1px solid #d9e0ef;
-            border-radius: 14px;
+            border-radius: 16px;
             background: #fff;
             box-shadow: 0 4px 14px rgba(22, 29, 48, 0.08);
         }
 
         .attach-btn {
-            padding: 10px 12px;
+            width: 40px;
+            height: 40px;
+            padding: 0;
             background: #f4f6fb;
             border: 1px solid #dee4f2;
-            border-radius: 50%;
+            border-radius: 12px;
             cursor: pointer;
             color: #6c757d;
-            font-size: 16px;
+            font-size: 15px;
             transition: all 0.2s ease;
             flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .attach-btn:hover {
@@ -588,7 +593,7 @@
             outline: none;
             transition: all 0.2s ease;
             resize: none;
-            min-height: 44px;
+            min-height: 40px;
             max-height: 120px;
             overflow-y: auto;
             font-family: inherit;
@@ -601,7 +606,9 @@
         }
 
         .send-btn {
-            padding: 10px 16px;
+            min-width: 88px;
+            height: 40px;
+            padding: 0 14px;
             background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
             color: white;
             border: none;
@@ -610,6 +617,11 @@
             font-weight: 600;
             transition: all 0.2s ease;
             font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
         .send-btn:hover:not(:disabled) {
@@ -620,6 +632,64 @@
         .send-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+
+        .send-btn.stop-mode {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            color: #111827;
+            border: 1px solid #cbd5e1;
+            min-width: 40px;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .send-btn.stop-mode:hover:not(:disabled) {
+            box-shadow: 0 5px 15px rgba(100, 116, 139, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                gap: 6px;
+                padding: 5px;
+            }
+
+            .attach-btn,
+            .send-btn.stop-mode {
+                width: 36px;
+                height: 36px;
+                min-width: 36px;
+            }
+
+            .send-btn {
+                min-width: 78px;
+                height: 36px;
+                font-size: 13px;
+                padding: 0 10px;
+            }
+
+            .chat-input {
+                min-height: 36px;
+                padding: 8px 10px;
+            }
+        }
+
+        .generation-stopped-note {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #7a8194;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border: 1px solid #e3e7f2;
+            border-radius: 999px;
+            background: #f8f9fc;
         }
 
         .upload-btn {
@@ -1010,7 +1080,7 @@
         .rag-image-card img {
             width: 100%;
             height: auto;
-            max-height: 180px;
+            max-height: 160px;
             object-fit: cover;
             display: block;
             transition: opacity 0.3s ease, transform 0.25s ease;
@@ -1030,14 +1100,14 @@
             border-radius: 4px;
         }
         .rag-image-card .fig-caption {
-            padding: 6px 10px;
-            font-size: 0.78em;
+            padding: 4px 8px;
+            font-size: 0.75em;
             color: #334155;
-            line-height: 1.35;
+            line-height: 1.3;
         }
         .rag-image-card .fig-meta {
-            padding: 2px 10px 8px;
-            font-size: 0.68em;
+            padding: 2px 8px 4px;
+            font-size: 0.65em;
             color: #94a3b8;
             display: flex;
             gap: 6px;
@@ -1054,18 +1124,18 @@
 
         /* Inline figures within answer sections */
         .rag-inline-figures .rag-image-card {
-            max-width: 260px;
-            flex: 1 1 200px;
+            max-width: 200px;
+            flex: 1 1 160px;
         }
         .rag-inline-figures .rag-image-card img {
-            max-height: 160px;
+            max-height: 130px;
         }
 
         /* Gallery */
         .rag-image-gallery {
-            margin-top: 16px;
+            margin-top: 10px;
             border-top: 1px solid #e2e8f0;
-            padding-top: 12px;
+            padding-top: 8px;
             animation: ragFadeIn 0.35s ease;
         }
         @keyframes ragFadeIn {
@@ -1073,10 +1143,10 @@
             to   { opacity: 1; transform: translateY(0); }
         }
         .rag-image-gallery-header {
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: 600;
             color: #334155;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             user-select: none;
         }
         .rag-image-gallery-header i {
@@ -1084,8 +1154,56 @@
         }
         .rag-image-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 8px;
+        }
+
+        /* ── Single / few images: float beside text ── */
+        .kb-text-with-image {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .kb-text-with-image .kb-text-col {
+            flex: 1;
+            min-width: 0;
+        }
+        .kb-text-with-image .kb-image-col {
+            flex: 0 0 220px;
+            max-width: 260px;
+        }
+        .kb-text-with-image .kb-image-col .rag-image-card {
+            max-width: 100%;
+        }
+        .kb-text-with-image .kb-image-col .rag-image-card img {
+            max-height: 200px;
+            object-fit: cover;
+        }
+        /* Compact gallery for 2-4 images */
+        .rag-image-grid.compact-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 6px;
+        }
+        .rag-image-grid.compact-grid .rag-image-card img {
+            max-height: 130px;
+        }
+        .rag-image-grid.compact-grid .fig-caption {
+            padding: 4px 8px;
+            font-size: 0.72em;
+        }
+        .rag-image-grid.compact-grid .fig-meta {
+            padding: 2px 8px 4px;
+            font-size: 0.62em;
+        }
+
+        @media (max-width: 700px) {
+            .kb-text-with-image {
+                flex-direction: column;
+            }
+            .kb-text-with-image .kb-image-col {
+                flex: 0 0 auto;
+                max-width: 100%;
+            }
         }
 
         /* ── Confidence badge tiers ── */
@@ -1114,20 +1232,20 @@
 
         /* ── Source tags deduped ── */
         .source-tags-bar {
-            margin-top: 10px;
+            margin-top: 6px;
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 4px;
         }
         .source-tag {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             background: rgba(102, 126, 234, 0.08);
             color: #4f5fad;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
             border: 1px solid rgba(102, 126, 234, 0.12);
             transition: background 0.15s;
         }
@@ -1137,7 +1255,7 @@
 
         /* ── Collapsible long-response sections ── */
         .response-section {
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .response-section-toggle {
             display: flex;
@@ -1145,11 +1263,16 @@
             gap: 6px;
             cursor: pointer;
             user-select: none;
-            padding: 4px 0;
+            padding: 2px 0;
+        }
+        .response-section-toggle h1,
+        .response-section-toggle h2,
+        .response-section-toggle h3 {
+            color: #1e3a5f;
         }
         .response-section-toggle .sec-chevron {
             font-size: 10px;
-            color: #94a3b8;
+            color: #1e3a5f;
             transition: transform 0.2s ease;
         }
         .response-section.collapsed .sec-chevron {
@@ -1215,7 +1338,7 @@
             background: #ffffff;
             border: 1px solid #e7ebf5;
             border-radius: 12px;
-            padding: 12px 14px;
+            padding: 10px 14px;
             box-shadow: 0 2px 8px rgba(24, 33, 61, 0.04);
         }
 
@@ -1229,54 +1352,53 @@
 
         .sql-cards-layout {
             display: flex;
-            gap: 14px;
-            align-items: flex-start;
+            gap: 10px;
+            align-items: stretch;
         }
 
         @media (max-width: 768px) {
             .sql-cards-layout {
                 flex-direction: column;
             }
-            .sql-right-column { max-width: 100% !important; min-width: 0 !important; }
+            .sql-right-column { max-width: 100% !important; min-width: 0 !important; flex: 1 !important; }
         }
 
         .sql-right-column {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            flex: 0.7;
-            min-width: 280px;
-            max-width: 400px;
+            gap: 0;
+            flex: 0.5;
+            min-width: 260px;
+            max-width: 420px;
         }
 
         .sql-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 16px;
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 2px 12px rgba(24, 33, 61, 0.06);
-            transition: box-shadow 0.25s ease, transform 0.25s ease;
+            box-shadow: 0 1px 8px rgba(24, 33, 61, 0.05);
+            transition: box-shadow 0.3s ease;
         }
 
         .sql-card:hover {
-            box-shadow: 0 8px 30px rgba(24, 33, 61, 0.12);
-            transform: translateY(-3px);
+            box-shadow: 0 4px 20px rgba(24, 33, 61, 0.1);
         }
 
         .sql-card-data {
-            flex: 1.3;
+            flex: 1.5;
             min-width: 0;
         }
 
         .sql-card-header {
-            padding: 11px 16px;
+            padding: 10px 14px;
             font-weight: 700;
-            font-size: 12.5px;
+            font-size: 12px;
             letter-spacing: 0.4px;
             text-transform: uppercase;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .sql-card-data .sql-card-header {
@@ -1296,7 +1418,7 @@
         }
 
         .sql-card-body {
-            padding: 14px 16px;
+            padding: 10px 14px;
         }
 
         .sql-card-data .sql-card-body {
@@ -1324,6 +1446,45 @@
             gap: 4px;
             margin-bottom: 10px;
             justify-content: flex-end;
+        }
+
+        .sql-toolbar.sql-toolbar-header {
+            width: 100%;
+            margin-bottom: 0;
+            align-items: center;
+        }
+
+        .sql-confidence-inline {
+            margin-right: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            border: 1px solid transparent;
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .sql-confidence-inline.conf-high {
+            color: #166534;
+            background: #ecfdf5;
+            border-color: #86efac;
+        }
+
+        .sql-confidence-inline.conf-medium {
+            color: #92400e;
+            background: #fffbeb;
+            border-color: #fcd34d;
+        }
+
+        .sql-confidence-inline.conf-low {
+            color: #991b1b;
+            background: #fef2f2;
+            border-color: #fca5a5;
         }
 
         .sql-tool-btn {
@@ -1417,8 +1578,19 @@
 
         .sql-card-sql .sql-pretty-block {
             border-radius: 10px;
-            font-size: 12.5px;
-            max-height: 200px;
+            font-size: 12px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .sql-right-column .sql-card-sql {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sql-right-column .sql-card-sql .sql-card-body {
+            flex: 1;
             overflow-y: auto;
         }
 
@@ -1510,11 +1682,11 @@
         .sql-rows-info {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             background: rgba(255,255,255,0.15);
-            padding: 3px 10px;
+            padding: 2px 9px;
             border-radius: 99px;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 500;
             margin-left: auto;
         }
@@ -1524,21 +1696,81 @@
         }
 
         .sql-csv-download-btn {
-            margin-left: auto;
-            background: rgba(255,255,255,0.18);
-            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.28);
             color: #fff;
-            border-radius: 6px;
+            border-radius: 20px;
             padding: 4px 10px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11.5px;
             display: inline-flex;
             align-items: center;
             gap: 5px;
             transition: background 0.2s;
         }
         .sql-csv-download-btn:hover {
-            background: rgba(255,255,255,0.32);
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* === Collapsible SQL Panel === */
+        .sql-cards-layout .sql-card-data {
+            will-change: flex;
+            transition: flex 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .sql-cards-layout .sql-right-column {
+            will-change: flex, max-width, min-width, opacity;
+            transition: flex 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+                        max-width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+                        min-width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+                        opacity 0.25s ease 0.05s;
+        }
+
+        .sql-cards-layout.sql-panel-collapsed .sql-right-column {
+            flex: 0 0 0px !important;
+            max-width: 0 !important;
+            min-width: 0 !important;
+            opacity: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .sql-cards-layout:not(.sql-panel-collapsed) .sql-right-column {
+            opacity: 1;
+        }
+
+        .sql-cards-layout.sql-panel-collapsed .sql-card-data {
+            flex: 1 !important;
+        }
+
+        .sql-panel-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.28);
+            color: #fff;
+            border-radius: 20px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 11.5px;
+            font-weight: 600;
+            transition: background 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        .sql-panel-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .sql-panel-toggle .toggle-chevron {
+            font-size: 9px;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .sql-panel-toggle.expanded .toggle-chevron {
+            transform: rotate(180deg);
         }
 
         /* Execution time badge */
@@ -2265,8 +2497,8 @@
                     onkeydown="handleKeyPress(event)"
                     oninput="autoResize(this)"
                 ></textarea>
-                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-                    <i class="fas fa-paper-plane"></i> Send
+                <button class="send-btn" id="sendBtn" onclick="handleSendOrStop()">
+                    <i class="fas fa-paper-plane"></i> 
                 </button>
             </div>
         </div>
@@ -2359,6 +2591,72 @@
         let currentChatbotType = 'knowledge_base';
         let sessionId = null;
         let messageCount = 0;
+        let responseInProgress = false;
+        let activeResponseAbortController = null;
+        let activeRenderToken = null;
+        let stopRequested = false;
+        let activeResponseRunId = 0;
+
+        function setSendButtonMode(isStopMode) {
+            const sendBtn = document.getElementById('sendBtn');
+            if (!sendBtn) return;
+
+            if (isStopMode) {
+                sendBtn.classList.add('stop-mode');
+                sendBtn.innerHTML = '<i class="fas fa-square"></i>';
+                sendBtn.title = 'Stop generating response';
+            } else {
+                sendBtn.classList.remove('stop-mode');
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                sendBtn.title = 'Send message';
+            }
+        }
+
+        function startResponseLifecycle() {
+            activeResponseRunId += 1;
+            responseInProgress = true;
+            stopRequested = false;
+            activeResponseAbortController = new AbortController();
+            activeRenderToken = { cancelled: false };
+            setSendButtonMode(true);
+            return activeResponseRunId;
+        }
+
+        function endResponseLifecycle(runId = null) {
+            if (runId !== null && runId !== activeResponseRunId) {
+                return;
+            }
+
+            responseInProgress = false;
+            stopRequested = false;
+            activeResponseAbortController = null;
+            activeRenderToken = null;
+            setSendButtonMode(false);
+        }
+
+        function stopCurrentResponse() {
+            if (!responseInProgress) return;
+
+            stopRequested = true;
+            if (activeRenderToken) {
+                activeRenderToken.cancelled = true;
+            }
+            if (activeResponseAbortController) {
+                activeResponseAbortController.abort();
+            }
+
+            hideTypingIndicator();
+            setSendButtonMode(false);
+            responseInProgress = false;
+        }
+
+        function handleSendOrStop() {
+            if (responseInProgress) {
+                stopCurrentResponse();
+                return;
+            }
+            sendMessage();
+        }
         
         // Toggle management tools dropdown
         function toggleToolsMenu() {
@@ -2406,6 +2704,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateSuggestions();
             initSidebarResizer();
+            setSendButtonMode(false);
             
             // Chatbot type selector
             document.querySelectorAll('.chatbot-btn').forEach(btn => {
@@ -2510,7 +2809,7 @@
             if (event.key === 'Enter' && !event.shiftKey) {
                 // Enter alone → send message
                 event.preventDefault();
-                sendMessage();
+                handleSendOrStop();
             }
             // Shift+Enter → default textarea behavior (new line)
         }
@@ -2586,6 +2885,10 @@
         let sopCurrentStatus = null;
 
         async function sendMessage() {
+            if (responseInProgress) {
+                return;
+            }
+
             currentChatbotType = document.querySelector('.chatbot-btn.active')?.dataset?.type || currentChatbotType;
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
@@ -2625,10 +2928,9 @@
 
             // Show typing indicator right after the user message
             showTypingIndicator();
-
-            // Disable send button
-            const sendBtn = document.getElementById('sendBtn');
-            sendBtn.disabled = true;
+            const responseRunId = startResponseLifecycle();
+            const renderTokenForMessage = activeRenderToken;
+            const requestAbortSignal = activeResponseAbortController?.signal;
 
             try {
                 // Check if semi-automated diagnostic
@@ -2664,7 +2966,8 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify(payload),
+                        signal: requestAbortSignal
                     });
 
                     if (!response.ok) {
@@ -2686,7 +2989,11 @@
                     hideTypingIndicator();
 
                     // Add assistant response with streaming
-                    await addMessage('assistant', data.response, data);
+                    const assistantMessage = await addMessage('assistant', data.response, data, true, renderTokenForMessage);
+
+                    if (stopRequested || assistantMessage?.dataset?.streamComplete === 'false') {
+                        return;
+                    }
 
                     // Update message count
                     messageCount++;
@@ -2697,6 +3004,11 @@
                 }
 
             } catch (error) {
+                if (error?.name === 'AbortError' || stopRequested) {
+                    console.log('⏹️ Response generation stopped by user');
+                    return;
+                }
+
                 console.error('❌ Error in sendMessage:', error);
                 console.error('Stack trace:', error.stack);
                 hideTypingIndicator();
@@ -2704,9 +3016,8 @@
             } finally {
                 // Ensure typing indicator is gone (safety net)
                 hideTypingIndicator();
-                
-                // Enable send button
-                sendBtn.disabled = false;
+
+                endResponseLifecycle(responseRunId);
                 
                 // Focus input
                 input.focus();
@@ -3518,10 +3829,10 @@
             maxDelay: 60         // Maximum delay between words in ms
         };
 
-        async function streamText(element, html, speed = STREAMING_CONFIG.wordsPerSecond) {
+        async function streamText(element, html, speed = STREAMING_CONFIG.wordsPerSecond, renderToken = null) {
             if (!STREAMING_CONFIG.enabled) {
                 element.innerHTML = html;
-                return;
+                return true;
             }
 
             // Create a temporary div to parse HTML
@@ -3532,13 +3843,17 @@
             element.innerHTML = '';
             
             // Stream the content
-            await streamNode(tempDiv, element, speed);
+            return await streamNode(tempDiv, element, speed, renderToken);
         }
 
-        async function streamNode(sourceNode, targetNode, speed) {
+        async function streamNode(sourceNode, targetNode, speed, renderToken = null) {
             const delay = Math.max(STREAMING_CONFIG.minDelay, Math.min(STREAMING_CONFIG.maxDelay, 1000 / speed));
             
             for (const child of sourceNode.childNodes) {
+                if (renderToken?.cancelled) {
+                    return false;
+                }
+
                 if (child.nodeType === Node.TEXT_NODE) {
                     // Stream text node word by word
                     const text = child.textContent;
@@ -3548,6 +3863,10 @@
                     targetNode.appendChild(textNode);
                     
                     for (const word of words) {
+                        if (renderToken?.cancelled) {
+                            return false;
+                        }
+
                         textNode.textContent += word;
                         // Smart-scroll: only auto-scroll if user is near bottom
                         smartScroll(document.getElementById('chatMessages'));
@@ -3569,14 +3888,22 @@
                         child.tagName === 'TABLE' || child.classList.contains('sop-workflow-card') ||
                         child.classList.contains('sql-cards-layout') ||
                         child.tagName === 'IMG' || child.tagName === 'SVG') {
+                        if (renderToken?.cancelled) {
+                            return false;
+                        }
                         newElement.innerHTML = child.innerHTML;
                         smartScroll(document.getElementById('chatMessages'));
                     } else {
                         // Recursively stream child elements
-                        await streamNode(child, newElement, speed);
+                        const childCompleted = await streamNode(child, newElement, speed, renderToken);
+                        if (!childCompleted) {
+                            return false;
+                        }
                     }
                 }
             }
+
+            return true;
         }
 
         // ===== Dynamic Typing Indicator =====
@@ -3602,7 +3929,7 @@
             if (el) el.remove();
         }
 
-        async function addMessage(type, content, data = {}, streaming = true) {
+        async function addMessage(type, content, data = {}, streaming = true, renderToken = null) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type}`;
@@ -3635,16 +3962,30 @@
 
             // Format the message
             const formattedContent = formatMessage(content, data, type);
+            let streamComplete = true;
             
             // Stream the content for assistant messages
             if (streaming && type === 'assistant') {
-                await streamText(contentDiv, formattedContent);
+                streamComplete = await streamText(contentDiv, formattedContent, STREAMING_CONFIG.wordsPerSecond, renderToken);
             } else {
                 contentDiv.innerHTML = formattedContent;
             }
 
+            messageDiv.dataset.streamComplete = streamComplete ? 'true' : 'false';
+
+            if (type === 'assistant' && !streamComplete) {
+                const stoppedNote = document.createElement('div');
+                stoppedNote.className = 'generation-stopped-note';
+                stoppedNote.innerHTML = '<i class="fas fa-stop-circle"></i><span>Generation stopped</span>';
+                contentDiv.appendChild(stoppedNote);
+            }
+
+            if (type === 'assistant' && streamComplete) {
+                cleanupSqlResultArtifacts(contentDiv);
+            }
+
             // Add response actions for all chatbot types (not for system messages)
-            if (type === 'assistant') {
+            if (type === 'assistant' && streamComplete) {
                 addResponseActions(messageDiv, data);
             }
 
@@ -3653,6 +3994,44 @@
             
             // Return the message element for reference
             return messageDiv;
+        }
+
+        function cleanupSqlResultArtifacts(scopeEl) {
+            if (!scopeEl || !scopeEl.querySelectorAll) return;
+
+            const resultBodies = scopeEl.querySelectorAll('.sql-card-data .sql-card-body');
+            resultBodies.forEach((body) => {
+                const firstTable = body.querySelector('.paginated-table-container');
+                if (!firstTable) return;
+
+                while (body.firstChild && body.firstChild !== firstTable) {
+                    body.removeChild(body.firstChild);
+                }
+
+                const scroll = firstTable.querySelector('.paginated-table-scroll');
+                if (scroll) {
+                    let node = scroll.firstChild;
+                    while (node) {
+                        const isTable = node.nodeType === Node.ELEMENT_NODE && node.tagName === 'TABLE';
+                        if (isTable) break;
+
+                        const text = (node.textContent || '').trim();
+                        const isArtifactNode =
+                            (node.nodeType === Node.TEXT_NODE && !text) ||
+                            (node.nodeType === Node.TEXT_NODE && /^[�📊\uFFFD\s]+$/.test(text)) ||
+                            (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') ||
+                            (node.nodeType === Node.ELEMENT_NODE && /^[�📊\uFFFD\s]*$/.test(text));
+
+                        const next = node.nextSibling;
+                        if (isArtifactNode) {
+                            scroll.removeChild(node);
+                            node = next;
+                            continue;
+                        }
+                        break;
+                    }
+                }
+            });
         }
 
         function extractSqlBlocks(text) {
@@ -3753,6 +4132,25 @@
                 }
             } else {
                 showToast('Failed to copy SQL.');
+            }
+        }
+
+        function toggleSqlPanel(cardId) {
+            const layout = document.getElementById(cardId + '_layout');
+            const toggle = document.getElementById(cardId + '_toggle');
+            if (!layout || !toggle) return;
+
+            const isCollapsed = layout.classList.contains('sql-panel-collapsed');
+            if (isCollapsed) {
+                layout.classList.remove('sql-panel-collapsed');
+                toggle.classList.add('expanded');
+                toggle.setAttribute('aria-expanded', 'true');
+                toggle.querySelector('.toggle-label').textContent = 'Hide SQL';
+            } else {
+                layout.classList.add('sql-panel-collapsed');
+                toggle.classList.remove('expanded');
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.querySelector('.toggle-label').textContent = 'View SQL';
             }
         }
 
@@ -3875,6 +4273,7 @@
                     thtml += `<div class="sql-exec-time"><i class="fas fa-clock"></i> ${result.execution_time_ms.toFixed(0)}ms</div>`;
 
                     dataBody.innerHTML = thtml;
+                    cleanupSqlResultArtifacts(dataCard || dataBody.parentElement);
 
                     // Update row count badge in header
                     const header = dataCard?.querySelector('.sql-card-header');
@@ -4183,6 +4582,35 @@
             // === SQL Assistant: Two-column card layout ===
             if (isSqlAssistant) {
                 const cardId = 'sqlcard_' + Math.random().toString(36).substr(2, 9);
+                let sqlConfidenceInline = '';
+                if (data.confidence_score) {
+                    const pct = (data.confidence_score * 100).toFixed(0);
+                    const confClass = pct >= 80 ? 'conf-high' : pct >= 50 ? 'conf-medium' : 'conf-low';
+                    sqlConfidenceInline = `<span class="sql-confidence-inline ${confClass}"><i class="fas fa-shield-alt"></i> ${pct}%</span>`;
+                }
+
+                const primarySql = uniqueSql.length > 0 ? uniqueSql[0] : '';
+                const primaryEncodedSql = primarySql
+                    ? encodeURIComponent(primarySql).replace(/'/g, '%27')
+                    : '';
+                const sqlHeaderControls = primarySql
+                    ? `
+                        <div class="sql-toolbar sql-toolbar-header">
+                            ${sqlConfidenceInline}
+                            <button class="sql-tool-btn" onclick="copySqlFromExpander(event, '${primaryEncodedSql}')" title="Copy">
+                                <span class="btn-tooltip">Copy</span>
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="sql-tool-btn" onclick="toggleSqlEdit(event, '${cardId}')" title="Edit">
+                                <span class="btn-tooltip">Edit</span>
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="sql-tool-btn sql-execute-btn" onclick="executeSqlFromCard(event, '${cardId}')" title="Execute">
+                                <span class="btn-tooltip">Run Query</span>
+                                <i class="fas fa-play"></i> Run
+                            </button>
+                        </div>`
+                    : '';
 
                 // --- Build SQL card content ---
                 let sqlCardHtml = '';
@@ -4193,20 +4621,6 @@
                         const encodedSql = encodeURIComponent(sql).replace(/'/g, '%27');
                         return `
                             <div class="sql-meta-block">
-                                <div class="sql-toolbar">
-                                    <button class="sql-tool-btn" onclick="copySqlFromExpander(event, '${encodedSql}')" title="Copy">
-                                        <span class="btn-tooltip">Copy</span>
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                    <button class="sql-tool-btn" onclick="toggleSqlEdit(event, '${cardId}')" title="Edit">
-                                        <span class="btn-tooltip">Edit</span>
-                                        <i class="fas fa-pen"></i>
-                                    </button>
-                                    <button class="sql-tool-btn sql-execute-btn" onclick="executeSqlFromCard(event, '${cardId}')" title="Execute">
-                                        <span class="btn-tooltip">Run Query</span>
-                                        <i class="fas fa-play"></i> Run
-                                    </button>
-                                </div>
                                 <div id="${cardId}_display">
                                     <pre class="sql-pretty-block"><code>${highlightedSql}</code></pre>
                                 </div>
@@ -4218,40 +4632,6 @@
                     }).join('');
                 }
 
-                // --- Build confidence card ---
-                let confidenceCardHtml = '';
-                if (data.confidence_score) {
-                    const pct = (data.confidence_score * 100).toFixed(0);
-                    const color = pct >= 80 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444';
-                    const circumference = 2 * Math.PI * 22;
-                    const offset = circumference - (circumference * pct / 100);
-                    const confLabel = pct >= 80 ? 'High confidence' : pct >= 50 ? 'Medium confidence' : 'Low confidence';
-                    confidenceCardHtml = `
-                        <div class="sql-card sql-card-confidence">
-                            <div class="sql-card-header">
-                                <i class="fas fa-shield-alt"></i> Confidence
-                            </div>
-                            <div class="sql-card-body">
-                                <div class="sql-confidence-inner">
-                                    <div class="sql-confidence-ring">
-                                        <svg viewBox="0 0 56 56">
-                                            <circle class="ring-bg" cx="28" cy="28" r="22"/>
-                                            <circle class="ring-fill" cx="28" cy="28" r="22"
-                                                stroke="${color}"
-                                                stroke-dasharray="${circumference}"
-                                                stroke-dashoffset="${offset}"/>
-                                        </svg>
-                                        <div class="ring-text" style="color:${color};">${pct}%</div>
-                                    </div>
-                                    <div class="sql-confidence-detail">
-                                        <div class="conf-label">${confLabel}</div>
-                                        <div class="conf-desc">The model is <strong>${pct}%</strong> sure this query matches your intent.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
-                }
-
                 // Extract row count from html for the header badge
                 const rowCountMatch = html.match(/Found\s+(\d+)\s+result/);
                 const rowCountBadge = rowCountMatch
@@ -4261,6 +4641,18 @@
                 // Strip any standalone "Rows Returned: N" text left in the narrative
                 html = html.replace(/<br>\s*Rows\s+Returned\s*:\s*\d+\s*<br>/gi, '<br>');
                 html = html.replace(/Rows\s+Returned\s*:\s*\d+/gi, '');
+                html = html.replace(/(?:^|<br>\s*)(?:�|ï¿½|\uFFFD)?\s*📊\s*(?=<br>|$)/gi, '$1');
+                html = html.replace(/(?:^|<br>\s*)(?:�|ï¿½|\uFFFD)\s*(?=<br>|$)/gi, '$1');
+
+                // If a table exists, keep only content from the first table container onward.
+                // This strips malformed narrative artifacts before the table preview.
+                const tableStartMatch = html.match(/<div[^>]*class=["'][^"']*paginated-table-container[^"']*["'][\s\S]*$/i);
+                if (tableStartMatch) {
+                    html = tableStartMatch[0];
+                }
+                html = html
+                    .replace(/^(?:\s*<br>\s*)+/i, '')
+                    .replace(/(?:\s*<br>\s*)+$/i, '');
 
                 // Detect "no data" empty state and replace with polished visual
                 const hasNoData = /No data found|0 rows returned|No rows returned/i.test(html)
@@ -4321,8 +4713,15 @@
                     };
                 }
 
+                const sqlPanelToggle = uniqueSql.length > 0
+                    ? `<button class="sql-panel-toggle" id="${cardId}_toggle" onclick="toggleSqlPanel('${cardId}')" title="View generated SQL" aria-expanded="false" aria-controls="${cardId}_sqlPanel">
+                            <i class="fas fa-code"></i> <span class="toggle-label">View SQL</span>
+                            <i class="fas fa-chevron-right toggle-chevron"></i>
+                       </button>`
+                    : '';
+
                 const cardsHtml = `
-                    <div class="sql-cards-layout" id="${cardId}_layout">
+                    <div class="sql-cards-layout sql-panel-collapsed" id="${cardId}_layout">
                         <div class="sql-card sql-card-data" id="${cardId}_data">
                             <div class="sql-card-header">
                                 <i class="fas fa-table"></i> Query Results ${rowCountBadge}
@@ -4330,20 +4729,20 @@
                                 <button class="sql-csv-download-btn" onclick="exportTableToCSV('${cardId}_dataBody')" title="Download as CSV">
                                     <i class="fas fa-download"></i> CSV
                                 </button>
+                                ${sqlPanelToggle}
                             </div>
                             ${kpiVizBarHtml}
                             <div class="sql-card-body" id="${cardId}_dataBody">${html}</div>
                             ${kpiChartHtml}
                         </div>
-                        <div class="sql-right-column">
+                        <div class="sql-right-column" id="${cardId}_sqlPanel" role="region" aria-label="Generated SQL query">
                             ${sqlCardHtml ? `
                             <div class="sql-card sql-card-sql">
                                 <div class="sql-card-header">
-                                    <i class="fas fa-code"></i> Generated SQL
+                                    ${sqlHeaderControls}
                                 </div>
                                 <div class="sql-card-body">${sqlCardHtml}</div>
                             </div>` : ''}
-                            ${confidenceCardHtml}
                         </div>
                     </div>`;
 
@@ -4402,7 +4801,7 @@
 
                     sr.sections.forEach(section => {
                         if (!section.figures || section.figures.length === 0) return;
-                        let inlineFigHtml = '<div class="rag-inline-figures" style="margin:12px 0;display:flex;flex-wrap:wrap;gap:10px;">';
+                        let inlineFigHtml = '<div class="rag-inline-figures" style="margin:6px 0;display:flex;flex-wrap:wrap;gap:8px;">';
                         section.figures.forEach(figNum => {
                             const img = figDataMap[figNum];
                             if (!img) return;
@@ -4434,23 +4833,35 @@
                     // Remaining non-inlined images in gallery
                     const remainingImages = data.images.filter((_, idx) => !inlinedFigures.has(idx + 1));
                     if (remainingImages.length > 0) {
+                        const gridClass = remainingImages.length <= 4 ? 'rag-image-grid compact-grid' : 'rag-image-grid';
                         html += '<div class="rag-image-gallery">';
                         html += '<div class="rag-image-gallery-header"><i class="fas fa-images"></i> Additional Figures</div>';
-                        html += '<div class="rag-image-grid">';
+                        html += `<div class="${gridClass}">`;
                         remainingImages.forEach(img => {
                             html += buildImageCard(img, data.images.indexOf(img) + 1);
                         });
                         html += '</div></div>';
                     }
                 } else {
-                    // Legacy fallback: all images in gallery
-                    html += '<div class="rag-image-gallery">';
-                    html += '<div class="rag-image-gallery-header"><i class="fas fa-images"></i> Figures</div>';
-                    html += '<div class="rag-image-grid">';
-                    data.images.forEach((img, idx) => {
-                        html += buildImageCard(img, idx + 1);
-                    });
-                    html += '</div></div>';
+                    // Legacy fallback: smart layout based on image count
+                    if (data.images.length === 1) {
+                        // Single image: float beside the text
+                        const singleImgHtml = buildImageCard(data.images[0], 1);
+                        html = `<div class="kb-text-with-image">
+                            <div class="kb-text-col">${html}</div>
+                            <div class="kb-image-col">${singleImgHtml}</div>
+                        </div>`;
+                    } else {
+                        // Multiple images: compact gallery
+                        const gridClass = data.images.length <= 4 ? 'rag-image-grid compact-grid' : 'rag-image-grid';
+                        html += '<div class="rag-image-gallery">';
+                        html += '<div class="rag-image-gallery-header"><i class="fas fa-images"></i> Figures</div>';
+                        html += `<div class="${gridClass}">`;
+                        data.images.forEach((img, idx) => {
+                            html += buildImageCard(img, idx + 1);
+                        });
+                        html += '</div></div>';
+                    }
                 }
             }
 
@@ -4612,9 +5023,16 @@
                 return `<${tag}>${match}</${tag}>`;
             });
             
-            // Convert line breaks
-            html = html.replace(/\n\n/g, '<br><br>');
+            // Convert line breaks — use single <br> to reduce vertical whitespace
+            html = html.replace(/\n\n/g, '<br>');
             html = html.replace(/\n/g, '<br>');
+            
+            // Collapse consecutive <br> tags to reduce whitespace
+            html = html.replace(/(<br\s*\/?\s*>){3,}/gi, '<br><br>');
+            
+            // Remove <br> immediately after block-level elements (they already have spacing)
+            html = html.replace(/(<\/(?:h[1-6]|ul|ol|li|p|div|table|blockquote|hr)>)\s*(?:<br\s*\/?\s*>)+/gi, '$1');
+            html = html.replace(/(?:<br\s*\/?\s*>)+\s*(<(?:h[1-6]|ul|ol|p|div|table|blockquote|hr)[^>]*>)/gi, '$1');
             
             // Convert inline code `code` (rely on .message-content code CSS)
             html = html.replace(/`([^`]+)`/g, '<code>$1</code>');

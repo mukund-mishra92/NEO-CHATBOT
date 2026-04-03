@@ -46,7 +46,7 @@ class SQLFormatter:
 
         if total > self.DISPLAY_LIMIT:
             table_md += (
-                f"\n\n📌 Showing first {self.DISPLAY_LIMIT} of {total} rows.\n"
+                f"\n\nShowing first {self.DISPLAY_LIMIT} of {total} rows.\n"
                 f"You can refine filters to reduce results."
             )
 
@@ -63,7 +63,7 @@ class SQLFormatter:
         # Case 2: No data
         if row_count == 0:
             table_section = (
-                "⚠️ No data found for this query in the current database.\n\n"
+                "No data found for this query in the current database.\n\n"
                 "Possible reasons:\n"
                 "- Table exists but has no records\n"
                 "- Filters may be too restrictive\n"
@@ -75,8 +75,8 @@ class SQLFormatter:
             table_section = self._format_table(rows)
 
         return (
-            f"### 🧾 SQL Query\n"
+            f"### SQL Query\n"
             f"```sql\n{sql}\n```\n\n"
-            f"### 📊 Rows Returned: {row_count}\n\n"
+            f"Rows returned: {row_count}\n\n"
             f"{table_section}"
         )

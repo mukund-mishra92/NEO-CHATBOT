@@ -6,9 +6,11 @@ Edit this file to customize what gets ingested
 # ============================================================================
 # DOCUMENT INGESTION CONFIGURATION
 # ============================================================================
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
 # Base path where documents are stored
-DOCUMENTS_BASE_PATH = r"C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\data\documents"
+DOCUMENTS_BASE_PATH = os.getenv("DOCUMENTS_BASE_PATH")
 
 # Document categories to ingest
 # Format: "folder_path": "category_name"

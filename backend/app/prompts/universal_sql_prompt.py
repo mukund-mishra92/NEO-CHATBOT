@@ -37,6 +37,8 @@ ABSOLUTE RULES:
 6. Read the CRITICAL COLUMN FACTS section — it lists columns that DO NOT EXIST.
 7. ⚠️ MANDATORY: Every query MUST include a LIMIT clause (default LIMIT 100).
    Exception: Aggregation queries (COUNT, SUM, AVG, MAX, MIN with GROUP BY) may omit LIMIT.
+8. In JSON string fields (assumptions, warnings, followup_questions), use plain text only.
+   Do NOT include emojis, icons, replacement characters, or decorative symbols.
 
 ================================================================================
 MULTI-TENANT COMPOSITE KEY ARCHITECTURE (CRITICAL — READ THIS FIRST!)

@@ -337,7 +337,7 @@ class SQLEngine:
                             break
                         elif summary_lines:
                             summary_lines.append(line)
-                        elif "Rows Returned:" in line:
+                        elif re.search(r"rows\s+returned\s*:", line, re.IGNORECASE):
                             summary_lines.append(line)
                     if summary_lines:
                         conv_parts.append(f"Assistant responded with: {chr(10).join(summary_lines)}")
