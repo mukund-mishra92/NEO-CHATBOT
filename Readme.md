@@ -2,6 +2,21 @@
 
 Intelligent chatbot assistant for NEO Warehouse Management System with advanced capabilities including knowledge base Q&A, SQL query assistance, and automated diagnostic support.
 
+> **📐 NEW: Comprehensive Architecture Guide Available**  
+> For complete system architecture covering all three services (Knowledge Base, SQL Assistant, Semi-Auto Diagnostic) and the data ingestion pipeline with detailed flow diagrams and file paths, see [**Comprehensive Architecture Guide (April 3, 2026)**](docs/COMPREHENSIVE_ARCHITECTURE_03_04_26.md).
+
+## 🚀 Quick Links
+
+| I want to... | Go to |
+|--------------|-------|
+| **Understand the complete system architecture** | [Comprehensive Architecture Guide](docs/COMPREHENSIVE_ARCHITECTURE_03_04_26.md) |
+| **Get started quickly** | [Quick Start](#-quick-start) |
+| **Run data ingestion** | [Document & Code Ingestion](#-document--code-ingestion) |
+| **Run tests** | [Testing](#-testing) |
+| **Configure the system** | [Configuration](#-configuration) |
+| **Deploy to production** | [Deployment Guide](docs/COMPREHENSIVE_ARCHITECTURE_03_04_26.md#9-deployment--operations) |
+| **See all documentation** | [Documentation](#-documentation) |
+
 ## 🎯 Features
 
 ### 1. **📚 Knowledge Base Chatbot**
@@ -465,7 +480,9 @@ Edit `backend/app/ingetion/ingestion_config.py`:
 - `DOCUMENT_CATEGORIES` — Folder→category mapping
 - `CODE_REPOSITORIES` — Codebase paths for code ingestion
 
-> Full documentation: [docs/INGESTION_PIPELINE.md](docs/INGESTION_PIPELINE.md)
+> **Full documentation**:  
+> - [Ingestion Pipeline Details](docs/INGESTION_PIPELINE.md)  
+> - [Complete Ingestion Architecture](docs/COMPREHENSIVE_ARCHITECTURE_03_04_26.md#2-data-ingestion-pipeline)
 
 ## �🔧 Configuration
 
@@ -490,13 +507,26 @@ Edit `backend/app/core/config.py` for advanced configuration.
 
 ## 📚 Documentation
 
+### 🏗️ System Architecture (April 2026)
+
+- **[Comprehensive Architecture Guide](docs/COMPREHENSIVE_ARCHITECTURE_03_04_26.md)** - 🆕 **COMPLETE system reference** covering all three services, data ingestion pipeline, flow diagrams, file paths, and configuration (April 3, 2026)
+
+### 📖 Service-Specific Architecture
+
+- [Overview](docs/CURRENT_ARCHITECTURE_FLOW_01_04_26_OVERVIEW.md) - Platform overview and service comparison
+- [Knowledge Base + RAG](docs/CURRENT_ARCHITECTURE_FLOW_01_04_26_KNOWLEDGE_BASE_AND_INGESTION.md) - Document Q&A service architecture
+- [SQL Assistant](docs/CURRENT_ARCHITECTURE_FLOW_01_04_26_SQL_ASSISTANT.md) - Natural language to SQL service architecture
+- [Semi-Auto Diagnostic](docs/CURRENT_ARCHITECTURE_FLOW_01_04_26_SEMI_AUTO_DIAGNOSTIC.md) - SOP-based diagnostic workflow architecture
+
+### 📘 Additional Documentation
+
 - [Agentic Architecture](docs/AGENTIC_ARCHITECTURE.md) - Multi-agent system design
 - [Quick Start Guide](docs/AGENTIC_QUICKSTART.md) - Getting started
 - [Configuration Guide](docs/CONFIGURATION_GUIDE.md) - Detailed configuration
 - [Integration Guide](docs/INTEGRATION_GUIDE.md) - Integration with other systems
 - [Ingestion Pipeline](docs/INGESTION_PIPELINE.md) - Document & code ingestion guide
-- [System Architecture](docs/NEO_SYSTEM_ARCHITECTURE_02_03_updated.md) - Full system architecture
 - [Embedding Classification](docs/EMBEDDING_CLASSIFICATION_GUIDE.md) - Query classification guide
+- [Legacy Architecture](docs/NEO_SYSTEM_ARCHITECTURE_02_03_updated.md) - Historical system architecture reference
 
 ## 🐛 Troubleshooting
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from ..models import ImageReference, RetrievedChunk
@@ -19,6 +20,10 @@ logger = logging.getLogger(__name__)
 MAX_DISPLAY_IMAGES = 5          # Show at most N images per response
 MIN_CHUNK_SCORE = 0.30          # Ignore images from low-relevance chunks
 MIN_IMAGE_SIZE = 100             # Skip images smaller than NxN pixels
+MIN_BRIGHTNESS = 15             # Average pixel brightness (0-255); below = dark/blank image
+
+# Project-root-relative data directory for resolving image paths
+_DATA_ROOT = Path(__file__).resolve().parents[4] / "data"
 
 
 @dataclass
@@ -53,10 +58,14 @@ class ImageDisplayEngine:
         max_images: int = MAX_DISPLAY_IMAGES,
         min_chunk_score: float = MIN_CHUNK_SCORE,
         min_image_size: int = MIN_IMAGE_SIZE,
+        min_brightness: int = MIN_BRIGHTNESS,
+        data_root: Optional[Path] = None,
     ):
         self.max_images = max_images
         self.min_chunk_score = min_chunk_score
         self.min_size = min_image_size
+        self.min_brightness = min_brightness
+        self.data_root = Path(data_root) if data_root else _DATA_ROOT
 
     def select_images(
         self,
@@ -98,6 +107,11 @@ class ImageDisplayEngine:
                     if img_ref.width < self.min_size or img_ref.height < self.min_size:
                         continue
 
+                # Skip dark or blank images (renders as solid black in UI)
+                if self._is_dark_or_blank(img_ref.image_path):
+                    logger.debug(f"🚫 Skipping dark/blank image: {img_ref.image_path}")
+                    continue
+
                 seen_paths.add(img_ref.image_path)
 
                 caption = (
@@ -134,6 +148,56 @@ class ImageDisplayEngine:
     # ────────────────────────────────────────────────────
     #  Helpers
     # ────────────────────────────────────────────────────
+
+    def _is_dark_or_blank(self, image_path: str) -> bool:
+        """
+        Return True when an image is mostly dark/blank and not useful to display.
+
+        Tries to open the image from disk and checks average brightness.
+        Falls back to False (keep the image) if PIL is unavailable or the
+        file cannot be read, so that missing PIL never blocks the pipeline.
+        """
+        try:
+            from PIL import Image
+            import numpy as np
+
+            # Resolve absolute path: image_path is relative to data_root's parent
+            # Stored as e.g. "extracted_images/abc123/p3_0.png"
+            abs_path = self.data_root / image_path
+            if not abs_path.exists():
+                return False  # Can't check — don't block it
+
+            with Image.open(abs_path) as img:
+                # Convert to grayscale for brightness check
+                gray = img.convert("L")
+                pixels = list(gray.getdata())
+                if not pixels:
+                    return True  # Empty image
+                avg_brightness = sum(pixels) / len(pixels)
+
+            if avg_brightness < self.min_brightness:
+                logger.info(
+                    f"🖤 Filtered dark image (brightness={avg_brightness:.1f}): {image_path}"
+                )
+                return True
+
+            # Also check if image is nearly uniform (solid colour — usually blank slides)
+            arr = list(gray.getdata())
+            pixel_range = max(arr) - min(arr)
+            if pixel_range < 10 and avg_brightness < 30:
+                logger.info(
+                    f"⬛ Filtered uniform/blank image (range={pixel_range}): {image_path}"
+                )
+                return True
+
+            return False
+
+        except ImportError:
+            # PIL not installed — skip brightness check silently
+            return False
+        except Exception as exc:
+            logger.debug(f"Could not brightness-check {image_path}: {exc}")
+            return False
 
     @staticmethod
     def _caption_similarity(a: str, b: str) -> float:

@@ -287,13 +287,25 @@ Always prioritize clarity and user understanding."""
             # Step 7: Get conversation history for context
             if not conversation_history:
                 conversation_history = self.session_manager.get_context_for_llm(session_id, max_messages=10) if session_id else []
-            
+
+            # ── Brevity intent detection (Issues 2 & 3) ──────────────────────────
+            # Detect if user asked for summary/precise answer, either in current
+            # query or in conversation history (e.g. "told you, give me summary only")
+            brevity_mode = self._detect_brevity_intent(chat_request.message, conversation_history)
+            if brevity_mode:
+                logger.info("✂️ Brevity mode ON — short/summary response requested")
+
             # Gather display images for LLM figure-awareness
-            display_images = rag_result.get("images", []) if self.rag_pipeline is not None else []
+            # Suppress images entirely in brevity mode — they add noise, not value
+            if brevity_mode:
+                display_images = []
+            else:
+                display_images = rag_result.get("images", []) if self.rag_pipeline is not None else []
 
             # Phase 7: Build structured answer plan from retrieved evidence
+            # Skip answer plan in brevity mode (it encourages long structured responses)
             answer_plan = None
-            if self.rag_pipeline is not None and not has_attached_document:
+            if self.rag_pipeline is not None and not has_attached_document and not brevity_mode:
                 retrieved_chunks = rag_result.get("retrieved_chunks", [])
                 answer_plan = self.answer_planner.plan(
                     chat_request.message,
@@ -306,18 +318,19 @@ Always prioritize clarity and user understanding."""
                 chat_request, context, query_type, conversation_history,
                 images=display_images,
                 answer_plan=answer_plan,
+                brevity_mode=brevity_mode,
             )
             
             # Adjust LLM parameters based on query type
-            max_tokens, temperature = self._get_llm_parameters(query_type, has_images=bool(display_images))
+            max_tokens, temperature = self._get_llm_parameters(query_type, has_images=bool(display_images), brevity_mode=brevity_mode)
             
             # Increase max_tokens when processing attached documents (richer answers needed)
-            if has_attached_document:
+            if has_attached_document and not brevity_mode:
                 max_tokens = max(max_tokens, 2000)
             
             response_text = self.llm_service.generate_response(
                 messages=messages,
-                system_prompt=self._get_adaptive_system_prompt(query_type),
+                system_prompt=self._get_adaptive_system_prompt(query_type, brevity_mode=brevity_mode),
                 max_tokens=max_tokens,
                 temperature=temperature
             )
@@ -326,7 +339,8 @@ Always prioritize clarity and user understanding."""
             response_text = self._format_adaptive_response(response_text, query_type)
 
             # Phase 8: Build structured response
-            display_images_list = rag_result.get("images", []) if self.rag_pipeline is not None else []
+            # Use the already-filtered display_images (respects brevity_mode suppression)
+            display_images_list = display_images
             structured = self.response_structurer.structure(
                 response_text,
                 answer_plan=answer_plan,
@@ -365,12 +379,13 @@ Always prioritize clarity and user understanding."""
                 sources=source_documents,
                 confidence_score=confidence,
                 suggested_actions=self._generate_suggested_actions(chat_request.message, response_text),
-                images=rag_result.get("images", []) if self.rag_pipeline is not None else [],
+                images=display_images_list,   # Already filtered (empty in brevity mode)
                 structured_response=structured,
             )
 
-            # ── Cache the response (only for non-attached, high-confidence) ──
-            if not has_attached_document and confidence >= 0.5:
+            # ── Cache the response (only for non-attached, high-confidence, non-brevity) ──
+            # Brevity-mode responses are intent-specific and should not pollute the cache
+            if not has_attached_document and not brevity_mode and confidence >= 0.5:
                 try:
                     self.response_cache.set(
                         chat_request.message,
@@ -494,7 +509,7 @@ Always prioritize clarity and user understanding."""
         # Default to exploratory for longer queries
         return "EXPLORATORY" if len(query.split()) > 5 else "SIMPLE_FACT"
     
-    def _get_adaptive_system_prompt(self, query_type: str) -> str:
+    def _get_adaptive_system_prompt(self, query_type: str, *, brevity_mode: bool = False) -> str:
         """Get system prompt based on query type"""
         
         base_prompt = """You are NEO Assistant, an expert on the NEO Warehouse Management System and Falcon Autotech products.
@@ -510,6 +525,30 @@ RESPONSE QUALITY RULES:
 - Be SPECIFIC with data — include dimensions, capacities, percentages, model numbers when available
 - Never repeat the same information in different sections
 - Keep a professional, confident tone throughout
+"""
+
+        # ── BREVITY MODE OVERRIDE ────────────────────────────────────────────────
+        # The user has explicitly asked for a summary, brief, or precise answer.
+        # All other formatting rules are subordinate to this instruction.
+        if brevity_mode:
+            return """You are NEO Assistant, an expert on the NEO Warehouse Management System.
+
+⚠️ STRICT BREVITY MODE — The user has asked for a SHORT, PRECISE, or SUMMARY answer.
+
+MANDATORY RULES — NO EXCEPTIONS:
+1. Respond in 3–5 bullet points OR 2–3 short sentences — nothing more.
+2. Do NOT write sections, headings, or detailed explanations.
+3. Do NOT repeat yourself or add background context unless critical.
+4. Do NOT include figures, source blocks, or "Additional Details" notes.
+5. If the user's follow-up message says "summary only", "precise", "told you", "stop giving long answers" — honour that completely.
+6. Every word must earn its place. Cut anything decorative.
+
+FORMAT EXAMPLE (correct):
+• [Key point 1]
+• [Key point 2]
+• [Key point 3]
+
+Cite the source at the end in one short parenthetical: (Source: DocumentName)
 """
         
         if query_type == "SIMPLE_FACT":
@@ -640,7 +679,7 @@ APPROACH:
 - Do NOT include a separate sources section at the end — cite sources inline only
 """
     
-    def _get_llm_parameters(self, query_type: str, *, has_images: bool = False) -> tuple:
+    def _get_llm_parameters(self, query_type: str, *, has_images: bool = False, brevity_mode: bool = False) -> tuple:
         """Get max_tokens and temperature based on query type"""
         
         params = {
@@ -654,6 +693,10 @@ APPROACH:
         }
         
         tokens, temp = params.get(query_type, (1200, 0.35))
+
+        # Hard cap for brevity/summary mode — forces the LLM to be concise
+        if brevity_mode:
+            return 400, 0.2
         
         # Boost tokens when images are available — LLM needs room for figure references
         if has_images:
@@ -690,7 +733,7 @@ APPROACH:
         parts.append("")
         return "\n".join(parts)
 
-    def _build_adaptive_messages(self, chat_request: ChatRequest, context: str, query_type: str, conversation_history: List[Dict[str, str]] = None, *, images: Optional[List[Dict[str, Any]]] = None, answer_plan=None) -> List[Dict[str, str]]:
+    def _build_adaptive_messages(self, chat_request: ChatRequest, context: str, query_type: str, conversation_history: List[Dict[str, str]] = None, *, images: Optional[List[Dict[str, Any]]] = None, answer_plan=None, brevity_mode: bool = False) -> List[Dict[str, str]]:
         """Build messages with adaptive prompting based on query type, with conversation context FIRST"""
         messages = []
         
@@ -791,7 +834,20 @@ Be conversational and helpful, not robotic."""
 Question: {chat_request.message}
 
 Provide a clear, intelligent, well-structured answer using the documentation above.{' Follow the ANSWER PLAN sections to organize your response.' if answer_plan else ' Structure the response dynamically to match the content — use the formatting approach best suited to the information available.'}"""
-        
+
+        # ── Apply brevity override at the message level ─────────────────────────
+        # Regardless of query type, when brevity_mode is on, replace the user
+        # message with a strict summary-only instruction so the LLM can't drift.
+        if brevity_mode:
+            user_message = f"""Documentation (for reference):
+{context[:3000]}
+
+Question: {chat_request.message}
+
+⚠️ BREVITY REQUIRED: Give me a SHORT answer — maximum 3–5 bullet points or 2–3 sentences.
+Do NOT write headings, background sections, long paragraphs, or extra context.
+Stick strictly to the actual answer. Cite the source in one short line at the end."""
+
         messages.append({
             "role": "user",
             "content": user_message
@@ -821,7 +877,44 @@ Provide a clear, intelligent, well-structured answer using the documentation abo
         response_text = response_text.strip()
         
         return response_text
-    
+
+    # ── Brevity Intent Detection ──────────────────────────────────────────────
+    def _detect_brevity_intent(self, query: str, conversation_history: list) -> bool:
+        """Return True when the user (now or recently) requested a short/summary response."""
+
+        QUERY_TRIGGERS = {
+            "briefly", "brief", "precisely", "in brief", "in short", "in summary",
+            "summarize", "summarise", "give me a summary", "give summary",
+            "summary only", "just summary", "only summary", "short answer",
+            "quick answer", "concise", "to the point", "keep it short",
+            "don't go long", "don't be verbose", "be concise", "be brief",
+            "short response", "short version", "tl;dr", "tldr",
+        }
+
+        HISTORY_TRIGGERS = {
+            "summary only", "give me summary", "give summary", "be brief",
+            "be concise", "told you", "stop giving long", "too long",
+            "shorter", "just summary", "only summary", "precise only",
+            "in short", "in brief", "keep it short", "don't go long",
+            "short answer", "brief answer", "briefly", "concise answer",
+        }
+
+        q = query.lower().strip()
+
+        # ── 1. Check the current query ────────────────────────────────────────
+        if any(trigger in q for trigger in QUERY_TRIGGERS):
+            return True
+
+        # ── 2. Check the last 4 turns (user + assistant) of conversation ──────
+        recent = conversation_history[-8:] if len(conversation_history) > 8 else conversation_history
+        for turn in recent:
+            role = turn.get("role", "")
+            content = (turn.get("content") or "").lower()
+            if role == "user" and any(trigger in content for trigger in HISTORY_TRIGGERS):
+                return True
+
+        return False
+
     def _handle_empty_knowledge_base(self, chat_request: ChatRequest) -> ChatResponse:
         """Handle case when no documents are in knowledge base"""
         return ChatResponse(

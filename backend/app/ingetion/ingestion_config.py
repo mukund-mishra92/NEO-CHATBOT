@@ -8,7 +8,7 @@ Edit this file to customize what gets ingested
 # ============================================================================
 
 # Base path where documents are stored
-DOCUMENTS_BASE_PATH = r"D:\Projects\NEO CHATBOT BALMUKUND\NEO-CHATBOT\data\documents"
+DOCUMENTS_BASE_PATH = r"C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\data\documents"
 
 # Document categories to ingest
 # Format: "folder_path": "category_name"
