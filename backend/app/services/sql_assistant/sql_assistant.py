@@ -304,30 +304,41 @@ class SQLAssistantService:
         if not tenant_values:
             logger.warning("⚠️ DEBUG - No tenant values found in entities")
             return entities
-            return entities
         
         # Ensure list format
         if not isinstance(tenant_values, list):
             tenant_values = [tenant_values]
         
-        # Skip if _all_sites mode (no need to map)
-        if entities.get("_all_sites"):
-            return entities
-        
         try:
-            # Fetch actual distinct values from database (cached after first call)
-            if not hasattr(self, '_cached_tenant_values'):
+            # Fetch actual distinct values from DB (cached after first call)
+            # This is the authoritative source — avoids using configured placeholder names
+            if not hasattr(self, '_cached_tenant_values') or not self._cached_tenant_values:
                 self._cached_tenant_values = self.preprocessor.tenant_resolver.fetch_actual_tenant_values(
                     db_config=self.db_config,
                     tenant_column=self.tenant_column
                 )
                 logger.info(f"📦 Cached {len(self._cached_tenant_values)} tenant values from database")
-            
+
+            # ── _all_sites: replace configured placeholder list with real DB values ──
+            # Bug fix: get_all_tenants() returns configured names like ['SHAKTI', 'BANGALORE',
+            # 'MUMBAI', 'DELHI', ...] which may not exist in the DB. Replace with actual DB
+            # values so KPI queries / SQL filters work correctly.
+            if entities.get("_all_sites"):
+                if self._cached_tenant_values:
+                    entities[self.tenant_column] = list(self._cached_tenant_values)
+                    logger.info(
+                        f"✅ All-sites: replaced configured tenants with actual DB values: "
+                        f"{self._cached_tenant_values}"
+                    )
+                else:
+                    logger.warning("⚠️ All-sites mode but no DB values found — keeping configured values")
+                return entities
+
             if not self._cached_tenant_values:
                 logger.warning("⚠️ No tenant values found in database, skipping mapping")
                 return entities
-            
-            # Map each extracted tenant to actual database value
+
+            # ── Map each extracted tenant to actual DB value ──────────────────────
             mapped_values = []
             for extracted_tenant in tenant_values:
                 mapped_value = self.preprocessor.tenant_resolver.map_to_actual_value(
@@ -335,22 +346,19 @@ class SQLAssistantService:
                     actual_values=self._cached_tenant_values,
                     threshold=0.5  # Lower threshold for abbreviation matching
                 )
-                
                 if mapped_value:
                     mapped_values.append(mapped_value)
                 else:
-                    # Keep original if no mapping found
                     logger.warning(f"⚠️ No mapping found for '{extracted_tenant}', keeping original")
                     mapped_values.append(extracted_tenant)
-            
-            # Update entities with mapped values
+
             entities[self.tenant_column] = mapped_values
             logger.info(f"✅ Mapped tenants: {tenant_values} → {mapped_values}")
-            
+
         except Exception as e:
             logger.error(f"❌ Error mapping tenant values: {e}")
             # Keep original values on error
-        
+
         return entities
 
     def _inject_tenant_filter(self, sql: str, entities: dict) -> str:

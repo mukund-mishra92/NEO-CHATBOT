@@ -238,8 +238,9 @@ class TenantResolver:
         for mapping_key in sorted(self.predefined_mappings.keys(), key=len, reverse=True):
             if mapping_key in query_lower:
                 mapped_db_value = self.predefined_mappings[mapping_key].lower()
-                
-                # Find the tenant_id in metadata whose lowercase matches the DB value
+
+                # Try to find tenant_id whose lowercase matches the DB value
+                # (e.g., "frk" → finds tenant_id "FRK" in metadata)
                 tenant_ids = set(
                     m["tenant_id"] for m in (self.tenant_metadata or [])
                 )
@@ -250,7 +251,16 @@ class TenantResolver:
                             f"(DB value: '{mapped_db_value}')"
                         )
                         return tid
-        return None
+
+                # ── Fallback: metadata tenant_id doesn't match the DB alias ──
+                # e.g., predefined says "banglore"→"BLR" but metadata has "BANGALORE".
+                # Return the DB value directly — _map_tenant_to_actual_values will
+                # do an identity-match since "BLR" is already a real DB value.
+                logger.info(
+                    f"✅ Stage 0 predefined match (direct DB): '{mapping_key}' → "
+                    f"DB value '{mapped_db_value.upper()}'"
+                )
+                return mapped_db_value.upper()
 
     def _fuzzy_tenant_match(self, query_lower: str, cutoff: float = 0.80) -> Tuple[Optional[str], float]:
         """

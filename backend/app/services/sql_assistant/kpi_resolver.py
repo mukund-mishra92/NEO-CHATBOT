@@ -47,6 +47,7 @@ class KPIEntry:
     requires_time_range: bool
     tables_used: List[str]
     keywords: List[str] = field(default_factory=list)
+    user_queries: List[str] = field(default_factory=list)  # Natural-language questions from the registry
 
 
 @dataclass
@@ -69,6 +70,14 @@ class KPIMatch:
 # ============================================================
 # Keyword extraction helpers
 # ============================================================
+
+# Common filler words to ignore when comparing user_queries
+_FILLER_SET = frozenset({
+    "what", "is", "the", "a", "an", "are", "how", "many", "much", "show",
+    "me", "give", "display", "get", "for", "of", "in", "at", "to", "and",
+    "or", "on", "by", "was", "were", "did", "do", "does", "with", "across",
+    "each", "overall", "selected", "time", "range", "period", "during",
+})
 
 # Category keywords that help boost matching
 CATEGORY_KEYWORDS = {
@@ -104,9 +113,11 @@ SYNONYMS = {
 }
 
 
-def _extract_keywords(kpi_name: str, logic: str, category: str) -> List[str]:
-    """Extract searchable keywords from KPI name + logic."""
-    text = f"{kpi_name} {logic}".lower()
+def _extract_keywords(kpi_name: str, logic: str, category: str,
+                      user_queries: Optional[List[str]] = None) -> List[str]:
+    """Extract searchable keywords from KPI name + logic + user_queries."""
+    uq_text = " ".join(user_queries or [])
+    text = f"{kpi_name} {logic} {uq_text}".lower()
     # Remove special characters
     text = re.sub(r'[^a-z0-9\s\-]', ' ', text)
     words = text.split()
@@ -145,7 +156,7 @@ class DashboardKPIResolver:
     # ── Thresholds ──
     # Hybrid score = 0.65 * embedding_similarity + 0.35 * keyword_score
     # Only scores above this are considered valid matches.
-    MATCH_THRESHOLD = 0.55
+    MATCH_THRESHOLD = 0.40
 
     # If embedding API is unavailable, use keyword-only with a stricter gate
     KEYWORD_ONLY_THRESHOLD = 0.55
@@ -206,9 +217,10 @@ class DashboardKPIResolver:
                     requires_location=item.get("requires_location", False),
                     requires_time_range=item.get("requires_time_range", False),
                     tables_used=item.get("tables_used", []),
+                    user_queries=item.get("user_queries", []),
                 )
                 kpi.keywords = _extract_keywords(
-                    kpi.kpi_name, kpi.logic, kpi.category
+                    kpi.kpi_name, kpi.logic, kpi.category, kpi.user_queries
                 )
                 self.kpis.append(kpi)
 
@@ -221,12 +233,14 @@ class DashboardKPIResolver:
 
     def _build_kpi_text(self, kpi: KPIEntry) -> str:
         """Build a rich text representation of a KPI for embedding."""
+        uq_text = "\n".join(kpi.user_queries[:5]) if kpi.user_queries else ""
         return (
             f"KPI: {kpi.kpi_name}\n"
             f"Category: {kpi.category}\n"
             f"Description: {kpi.logic}\n"
             f"Tables: {', '.join(kpi.tables_used)}\n"
-            f"Chart: {kpi.chart_type}"
+            f"Chart: {kpi.chart_type}\n"
+            f"Example questions: {uq_text}"
         )
 
     def _init_embeddings(self):
@@ -380,6 +394,19 @@ class DashboardKPIResolver:
                 overlap = len(expanded_q & meaningful)
                 name_bonus = 0.5 * (overlap / len(meaningful))
 
+        # 2b. user_queries phrase match — reward when user question closely
+        #     matches one of the known natural-language phrasings
+        uq_bonus = 0.0
+        for uq in kpi.user_queries:
+            uq_norm = re.sub(r'[^a-z0-9\s]', ' ', uq.lower())
+            uq_words = set(uq_norm.split()) - stop_words - _FILLER_SET
+            if uq_words and q_words:
+                overlap_uq = len(expanded_q & uq_words)
+                ratio = overlap_uq / max(len(uq_words), 1)
+                if ratio > uq_bonus:
+                    uq_bonus = ratio
+        uq_bonus = min(uq_bonus * 0.5, 0.45)  # cap contribution
+
         # 3. Category boost — if question mentions the category
         category_boost = 0.0
         cat_kws = CATEGORY_KEYWORDS.get(kpi.category, [])
@@ -403,7 +430,7 @@ class DashboardKPIResolver:
                     col_bonus += 0.03
             col_bonus = min(0.1, col_bonus)
 
-        score = name_bonus + (keyword_score * 0.3) + category_boost + dashboard_boost + col_bonus
+        score = name_bonus + uq_bonus + (keyword_score * 0.3) + category_boost + dashboard_boost + col_bonus
         return min(score, 1.0)
 
     def _hybrid_score(self, question: str, kpi: KPIEntry,
