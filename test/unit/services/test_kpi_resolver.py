@@ -3,6 +3,7 @@ Tests for DashboardKPIResolver
 """
 import sys
 from pathlib import Path
+from datetime import datetime
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
 
@@ -199,6 +200,73 @@ class TestParameterSubstitution:
         assert "$__timeFrom" not in match.sql
         assert "$__timeTo" not in match.sql
         assert "BETWEEN '2026-03-01 00:00:00' AND '2026-03-24 23:59:59'" in match.sql
+
+    def test_explicit_between_time_on_date_window(self, resolver):
+        """Absolute window in question should override default last-1-day fallback."""
+        match = resolver.resolve(
+            "how many bots were inactive between 4pm to 6pm on 5th march in chennai?",
+            tenant_values=["chennai"],
+        )
+        assert match is not None
+
+        expected_year = datetime.now().year
+        expected_from = f"{expected_year}-03-05 16:00:00"
+        expected_to = f"{expected_year}-03-05 18:00:00"
+
+        assert match.parameters_applied["time_from"] == expected_from
+        assert match.parameters_applied["time_to"] == expected_to
+        assert expected_from in match.sql
+        assert expected_to in match.sql
+
+    def test_explicit_overnight_between_window_rolls_next_day(self, resolver):
+        """When end time is earlier than start time, end should roll to next day."""
+        match = resolver.resolve(
+            "active bots between 11pm to 2am on 5th march in chennai",
+            tenant_values=["chennai"],
+        )
+        assert match is not None
+
+        expected_year = datetime.now().year
+        assert match.parameters_applied["time_from"] == f"{expected_year}-03-05 23:00:00"
+        assert match.parameters_applied["time_to"] == f"{expected_year}-03-06 02:00:00"
+
+    def test_explicit_during_time_on_date_window(self, resolver):
+        """'during' keyword should be recognised like 'between'."""
+        match = resolver.resolve(
+            "How many active hours and inactive hours did each station in chennai "
+            "have during 3pm to 5 pm on 27th march 2026?",
+            tenant_values=["chennai"],
+        )
+        assert match is not None
+
+        assert match.parameters_applied["time_from"] == "2026-03-27 15:00:00"
+        assert match.parameters_applied["time_to"] == "2026-03-27 17:00:00"
+        assert "2026-03-27 15:00:00" in match.sql
+        assert "2026-03-27 17:00:00" in match.sql
+
+    def test_explicit_from_time_on_date_window(self, resolver):
+        """'from' keyword should be recognised like 'between'."""
+        match = resolver.resolve(
+            "active bots from 9am to 12pm on 10th april in chennai",
+            tenant_values=["chennai"],
+        )
+        assert match is not None
+
+        expected_year = datetime.now().year
+        assert match.parameters_applied["time_from"] == f"{expected_year}-04-10 09:00:00"
+        assert match.parameters_applied["time_to"] == f"{expected_year}-04-10 12:00:00"
+
+    def test_bare_time_on_date_window(self, resolver):
+        """Bare '4pm to 6pm on 5th march' without between/during/from keyword."""
+        match = resolver.resolve(
+            "active bots 4pm to 6pm on 5th march in chennai",
+            tenant_values=["chennai"],
+        )
+        assert match is not None
+
+        expected_year = datetime.now().year
+        assert match.parameters_applied["time_from"] == f"{expected_year}-03-05 16:00:00"
+        assert match.parameters_applied["time_to"] == f"{expected_year}-03-05 18:00:00"
 
 
 class TestTopKMatching:

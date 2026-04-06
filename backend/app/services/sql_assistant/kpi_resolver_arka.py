@@ -17,7 +17,6 @@ Flow:
 
 import json
 import re
-import hashlib
 import logging
 from pathlib import Path
 from typing import Optional, List, Dict, Any
@@ -29,6 +28,22 @@ import numpy as np
 from .match_utils import strip_matching_noise
 
 logger = logging.getLogger(__name__)
+
+
+_MONTH_MAP = {
+    "jan": 1, "january": 1,
+    "feb": 2, "february": 2,
+    "mar": 3, "march": 3,
+    "apr": 4, "april": 4,
+    "may": 5,
+    "jun": 6, "june": 6,
+    "jul": 7, "july": 7,
+    "aug": 8, "august": 8,
+    "sep": 9, "sept": 9, "september": 9,
+    "oct": 10, "october": 10,
+    "nov": 11, "november": 11,
+    "dec": 12, "december": 12,
+}
 
 
 # ============================================================
@@ -73,12 +88,8 @@ class KPIMatch:
 # ============================================================
 
 # Common filler words to ignore when comparing user_queries
-# NOTE:
-# Keep count-indicator phrases like "how many" / "much" meaningful.
-# These are not filler for KPI resolution because they differentiate
-# count KPIs from percentage / trend KPIs.
 _FILLER_SET = frozenset({
-    "what", "is", "the", "a", "an", "are", "show",
+    "what", "is", "the", "a", "an", "are", "how", "many", "much", "show",
     "me", "give", "display", "get", "for", "of", "in", "at", "to", "and",
     "or", "on", "by", "was", "were", "did", "do", "does", "with", "across",
     "each", "overall", "selected", "time", "range", "period", "during",
@@ -108,26 +119,13 @@ SYNONYMS = {
     "inactive": ["inactive", "disabled", "idle", "offline", "not working"],
     "alarm": ["alarm", "alarms", "alert", "alerts", "warning", "error"],
     "downtime": ["downtime", "down time", "offline time", "unavailable"],
-    # IMPORTANT:
-    # Do NOT include generic word "used" here. It caused count questions like
-    # "how many bins are used" to drift toward utilization / percentage KPIs.
-    "utilisation": ["utilisation", "utilization", "usage", "utilised", "utilized"],
+    "utilisation": ["utilisation", "utilization", "usage", "used"],
     "bin": ["bin", "bins", "container", "storage bin"],
     "wave": ["wave", "waves", "batch", "batches"],
     "station": ["station", "stations", "workstation", "work station"],
     "lpn": ["lpn", "lpns", "license plate", "license plate number"],
     "ipp": ["ipp", "items per pick", "picks per hour", "pick rate"],
     "trend": ["trend", "over time", "daily", "hourly", "progression", "history"],
-}
-
-COUNT_TERMS = {
-    "count", "counts", "number", "numbers", "total", "totals",
-    "many", "much"
-}
-
-PERCENT_TERMS = {
-    "percentage", "percent", "pct", "ratio", "rate", "rates",
-    "utilisation", "utilization"
 }
 
 
@@ -143,7 +141,7 @@ def _extract_keywords(kpi_name: str, logic: str, category: str,
     stopwords = {"the", "a", "an", "is", "in", "at", "of", "for", "to",
                  "and", "or", "by", "it", "this", "that", "are", "was",
                  "were", "been", "be", "has", "had", "do", "did", "will",
-                 "can", "may", "not", "with", "from", "each",
+                 "can", "may", "not", "with", "from", "each", "how", "many",
                  "which", "what", "show", "get", "all"}
     keywords = [w for w in words if len(w) > 1 and w not in stopwords]
     keywords.append(category)
@@ -177,7 +175,7 @@ class DashboardKPIResolver:
     MATCH_THRESHOLD = 0.60
 
     # If embedding API is unavailable, use keyword-only with a stricter gate
-    KEYWORD_ONLY_THRESHOLD = 0.50
+    KEYWORD_ONLY_THRESHOLD = 0.70
 
     # Weight split for hybrid scoring
     EMBEDDING_WEIGHT = 0.65
@@ -201,7 +199,6 @@ class DashboardKPIResolver:
 
         self.kpis: List[KPIEntry] = []
         self._load_registry(registry_path)
-        self._registry_signature = self._compute_registry_signature()
 
         # ── Centralised embeddings folder ──
         from app.core.config import settings
@@ -262,108 +259,6 @@ class DashboardKPIResolver:
             f"Example questions: {uq_text}"
         )
 
-    def _compute_registry_signature(self) -> str:
-        """Content hash used to invalidate stale cached KPI embeddings."""
-        payload = [
-            {
-                "id": kpi.id,
-                "kpi_name": kpi.kpi_name,
-                "category": kpi.category,
-                "chart_type": kpi.chart_type,
-                "logic": kpi.logic,
-                "tables_used": kpi.tables_used,
-                "user_queries": kpi.user_queries,
-            }
-            for kpi in self.kpis
-        ]
-        encoded = json.dumps(payload, sort_keys=True, ensure_ascii=False)
-        return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
-
-    def _normalize_text(self, text: str) -> str:
-        text = text.lower().replace('_', ' ')
-        text = re.sub(r'[^a-z0-9\s%]', ' ', text)
-        text = re.sub(r'\s+', ' ', text).strip()
-        return text
-
-    def _expand_words(self, words: set) -> set:
-        expanded = set(words)
-        for word in list(words):
-            for syn_list in SYNONYMS.values():
-                if word in syn_list:
-                    expanded.update(syn_list)
-        return expanded
-
-    def _detect_question_measure(self, q_normalized: str) -> Optional[str]:
-        """Detect whether the question is asking for count, percentage, trend, etc."""
-        q_words = set(q_normalized.split())
-
-        if "how many" in q_normalized or "count of" in q_normalized or "number of" in q_normalized:
-            return "count"
-
-        if "%" in q_normalized or q_words & PERCENT_TERMS:
-            return "percentage"
-
-        if q_words & COUNT_TERMS:
-            return "count"
-
-        return None
-
-    def _detect_kpi_measure(self, kpi: KPIEntry) -> Optional[str]:
-        text = self._normalize_text(
-            f"{kpi.kpi_name} {' '.join(kpi.user_queries)} {kpi.logic}"
-        )
-        words = set(text.split())
-
-        if "how many" in text or "count of" in text or "number of" in text:
-            return "count"
-
-        if "%" in text or words & PERCENT_TERMS:
-            return "percentage"
-
-        if words & COUNT_TERMS:
-            return "count"
-
-        return None
-
-    def _measure_alignment_bonus(self, question_measure: Optional[str], kpi: KPIEntry) -> float:
-        """
-        Reward KPI measure alignment (count vs percentage) and penalize mismatches.
-        This prevents semantically-similar KPIs from swapping ranks.
-        """
-        if not question_measure:
-            return 0.0
-
-        kpi_measure = self._detect_kpi_measure(kpi)
-        if not kpi_measure:
-            return 0.0
-
-        return 0.30 if question_measure == kpi_measure else -0.30
-
-    def _rerank_measure_near_ties(self, match_question: str, scored: List[tuple]) -> List[tuple]:
-        """
-        Re-rank close candidates by count/percentage intent before final pick.
-        This only applies when the top few scores are very close.
-        """
-        if not scored:
-            return scored
-
-        question_measure = self._detect_question_measure(self._normalize_text(match_question))
-        if not question_measure:
-            return scored
-
-        top_score = scored[0][0]
-        near = [item for item in scored if (top_score - item[0]) <= 0.08]
-        far = [item for item in scored if (top_score - item[0]) > 0.08]
-
-        near.sort(
-            key=lambda item: (
-                self._detect_kpi_measure(item[1]) == question_measure,
-                item[0],
-            ),
-            reverse=True,
-        )
-        return near + far
-
     def _init_embeddings(self):
         """
         Load cached KPI embeddings from disk, or compute fresh ones via
@@ -410,19 +305,7 @@ class DashboardKPIResolver:
             # Validate: must match current registry IDs
             kpi_id_set = {kpi.id for kpi in self.kpis}
             if set(ids) != kpi_id_set:
-                logger.info("📊 KPI registry IDs changed — rebuilding embeddings")
-                return False
-
-            cached_signature = None
-            if "registry_signature" in data.files:
-                cached_signature = str(data["registry_signature"].tolist())
-
-            if not cached_signature:
-                logger.info("📊 KPI embedding cache missing registry signature — rebuilding embeddings")
-                return False
-
-            if cached_signature != self._registry_signature:
-                logger.info("📊 KPI registry content changed — rebuilding embeddings")
+                logger.info("📊 KPI registry changed — rebuilding embeddings")
                 return False
 
             for kpi_id, emb in zip(ids, matrix):
@@ -449,7 +332,6 @@ class DashboardKPIResolver:
                 str(self._embeddings_path),
                 ids=np.array(ids, dtype=object),
                 matrix=matrix,
-                registry_signature=np.array(self._registry_signature, dtype=object),
             )
             logger.info(f"💾 Saved {len(ids)} KPI embeddings to {self._embeddings_path}")
 
@@ -483,15 +365,26 @@ class DashboardKPIResolver:
     def _score_match(self, question: str, kpi: KPIEntry) -> float:
         """
         Keyword-based score for a user question vs a KPI.
-        Returns 0.0 – 1.0. Used alone when embeddings are unavailable,
+        Returns 0.0 – 1.0.  Used alone when embeddings are unavailable,
         otherwise blended with the embedding score.
         """
-        q_normalized = self._normalize_text(question)
-        q_words = set(q_normalized.split())
-        expanded_q = self._expand_words(q_words)
-        question_measure = self._detect_question_measure(q_normalized)
+        q_lower = question.lower()
+
+        # ── CRITICAL: normalise underscores → spaces ──
+        # User may type ACTIVE_BOTS or BIN_PRESENTATION which should
+        # match keywords like "active", "bots", "bin presentation"
+        q_normalized = q_lower.replace('_', ' ')
+        q_words = set(re.sub(r'[^a-z0-9\s]', ' ', q_normalized).split())
+
+        # Expand question words with synonyms
+        expanded_q = set(q_words)
+        for word in list(q_words):
+            for syn_key, syn_list in SYNONYMS.items():
+                if word in syn_list:
+                    expanded_q.update(syn_list)
 
         kpi_keywords = set(kpi.keywords)
+
         if not kpi_keywords:
             return 0.0
 
@@ -500,16 +393,18 @@ class DashboardKPIResolver:
         keyword_score = len(intersection) / max(len(kpi_keywords), 1)
 
         # 2. KPI name full-phrase match (strongest signal)
+        #    e.g., question "show active bots" matches KPI "Active Bots"
         name_lower = kpi.kpi_name.lower().strip()
         name_normalized = re.sub(r'[^a-z0-9\s]', ' ', name_lower)
-        name_normalized = re.sub(r'\s+', ' ', name_normalized).strip()
         name_words = set(name_normalized.split())
         stop_words = {"per", "vs", "by", "wise"}
 
         name_bonus = 0.0
-        if name_normalized and name_normalized in q_normalized:
+        # Full phrase match: "active bots" in normalized question
+        if name_normalized.strip() in q_normalized:
             name_bonus = 0.5
         else:
+            # Word-level overlap
             meaningful = name_words - stop_words
             if meaningful:
                 overlap = len(expanded_q & meaningful)
@@ -519,28 +414,14 @@ class DashboardKPIResolver:
         #     matches one of the known natural-language phrasings
         uq_bonus = 0.0
         for uq in kpi.user_queries:
-            uq_norm = self._normalize_text(uq)
+            uq_norm = re.sub(r'[^a-z0-9\s]', ' ', uq.lower())
             uq_words = set(uq_norm.split()) - stop_words - _FILLER_SET
-            if not uq_words or not q_words:
-                continue
-
-            overlap_uq = len(expanded_q & uq_words)
-            ratio = overlap_uq / max(len(uq_words), 1)
-
-            phrase_bonus = 0.0
-            if "how many" in q_normalized and "how many" in uq_norm:
-                phrase_bonus += 0.25
-            if "number of" in q_normalized and "number of" in uq_norm:
-                phrase_bonus += 0.20
-            if "count of" in q_normalized and "count of" in uq_norm:
-                phrase_bonus += 0.20
-            if any(t in q_normalized for t in ("percentage", "percent", "pct", "%")) and                any(t in uq_norm for t in ("percentage", "percent", "pct", "%")):
-                phrase_bonus += 0.25
-
-            ratio = min(1.0, ratio + phrase_bonus)
-            if ratio > uq_bonus:
-                uq_bonus = ratio
-        uq_bonus = min(uq_bonus * 0.5, 0.45)
+            if uq_words and q_words:
+                overlap_uq = len(expanded_q & uq_words)
+                ratio = overlap_uq / max(len(uq_words), 1)
+                if ratio > uq_bonus:
+                    uq_bonus = ratio
+        uq_bonus = min(uq_bonus * 0.5, 0.45)  # cap contribution
 
         # 3. Category boost — if question mentions the category
         category_boost = 0.0
@@ -552,14 +433,12 @@ class DashboardKPIResolver:
 
         # 4. Chart-type / dashboard keyword boost
         dashboard_boost = 0.0
-        dashboard_keywords = [
-            "kpi", "dashboard", "chart", "grafana", "metric",
-            "analytics", "visualization", "trend", "report"
-        ]
+        dashboard_keywords = ["kpi", "dashboard", "chart", "grafana", "metric",
+                              "analytics", "visualization", "trend", "report"]
         if any(dkw in q_normalized for dkw in dashboard_keywords):
             dashboard_boost = 0.1
 
-        # 5. Output column match — user may reference exact table names
+        # 5. Output column match — user may reference column names
         col_bonus = 0.0
         if kpi.tables_used:
             for t in kpi.tables_used:
@@ -567,19 +446,8 @@ class DashboardKPIResolver:
                     col_bonus += 0.03
             col_bonus = min(0.1, col_bonus)
 
-        # 6. Explicit measure intent alignment (count vs percentage)
-        measure_bonus = self._measure_alignment_bonus(question_measure, kpi)
-
-        score = (
-            name_bonus
-            + uq_bonus
-            + (keyword_score * 0.3)
-            + category_boost
-            + dashboard_boost
-            + col_bonus
-            + measure_bonus
-        )
-        return max(0.0, min(score, 1.0))
+        score = name_bonus + uq_bonus + (keyword_score * 0.3) + category_boost + dashboard_boost + col_bonus
+        return min(score, 1.0)
 
     def _hybrid_score(self, question: str, kpi: KPIEntry,
                       question_embedding: Optional[np.ndarray] = None) -> float:
@@ -673,7 +541,6 @@ class DashboardKPIResolver:
             return None
 
         scored.sort(key=lambda x: x[0], reverse=True)
-        scored = self._rerank_measure_near_ties(match_question, scored)
         best_score, best_kpi = scored[0]
 
         # Log scoring breakdown for diagnostics
@@ -740,7 +607,6 @@ class DashboardKPIResolver:
                 scored.append((score, kpi))
 
         scored.sort(key=lambda x: x[0], reverse=True)
-        scored = self._rerank_measure_near_ties(match_question, scored)
 
         results = []
         for score, kpi in scored[:top_k]:
@@ -768,6 +634,169 @@ class DashboardKPIResolver:
     # ----------------------------------------------------------
     # TIME-RANGE PARSING
     # ----------------------------------------------------------
+
+    def _parse_clock_time(self, value: str) -> Optional[tuple]:
+        """Parse a time token (e.g., 4pm, 16:30, 06:05 AM) into (hour, minute)."""
+        if not value:
+            return None
+
+        token = value.strip().lower().replace(".", "")
+        token = re.sub(r"\s+", "", token)
+
+        if token == "noon":
+            return (12, 0)
+        if token == "midnight":
+            return (0, 0)
+
+        m = re.match(r"^(\d{1,2})(?::(\d{2}))?(am|pm)$", token)
+        if m:
+            hour = int(m.group(1))
+            minute = int(m.group(2) or "0")
+            if not (1 <= hour <= 12 and 0 <= minute <= 59):
+                return None
+            if m.group(3) == "pm" and hour != 12:
+                hour += 12
+            if m.group(3) == "am" and hour == 12:
+                hour = 0
+            return (hour, minute)
+
+        m = re.match(r"^(\d{1,2}):(\d{2})$", token)
+        if m:
+            hour = int(m.group(1))
+            minute = int(m.group(2))
+            if 0 <= hour <= 23 and 0 <= minute <= 59:
+                return (hour, minute)
+            return None
+
+        m = re.match(r"^(\d{1,2})$", token)
+        if m:
+            hour = int(m.group(1))
+            if 0 <= hour <= 23:
+                return (hour, 0)
+
+        return None
+
+    def _parse_calendar_date(self, value: str, now: datetime) -> Optional[datetime]:
+        """Parse a date fragment like '5th march', 'march 5 2026', '2026-03-05'."""
+        if not value:
+            return None
+
+        text = value.lower().replace(",", " ").strip()
+        text = re.sub(r"\s+", " ", text)
+
+        m = re.search(r"\b(\d{4})-(\d{1,2})-(\d{1,2})\b", text)
+        if m:
+            try:
+                return datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+            except ValueError:
+                return None
+
+        m = re.search(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b", text)
+        if m:
+            try:
+                return datetime(int(m.group(3)), int(m.group(2)), int(m.group(1)))
+            except ValueError:
+                return None
+
+        m = re.search(
+            r"\b(\d{1,2})(?:st|nd|rd|th)?\s+([a-zA-Z]+)\s*(\d{4})?\b",
+            text,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            day = int(m.group(1))
+            month = _MONTH_MAP.get(m.group(2).lower())
+            if month:
+                year = int(m.group(3)) if m.group(3) else now.year
+                try:
+                    return datetime(year, month, day)
+                except ValueError:
+                    return None
+
+        m = re.search(
+            r"\b([a-zA-Z]+)\s+(\d{1,2})(?:st|nd|rd|th)?\s*(\d{4})?\b",
+            text,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            month = _MONTH_MAP.get(m.group(1).lower())
+            day = int(m.group(2))
+            if month:
+                year = int(m.group(3)) if m.group(3) else now.year
+                try:
+                    return datetime(year, month, day)
+                except ValueError:
+                    return None
+
+        return None
+
+    def _parse_explicit_time_window(self, question: str) -> Optional[tuple]:
+        """
+        Parse absolute windows like:
+          - between 4pm to 6pm on 5th march
+          - during 3pm to 5pm on 27th march 2026
+          - from 4pm to 6pm on 5th march
+          - on 5th march between 4pm and 6pm
+          - 3pm to 5pm on 27th march
+
+        Returns (time_from, time_to) as '%Y-%m-%d %H:%M:%S' or None.
+        """
+        if not question:
+            return None
+
+        q = question.strip()
+        now = datetime.now()
+
+        # Time token character class: digits, colon, whitespace, a/m/p, dot
+        _T = r"[0-9:\samp\.]+|noon|midnight"
+
+        patterns = [
+            # "between/during/from 4pm to 6pm on 5th march"
+            re.compile(
+                r"\b(?:between|during|from)\s+(?P<t1>" + _T + r")\s+(?:to|and|-)\s+"
+                r"(?P<t2>" + _T + r")\s+on\s+(?P<date>.+)$",
+                re.IGNORECASE,
+            ),
+            # "on 5th march between/during/from 4pm to 6pm"
+            re.compile(
+                r"\bon\s+(?P<date>.+?)\s+(?:between|during|from)\s+(?P<t1>" + _T + r")\s+"
+                r"(?:to|and|-)\s+(?P<t2>" + _T + r")\b",
+                re.IGNORECASE,
+            ),
+            # bare "4pm to 6pm on 5th march" (no keyword)
+            re.compile(
+                r"(?P<t1>\d{1,2}(?::\d{2})?\s*(?:am|pm))\s+(?:to|-)\s+"
+                r"(?P<t2>\d{1,2}(?::\d{2})?\s*(?:am|pm))\s+on\s+(?P<date>.+)$",
+                re.IGNORECASE,
+            ),
+        ]
+
+        for pat in patterns:
+            m = pat.search(q)
+            if not m:
+                continue
+
+            date_raw = re.split(r"\s+(?:in|at|for)\s+", m.group("date"), maxsplit=1, flags=re.IGNORECASE)[0]
+            date_part = self._parse_calendar_date(date_raw, now)
+            start_hm = self._parse_clock_time(m.group("t1"))
+            end_hm = self._parse_clock_time(m.group("t2"))
+
+            if not date_part or not start_hm or not end_hm:
+                continue
+
+            start_dt = date_part.replace(hour=start_hm[0], minute=start_hm[1], second=0, microsecond=0)
+            end_dt = date_part.replace(hour=end_hm[0], minute=end_hm[1], second=0, microsecond=0)
+
+            # If user says 11pm to 2am, carry end to next day.
+            if end_dt <= start_dt:
+                end_dt = end_dt + timedelta(days=1)
+
+            return (
+                start_dt.strftime("%Y-%m-%d %H:%M:%S"),
+                end_dt.strftime("%Y-%m-%d %H:%M:%S"),
+            )
+
+        return None
 
     def _parse_time_range(self, question: str) -> timedelta:
         """Extract time delta from natural-language expressions in the question."""
@@ -894,16 +923,32 @@ class DashboardKPIResolver:
 
         # 2. Time range substitution — parse from question if no explicit range
         now = datetime.now()
+
+        # First priority: explicit absolute window from user question.
+        # Example: "between 4pm to 6pm on 5th march".
+        explicit_window = None
+        if question and (not time_from or not time_to):
+            explicit_window = self._parse_explicit_time_window(question)
+
+        if explicit_window and not time_from and not time_to:
+            t_from, t_to = explicit_window
+            logger.info(f"📊 KPI explicit time window parsed: {t_from} → {t_to}")
+        else:
+            t_from = None
+            t_to = None
+
         if not time_from:
-            delta = self._parse_time_range(question) if question else timedelta(days=1)
-            if delta.total_seconds() == 0:
-                t_from = now.strftime("%Y-%m-%d 00:00:00")
-            else:
-                t_from = (now - delta).strftime("%Y-%m-%d %H:%M:%S")
+            if not t_from:
+                delta = self._parse_time_range(question) if question else timedelta(days=1)
+                if delta.total_seconds() == 0:
+                    t_from = now.strftime("%Y-%m-%d 00:00:00")
+                else:
+                    t_from = (now - delta).strftime("%Y-%m-%d %H:%M:%S")
         else:
             t_from = time_from
         if not time_to:
-            t_to = now.strftime("%Y-%m-%d %H:%M:%S")
+            if not t_to:
+                t_to = now.strftime("%Y-%m-%d %H:%M:%S")
         else:
             t_to = time_to
 
@@ -931,11 +976,15 @@ class DashboardKPIResolver:
             f"TIMESTAMP('{t_from}') \\1",
             sql, flags=re.IGNORECASE,
         )
-        # to_ts should be end-of-day 23:59:59 for the Params CTE pattern
-        t_to_eod = t_to.split(" ")[0] + " 23:59:59"
+        # Use actual t_to when user specified an explicit time window;
+        # otherwise default to end-of-day 23:59:59 for full-day KPIs.
+        if explicit_window:
+            t_to_params_cte = t_to
+        else:
+            t_to_params_cte = t_to.split(" ")[0] + " 23:59:59"
         sql = re.sub(
             r"TIMESTAMP\s*\(\s*'[^']+'\s*\)\s*(AS\s+to_ts)",
-            f"TIMESTAMP('{t_to_eod}') \\1",
+            f"TIMESTAMP('{t_to_params_cte}') \\1",
             sql, flags=re.IGNORECASE,
         )
 
