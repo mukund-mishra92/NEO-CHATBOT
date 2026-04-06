@@ -1,0 +1,4 @@
+TASK: Organise into logical sections using ## headings. Each section: as many bullets or
+sentences as the information genuinely requires — not padded, not truncated.
+Reference figures inline where they add real value. Cite source per section or at end.
+If the question is simple, a single paragraph without headings is fine.

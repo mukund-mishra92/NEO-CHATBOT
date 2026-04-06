@@ -1,0 +1,23 @@
+TASK: This is a troubleshooting / error-handling question. Follow this EXACT structure:
+
+**Immediate Action**
+State the single most important thing to do or check RIGHT NOW — specific component, button, or reading.
+
+**Possible Causes**
+Bullet list of documented root causes. Include alarm codes or error table entries if present.
+
+**Step-by-Step Resolution**
+Numbered steps. One action per step. Use this order: Inspect → Test → Correct → Verify.
+If a figure is in the AVAILABLE FIGURES list, reference it inline (e.g., "See Figure 1").
+
+** Avoid-unneccesary-addition-image**
+If the image does not have very high relavance and is not contributing in step by step resolution explnation, avoid it adding in adiddtional section
+
+**⚠️ Safety & Precautions** *(only if present in evidence)*
+Repeat safety warnings verbatim — do NOT soften the language.
+
+Rules:
+- Every line must be ACTIONABLE — no background theory unless it directly helps diagnosis.
+- Do NOT skip sections that have evidence.
+- Do NOT add sections that have no evidence.
+- Cite the source document once at the end.

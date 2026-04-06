@@ -19,6 +19,7 @@ from ..rlhf_service import RLHFService
 from ..diagnostic.diagnostic_support_service import DiagnosticSupportService
 from ..answer_planner import AnswerPlanner
 from ..response_structurer import ResponseStructurer
+from ...prompts.prompt_registry import registry as prompt_registry
 from ...models.schemas import ChatRequest, ChatResponse, SourceDocument, ChatbotType, MessageRole
 from ...utils.session_manager import get_session_manager, SessionType
 from ...core.config import settings
@@ -100,6 +101,8 @@ Response Guidelines:
 8. **For troubleshooting**: Check diagnostic database first for known issues and solutions
 9. **If information is incomplete**, clearly state what's missing
 9. **Use professional tone** - helpful, clear, and authoritative
+10. **Do not use additional image in the end** - junk images that are not relevant to the answer should be avoided. Only include images that directly support the response.
+11. **Check for duplicate images** - if two images are the same, only include one in the response.
 
 Formatting Standards:
 - Use **bold** for key terms, class names, and section headers
@@ -204,74 +207,88 @@ Always prioritize clarity and user understanding."""
             # Step 3: Classify query type
             query_type = self._classify_query(chat_request.message)
             logger.info(f"📊 Query classified as: {query_type}")
-            
+
+            # ── V1: Query-type-aware retrieval budget ─────────────────────────────
+            top_k = self._get_query_top_k(query_type, has_attached_document)
+
             # Step 4+5: Retrieve relevant documents
             # PRIMARY: ChromaDB RAG Pipeline (hybrid vector + BM25 + rerank)
             # FALLBACK: Legacy JSON vector store
+            rag_confidence = 1.0  # default; overridden below from RAG result
             if self.rag_pipeline is not None:
                 logger.info("🔗 Using ChromaDB RAG Pipeline for retrieval")
-                top_k = 8 if not has_attached_document else 4
                 rag_result = self.rag_pipeline.retrieve_context(
                     chat_request.message, top_k=top_k
                 )
-                # Convert RAG results to KB service format
-                kb_context = rag_result["context"]
-                source_documents = self._extract_source_documents_from_rag(rag_result)
-                filtered_results = self._convert_rag_to_legacy_format(rag_result)
+                rag_confidence = rag_result.get("confidence", 1.0)
 
-                # Content optimization — trim RAG context to stay within token budget
-                kb_context = self.content_optimizer.optimize_rag_context(
-                    kb_context, chat_request.message, max_tokens=6000
+                # ── V1: Hard similarity filter — drop low-quality chunks ──────────
+                raw_chunks = rag_result.get("retrieved_chunks", [])
+                quality_chunks = self.content_optimizer.filter_and_deduplicate(
+                    raw_chunks, score_threshold=0.35, max_chunks=top_k
                 )
+                # Rebuild context from quality chunks only (NOT the flat context string)
+                kb_context = self._build_crisp_context(quality_chunks, query_type)
+                source_documents = self._extract_source_documents_from_rag(rag_result)
+                filtered_results = self._convert_chunks_to_legacy_format(quality_chunks)
+                logger.info(f"🎯 Chunks after quality filter: {len(raw_chunks)} → {len(quality_chunks)}")
             else:
                 logger.info("📦 Using legacy JSON vector store for retrieval")
                 # Generate query embedding
                 query_embedding = self.llm_service.generate_embedding(chat_request.message)
-                
+
                 # Search with balanced category distribution
                 vector_filter = None
                 if chat_request.context and isinstance(chat_request.context, dict):
-                    vector_filter = {k: v for k, v in chat_request.context.items() 
+                    vector_filter = {k: v for k, v in chat_request.context.items()
                                     if k not in ("attached_document", "attached_filename")}
                     if not vector_filter:
                         vector_filter = None
 
                 search_results = self.vector_store.search_with_token_budget(
                     query_embedding=query_embedding,
-                    top_k=8 if not has_attached_document else 4,
-                    max_tokens=6000,
+                    top_k=top_k,
+                    max_tokens=3000,
                     filter_metadata=vector_filter,
-                    min_similarity=0.25,
+                    min_similarity=0.35,
                     diversify=True,
-                    max_chunks_per_source=3,
+                    max_chunks_per_source=2,
                 )
-                
+
                 filtered_results = self._filter_and_rerank(search_results, chat_request.message)
 
-                # Content optimization — trim legacy chunks to reduce token usage
+                # Content optimization — trim legacy chunks
                 filtered_results = self.content_optimizer.optimize_chunks(
                     filtered_results, chat_request.message,
-                    target_length="medium", max_chunk_length=800,
+                    target_length="concise", max_chunk_length=500,
                 )
 
-                kb_context = self._build_context(filtered_results)
+                kb_context = self._build_crisp_context_from_legacy(filtered_results, query_type)
                 source_documents = self._extract_source_documents(filtered_results)
 
-            # Step 6.5: If attached document exists, build combined context (doc = primary, KB = secondary)
-            if has_attached_document:
-                # Truncate document to fit in context window
-                doc_excerpt = attached_doc_text[:40000] if len(attached_doc_text) > 40000 else attached_doc_text
-                context = f"""╔══════════════════════════════════════════════════════════════════════════════╗
-║  📎 PRIMARY SOURCE: Uploaded Document - {attached_filename}                  
-╚══════════════════════════════════════════════════════════════════════════════╝
+            # ── V7: Confidence routing ─────────────────────────────────────────────
+            if rag_confidence < 0.4 and not has_attached_document:
+                logger.warning(f"⚠️ Low retrieval confidence ({rag_confidence:.2f}) — asking for clarification")
+                return ChatResponse(
+                    response="I couldn't find specific information about that in the knowledge base. Could you rephrase your question or provide more context? For example, which NEO system component or feature are you asking about?",
+                    chatbot_type=ChatbotType.KNOWLEDGE_BASE,
+                    session_id=chat_request.session_id or str(uuid.uuid4()),
+                    sources=[],
+                    confidence_score=rag_confidence,
+                    suggested_actions=["Ask about NEO ASRS system", "Ask about specific components", "Try the SQL Assistant for data queries"]
+                )
 
+            # Step 6.5: If attached document exists, build focused context (smart excerpt, not full dump)
+            if has_attached_document:
+                # ── V8: Extract only relevant portions (max 6000 chars) ──────────
+                doc_excerpt = self._extract_relevant_doc_excerpt(
+                    attached_doc_text, chat_request.message, max_chars=6000
+                )
+                context = f"""[DOCUMENT: {attached_filename}]
 {doc_excerpt}
 
-╔══════════════════════════════════════════════════════════════════════════════╗
-║  📚 SUPPLEMENTARY: Knowledge Base (background context)                       
-╚══════════════════════════════════════════════════════════════════════════════╝
-
-{kb_context if kb_context else '(No additional knowledge base context found)'}"""
+[KNOWLEDGE BASE]
+{kb_context if kb_context else '(no additional context)'}"""
 
                 # Add uploaded doc as a source
                 source_documents.insert(0, SourceDocument(
@@ -283,27 +300,27 @@ Always prioritize clarity and user understanding."""
                 ))
             else:
                 context = kb_context
-            
+
             # Step 7: Get conversation history for context
             if not conversation_history:
                 conversation_history = self.session_manager.get_context_for_llm(session_id, max_messages=10) if session_id else []
 
-            # ── Brevity intent detection (Issues 2 & 3) ──────────────────────────
-            # Detect if user asked for summary/precise answer, either in current
-            # query or in conversation history (e.g. "told you, give me summary only")
+            # ── Brevity intent detection ──────────────────────────────────────────
             brevity_mode = self._detect_brevity_intent(chat_request.message, conversation_history)
             if brevity_mode:
                 logger.info("✂️ Brevity mode ON — short/summary response requested")
 
-            # Gather display images for LLM figure-awareness
-            # Suppress images entirely in brevity mode — they add noise, not value
-            if brevity_mode:
+            # ── Image gate — content-aware, not keyword-only ─────────────────────
+            raw_images = rag_result.get("images", []) if self.rag_pipeline is not None else []
+            # Image cap: troubleshooting gets 3 images (wiring diagrams, alarm panels);
+            # all other types get 2 to avoid visual overload.
+            _img_cap = 3 if query_type == "TROUBLESHOOTING" else 2
+            if brevity_mode or not self._should_include_images(chat_request.message, raw_images):
                 display_images = []
             else:
-                display_images = rag_result.get("images", []) if self.rag_pipeline is not None else []
+                display_images = raw_images[:_img_cap]
 
-            # Phase 7: Build structured answer plan from retrieved evidence
-            # Skip answer plan in brevity mode (it encourages long structured responses)
+            # Phase 7: Build structured answer plan (skip in brevity mode)
             answer_plan = None
             if self.rag_pipeline is not None and not has_attached_document and not brevity_mode:
                 retrieved_chunks = rag_result.get("retrieved_chunks", [])
@@ -311,6 +328,7 @@ Always prioritize clarity and user understanding."""
                     chat_request.message,
                     retrieved_chunks,
                     images=display_images,
+                    query_type_hint=query_type,  # pass KB classification as hint
                 )
 
             # Step 8: Generate response using LLM with adaptive strategy
@@ -320,13 +338,13 @@ Always prioritize clarity and user understanding."""
                 answer_plan=answer_plan,
                 brevity_mode=brevity_mode,
             )
-            
+
             # Adjust LLM parameters based on query type
             max_tokens, temperature = self._get_llm_parameters(query_type, has_images=bool(display_images), brevity_mode=brevity_mode)
-            
-            # Increase max_tokens when processing attached documents (richer answers needed)
+
+            # Small boost for attached doc — needs slightly more to cover both sources
             if has_attached_document and not brevity_mode:
-                max_tokens = max(max_tokens, 2000)
+                max_tokens = min(max_tokens + 200, 1600)
             
             response_text = self.llm_service.generate_response(
                 messages=messages,
@@ -336,7 +354,9 @@ Always prioritize clarity and user understanding."""
             )
             
             # Format response based on query type
-            response_text = self._format_adaptive_response(response_text, query_type)
+            response_text = self._format_adaptive_response(
+                response_text, query_type, has_images=bool(display_images)
+            )
 
             # Phase 8: Build structured response
             # Use the already-filtered display_images (respects brevity_mode suppression)
@@ -443,6 +463,23 @@ Always prioritize clarity and user understanding."""
         """
         query_lower = query.lower().strip()
         
+        # ── TROUBLESHOOTING / ERROR HANDLING — highest priority ─────────────
+        # Must be checked BEFORE procedural, because troubleshooting queries
+        # often contain "how to" but need a very different response structure.
+        troubleshooting_patterns = [
+            r'\berror\b', r'\balarm\b', r'\bfault\b', r'\bfailure\b',
+            r'\bnot\s+working\b', r'\bnot\s+achieved\b', r'\bnot\s+reached\b',
+            r'\bstuck\b', r'\bstopped\b', r'\bcannot\b', r'\bcan\'t\b',
+            r'\bwhat\s+to\s+do\b', r'\bhow\s+to\s+fix\b', r'\bhow\s+to\s+(resolve|recover)\b',
+            r'\btroubleshoot\b', r'\brecovery\s+(procedure|step)\b',
+            r'\bE\d{3,}\b',        # alarm/error codes like E001, E123
+            r'\b(red|yellow)\s+(led|light|indicator)\b',  # LED alarm states
+            r'\b(emergency|e-stop|estop)\b',
+        ]
+        for pattern in troubleshooting_patterns:
+            if re.search(pattern, query_lower):
+                return "TROUBLESHOOTING"
+
         # Simple fact queries (short answers)
         simple_fact_patterns = [
             r'^what is (the |a )?(\w+)\??$',  # "What is X?"
@@ -510,198 +547,39 @@ Always prioritize clarity and user understanding."""
         return "EXPLORATORY" if len(query.split()) > 5 else "SIMPLE_FACT"
     
     def _get_adaptive_system_prompt(self, query_type: str, *, brevity_mode: bool = False) -> str:
-        """Get system prompt based on query type"""
-        
-        base_prompt = """You are NEO Assistant, an expert on the NEO Warehouse Management System and Falcon Autotech products.
-
-RESPONSE QUALITY RULES:
-- Write naturally and authoritatively — you ARE the domain expert
-- Structure content DYNAMICALLY based on information richness — do NOT follow rigid templates
-- Use clean markdown: ## for section headings, **bold** for key terms, bullet points for lists
-- Add blank lines between sections for readability
-- Cite source documents naturally in-line: "According to [Document Name]..." or "(Source: Document Name)"
-- Do NOT add a separate "Source References" or "Sources:" section at the end — weave citations into the text
-- When figures are listed in the context, reference them naturally: "The carrier design (Figure 1) shows..." or "As illustrated in Figure 2..."
-- Be SPECIFIC with data — include dimensions, capacities, percentages, model numbers when available
-- Never repeat the same information in different sections
-- Keep a professional, confident tone throughout
-"""
-
-        # ── BREVITY MODE OVERRIDE ────────────────────────────────────────────────
-        # The user has explicitly asked for a summary, brief, or precise answer.
-        # All other formatting rules are subordinate to this instruction.
-        if brevity_mode:
-            return """You are NEO Assistant, an expert on the NEO Warehouse Management System.
-
-⚠️ STRICT BREVITY MODE — The user has asked for a SHORT, PRECISE, or SUMMARY answer.
-
-MANDATORY RULES — NO EXCEPTIONS:
-1. Respond in 3–5 bullet points OR 2–3 short sentences — nothing more.
-2. Do NOT write sections, headings, or detailed explanations.
-3. Do NOT repeat yourself or add background context unless critical.
-4. Do NOT include figures, source blocks, or "Additional Details" notes.
-5. If the user's follow-up message says "summary only", "precise", "told you", "stop giving long answers" — honour that completely.
-6. Every word must earn its place. Cut anything decorative.
-
-FORMAT EXAMPLE (correct):
-• [Key point 1]
-• [Key point 2]
-• [Key point 3]
-
-Cite the source at the end in one short parenthetical: (Source: DocumentName)
-"""
-        
-        if query_type == "SIMPLE_FACT":
-            return base_prompt + """
-
-TASK: Provide a direct, concise answer in 1-3 sentences.
-
-RULES:
-- Answer directly without unnecessary context
-- No lengthy explanations unless asked
-- No forced formatting with sections
-- If it's a yes/no question, start with yes or no
-- Cite the document source in [brackets] at the end
-
-Example:
-Q: "What is NEO?"
-A: "NEO is an Automated Storage and Retrieval System (ASRS) that uses autonomous robots to store and retrieve bins efficiently. [NEO System Documentation]"
-"""
-        
-        elif query_type == "DEFINITION":
-            return base_prompt + """
-
-TASK: Provide a clear definition followed by brief context.
-
-FORMAT:
-**Definition:** [Clear, concise definition in 1-2 sentences]
-
-**Context:** [Brief explanation of why it matters or how it's used - 2-3 sentences]
-
-[Source: Document name]
-"""
-        
-        elif query_type == "PROCEDURAL":
-            return base_prompt + """
-
-TASK: Provide step-by-step instructions.
-
-FORMAT:
-**How to [Task]:**
-
-1. [First step]
-2. [Second step]
-3. [Continue...]
-
-**Important Notes:**
-• [Any warnings or prerequisites]
-• [Special considerations]
-
-[Source: Document name]
-"""
-        
-        elif query_type == "COMPARISON":
-            return base_prompt + """
-
-TASK: Provide a structured comparison.
-
-FORMAT:
-**Key Differences:**
-
-| Aspect | Option A | Option B |
-|--------|----------|----------|
-| [Feature] | [Detail] | [Detail] |
-
-**Summary:** [Which is better for what use case]
-
-[Source: Document name]
-"""
-        
-        elif query_type == "CODE_QUERY":
-            return base_prompt + """
-
-TASK: Provide detailed code information with context.
-
-FORMAT:
-**📁 File:** [Filename and path if available]
-
-**📝 Purpose:** [What this code does - 1-2 sentences]
-
-**🔧 Key Components:**
-• **Class:** [ClassName]
-• **Methods:** [List important methods]
-• **Properties:** [Key properties if relevant]
-
-**💻 Implementation:**
-```csharp
-[Show relevant code snippet - focus on key logic]
-```
-
-**📋 Explanation:**
-[Explain what the code does step by step]
-
-**🔗 Related Components:**
-[What other classes/services this interacts with]
-
-**💡 Usage Example:**
-[How to use or call this code if applicable]
-
-[Source: Filename]
-"""
-        
-        elif query_type == "GENERATIVE":
-            return base_prompt + """
-
-TASK: Explain that you cannot generate new content, but can help with existing documentation.
-
-RESPONSE STRATEGY:
-1. Politely explain you can only provide information from existing documentation
-2. Offer to share relevant examples/templates from the docs
-3. Suggest what specific information you CAN provide
-
-Be helpful, not rigid. Offer alternatives.
-"""
-        
-        else:  # EXPLORATORY
-            return base_prompt + """
-
-TASK: Provide a comprehensive, intelligent, and well-structured response.
-
-APPROACH:
-- Open with an engaging 2-3 sentence summary that captures the core concept
-- Organise into LOGICAL sections using ## headings — choose heading names that FIT the content (e.g. "## How It Works", "## Technical Specifications", "## Key Advantages"), NOT generic ones like "Key Points" or "Additional Details"
-- Mix formatting NATURALLY: paragraphs for explanations, bullets for features/specs, numbered lists for sequential processes, markdown tables for comparisons or specifications
-- When technical specifications are available (dimensions, weights, speeds, capacities), present them in a clean markdown table or formatted spec block
-- If figures are available, reference them IN CONTEXT where they add value: "The sorter track layout (Figure 1) demonstrates..." — don't just list them
-- CONNECT ideas — explain WHY things work the way they do, not just WHAT they are
-- End with a practical insight or key takeaway — something actionable or memorable
-- Vary sentence length and structure for readability — avoid monotonous bullet-only responses
-- Do NOT include a separate sources section at the end — cite sources inline only
-"""
+        """Delegate to the PromptRegistry — all prompt text lives in backend/app/prompts/."""
+        return prompt_registry.get_system_prompt(query_type, brevity_mode=brevity_mode)
     
     def _get_llm_parameters(self, query_type: str, *, has_images: bool = False, brevity_mode: bool = False) -> tuple:
-        """Get max_tokens and temperature based on query type"""
+        """Get max_tokens and temperature based on query type.
         
+        Budgets are sized to the realistic answer length for each query type.
+        Not artificially capped — the system prompt controls verbosity instead.
+        Code queries need room for actual code; exploratory queries need room
+        for multi-section answers when warranted.
+        """
         params = {
-            "SIMPLE_FACT": (400, 0.2),      # Short, focused
-            "DEFINITION": (600, 0.3),       # Medium, precise
-            "PROCEDURAL": (1200, 0.3),      # Detailed, structured
-            "COMPARISON": (1000, 0.3),      # Analytical
-            "GENERATIVE": (500, 0.5),       # Helpful redirection
-            "CODE_QUERY": (1500, 0.3),      # Code-heavy
-            "EXPLORATORY": (2000, 0.35),    # Comprehensive, dynamic
+            #                        tokens  temp
+            "SIMPLE_FACT":     (300,   0.2),  # 1–4 sentences
+            "DEFINITION":      (350,   0.2),  # definition + context
+            "PROCEDURAL":      (700,   0.2),  # full step list, notes
+            "COMPARISON":      (600,   0.2),  # table + summary
+            "GENERATIVE":      (300,   0.3),  # short redirect
+            "CODE_QUERY":      (1200,  0.15), # code can be long
+            "EXPLORATORY":     (900,   0.3),  # multi-section when deserved
+            "TROUBLESHOOTING": (1000,  0.15), # structured steps + causes + warnings
         }
-        
-        tokens, temp = params.get(query_type, (1200, 0.35))
 
-        # Hard cap for brevity/summary mode — forces the LLM to be concise
+        tokens, temp = params.get(query_type, (600, 0.25))
+
+        # Hard cap for brevity/summary mode
         if brevity_mode:
-            return 400, 0.2
-        
-        # Boost tokens when images are available — LLM needs room for figure references
+            return 280, 0.2
+
+        # Give a bit more headroom when images are present (figure captions + references)
         if has_images:
-            tokens = min(tokens + 300, 3000)
-        
+            tokens = min(tokens + 200, 1400)
+
         return tokens, temp
     
     def _build_image_context(self, images: List[Dict[str, Any]]) -> str:
@@ -741,35 +619,21 @@ APPROACH:
         # STEP 1: Add conversation history FIRST for context
         # This ensures LLM understands the ongoing conversation
         # ========================================
-        context_instruction = ""
         if conversation_history and len(conversation_history) > 1:
-            # Build a context summary from previous messages
             history_parts = []
-            for msg in conversation_history[-8:-1]:  # Last 7 messages, excluding current
+            for msg in conversation_history[-8:-1]:  # last 7, excluding current
                 role = msg.get('role', 'unknown').upper()
                 content = msg.get('content', '')
-                # Summarize long content
                 if len(content) > 300:
                     content = content[:300] + "..."
                 history_parts.append(f"[{role}]: {content}")
-            
-            if history_parts:
-                context_instruction = f"""
-╔══════════════════════════════════════════════════════════════════════════════╗
-║  📚 CONVERSATION HISTORY - YOU MUST CONSIDER THIS CONTEXT!                   ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-{chr(10).join(history_parts)}
 
-⚠️ CRITICAL: This is a CONTINUING CONVERSATION. Build upon previous answers!
-"""
-                # Add as a system-like message at the start
+            context_instruction = prompt_registry.render_conversation_context(history_parts)
+            if context_instruction:
+                messages.append({"role": "user", "content": context_instruction})
                 messages.append({
-                    "role": "user",
-                    "content": context_instruction
-                })
-                messages.append({
-                    "role": "assistant", 
-                    "content": "I understand. I'll consider our previous conversation when answering your next question."
+                    "role": "assistant",
+                    "content": "I understand. I'll consider our previous conversation when answering your next question.",
                 })
         
         # ========================================
@@ -777,76 +641,37 @@ APPROACH:
         # ========================================
         
         # Check if there's an attached document (primary source)
-        has_attached_doc = (chat_request.context and isinstance(chat_request.context, dict) 
-                           and chat_request.context.get("attached_document"))
+        has_attached_doc = (chat_request.context and isinstance(chat_request.context, dict)
+                            and chat_request.context.get("attached_document"))
         doc_priority_note = ""
         if has_attached_doc:
             attached_name = chat_request.context.get("attached_filename", "uploaded document")
-            doc_priority_note = f"""
-⚠️ IMPORTANT: The user has attached a document ("{attached_name}").
-- The UPLOADED DOCUMENT (marked as PRIMARY SOURCE) is the main source of truth.
-- Answer primarily from the uploaded document content.
-- Use the SUPPLEMENTARY Knowledge Base context only to add extra background or fill gaps.
-- If the answer is found in the uploaded document, cite it as the source.
-"""
+            doc_priority_note = prompt_registry.render_attached_doc_prefix(attached_name)
 
-        if query_type == "SIMPLE_FACT":
-            user_message = f"""{doc_priority_note}Documentation:
-{context}
+        # Cap context before injection — budget scales to query complexity
+        _ctx_budgets = {
+            "SIMPLE_FACT":     1800, "DEFINITION":  1800, "GENERATIVE":  1800,
+            "PROCEDURAL":      3500, "COMPARISON":  3000,
+            "CODE_QUERY":      4000, "EXPLORATORY": 3500,
+            "TROUBLESHOOTING": 4000,  # needs full error descriptions + step sequences
+        }
+        _ctx_limit = _ctx_budgets.get(query_type, 2500)
+        ctx_for_msg = context[:_ctx_limit] if len(context) > _ctx_limit else context
 
-Question: {chat_request.message}
+        # ── Build user message via PromptRegistry ─────────────────────────────
+        image_context = self._build_image_context(images or []) if images else ""
+        plan_context = answer_plan.to_prompt_context() if answer_plan else ""
 
-Provide a direct, concise answer in 1-3 sentences. No extra formatting."""
-        
-        elif query_type == "GENERATIVE":
-            if has_attached_doc:
-                # With an attached document, allow generating answers FROM the document
-                user_message = f"""{doc_priority_note}Documentation:
-{context}
-
-User Request: {chat_request.message}
-
-Answer using the uploaded document as the primary source. Be comprehensive and helpful."""
-            else:
-                user_message = f"""Documentation Available:
-{context}
-
-User Request: {chat_request.message}
-
-The user is asking you to GENERATE/CREATE new content. You cannot do this.
-
-Instead:
-1. Politely explain you can only reference existing documentation
-2. Offer relevant examples or templates from the documentation
-3. Ask what specific information from existing docs would be helpful
-
-Be conversational and helpful, not robotic."""
-        
-        else:
-            image_context = self._build_image_context(images or [])
-            # Phase 7: Inject structured answer plan when available
-            plan_context = ""
-            if answer_plan:
-                plan_context = f"\n\n{answer_plan.to_prompt_context()}\n"
-            user_message = f"""{doc_priority_note}Documentation:
-{context}
-{image_context}{plan_context}
-Question: {chat_request.message}
-
-Provide a clear, intelligent, well-structured answer using the documentation above.{' Follow the ANSWER PLAN sections to organize your response.' if answer_plan else ' Structure the response dynamically to match the content — use the formatting approach best suited to the information available.'}"""
-
-        # ── Apply brevity override at the message level ─────────────────────────
-        # Regardless of query type, when brevity_mode is on, replace the user
-        # message with a strict summary-only instruction so the LLM can't drift.
-        if brevity_mode:
-            user_message = f"""Documentation (for reference):
-{context[:3000]}
-
-Question: {chat_request.message}
-
-⚠️ BREVITY REQUIRED: Give me a SHORT answer — maximum 3–5 bullet points or 2–3 sentences.
-Do NOT write headings, background sections, long paragraphs, or extra context.
-Stick strictly to the actual answer. Cite the source in one short line at the end."""
+        user_message = prompt_registry.render_user_message(
+            query_type,
+            context=ctx_for_msg,
+            question=chat_request.message,
+            image_context=image_context,
+            plan_context=plan_context,
+            doc_prefix=doc_priority_note,
+            has_attached_doc=bool(has_attached_doc),
+            brevity_mode=brevity_mode,
+        )
 
         messages.append({
             "role": "user",
@@ -855,28 +680,282 @@ Stick strictly to the actual answer. Cite the source in one short line at the en
         
         return messages
     
-    def _format_adaptive_response(self, response_text: str, query_type: str) -> str:
+    def _format_adaptive_response(self, response_text: str, query_type: str, *, has_images: bool = False) -> str:
         """Format and polish response — clean up common LLM artefacts."""
-        
+
         # Minimal formatting for simple facts
         if query_type == "SIMPLE_FACT":
             response_text = re.sub(r'\n{2,}', '\n', response_text)
             return response_text.strip()
-        
-        # Remove any trailing "Sources:" block the LLM may have added despite instructions
+
+        # ── Strip hallucinated "share a photo" invitations ──────────────────────────────
+        response_text = re.sub(
+            r'[^\n]*(?:share|send|provide|attach|upload)\s+(?:a\s+)?(?:photo|screenshot|image|picture|snap)[^\n]*\n?',
+            '', response_text, flags=re.IGNORECASE
+        )
+
+        # ── Strip phantom figure references when no images were returned ─────────────
+        # The LLM reads "Figure 1" from chunk text and hallucinates it as a visible image.
+        # If display_images is empty, remove any Figure reference sentence/fragment.
+        if not has_images:
+            # Remove sentences/fragments that reference figure numbers
+            response_text = re.sub(
+                r'[^.!?\n]*\bFigure\s+\d+[^.!?\n]*[.!?]?',
+                '', response_text, flags=re.IGNORECASE
+            )
+            # Remove orphaned page-image references like "(page 12 image)" or "refer to page 7 image"
+            response_text = re.sub(
+                r'[^.!?\n]*\bpage\s+\d+\s+image[^.!?\n]*[.!?]?',
+                '', response_text, flags=re.IGNORECASE
+            )
+
+        # ── Deduplicate repeated same-source citations ──────────────────────────────
+        # If the same source appears 3+ times, collapse to one citation at the end.
+        source_pattern = re.compile(
+            r'\(Source:\s*([^)]+)\)',
+            re.IGNORECASE
+        )
+        all_sources = source_pattern.findall(response_text)
+        if all_sources:
+            from collections import Counter
+            counts = Counter(s.strip() for s in all_sources)
+            # For any source cited 3+ times: strip all inline copies, append once at end
+            for src, count in counts.items():
+                if count >= 3:
+                    escaped = re.escape(src)
+                    response_text = re.sub(
+                        rf'\(Source:\s*{escaped}\)',
+                        '', response_text, flags=re.IGNORECASE
+                    )
+                    response_text = response_text.rstrip() + f'\n\n(Source: {src})'
+
+        # Remove any trailing "Sources:" block the LLM may have added
         response_text = re.sub(
             r'\n+(?:#{1,3}\s*)?(?:Source\s*References?|Sources?)\s*:?\s*\n'
             r'(?:[-•*]?\s*\[?[^\n]+\]?\n?)+\s*$',
             '', response_text, flags=re.IGNORECASE
         )
-        
+
         # Collapse 3+ newlines into double
         response_text = re.sub(r'\n{3,}', '\n\n', response_text)
-        
-        # Remove leading/trailing whitespace
-        response_text = response_text.strip()
-        
-        return response_text
+
+        # Clean up blank lines left by stripping
+        response_text = re.sub(r'\n[ \t]*\n[ \t]*\n', '\n\n', response_text)
+
+        return response_text.strip()
+
+    # ══════════════════════════════════════════════════════════════════════════
+    #  V1-V8 Optimization Helpers
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _get_query_top_k(self, query_type: str, has_attached: bool = False) -> int:
+        """V1: Return retrieval budget based on query type.
+        Less context → better signal-to-noise → crisper answers.
+        """
+        if has_attached:
+            return 3
+        budgets = {
+            "SIMPLE_FACT":     3,
+            "DEFINITION":      3,
+            "PROCEDURAL":      4,
+            "COMPARISON":      5,
+            "CODE_QUERY":      4,
+            "EXPLORATORY":     5,
+            "GENERATIVE":      3,
+            "TROUBLESHOOTING": 6,  # more chunks — errors need steps + causes + images
+        }
+        return budgets.get(query_type, 4)
+
+    # Image score thresholds
+    _IMAGE_SCORE_ALWAYS   = 0.90   # ≥ this → always include, clearly relevant
+    _IMAGE_SCORE_NEVER    = 0.40   # <  this → only include if query explicitly needs visuals
+    # Between thresholds → 3-signal content-aware logic
+
+    _EXPLICIT_VISUAL = {
+        "diagram", "flow", "layout", "chart", "figure", "image", "picture",
+        "schematic", "map", "drawing", "visual", "illustration", "photo",
+        "what does it look", "how does it look", "show me",
+    }
+    _VISUAL_QUERY_PHRASES = {
+        "how does", "how is", "explain", "describe", "overview",
+        "what is the process", "architecture", "structure", "design",
+        "how to", "steps", "workflow", "setup",
+    }
+
+    def _should_include_images(self, query: str, retrieved_images: list = None) -> bool:
+        """Decide whether to surface images to the LLM in this response.
+
+        Score-tier logic (applied before content-aware signals):
+          ≥ 0.90  → always include (highly confident the image is relevant)
+          < 0.40  → only include if query explicitly asks for a visual
+          0.40–0.90 → 3-signal content-aware gate:
+              1. Query explicitly asks for a visual
+              2. Query type naturally benefits from visuals
+              3. Image caption / source shares ≥2 meaningful words with the query
+        """
+        if not retrieved_images:
+            return False
+
+        q_lower = query.lower()
+        q_words = {w for w in re.findall(r"\b\w{4,}\b", q_lower)}
+
+        # ── Score-tier pre-check ──────────────────────────────────
+        scores = [img.get("relevance_score", 0.0) for img in retrieved_images]
+        max_score = max(scores) if scores else 0.0
+
+        # Always include — at least one image is highly relevant
+        if max_score >= self._IMAGE_SCORE_ALWAYS:
+            return True
+
+        # Troubleshooting queries: lower the bar — wiring diagrams, LED states,
+        # alarm panels in images are almost always useful for error resolution.
+        # Treat mid-confidence images (≥0.35) as always-include for these queries.
+        _TROUBLESHOOTING_SIGNALS = {
+            "error", "alarm", "fault", "failure", "stuck", "not working",
+            "fix", "resolve", "recover", "troubleshoot", "e-stop", "estop",
+        }
+        if any(sig in q_lower for sig in _TROUBLESHOOTING_SIGNALS) and max_score >= 0.35:
+            return True
+
+        # Low confidence — only include for explicit visual queries
+        if max_score < self._IMAGE_SCORE_NEVER:
+            return any(t in q_lower for t in self._EXPLICIT_VISUAL)
+
+        # ── Mid-confidence: 3-signal content-aware gate ──────────
+        # Signal 1 — explicit visual request in query
+        if any(t in q_lower for t in self._EXPLICIT_VISUAL):
+            return True
+
+        # Signal 2 — query type naturally benefits from visuals
+        if any(ph in q_lower for ph in self._VISUAL_QUERY_PHRASES):
+            return True
+
+        # Signal 3 — at least one retrieved image is content-relevant
+        for img in retrieved_images[:3]:
+            caption = (img.get("caption") or "").lower()
+            src = (img.get("source_document") or img.get("source_path") or "").lower()
+            combined = caption + " " + src
+            img_words = {w for w in re.findall(r"\b\w{4,}\b", combined)}
+            if len(q_words & img_words) >= 2:
+                return True
+
+        return False
+
+    def _build_crisp_context(self, chunks: list, query_type: str) -> str:
+        """Build numbered context from reranked chunks with query-type-aware sizing.
+        Simple queries get smaller excerpts; complex queries get more content.
+        """
+        if not chunks:
+            return "No relevant documentation found."
+
+        # Per-chunk size and total budget scale with answer complexity
+        _budgets = {
+            "SIMPLE_FACT":     (350, 1800), "DEFINITION":  (350, 1800),
+            "GENERATIVE":      (350, 1800), "PROCEDURAL":  (600, 3500),
+            "COMPARISON":      (550, 3000), "CODE_QUERY":  (700, 4000),
+            "EXPLORATORY":     (600, 3500),
+            "TROUBLESHOOTING": (650, 4000),  # full error descriptions needed
+        }
+        chunk_char_limit, total_budget = _budgets.get(query_type, (500, 2500))
+        parts: list = []
+        used = 0
+
+        for i, chunk in enumerate(chunks, 1):
+            content = (chunk.content or "").strip()
+            if not content:
+                continue
+            # Trim to per-chunk limit
+            if len(content) > chunk_char_limit:
+                content = content[:chunk_char_limit] + "…"
+            if used + len(content) > total_budget:
+                break
+            source = Path(chunk.source_path).name if getattr(chunk, "source_path", None) else "doc"
+            parts.append(f"[{i}] ({source})\n{content}")
+            used += len(content)
+
+        return "\n\n".join(parts) if parts else "No relevant documentation found."
+
+    def _build_crisp_context_from_legacy(self, results: list, query_type: str) -> str:
+        """Same as _build_crisp_context but for legacy vector-store format."""
+        if not results:
+            return "No relevant documentation found."
+
+        _budgets = {
+            "SIMPLE_FACT":     (350, 1800), "DEFINITION":  (350, 1800),
+            "GENERATIVE":      (350, 1800), "PROCEDURAL":  (600, 3500),
+            "COMPARISON":      (550, 3000), "CODE_QUERY":  (700, 4000),
+            "EXPLORATORY":     (600, 3500),
+            "TROUBLESHOOTING": (650, 4000),
+        }
+        chunk_char_limit, total_budget = _budgets.get(query_type, (500, 2500))
+        parts: list = []
+        used = 0
+
+        for i, result in enumerate(results, 1):
+            doc = result.get("document", result)
+            content = (doc.get("content", "") or "").strip()
+            if not content:
+                continue
+            if len(content) > chunk_char_limit:
+                content = content[:chunk_char_limit] + "…"
+            if used + len(content) > total_budget:
+                break
+            source = doc.get("metadata", {}).get("filename", "doc")
+            parts.append(f"[{i}] ({source})\n{content}")
+            used += len(content)
+
+        return "\n\n".join(parts) if parts else "No relevant documentation found."
+
+    def _convert_chunks_to_legacy_format(self, chunks: list) -> list:
+        """Convert RetrievedChunk list to legacy search_results format for confidence calc."""
+        results = []
+        for chunk in chunks:
+            results.append({
+                "similarity": chunk.score,
+                "boosted_similarity": chunk.score,
+                "document": {
+                    "content": chunk.content,
+                    "metadata": {
+                        "filename": Path(chunk.source_path).name if getattr(chunk, "source_path", None) else "unknown",
+                        "category": chunk.metadata.get("category", "unknown") if hasattr(chunk, "metadata") else "unknown",
+                    }
+                }
+            })
+        return results
+
+    def _extract_relevant_doc_excerpt(self, doc_text: str, query: str, max_chars: int = 6000) -> str:
+        """V8: Extract the most query-relevant portion of an attached document
+        instead of dumping the entire text.
+        Uses simple sentence-level keyword matching (no embeddings needed).
+        """
+        if not doc_text:
+            return ""
+        if len(doc_text) <= max_chars:
+            return doc_text
+
+        # Split into paragraphs
+        paragraphs = [p.strip() for p in doc_text.split("\n\n") if len(p.strip()) > 40]
+        q_words = {w.lower() for w in re.findall(r"\b\w{3,}\b", query) if len(w) > 3}
+
+        def _score(para: str) -> int:
+            pl = para.lower()
+            return sum(1 for w in q_words if w in pl)
+
+        scored = sorted(enumerate(paragraphs), key=lambda t: _score(t[1]), reverse=True)
+
+        kept: list = []
+        chars_used = 0
+        for orig_idx, para in scored:
+            if chars_used + len(para) > max_chars:
+                break
+            kept.append((orig_idx, para))
+            chars_used += len(para)
+
+        # Re-order by original position for coherence
+        kept.sort(key=lambda t: t[0])
+        excerpt = "\n\n".join(p for _, p in kept)
+        logger.info(f"📄 Doc excerpt: {len(doc_text):,} → {len(excerpt):,} chars (query-relevant)")
+        return excerpt
 
     # ── Brevity Intent Detection ──────────────────────────────────────────────
     def _detect_brevity_intent(self, query: str, conversation_history: list) -> bool:

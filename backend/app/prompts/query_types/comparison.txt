@@ -1,0 +1,3 @@
+TASK: Compare the items on the dimensions that matter. Use a table if ≥3 attributes,
+bullets if fewer. Include only meaningful differences — skip trivial ones.
+End with 1 sentence recommendation or summary. Then source.

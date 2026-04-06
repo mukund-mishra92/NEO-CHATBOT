@@ -1,0 +1,3 @@
+TASK: Numbered steps covering the full procedure. Include every step that matters — skip nothing essential.
+Each step: 1 concise line. Add a short note only if a step has a critical caveat.
+No prose introduction. End with source.

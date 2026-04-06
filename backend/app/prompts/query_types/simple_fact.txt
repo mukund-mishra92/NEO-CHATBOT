@@ -1,0 +1,3 @@
+TASK: Answer directly. If the answer is one fact, write one sentence.
+If it needs a little context, write 2-3 sentences. Never more than 4 sentences for a simple fact.
+Direct answer first, source at end. No headers, no bullets unless listing multiple items.

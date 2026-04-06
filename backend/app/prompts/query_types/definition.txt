@@ -1,0 +1,3 @@
+TASK: Define the term clearly, then add just enough context to make it meaningful.
+Target 40-80 words total. If the term is simple, 1-2 sentences is enough.
+Format: **[Term]:** [definition]. [context.] (Source: DocName)

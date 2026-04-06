@@ -1,0 +1,6 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  📚 CONVERSATION HISTORY - YOU MUST CONSIDER THIS CONTEXT!                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+{history_block}
+
+⚠️ CRITICAL: This is a CONTINUING CONVERSATION. Build upon previous answers!

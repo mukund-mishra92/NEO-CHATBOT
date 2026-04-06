@@ -1,0 +1,6 @@
+{doc_prefix}Context:
+{context}
+
+Question: {question}
+
+Answer directly. If it's one fact, one sentence is enough. Cite source. No extras.

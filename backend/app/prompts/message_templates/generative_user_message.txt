@@ -1,0 +1,6 @@
+Context:
+{context}
+
+Request: {question}
+
+Explain briefly what you can help with from the documentation, then show the most relevant info.

@@ -1,0 +1,5 @@
+⚠️ IMPORTANT: The user has attached a document ("{attached_name}").
+- The UPLOADED DOCUMENT (marked as PRIMARY SOURCE) is the main source of truth.
+- Answer primarily from the uploaded document content.
+- Use the SUPPLEMENTARY Knowledge Base context only to add extra background or fill gaps.
+- If the answer is found in the uploaded document, cite it as the source.

@@ -1,0 +1,6 @@
+{doc_prefix}Document:
+{context}
+
+Request: {question}
+
+Answer from the document. Be complete but not verbose.

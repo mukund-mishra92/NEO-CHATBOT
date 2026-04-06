@@ -1,0 +1,7 @@
+Context:
+{context}
+
+Question: {question}
+
+⚠️ BREVITY: 3-5 bullets or 2-3 sentences MAXIMUM. No headings, no extras.
+Cite source in one parenthetical at the end.

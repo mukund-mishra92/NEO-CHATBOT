@@ -1,0 +1,7 @@
+{doc_prefix}Context:
+{context}
+{image_context}{plan_context}
+Question: {question}
+
+Answer clearly and completely. Match the length to the question — brief for simple questions,
+full coverage for complex ones. No filler, no repetition.

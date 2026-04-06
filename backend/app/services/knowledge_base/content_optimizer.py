@@ -123,6 +123,68 @@ class ContentOptimizer:
     # ------------------------------------------------------------------
     # Internals
     # ------------------------------------------------------------------
+    # ── V1/V4: Hard filter + deduplication for RetrievedChunk lists ──────────
+    def filter_and_deduplicate(
+        self,
+        chunks: list,
+        score_threshold: float = 0.35,
+        max_chunks: int = 5,
+    ) -> list:
+        """Filter low-quality chunks and remove near-duplicate content.
+
+        Args:
+            chunks: List of RetrievedChunk objects.
+            score_threshold: Minimum RRF/heuristic score to keep a chunk.
+            max_chunks: Hard cap on number of returned chunks.
+
+        Returns:
+            Filtered, deduplicated, capped chunk list.
+        """
+        if not chunks:
+            return chunks
+
+        # 1. Score filter — drop noise
+        filtered = [c for c in chunks if getattr(c, "score", 1.0) >= score_threshold]
+        if not filtered:
+            # Relax threshold if everything was filtered out
+            filtered = sorted(chunks, key=lambda c: getattr(c, "score", 0.0), reverse=True)[:2]
+
+        # 2. Deduplication — remove chunks where >70% of words overlap with a previously kept chunk
+        kept: list = []
+        seen_fingerprints: list = []
+
+        for chunk in filtered:
+            content = (getattr(chunk, "content", "") or "").strip().lower()
+            words = set(re.findall(r"\b\w{4,}\b", content))
+            if not words:
+                kept.append(chunk)
+                continue
+
+            is_dup = False
+            for fp in seen_fingerprints:
+                if len(fp) == 0:
+                    continue
+                overlap_ratio = len(words & fp) / max(len(fp), len(words))
+                if overlap_ratio > 0.70:
+                    is_dup = True
+                    break
+
+            if not is_dup:
+                kept.append(chunk)
+                seen_fingerprints.append(words)
+
+            if len(kept) >= max_chunks:
+                break
+
+        original = len(chunks)
+        final = len(kept)
+        reduction_pct = round((1 - final / max(original, 1)) * 100, 1)
+        logger.info(
+            f"🔍 filter_and_deduplicate: {original} → {final} chunks "
+            f"(threshold={score_threshold}, max={max_chunks}, -{reduction_pct}%)"
+        )
+        return kept
+
     _BOILERPLATE_PATTERNS = [
         r"Page \d+ of \d+",
         r"Copyright © \d{4}.*",

@@ -18,7 +18,11 @@ logger = logging.getLogger(__name__)
 
 # ── Defaults ──
 MAX_DISPLAY_IMAGES = 5          # Show at most N images per response
-MIN_CHUNK_SCORE = 0.30          # Ignore images from low-relevance chunks
+MIN_CHUNK_SCORE = 0.35          # Pre-filter: drop images from very low-relevance chunks.
+                                # Final image inclusion decision is made by
+                                # knowledge_base_service._should_include_images()
+                                # using a 3-tier score gate (≥0.90 always,
+                                # <0.40 explicit-only, 0.40-0.90 content-aware).
 MIN_IMAGE_SIZE = 100             # Skip images smaller than NxN pixels
 MIN_BRIGHTNESS = 15             # Average pixel brightness (0-255); below = dark/blank image
 

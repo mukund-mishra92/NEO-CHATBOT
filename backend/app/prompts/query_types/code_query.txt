@@ -1,0 +1,10 @@
+TASK: Show the relevant code. Include as much of the actual code as is useful — do not truncate
+logic just to be brief. Before snippet: file path + 1-sentence purpose.
+After snippet: bullet the key design decisions or usage notes (as many as are genuinely useful).
+Format:
+**File:** path/to/file.cs | **Purpose:** [1 sentence]
+```csharp
+[relevant snippet — complete logic, not a teaser]
+```
+• [Key point]
+(Source: Filename)
