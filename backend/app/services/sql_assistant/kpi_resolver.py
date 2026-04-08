@@ -21,13 +21,56 @@ import logging
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple, Union
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import numpy as np
 
 from .match_utils import strip_matching_noise
 
 logger = logging.getLogger(__name__)
+
+
+# ============================================================
+# IST timezone constant and epoch conversion helper
+# ============================================================
+
+# Asia/Kolkata = UTC+05:30, expressed using stdlib only (no pytz / zoneinfo).
+_IST_TZ = timezone(timedelta(hours=5, minutes=30))
+
+
+def _dt_str_to_ist_epoch(dt_str: str) -> int:
+    """
+    Parse a naive datetime string as IST (Asia/Kolkata, UTC+05:30) and return
+    the corresponding Unix epoch seconds (integer).
+
+    The caller is responsible for ensuring that *dt_str* already represents the
+    intended IST boundary, e.g.:
+        "2026-04-07 00:00:00"  →  IST midnight of April 7
+        "2026-04-07 23:59:59"  →  IST end-of-day April 7
+
+    ⚠️  MySQL session-timezone requirement
+    ------------------------------------
+    ``FROM_UNIXTIME(epoch)`` returns a DATETIME in the **current MySQL session
+    timezone**.  KPI queries produced by this resolver must therefore be
+    executed with the session timezone explicitly set to IST so that the
+    epoch-to-DATETIME conversion matches the IST-stored timestamps in the
+    warehouse database.
+
+    Ensure the executor prepends::
+
+        SET @@session.time_zone = '+05:30';
+
+    before running any KPI SQL that was built by this resolver.  The key
+    ``"mysql_tz_hint"`` in the returned ``params_applied`` dict carries this
+    statement as a machine-readable reminder for the executor layer.
+    """
+    try:
+        naive = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        naive = datetime.strptime(dt_str, "%Y-%m-%d")
+    # Attach IST tzinfo and convert to epoch (timestamp() returns UTC-based epoch)
+    aware = naive.replace(tzinfo=_IST_TZ)
+    return int(aware.timestamp())
 
 
 # ============================================================
@@ -566,7 +609,7 @@ class DashboardKPIResolver:
 
     def _build_kpi_text(self, kpi: KPIEntry) -> str:
         """Build a rich text representation of a KPI for embedding."""
-        uq_text = "\n".join(kpi.user_queries[:5]) if kpi.user_queries else ""
+        uq_text = "\n".join(kpi.user_queries) if kpi.user_queries else ""
         return (
             f"KPI: {kpi.kpi_name}\n"
             f"Category: {kpi.category}\n"
@@ -1485,7 +1528,9 @@ class DashboardKPIResolver:
           - "now" / "current" (last 1 hour)
         """
         q = question.lower()
-        now = datetime.now()
+        # Anchor "now" to IST so that relative ranges ("today", "yesterday",
+        # "last Monday", named-day lookups) are resolved in the correct timezone.
+        now = datetime.now(tz=_IST_TZ).replace(tzinfo=None)
 
         # ── Word-to-number conversion so "last one hour" works ──
         _WORD_NUMS = {
@@ -1801,7 +1846,9 @@ class DashboardKPIResolver:
             params["location"] = tenant_values
 
         # 2. Time range substitution — parse from question if no explicit range
-        now = datetime.now()
+        # "now" is IST-anchored so that relative queries ("yesterday", "today",
+        # "last 2 hours") resolve to the correct IST boundaries.
+        now = datetime.now(tz=_IST_TZ).replace(tzinfo=None)
         if not time_from:
             parsed = self._parse_time_range(question) if question else timedelta(days=1)
             if isinstance(parsed, tuple):
@@ -1809,7 +1856,7 @@ class DashboardKPIResolver:
                 t_from = parsed[0].strftime("%Y-%m-%d %H:%M:%S")
                 t_to = parsed[1].strftime("%Y-%m-%d %H:%M:%S")
                 logger.debug(
-                    f"⏰ Absolute time range from question: {t_from} → {t_to}"
+                    f"⏰ Absolute time range from question (IST): {t_from} → {t_to}"
                 )
             else:
                 # Relative timedelta
@@ -1823,15 +1870,35 @@ class DashboardKPIResolver:
             t_from = time_from
             t_to = time_to if time_to else now.strftime("%Y-%m-%d %H:%M:%S")
 
-        # Replace Grafana time functions
-        # $__timeFilter(column) → column BETWEEN 'from' AND 'to'
+        # ── IST-epoch conversion ──────────────────────────────────────────────
+        # t_from / t_to are naive datetime strings representing IST boundaries.
+        # We convert them to Unix epoch seconds so the final KPI SQL uses
+        # FROM_UNIXTIME(epoch) instead of plain datetime literals.
+        #
+        # ⚠️  MySQL session-timezone requirement
+        # -----------------------------------------------
+        # FROM_UNIXTIME(epoch) converts epoch → DATETIME in the session timezone.
+        # For correct results against IST-stored timestamps the executor MUST run:
+        #
+        #     SET @@session.time_zone = '+05:30';
+        #
+        # before executing any KPI SQL returned by this resolver.
+        # The key "mysql_tz_hint" in params_applied carries this statement.
+        from_epoch = _dt_str_to_ist_epoch(t_from)
+        to_epoch   = _dt_str_to_ist_epoch(t_to)
+
+        # ── Replace Grafana time functions with IST-epoch expressions ──────────
+        # $__timeFilter(column)
+        #   → column BETWEEN FROM_UNIXTIME(from_epoch) AND FROM_UNIXTIME(to_epoch)
         sql = re.sub(
             r"\$__timeFilter\(([^)]+)\)",
-            rf"\1 BETWEEN '{t_from}' AND '{t_to}'",
+            rf"\1 BETWEEN FROM_UNIXTIME({from_epoch}) AND FROM_UNIXTIME({to_epoch})",
             sql, flags=re.IGNORECASE
         )
-        # $__timeFrom() - INTERVAL N DAY/HOUR → compute the adjusted timestamp
-        # so the buffer period (e.g., midnight-crossing safety) is preserved.
+
+        # $__timeFrom() - INTERVAL N DAY/HOUR
+        #   → FROM_UNIXTIME(adjusted_epoch)
+        # Preserves the midnight-crossing safety buffer used by several bot KPIs.
         _interval_pat = re.compile(
             r"\$__timeFrom\(\)\s*-\s*INTERVAL\s+(\d+)\s+(\w+)",
             re.IGNORECASE,
@@ -1845,49 +1912,55 @@ class DashboardKPIResolver:
             except ValueError:
                 t_from_dt = datetime.strptime(t_from, "%Y-%m-%d")
             if offset_unit in ("DAY", "DAYS"):
-                adjusted_from = (t_from_dt - timedelta(days=offset_val)).strftime("%Y-%m-%d %H:%M:%S")
+                adjusted_dt = t_from_dt - timedelta(days=offset_val)
             elif offset_unit in ("HOUR", "HOURS"):
-                adjusted_from = (t_from_dt - timedelta(hours=offset_val)).strftime("%Y-%m-%d %H:%M:%S")
+                adjusted_dt = t_from_dt - timedelta(hours=offset_val)
             else:
-                adjusted_from = t_from  # unknown unit, no adjustment
-            sql = _interval_pat.sub(f"'{adjusted_from}'", sql)
+                adjusted_dt = t_from_dt  # unknown unit — no adjustment
+            adjusted_from = adjusted_dt.strftime("%Y-%m-%d %H:%M:%S")
+            adjusted_epoch = _dt_str_to_ist_epoch(adjusted_from)
+            sql = _interval_pat.sub(f"FROM_UNIXTIME({adjusted_epoch})", sql)
             logger.debug(
-                f"⏰ INTERVAL offset preserved: $__timeFrom() - INTERVAL {offset_val} {offset_unit} "
-                f"→ '{adjusted_from}' (original from='{t_from}')"
+                f"⏰ INTERVAL offset (IST epoch): "
+                f"$__timeFrom() - INTERVAL {offset_val} {offset_unit} "
+                f"→ FROM_UNIXTIME({adjusted_epoch}) (original from='{t_from}')"
             )
-        sql = sql.replace("$__timeFrom()", f"'{t_from}'")
-        sql = sql.replace("$__timeTo()", f"'{t_to}'")
+
+        # Bare $__timeFrom() / $__timeTo() → FROM_UNIXTIME(epoch)
+        sql = sql.replace("$__timeFrom()", f"FROM_UNIXTIME({from_epoch})")
+        sql = sql.replace("$__timeTo()",   f"FROM_UNIXTIME({to_epoch})")
 
         # ── Params CTE pattern (7 KPIs: kpi_062–064, 076–077, 081–082) ──
-        # TIMESTAMP('2026-01-03 00:00:00') AS from_ts  →  actual computed from
-        # TIMESTAMP('2026-01-03 23:59:59') AS to_ts    →  actual computed to
+        # TIMESTAMP('2026-01-03 00:00:00') AS from_ts  →  FROM_UNIXTIME(epoch) AS from_ts
+        # TIMESTAMP('2026-01-03 23:59:59') AS to_ts    →  FROM_UNIXTIME(eod_epoch) AS to_ts
         sql = re.sub(
             r"TIMESTAMP\s*\(\s*'[^']+'\s*\)\s*(AS\s+from_ts)",
-            f"TIMESTAMP('{t_from}') \\1",
+            rf"FROM_UNIXTIME({from_epoch}) \1",
             sql, flags=re.IGNORECASE,
         )
-        # to_ts should be end-of-day 23:59:59 for the Params CTE pattern
-        t_to_eod = t_to.split(" ")[0] + " 23:59:59"
+        # to_ts: end-of-day 23:59:59 IST for the Params CTE
+        t_to_eod_str = t_to.split(" ")[0] + " 23:59:59"
+        to_eod_epoch = _dt_str_to_ist_epoch(t_to_eod_str)
         sql = re.sub(
             r"TIMESTAMP\s*\(\s*'[^']+'\s*\)\s*(AS\s+to_ts)",
-            f"TIMESTAMP('{t_to_eod}') \\1",
+            rf"FROM_UNIXTIME({to_eod_epoch}) \1",
             sql, flags=re.IGNORECASE,
         )
 
         # ── CAST date equality pattern (31 KPIs: kpi_048–085) ──
-        # CAST(col AS DATE) = '2026-01-03'  →  CAST(col AS DATE) BETWEEN 'from' AND 'to'
-        # These KPIs use single-day snapshots; for multi-day ranges we convert
-        # = 'hardcoded_date' to BETWEEN '{from_date}' AND '{to_date}'
-        t_from_date = t_from.split(" ")[0]   # '2026-03-24'
-        t_to_date = t_to.split(" ")[0]       # '2026-03-27'
+        # CAST(col AS DATE) = 'YYYY-MM-DD'
+        #   → CAST(col AS DATE) BETWEEN DATE(FROM_UNIXTIME(from)) AND DATE(FROM_UNIXTIME(to))
+        # DATE(FROM_UNIXTIME(...)) ensures the comparison stays at date granularity
+        # regardless of any time-of-day component in the epoch.
         sql = re.sub(
             r"(CAST\s*\([^)]+AS\s+DATE\s*\))\s*=?\s*'(\d{4}-\d{2}-\d{2})'",
-            rf"\1 BETWEEN '{t_from_date}' AND '{t_to_date}'",
+            rf"\1 BETWEEN DATE(FROM_UNIXTIME({from_epoch})) AND DATE(FROM_UNIXTIME({to_epoch}))",
             sql, flags=re.IGNORECASE,
         )
 
-        params["time_from"] = t_from
-        params["time_to"] = t_to
+        params["time_from"]     = t_from
+        params["time_to"]       = t_to
+        params["mysql_tz_hint"] = "SET @@session.time_zone = '+05:30';"  # executor hint
 
         # 3. $Category substitution — use extracted value or remove filter
         if "$Category" in sql:
@@ -1939,7 +2012,8 @@ class DashboardKPIResolver:
         to handle location breakdown prompts.
         """
         sql_body = sql.strip().rstrip(";")
-        normalized = f" {re.sub(r'\s+', ' ', sql_body).strip().lower()} "
+        normalized_body = re.sub(r"\s+", " ", sql_body).strip().lower()
+        normalized = f" {normalized_body} "
 
         unsupported_tokens = (
             " join ", " with ", " union ", " group by ",
