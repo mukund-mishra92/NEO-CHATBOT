@@ -49,6 +49,8 @@ _TIME_PATTERNS = [
     r"\bfor\s+the\s+last\s+\d+\s+(?:days?|hours?|weeks?|months?)\b",
     # "last N days/hours/weeks/months"
     r"\blast\s+\d+\s+(?:days?|hours?|weeks?|months?)\b",
+    # "last one/two/... days/hours/weeks/months" (word numbers)
+    r"\blast\s+(?:one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:days?|hours?|weeks?|months?)\b",
     # "last (one)? week/month/year"
     r"\blast\s+(?:one\s+)?(?:week|month|year)\b",
     # "past N days/hours"

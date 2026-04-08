@@ -11,17 +11,27 @@ class EntityResolver:
     def resolve(self, question: str) -> Dict[str, str]:
         entities = {}
 
-        # BOT: bot 1 → BOT-0001
-        bot_match = re.search(r"\bbot\s*[-_ ]?\s*(\d{1,4})\b", question, re.IGNORECASE)
-        if bot_match:
-            num = int(bot_match.group(1))
+        # BOT: "bot 1" → BOT-0001, "bot FRK001" → FRK001, "bot-id BOT-0003" → BOT-0003
+        bot_numeric = re.search(r"\bbot\s*[-_ ]?\s*(\d{1,4})\b", question, re.IGNORECASE)
+        bot_alpha = re.search(
+            r"\bbot[-_ ](?:id\s*[-:= ]?\s*)?([A-Z]{2,}[-_ ]?\d{2,6})\b", question, re.IGNORECASE
+        )
+        if bot_numeric:
+            num = int(bot_numeric.group(1))
             entities["BOT_ID"] = f"BOT-{num:04d}"
+        elif bot_alpha:
+            entities["BOT_ID"] = bot_alpha.group(1).upper().replace(" ", "-")
 
-        # STATION: station 3 → STATION-0003
-        station_match = re.search(r"\bstation\s*[-_ ]?\s*(\d{1,4})\b", question, re.IGNORECASE)
-        if station_match:
-            num = int(station_match.group(1))
+        # STATION: "station 3" → STATION-0003, "station ST-05" → ST-05
+        station_numeric = re.search(r"\bstation\s*[-_ ]?\s*(\d{1,4})\b", question, re.IGNORECASE)
+        station_alpha = re.search(
+            r"\bstation[-_ ](?:id\s*[-:= ]?\s*)?([A-Z]{1,}[-_ ]?\d{2,6})\b", question, re.IGNORECASE
+        )
+        if station_numeric:
+            num = int(station_numeric.group(1))
             entities["STATION_ID"] = f"STATION-{num:04d}"
+        elif station_alpha:
+            entities["STATION_ID"] = station_alpha.group(1).upper().replace(" ", "-")
 
         # WAVE: wave 12 → WAVE-000012
         wave_match = re.search(r"\bwave\s*[-_ ]?\s*(\d{1,6})\b", question, re.IGNORECASE)

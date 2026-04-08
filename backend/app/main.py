@@ -62,6 +62,15 @@ app.mount(
     name="extracted_images",
 )
 
+# ── Static file serving for frontend assets (CSS, JS) ──
+_frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+_frontend_css_dir = _frontend_dir / "css"
+_frontend_js_dir  = _frontend_dir / "js"
+_frontend_css_dir.mkdir(parents=True, exist_ok=True)
+_frontend_js_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/css", StaticFiles(directory=str(_frontend_css_dir)), name="frontend_css")
+app.mount("/js",  StaticFiles(directory=str(_frontend_js_dir)),  name="frontend_js")
+
 def serve_html_file(filename: str, fallback_message: str = "Page not found"):
     """Helper function to serve HTML files"""
     frontend_path = Path(__file__).parent.parent.parent / "frontend" / filename
@@ -94,6 +103,11 @@ async def health_check():
 async def chatbot_page():
     """Serve the main chatbot UI with all features (Knowledge Base, SQL Assistant, Diagnostic)"""
     return serve_html_file("chatbot.html", "Chatbot UI not found")
+
+@app.get("/chatbot_v2", response_class=HTMLResponse)
+async def chatbot_v2_page():
+    """Serve the modular chatbot UI (v2)"""
+    return serve_html_file("chatbot_v2.html", "Chatbot UI not found")
 
 @app.get("/diagnostic", response_class=HTMLResponse)
 async def diagnostic_page():

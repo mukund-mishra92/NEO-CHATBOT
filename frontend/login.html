@@ -517,7 +517,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const session = getSession();
             if (session) {
-                window.location.href = '/chatbot';
+                window.location.href = '/chatbot_v2';
             }
         });
 
@@ -675,7 +675,7 @@
                         role: 'user',
                         loginTime: new Date().toISOString()
                     }));
-                    window.location.href = '/chatbot';
+                    window.location.href = '/chatbot_v2';
                 } else {
                     showError(result.message || 'Invalid OTP. Please try again.');
                 }
@@ -697,7 +697,7 @@
                 loginTime: new Date().toISOString()
             }));
             
-            window.location.href = '/chatbot';
+            window.location.href = '/chatbot_v2';
         }
 
         async function resendOTP() {

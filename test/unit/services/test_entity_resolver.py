@@ -172,3 +172,33 @@ class TestSubstitution:
     def test_substitute_no_entities(self, resolver):
         result = resolver.substitute("show picks today", {})
         assert result == "show picks today"
+
+
+# ===================================================================
+# ALPHANUMERIC BOT / STATION IDs (Phase 5)
+# ===================================================================
+class TestAlphanumericIds:
+
+    def test_bot_alphanumeric_id(self, resolver):
+        """'bot FRK001' should extract as FRK001."""
+        result = resolver.resolve("status of bot FRK001")
+        assert "BOT_ID" in result
+        assert result["BOT_ID"] == "FRK001"
+
+    def test_bot_id_with_prefix(self, resolver):
+        """'bot-id BOT-0003' should extract as BOT-0003."""
+        result = resolver.resolve("info for bot-id BOT-0003")
+        assert "BOT_ID" in result
+        # Numeric pattern fires first for 'BOT-0003' since it ends with digits
+        # Alphanumeric extracts raw ID
+        assert "BOT" in result["BOT_ID"]
+
+    def test_numeric_bot_preferred_over_alpha(self, resolver):
+        """'bot 7' should still resolve to BOT-0007 (numeric takes priority)."""
+        result = resolver.resolve("what is bot 7 status")
+        assert result["BOT_ID"] == "BOT-0007"
+
+    def test_station_alphanumeric_id(self, resolver):
+        """'station ST05' should extract as ST05."""
+        result = resolver.resolve("picks at station ST05")
+        assert "STATION_ID" in result

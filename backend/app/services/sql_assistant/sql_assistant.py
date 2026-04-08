@@ -723,7 +723,8 @@ class SQLAssistantService:
         # --------------------------------------------------
         # 📊 DASHBOARD KPI MATCH (pre-built Grafana queries)
         # --------------------------------------------------
-        kpi_response = self._try_kpi_match(clean_question, entities, session_id)
+        kpi_response = self._try_kpi_match(clean_question, entities, session_id,
+                                               original_question=question)
         if kpi_response:
             self.cache.set(session_id, clean_question, kpi_response)
             return kpi_response
@@ -733,20 +734,36 @@ class SQLAssistantService:
             self.cache.set(session_id, clean_question, sp_response)
             return sp_response
 
-        reused = self.reuse_engine.try_reuse(clean_question)
+        # ── Compute time range for reuse substitution ──
+        _reuse_time_from = _reuse_time_to = None
+        try:
+            from datetime import datetime, timedelta
+            _delta = self.kpi_resolver._parse_time_range(clean_question)
+            _now = datetime.now()
+            if _delta == timedelta(0):
+                _reuse_time_from = _now.strftime("%Y-%m-%d 00:00:00")
+            else:
+                _reuse_time_from = (_now - _delta).strftime("%Y-%m-%d %H:%M:%S")
+            _reuse_time_to = _now.strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            pass
+
+        reused = self.reuse_engine.try_reuse(
+            clean_question,
+            entities=entities,
+            time_from=_reuse_time_from,
+            time_to=_reuse_time_to,
+            tenant_column=self.tenant_column if self.multi_tenant_enabled else None,
+        )
 
         if reused:
             sql, execution_result = reused
 
-            # 🔥 Apply tenant filter to reused SQL (original may have been for a different tenant)
-            if self.multi_tenant_enabled and entities.get(self.tenant_column):
-                # Strip any existing tenant filter first — reused SQL may have been
-                # for a DIFFERENT site than what the current user is asking about.
-                sql = self._replace_tenant_filter(sql, entities)
+            # Archive table swap (separate concern — not handled by reuse engine)
+            new_sql = self._apply_archive_if_needed(sql, clean_question)
+            if new_sql != sql:
+                sql = new_sql
                 execution_result = self.executor.execute(sql)
-
-            sql = self._apply_archive_if_needed(sql, clean_question)
-            execution_result = self.executor.execute(sql)
 
             generation_result = SQLGenerationResult(
                 sql=sql,
@@ -993,7 +1010,8 @@ class SQLAssistantService:
     # ----------------------------------------------------------
     # 📊 DASHBOARD KPI MATCH
     # ----------------------------------------------------------
-    def _try_kpi_match(self, clean_question: str, entities: dict, session_id: str):
+    def _try_kpi_match(self, clean_question: str, entities: dict, session_id: str,
+                        original_question: str = None):
         """
         📊  DASHBOARD KPI PIPELINE  (deterministic — NO LLM fallback)
 
@@ -1011,17 +1029,57 @@ class SQLAssistantService:
         # ── Extract tenant values ──
         tenant_values = entities.get(self.tenant_column)
         all_sites = entities.get("_all_sites", False)
+        location_breakdown = entities.get("_location_breakdown", False)
 
         if isinstance(tenant_values, str):
             tenant_values = [tenant_values]
         elif not tenant_values:
             tenant_values = None
 
+        # ── Case-2 fix: derive explicit time_from / time_to from question ──
+        # The resolver will parse these from the question text if not provided,
+        # but passing them explicitly gives us a single, logged source-of-truth.
+        try:
+            _parsed = self.kpi_resolver._parse_time_range(clean_question)
+            from datetime import datetime as _dt, timedelta as _td
+            _now = _dt.now()
+            if isinstance(_parsed, tuple):
+                # Absolute date range (e.g. "from 2 to 3 march")
+                _kpi_time_from = _parsed[0].strftime("%Y-%m-%d %H:%M:%S")
+                _kpi_time_to = _parsed[1].strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                _delta = _parsed
+                if _delta.total_seconds() == 0:
+                    _kpi_time_from = _now.strftime("%Y-%m-%d 00:00:00")
+                else:
+                    _kpi_time_from = (_now - _delta).strftime("%Y-%m-%d %H:%M:%S")
+                _kpi_time_to = _now.strftime("%Y-%m-%d %H:%M:%S")
+            logger.info(
+                f"\u23f0 KPI time window derived from question: "
+                f"from='{_kpi_time_from}'  to='{_kpi_time_to}'  (parsed={_parsed})"
+            )
+        except Exception:
+            _kpi_time_from = None
+            _kpi_time_to   = None
+
+        # ── Extract additional entities for KPI param substitution ──
+        # EntityResolver stores keys in UPPERCASE (BOT_ID, STATION_ID)
+        _bot_id = entities.get("BOT_ID")
+        _category_value = entities.get("CATEGORY_VALUE")
+        _station_id = entities.get("STATION_ID")
+
         try:
             kpi_match = self.kpi_resolver.resolve(
                 question=clean_question,
                 tenant_values=tenant_values,
                 all_sites=all_sites,
+                location_breakdown=location_breakdown,
+                time_from=_kpi_time_from,
+                time_to=_kpi_time_to,
+                bot_id=_bot_id,
+                category_value=_category_value,
+                station_id=_station_id,
+                original_question=original_question,
             )
         except Exception as e:
             logger.warning(f"KPI resolver error: {e}")
@@ -1031,15 +1089,23 @@ class SQLAssistantService:
             return None
 
         # ═══════════════════════════════════════════════════════
-        #  KPI MATCHED — from here on, this is the ONLY path.
-        #  NO LLM fallback under any circumstances.
+        #  KPI MATCHED — execute the pre-built query.
+        #  High-confidence matches (≥0.75) are terminal.
+        #  Lower-confidence matches are accepted but logged.
         # ═══════════════════════════════════════════════════════
 
         logger.info(
-            f"📊 Dashboard KPI hit: '{kpi_match.kpi_name}' "
+            f"📊 Dashboard KPI hit: id={kpi_match.kpi_id}, '{kpi_match.kpi_name}' "
             f"(score={kpi_match.match_score:.2f}, chart={kpi_match.chart_type})"
         )
         logger.info(f"📊 KPI tenant params: {kpi_match.parameters_applied}")
+
+        # Case-3 diagnostic: log the stripped text that was used for scoring
+        # (helps compare "in chennai Which SKUs…" vs "Which SKUs… in frk?" etc.)
+        from .match_utils import strip_matching_noise as _strip_noise
+        logger.info(
+            f"📊 KPI stripped match_question: '{_strip_noise(clean_question)}'"
+        )
         logger.debug(f"📊 KPI SQL (first 300): {kpi_match.sql[:300]}")
 
         sql = kpi_match.sql
@@ -1054,7 +1120,7 @@ class SQLAssistantService:
             )
         except Exception as e:
             logger.error(
-                f"🚫 KPI '{kpi_match.kpi_name}' matched "
+                f"🚫 KPI id={kpi_match.kpi_id}, '{kpi_match.kpi_name}' matched "
                 f"(score={kpi_match.match_score:.2f}) but execution "
                 f"failed: {e}. Returning error — no LLM fallback."
             )
@@ -1078,6 +1144,7 @@ class SQLAssistantService:
                     "sql_query": sql,
                     "error": str(e),
                     "dashboard_kpi": {
+                        "kpi_id": kpi_match.kpi_id,
                         "kpi_name": kpi_match.kpi_name,
                         "match_score": kpi_match.match_score,
                         "source": "dashboard_kpi",
@@ -1090,28 +1157,84 @@ class SQLAssistantService:
         row_count = execution_result.row_count
         rows = execution_result.rows or []
 
+        # Case-3 fix: when KPI matched but returned 0 rows, the user often
+        # thinks the KPI "didn't fire".  Provide a clear explanation — especially
+        # useful when "in chennai Which SKUs near expiry?" finds no data but
+        # "in frk?" does (different data coverage, not a matching difference).
+        if not rows:
+            location_str = (
+                ", ".join(tenant_values) if tenant_values else "the selected location"
+            )
+            no_data_text = (
+                f"The system matched your question to the pre-built KPI: "
+                f"**{kpi_match.kpi_name}**.\n\n"
+                f"The query executed successfully for **{location_str}** "
+                f"but returned **no data**. Possible reasons:\n"
+                f"- This location may not have any records for this KPI yet.\n"
+                f"- The time window ({kpi_match.parameters_applied.get('time_from', 'default')} "
+                f"→ {kpi_match.parameters_applied.get('time_to', 'now')}) contains no activity.\n"
+                f"- Data for this KPI may not exist at this site.\n\n"
+                f"*KPI category: {kpi_match.category} | "
+                f"Match score: {kpi_match.match_score:.0%}*"
+            )
+            logger.info(
+                f"📊 KPI id={kpi_match.kpi_id}, '{kpi_match.kpi_name}' matched but returned 0 rows "
+                f"for location={tenant_values}"
+            )
+            return ChatResponse(
+                response=no_data_text,
+                chatbot_type=ChatbotType.SQL_ASSISTANT,
+                session_id=session_id,
+                sources=[],
+                confidence_score=0.95,
+                query_results=[],
+                metadata={
+                    "sql_query": sql,
+                    "row_count": 0,
+                    "resolved_entities": entities,
+                    "dashboard_kpi": {
+                        "kpi_id": kpi_match.kpi_id,
+                        "kpi_name": kpi_match.kpi_name,
+                        "category": kpi_match.category,
+                        "chart_type": kpi_match.chart_type,
+                        "match_score": kpi_match.match_score,
+                        "parameters_applied": kpi_match.parameters_applied,
+                        "source": "dashboard_kpi",
+                        "status": "no_data",
+                    },
+                },
+            )
+
         response_text = self.formatter.format(
             clean_question, sql, execution_result, 0.95
         )
-
         columns = []
         query_results = []
         if rows:
             columns = list(rows[0].keys()) if isinstance(rows[0], dict) else []
             query_results = [dict(r) if hasattr(r, 'keys') else r for r in rows]
 
+        presentation_mode = "grouped_by_location" if location_breakdown else "single_value"
+        effective_chart_type = (
+            "bar chart"
+            if location_breakdown and rows and len(rows) > 1
+            else kpi_match.chart_type
+        )
+
         dashboard_metadata = {
             "kpi_id": kpi_match.kpi_id,
             "kpi_name": kpi_match.kpi_name,
             "category": kpi_match.category,
-            "chart_type": kpi_match.chart_type,
+            "chart_type": effective_chart_type,
             "logic": kpi_match.logic,
             "match_score": kpi_match.match_score,
             "tables_used": kpi_match.tables_used,
             "parameters_applied": kpi_match.parameters_applied,
+            "presentation_mode": presentation_mode,
+            "group_by_dimension": self.tenant_column if location_breakdown else None,
             "source": "dashboard_kpi",
             "columns": columns,
-            "available_chart_types": self._available_charts_for(kpi_match.chart_type, columns),
+            "available_chart_types": self._available_charts_for(effective_chart_type, columns),
         }
 
         return ChatResponse(
@@ -1129,8 +1252,6 @@ class SQLAssistantService:
             },
         )
 
-        return response
-    
     def _try_sp_match(self, clean_question: str, entities: dict):
         """
         ⚙️  STORED PROCEDURE PIPELINE  (deterministic — NO LLM fallback)

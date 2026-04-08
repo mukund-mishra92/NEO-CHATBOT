@@ -1727,11 +1727,15 @@
         }
 
         .sql-cards-layout.sql-panel-collapsed .sql-right-column {
-            display: none;
+            flex: 0 0 0px !important;
+            max-width: 0 !important;
+            min-width: 0 !important;
+            opacity: 0;
+            pointer-events: none;
+            overflow: hidden;
         }
 
         .sql-cards-layout:not(.sql-panel-collapsed) .sql-right-column {
-            display: flex;
             opacity: 1;
         }
 
@@ -5519,70 +5523,20 @@
         function exportTableToCSV(bodyId) {
             const container = document.getElementById(bodyId);
             if (!container) return;
+            const table = container.querySelector('table');
+            if (!table) return;
 
-            // Try to find paginated table container (has all rows in memory)
-            const paginatedContainer = container.querySelector('.paginated-table-container');
-            let allHeaders = [];
-            let allRows = [];
-
-            if (paginatedContainer) {
-                // Extract table ID from container ID (e.g., "ptable_abc123_container" -> "ptable_abc123")
-                const tableId = paginatedContainer.id.replace('_container', '');
-                
-                // Check if this table's data exists in memory
-                if (window.paginatedTables && window.paginatedTables[tableId]) {
-                    const tableData = window.paginatedTables[tableId];
-                    allHeaders = tableData.headers || [];
-                    allRows = tableData.rows || [];
-                }
-            }
-
-            // Fallback: extract from visible DOM table if paginated data not found
-            if (allRows.length === 0) {
-                const table = container.querySelector('table');
-                if (!table) return;
-
-                // Extract headers
-                const headerRow = table.querySelector('thead tr');
-                if (headerRow) {
-                    headerRow.querySelectorAll('th').forEach(th => {
-                        allHeaders.push(th.textContent.trim());
-                    });
-                }
-
-                // Extract all visible rows
-                const bodyRows = table.querySelectorAll('tbody tr');
-                bodyRows.forEach(tr => {
-                    const cells = [];
-                    tr.querySelectorAll('td').forEach(cell => {
-                        cells.push(cell.textContent.trim());
-                    });
-                    if (cells.length > 0) allRows.push(cells);
+            const rows = [];
+            table.querySelectorAll('tr').forEach(tr => {
+                const cells = [];
+                tr.querySelectorAll('th, td').forEach(cell => {
+                    let text = cell.textContent.replace(/"/g, '""');
+                    cells.push('"' + text + '"');
                 });
-            }
-
-            // Build CSV with headers + all rows
-            const csvRows = [];
-            
-            // Add header row
-            if (allHeaders.length > 0) {
-                const headerCells = allHeaders.map(h => {
-                    let text = String(h).replace(/"/g, '""');
-                    return '"' + text + '"';
-                });
-                csvRows.push(headerCells.join(','));
-            }
-
-            // Add all data rows
-            allRows.forEach(row => {
-                const cells = row.map(cell => {
-                    let text = String(cell).replace(/"/g, '""');
-                    return '"' + text + '"';
-                });
-                csvRows.push(cells.join(','));
+                rows.push(cells.join(','));
             });
 
-            const csvContent = csvRows.join('\n');
+            const csvContent = rows.join('\n');
             const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -5592,8 +5546,6 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-            
-            showToast(`✅ Downloaded ${allRows.length} row(s) as CSV`);
         }
 
         function escapeHtml(text) {

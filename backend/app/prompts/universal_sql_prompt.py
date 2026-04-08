@@ -35,8 +35,29 @@ ABSOLUTE RULES:
 4. Use the TABLE RELATIONSHIPS section for JOIN conditions — never guess join keys.
 5. Use the ENUM/VALID VALUES section for correct WHERE filter strings.
 6. Read the CRITICAL COLUMN FACTS section — it lists columns that DO NOT EXIST.
-7. ⚠️ MANDATORY: Every query MUST include a LIMIT clause (default LIMIT 100).
-   Exception: Aggregation queries (COUNT, SUM, AVG, MAX, MIN with GROUP BY) may omit LIMIT.
+7. ⚠️ SMART LIMIT RULES — choose the right LIMIT for the user's intent:
+
+   CASE A — Single-value aggregation (COUNT / SUM / AVG / MAX / MIN with NO GROUP BY):
+     → Omit LIMIT entirely.  The query already returns exactly 1 row.
+     Examples: "how many bins used", "total bots online", "average battery level"
+
+   CASE B — Grouped aggregation (…with GROUP BY):
+     → Add LIMIT 100 unless the user asks for "all" groups.
+     Example: "count of orders per station" → LIMIT 100
+
+   CASE C — "Top N" / "Bottom N" / "Best N" / "Worst N":
+     → Use exactly LIMIT N (the number the user specified).
+     Examples: "top 5 SKUs" → LIMIT 5, "bottom 3 bots" → LIMIT 3
+
+   CASE D — Latest/most-recent SINGLE record:
+     → ORDER BY timestamp DESC LIMIT 1.
+     Examples: "latest alarm", "most recent pick task", "last completed wave"
+
+   CASE E — Detail / listing queries (show me rows, list all, display):
+     → Default LIMIT 100.  Use LIMIT 1000 only if the user says "all" or "full list".
+
+   NEVER add LIMIT to a single-value COUNT/SUM/AVG — it is redundant and misleading.
+
 8. In JSON string fields (assumptions, warnings, followup_questions), use plain text only.
    Do NOT include emojis, icons, replacement characters, or decorative symbols.
 
@@ -246,8 +267,12 @@ SQL BEST PRACTICES:
 - Use explicit JOIN ON syntax, never comma-joins.
 - For aggregations, include GROUP BY for every non-aggregated SELECT column.
 - For time-based queries, use the appropriate timestamp column from the schema.
-- ⚠️ CRITICAL: ALWAYS add LIMIT clause for safety (default: LIMIT 100).
-  Exception: Aggregation queries (COUNT, SUM, AVG) without detail rows may omit LIMIT.
+- LIMIT STRATEGY (see ABSOLUTE RULES #7 for the full decision tree):
+  • COUNT/SUM/AVG/MIN/MAX with no GROUP BY → NO LIMIT (returns 1 row naturally)
+  • Grouped aggregation → LIMIT 100
+  • "Top N" / "Bottom N" → LIMIT N
+  • "Latest/most recent" single row → LIMIT 1
+  • Detail listing → LIMIT 100 (default); LIMIT 1000 only if user says "all" or "full list"
 - Use DATE(timestamp_col) for date filtering, not string comparisons.
 - Use CURDATE() for "today", DATE_SUB(CURDATE(), INTERVAL n DAY) for "last N days".
 - For "yesterday": DATE(col) = DATE_SUB(CURDATE(), INTERVAL 1 DAY).

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEO AI Chatbot</title>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+
+    <!-- Application CSS (modular) -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════════════════ -->
+<aside id="sidebar" class="sidebar">
+    <div id="sidebarResizer" class="sidebar-resizer"></div>
+
+    <div class="sidebar-header">
+        <button class="sidebar-new-chat-btn" onclick="createNewSession()">
+            <i class="fas fa-plus"></i> New Chat
+        </button>
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Collapse sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-section-label">Recent Chats</div>
+    <ul id="sidebarHistoryList" class="sidebar-history-list">
+        <li class="sidebar-empty">Loading history…</li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <button class="sidebar-footer-btn" onclick="viewSessionHistory()">
+            <i class="fas fa-history"></i> All sessions
+        </button>
+        <button class="sidebar-footer-btn" onclick="viewSystemHealth()">
+            <i class="fas fa-heartbeat"></i> System health
+        </button>
+    </div>
+</aside>
+
+<!-- ════════════════════════════════════════════════════════════════
+     MAIN CHAT CONTAINER
+═══════════════════════════════════════════════════════════════════ -->
+<div class="chat-container">
+
+    <!-- Header -->
+    <header class="chat-header">
+        <div class="chat-header-left">
+            <button class="sidebar-toggle-btn" id="sidebarToggleBtnMain" onclick="toggleSidebar()" title="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="chat-header-brand">
+                <span class="chat-header-logo">NEO</span>
+                <span class="chat-header-subtitle">Intelligent Assistant</span>
+            </div>
+        </div>
+        <div class="chat-header-right">
+            <!-- Tools dropdown -->
+            <div class="tools-dropdown" style="position:relative;">
+                <button class="tools-menu-btn" id="toolsMenuBtn" onclick="toggleToolsMenu()" title="Tools"
+                        style="background:none;border:none;color:inherit;cursor:pointer;padding:6px 10px;border-radius:8px;">
+                    <i class="fas fa-tools"></i>
+                </button>
+                <div class="tools-menu" id="toolsMenu" style="display:none;position:absolute;right:0;top:110%;background:var(--surface-soft,#fff);border:1px solid var(--border-soft,#e2e8f0);border-radius:10px;min-width:180px;box-shadow:0 4px 24px rgba(0,0,0,0.1);z-index:100;overflow:hidden;">
+                    <label class="tools-menu-item" style="display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;font-size:0.9em;">
+                        <i class="fas fa-upload"></i> Upload Document
+                        <input type="file" accept=".pdf,.docx,.txt,.pptx" style="display:none" onchange="handleFileUpload(event)">
+                    </label>
+                    <button class="tools-menu-item" onclick="viewStatistics()"
+                            style="display:flex;align-items:center;gap:8px;padding:10px 16px;width:100%;border:none;background:none;cursor:pointer;font-size:0.9em;text-align:left;">
+                        <i class="fas fa-chart-bar"></i> Statistics
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hidden session ID (read by JS) -->
+            <span id="currentSessionId" style="display:none"></span>
+        </div>
+    </header>
+
+    <!-- Chatbot type selector -->
+    <div class="chatbot-selector">
+        <button class="chatbot-btn active" data-type="knowledge_base" title="Knowledge Base">
+            <i class="fas fa-book"></i> Knowledge Base
+        </button>
+        <button class="chatbot-btn" data-type="sql_assistant" title="SQL Assistant">
+            <i class="fas fa-database"></i> SQL Assistant
+        </button>
+        <button class="chatbot-btn" data-type="diagnostic" title="Diagnostic">
+            <i class="fas fa-stethoscope"></i> Diagnostic
+        </button>
+        <button class="chatbot-btn" data-type="semi_auto_diagnostic" title="Semi-Auto Diagnostic">
+            <i class="fas fa-tools"></i> Semi-Auto Diag
+        </button>
+    </div>
+
+    <!-- Main chat area -->
+    <main class="chat-main">
+
+        <!-- Welcome / empty state -->
+        <div id="emptyState" class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h2 class="empty-state-title" id="emptyStateTitle">Hello! How can NEO help you?</h2>
+            <p class="empty-state-subtitle">Select a chatbot mode above and ask a question, or pick a suggestion:</p>
+            <div id="emptySuggestions" class="suggestion-chips">
+                <!-- Chips populated by JS -->
+                <button class="suggestion-chip"></button>
+                <button class="suggestion-chip" style="display:none"></button>
+                <button class="suggestion-chip" style="display:none"></button>
+                <button class="suggestion-chip" style="display:none"></button>
+            </div>
+        </div>
+
+        <!-- Messages stream -->
+        <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Chat messages"></div>
+
+        <!-- Scroll-to-bottom button -->
+        <button id="scrollBottomBtn" class="scroll-bottom-btn scroll-btn-hidden"
+                onclick="scrollChatToBottom()" title="Scroll to bottom">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+    </main>
+
+    <!-- Input area -->
+    <footer class="chat-input-area">
+
+        <!-- Attached file banner -->
+        <div id="attachedFileBanner" class="attached-file-banner" style="display:none;">
+            <i class="fas fa-paperclip"></i>
+            <span id="attachedFileName"></span>
+            <button class="remove-attach-btn" onclick="removeAttachedFile()" title="Remove attachment"
+                    style="background:none;border:none;cursor:pointer;color:inherit;padding:0 4px;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="input-group">
+            <!-- Attach file -->
+            <label class="attach-btn" title="Attach a document">
+                <i class="fas fa-paperclip"></i>
+                <input type="file" accept=".pdf,.docx,.txt,.pptx,.xlsx" style="display:none"
+                       onchange="handleChatFileAttach(event)">
+            </label>
+
+            <!-- Textarea -->
+            <textarea
+                id="chatInput"
+                class="chat-input"
+                placeholder="Ask NEO a question about your knowledge base…"
+                rows="1"
+                onkeydown="handleKeyPress(event)"
+                oninput="autoResize(this)"
+                aria-label="Message input"
+            ></textarea>
+
+            <!-- Send / Stop -->
+            <button id="sendBtn" class="send-btn" onclick="handleSendOrStop()"
+                    title="Send message (Enter)">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+
+        <p style="margin:4px 0 0;font-size:0.72em;color:var(--text-muted,#94a3b8);text-align:center;">
+            NEO can make mistakes — always verify critical information.
+        </p>
+    </footer>
+
+</div><!-- /.chat-container -->
+
+<!-- ════════════════════════════════════════════════════════════════
+     DELETE CONFIRM MODAL
+═══════════════════════════════════════════════════════════════════ -->
+<div id="deleteConfirmOverlay" class="confirm-overlay" style="display:none;">
+    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <h3 id="confirmTitle"><i class="fas fa-trash-alt"></i> Delete Session?</h3>
+        <p>This action cannot be undone. The entire chat history will be permanently deleted.</p>
+        <div class="confirm-actions">
+            <button class="confirm-btn confirm-cancel" onclick="cancelDeleteSession()">Cancel</button>
+            <button class="confirm-btn confirm-delete" onclick="confirmDeleteSession()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     EXTERNAL SCRIPTS  (before ES modules so Chart is available)
+═══════════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Application entry point (ES module) -->
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>

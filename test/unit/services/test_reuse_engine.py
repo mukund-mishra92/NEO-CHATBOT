@@ -170,3 +170,126 @@ class TestNoValidators:
         engine = QueryReuseEngine(cs, executor, validator=None, schema_validator=None)
         result = engine.try_reuse("total picks")
         assert result is not None
+
+
+# ===================================================================
+# PHASE 4 — TIME SUBSTITUTION
+# ===================================================================
+class TestTimeSubstitution:
+
+    def test_time_substitution_replaces_between_dates(self, mock_deps):
+        """_apply_time_substitution should replace BETWEEN date literals."""
+        cs, executor, validator, sv = mock_deps
+        engine = QueryReuseEngine(cs, executor, validator, sv)
+
+        sql = (
+            "SELECT * FROM task_master_log "
+            "WHERE LOG_TIMESTAMP BETWEEN '2025-01-01 00:00:00' AND '2025-01-31 23:59:59'"
+        )
+        result = engine._apply_time_substitution(
+            sql, "2026-04-01 00:00:00", "2026-04-30 23:59:59"
+        )
+        assert "2026-04-01 00:00:00" in result
+        assert "2026-04-30 23:59:59" in result
+        assert "2025-01-01" not in result
+
+    def test_time_substitution_no_between_unchanged(self, mock_deps):
+        """SQL without BETWEEN should not be modified."""
+        cs, executor, validator, sv = mock_deps
+        engine = QueryReuseEngine(cs, executor, validator, sv)
+
+        sql = "SELECT COUNT(*) FROM bot_master"
+        result = engine._apply_time_substitution(sql, "2026-04-01", "2026-04-30")
+        assert result == sql
+
+    def test_time_substitution_with_none_args(self, mock_deps):
+        """None time args should return SQL unchanged."""
+        cs, executor, validator, sv = mock_deps
+        engine = QueryReuseEngine(cs, executor, validator, sv)
+
+        sql = "SELECT * FROM t WHERE ts BETWEEN '2025-01-01' AND '2025-12-31'"
+        result = engine._apply_time_substitution(sql, None, None)
+        assert result == sql
+
+
+# ===================================================================
+# PHASE 4 — TENANT SUBSTITUTION
+# ===================================================================
+class TestTenantSubstitution:
+
+    def test_tenant_substitution_replaces_in_clause(self, mock_deps):
+        """_apply_tenant_substitution should update IN (...) values."""
+        cs, executor, validator, sv = mock_deps
+        engine = QueryReuseEngine(cs, executor, validator, sv)
+
+        sql = "SELECT * FROM t WHERE `host-location` IN ('OLD_TENANT')"
+        result = engine._apply_tenant_substitution(sql, "host-location", ["NEW_SITE"])
+        assert "'NEW_SITE'" in result
+        assert "'OLD_TENANT'" not in result
+
+    def test_tenant_substitution_equality(self, mock_deps):
+        """_apply_tenant_substitution should update = 'value' form."""
+        cs, executor, validator, sv = mock_deps
+        engine = QueryReuseEngine(cs, executor, validator, sv)
+
+        sql = "SELECT * FROM t WHERE `host-location` = 'FRK'"
+        result = engine._apply_tenant_substitution(sql, "host-location", ["SHAKTI"])
+        assert "'SHAKTI'" in result
+
+    def test_tenant_substitution_no_match_unchanged(self, mock_deps):
+        """SQL without tenant column should not be modified."""
+        cs, executor, validator, sv = mock_deps
+        engine = QueryReuseEngine(cs, executor, validator, sv)
+
+        sql = "SELECT COUNT(*) FROM bot_master"
+        result = engine._apply_tenant_substitution(sql, "host-location", ["FRK"])
+        assert result == sql
+
+
+# ===================================================================
+# PHASE 4 — END-TO-END REUSE WITH SUBSTITUTION
+# ===================================================================
+class TestReuseWithSubstitution:
+
+    def test_try_reuse_applies_time_and_tenant(self, mock_deps):
+        """Full try_reuse call should apply both time and tenant substitution."""
+        cs, executor, validator, sv = mock_deps
+        cs.find_similar_classified_query.return_value = {
+            "classification": "correct",
+            "similarity_score": 0.92,
+            "generated_sql": (
+                "SELECT COUNT(*) FROM task_master_log "
+                "WHERE `host-location` IN ('OLD') "
+                "AND LOG_TIMESTAMP BETWEEN '2025-01-01 00:00:00' AND '2025-01-31 23:59:59'"
+            ),
+            "user_query": "total tasks at old site",
+        }
+
+        engine = QueryReuseEngine(cs, executor, validator, sv)
+        result = engine.try_reuse(
+            "total tasks today",
+            entities={"host-location": ["FRK"]},
+            time_from="2026-04-26 00:00:00",
+            time_to="2026-04-26 23:59:59",
+            tenant_column="host-location",
+        )
+
+        assert result is not None
+        sql, exec_result = result
+        assert "2026-04-26 00:00:00" in sql
+        assert "'FRK'" in sql
+        assert "'OLD'" not in sql
+        assert "2025-01-01" not in sql
+
+    def test_try_reuse_without_substitution_params(self, mock_deps):
+        """try_reuse with no extra params should still work (backward compatible)."""
+        cs, executor, validator, sv = mock_deps
+        cs.find_similar_classified_query.return_value = {
+            "classification": "correct",
+            "generated_sql": "SELECT 1 FROM dual",
+            "user_query": "test",
+        }
+
+        engine = QueryReuseEngine(cs, executor, validator, sv)
+        result = engine.try_reuse("test query")
+        assert result is not None
