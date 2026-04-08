@@ -239,6 +239,111 @@ def _is_schema_query(question: str) -> bool:
     return any(pat.search(question) for pat in _SCHEMA_PATTERNS)
 
 
+# ============================================================
+# Entity-lookup guard
+# ============================================================
+# Entity IDs (BOT-0001, BIN-0324, STATION-0003, …) contain domain
+# words like "bot", "bin", "station" that inflate category and
+# name-overlap scores.  When the user asks about a *specific*
+# entity's properties (location, IP, state, tower-side) there is
+# no KPI to serve the answer — those are row-level SQL lookups.
+
+_ENTITY_ID_RE = re.compile(
+    r'\b(?:BOT|BIN|STATION|ST|WAVE|ORD|ORDER)[- _]?\d{2,6}\b',
+    re.IGNORECASE,
+)
+
+# KPI-intent words — when present alongside an entity ID the query is
+# still a legitimate KPI request  (e.g. "alarms for bot 1 today").
+_KPI_INTENT_RE = re.compile(
+    r'\b(?:'
+    r'active|inactive|downtime|uptime|utiliz\w*'
+    r'|alarm|alarms|trend|average|percentage|ratio|blocked'
+    r'|dashboard|chart|metric|grafana|kpi|sitewise|ipp|eaches'
+    r'|how\s+many|total\s+\w+'
+    r'|items?\s+per|bins?\s+per\s+hour|orders?\s+per'
+    r'|per\s+(?:hour|day|station|bot|pick|put|lpn|order|line|bin)'
+    r'|wave\s+(?:duration|time)'
+    r'|site[\s-]wise|location[\s-]wise'
+    r')\b'
+    r'|%',
+    re.IGNORECASE,
+)
+
+# Lookup-signal phrases — property / state lookups, NOT aggregate metrics.
+_LOOKUP_SIGNAL_RE = re.compile(
+    r'(?:'
+    r'where\s+is|where\s+are|where\s+does|\blocate\b'
+    r'|location\s+of|position\s+of|\bcoordinates?\b'
+    r'|ip\s+of|ip\s+address|what\s+is\s+the\s+ip|what\s+port'
+    r'|\bcounters?\b|\bincreasing\b|\bdecreasing\b'
+    r'|tower[\s_]?side|tower[\s_]?number|which\s+side|what\s+side'
+    r'|left\s+(?:or|and)\s+right'
+    r'|aisle[\s_]?number|which\s+aisle|which\s+tower'
+    r'|\bgridx\b|\bgridy\b|\bgridz\b'
+    r'|charging\s+point|charging\s+station|not\s+going'
+    r'|previous\s+bot|current\s+bot|last\s+bot'
+    r'|current\s+task|current\s+state|current\s+location'
+    r'|sim[\s_]?port|\bconfig\w*\b'
+    r'|details?\s+of|info\s+(?:about|of|for)'
+    r'|status\s+of|state\s+of'
+    r'|what\s+(?:bins?|is\s+in|does)\s'
+    r')',
+    re.IGNORECASE,
+)
+
+
+def _is_entity_lookup_query(
+    question: str,
+    *,
+    bot_id: Optional[str] = None,
+    station_id: Optional[str] = None,
+    bin_id: Optional[str] = None,
+    wave_id: Optional[str] = None,
+    order_id: Optional[str] = None,
+) -> bool:
+    """Return True if the query is a property / state lookup for a specific entity.
+
+    Entity-lookup examples (→ True):
+        "where is BOT-0001 in frk"
+        "what is the IP of BOT-0027 in chennai"
+        "are the counters of BOT-0027 increasing"
+        "where is BIN-0324 in frk"
+        "tower side of BOT-0001"
+
+    KPI-with-entity examples (→ False):
+        "bot active vs inactive time for bot 1 in frk today"
+        "alarms for bot 27 today"
+        "station 3 utilization in frk"
+    """
+    # 1. Must have at least one resolved entity ID
+    has_entity = any([bot_id, station_id, bin_id, wave_id, order_id])
+    if not has_entity:
+        has_entity = bool(_ENTITY_ID_RE.search(question))
+    if not has_entity:
+        return False
+
+    q_lower = question.lower()
+
+    # 2. KPI-intent override — metric / aggregate words mean "still a KPI"
+    if _KPI_INTENT_RE.search(q_lower):
+        return False
+
+    # 3. Lookup-signal detected → entity property lookup
+    if _LOOKUP_SIGNAL_RE.search(q_lower):
+        return True
+
+    # 4. Residual heuristic: strip noise + entity IDs; if almost nothing
+    #    meaningful remains the user typed only an entity ref.
+    stripped = _ENTITY_ID_RE.sub('', strip_matching_noise(question)).strip()
+    stripped = re.sub(r'\s+', ' ', stripped).strip()
+    remaining = [w for w in stripped.split() if len(w) > 1]
+    if len(remaining) <= 1:
+        return True
+
+    return False
+
+
 def _has_count_intent(question: str) -> bool:
     """
     Return True when the user is explicitly asking for a COUNT / number,
@@ -867,7 +972,9 @@ class DashboardKPIResolver:
             return scored
 
         q_lower = question.lower()
-        station_scope = _has_any_phrase(q_lower, _STATION_SCOPE_PHRASES)
+        station_scope = _has_any_phrase(q_lower, _STATION_SCOPE_PHRASES) or bool(
+            re.search(r'\b(?:station|st)[- _]?\d{1,4}\b', q_lower)
+        )
         ipp_intent = _has_any_phrase(q_lower, _IPP_HINT_PHRASES)
         pick_intent = _has_any_phrase(q_lower, _PICK_HINT_PHRASES)
         put_intent = _has_any_phrase(q_lower, _PUT_HINT_PHRASES)
@@ -878,6 +985,14 @@ class DashboardKPIResolver:
         wave_time_intent = _has_any_phrase(q_lower, _WAVE_TIME_HINT_PHRASES) or (
             wave_intent and _has_any_phrase(q_lower, _TIME_UNIT_HINT_PHRASES)
         )
+
+        # ── Bot active/inactive family detection ──
+        has_active = _has_any_phrase(q_lower, ("active",))
+        has_inactive = _has_any_phrase(q_lower, ("inactive",))
+        active_vs_inactive_intent = has_active and has_inactive   # both → kpi_001
+        active_only_intent = has_active and not has_inactive       # → kpi_002
+        inactive_only_intent = has_inactive and not has_active     # → kpi_003
+
         adjusted: List[Tuple[float, KPIEntry]] = []
         for score, kpi in scored:
             new_score = score
@@ -932,6 +1047,30 @@ class DashboardKPIResolver:
                     elif kid in {"kpi_062", "kpi_063", "kpi_064", "kpi_039"}:
                         new_score *= 0.82
 
+            # ── Bot active/inactive family disambiguation ────────────────
+            # kpi_001 = Active vs Inactive (hours breakdown per bot)
+            # kpi_002 = Active Bots (count)
+            # kpi_003 = Inactive Bots (count)
+            # When user says BOTH "active" and "inactive" → kpi_001.
+            # "active" only → kpi_002.  "inactive" only → kpi_003.
+            # Only apply for BOT-scope queries (skip station-scope).
+            if not station_scope:
+                if active_vs_inactive_intent:
+                    if kid == "kpi_001":
+                        new_score = min(new_score + 0.20, 1.0)
+                    elif kid in {"kpi_002", "kpi_003"}:
+                        new_score *= 0.70
+                elif active_only_intent:
+                    if kid == "kpi_002":
+                        new_score = min(new_score + 0.10, 1.0)
+                    elif kid in {"kpi_001", "kpi_003"}:
+                        new_score *= 0.82
+                elif inactive_only_intent:
+                    if kid == "kpi_003":
+                        new_score = min(new_score + 0.10, 1.0)
+                    elif kid in {"kpi_001", "kpi_002"}:
+                        new_score *= 0.82
+
             adjusted.append((new_score, kpi))
 
         adjusted.sort(key=lambda x: x[0], reverse=True)
@@ -951,6 +1090,9 @@ class DashboardKPIResolver:
         category_value: Optional[str] = None,
         station_id: Optional[str] = None,
         original_question: Optional[str] = None,
+        bin_id: Optional[str] = None,
+        wave_id: Optional[str] = None,
+        order_id: Optional[str] = None,
     ) -> Optional[KPIMatch]:
         """
         Try to match the question to a dashboard KPI.
@@ -988,6 +1130,23 @@ class DashboardKPIResolver:
         if _is_schema_query(question):
             logger.info(
                 f"📊 KPI reject: schema/meta query detected — '{question}'"
+            )
+            return None
+
+        # ── Entity-lookup guard ──────────────────────────────────────────
+        # Queries about a specific entity's properties (location, IP,
+        # tower-side, counters) are NOT dashboard KPIs.  Entity IDs like
+        # "BOT-0001" contain domain words ("bot") that inflate scores.
+        if _is_entity_lookup_query(
+            question,
+            bot_id=bot_id,
+            station_id=station_id,
+            bin_id=bin_id,
+            wave_id=wave_id,
+            order_id=order_id,
+        ):
+            logger.info(
+                f"📊 KPI reject: entity-lookup query detected — '{question}'"
             )
             return None
 
@@ -1214,6 +1373,16 @@ class DashboardKPIResolver:
                 f"'{best_kpi.kpi_name}' — falling through to SQL generation"
             )
             return None
+
+        # ── Entity post-filter: inject WHERE clause for specific entities ──
+        sql, params_applied = self._inject_entity_filters(
+            sql, params_applied,
+            bot_id=bot_id,
+            station_id=station_id,
+            bin_id=bin_id,
+            wave_id=wave_id,
+            order_id=order_id,
+        )
 
         match = KPIMatch(
             kpi_id=best_kpi.id,
@@ -1820,6 +1989,240 @@ class DashboardKPIResolver:
             f"📊 KPI location-breakdown rewrite applied: id={kpi_id or 'unknown'}"
         )
         return rewritten_sql, "grouped_by_location"
+
+    # ----------------------------------------------------------
+    # ENTITY POST-FILTER
+    # ----------------------------------------------------------
+
+    # Mapping: entity key → list of case-insensitive output column patterns
+    _ENTITY_COLUMN_PATTERNS: Dict[str, List[str]] = {
+        "BOT_ID":     ["bot_id"],
+        "STATION_ID": ["station", "station_id"],
+        "BIN_ID":     ["bin_id", "bin id"],
+        "WAVE_ID":    ["wave_id"],
+        "ORDER_ID":   ["order_id"],
+    }
+
+    @staticmethod
+    def _extract_outermost_select_columns(sql: str) -> List[str]:
+        """
+        Extract column aliases from the outermost SELECT clause.
+
+        Handles:  ``expr AS alias``, ``table.col``, bare ``col``,
+        backtick-quoted aliases like ```BIN ID` ``.
+
+        Returns a list of alias strings (lowercase, backticks stripped).
+        """
+        sql_clean = sql.strip().rstrip(";")
+
+        # Skip leading WITH ... to reach the final SELECT
+        # Find the last top-level SELECT (not inside parens)
+        depth = 0
+        last_select_pos = -1
+        i = 0
+        sql_lower = sql_clean.lower()
+        while i < len(sql_clean) - 6:
+            ch = sql_clean[i]
+            if ch == '(':
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+            elif (depth == 0
+                  and sql_lower[i:i+6] == 'select'
+                  and sql_clean[i+6] in (' ', '\n', '\r', '\t')):
+                last_select_pos = i
+            i += 1
+
+        if last_select_pos == -1:
+            return []
+
+        # Find the FROM that closes this SELECT
+        after_select = sql_clean[last_select_pos + 7:]
+        depth = 0
+        from_pos = -1
+        for j, ch in enumerate(after_select):
+            if ch == '(':
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+            elif (depth == 0
+                  and j + 4 < len(after_select)
+                  and after_select[j:j+4].lower() == 'from'
+                  and after_select[j+4] in (' ', '\n', '\r', '\t')):
+                from_pos = j
+                break
+
+        if from_pos == -1:
+            return []
+
+        select_body = after_select[:from_pos]
+
+        # Split by top-level commas (not inside parens/quotes)
+        parts: List[str] = []
+        depth = 0
+        in_quote = False
+        current = []
+        for ch in select_body:
+            if ch == "'" and not in_quote:
+                in_quote = True
+            elif ch == "'" and in_quote:
+                in_quote = False
+            elif ch == '(' and not in_quote:
+                depth += 1
+            elif ch == ')' and not in_quote:
+                depth -= 1
+            elif ch == ',' and depth == 0 and not in_quote:
+                parts.append(''.join(current).strip())
+                current = []
+                continue
+            current.append(ch)
+        if current:
+            parts.append(''.join(current).strip())
+
+        # Extract alias from each part
+        aliases: List[str] = []
+        for part in parts:
+            part = part.strip()
+            if not part:
+                continue
+            # Pattern: ... AS `alias` or ... AS alias
+            as_match = re.search(
+                r'\bAS\s+`?([^`,\s]+(?:\s+[^`,\s]+)*)`?\s*$',
+                part, flags=re.IGNORECASE,
+            )
+            if as_match:
+                aliases.append(as_match.group(1).strip().lower())
+            else:
+                # No AS — use the last token (table.col → col, or bare col)
+                token = part.rsplit('.', 1)[-1].strip().strip('`').lower()
+                aliases.append(token)
+
+        return aliases
+
+    @staticmethod
+    def _station_id_variants(station_id: str) -> List[str]:
+        """
+        Generate value variants for a station entity.
+
+        EntityResolver produces ``STATION-0003``. KPI outputs use
+        ``ST-3``, ``STATION-0003``, or even bare ``3``.
+
+        Returns a list of possible string values to match against.
+        """
+        variants = [station_id]                      # STATION-0003
+        numeric = re.search(r'(\d+)$', station_id)
+        if numeric:
+            n = int(numeric.group(1))
+            variants.append(f"ST-{n}")               # ST-3
+            variants.append(str(n))                   # 3
+            variants.append(f"STATION-{n}")           # STATION-3 (no zero-pad)
+        return variants
+
+    def _inject_entity_filters(
+        self,
+        sql: str,
+        params_applied: Dict[str, str],
+        *,
+        bot_id: Optional[str] = None,
+        station_id: Optional[str] = None,
+        bin_id: Optional[str] = None,
+        wave_id: Optional[str] = None,
+        order_id: Optional[str] = None,
+    ) -> Tuple[str, Dict[str, str]]:
+        """
+        Inject WHERE filters for specific entities into KPI SQL.
+
+        Many KPI queries return data for ALL bots / stations / bins.
+        When the user asks about a specific entity (e.g. "bot 1"),
+        this method wraps the SQL in a subquery and adds a WHERE
+        clause to filter to that entity.
+
+        The method is safe / no-op when:
+        - No entity value is provided
+        - The entity value is already present in the SQL
+          (e.g. ``${bot_id:sqlstring}`` was already substituted)
+        - The KPI output columns don't include a matching entity column
+          (e.g. aggregate KPIs like "Active Bots" → COUNT only)
+        """
+        entities_to_inject: Dict[str, Tuple[str, List[str]]] = {}
+        # Collect entity_key → (canonical_value, match_variants)
+        if bot_id:
+            entities_to_inject["BOT_ID"] = (bot_id, [bot_id])
+        if station_id:
+            entities_to_inject["STATION_ID"] = (
+                station_id, self._station_id_variants(station_id)
+            )
+        if bin_id:
+            entities_to_inject["BIN_ID"] = (bin_id, [bin_id])
+        if wave_id:
+            entities_to_inject["WAVE_ID"] = (wave_id, [wave_id])
+        if order_id:
+            entities_to_inject["ORDER_ID"] = (order_id, [order_id])
+
+        if not entities_to_inject:
+            return sql, params_applied
+
+        # Extract column aliases from outermost SELECT
+        columns = self._extract_outermost_select_columns(sql)
+        if not columns:
+            return sql, params_applied
+
+        # Build WHERE clauses for each entity that has a matching output column
+        filters: List[str] = []
+        params = dict(params_applied)
+
+        for entity_key, (canonical, variants) in entities_to_inject.items():
+            # Skip if this entity value is already literally in the SQL
+            # (means ${bot_id:sqlstring} was already substituted)
+            if canonical in sql:
+                logger.debug(
+                    f"📊 Entity {entity_key}={canonical} already in SQL — skip injection"
+                )
+                continue
+
+            # Find matching output column
+            patterns = self._ENTITY_COLUMN_PATTERNS.get(entity_key, [])
+            matched_col = None
+            for col_alias in columns:
+                for pattern in patterns:
+                    if pattern in col_alias:
+                        matched_col = col_alias
+                        break
+                if matched_col:
+                    break
+
+            if not matched_col:
+                logger.debug(
+                    f"📊 Entity {entity_key}={canonical} — no matching output "
+                    f"column in [{', '.join(columns)}] — skip injection"
+                )
+                continue
+
+            # Build the filter expression
+            if len(variants) == 1:
+                filters.append(f"_ef.`{matched_col}` = '{variants[0]}'")
+            else:
+                vals = ", ".join(f"'{v}'" for v in variants)
+                filters.append(f"_ef.`{matched_col}` IN ({vals})")
+
+            params[f"entity_filter_{entity_key.lower()}"] = canonical
+            logger.info(
+                f"📊 Entity filter injected: {entity_key}={canonical} "
+                f"→ column `{matched_col}` (variants={variants})"
+            )
+
+        if not filters:
+            return sql, params
+
+        # Wrap original SQL in a subquery and apply entity filters
+        inner_sql = sql.rstrip().rstrip(";")
+        where_clause = " AND ".join(filters)
+        wrapped_sql = (
+            f"SELECT * FROM (\n{inner_sql}\n) AS _ef\n"
+            f"WHERE {where_clause};"
+        )
+
+        return wrapped_sql, params
 
     # ----------------------------------------------------------
     # UTILITY

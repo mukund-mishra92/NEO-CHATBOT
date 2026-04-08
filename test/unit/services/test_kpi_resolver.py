@@ -855,3 +855,485 @@ class TestSessionChangesRegression:
 
     def test_joke_query_rejected(self, resolver):
         assert resolver.resolve("tell me a joke about databases") is None
+
+
+# ──────────────────────────────────────────────────────────────
+# Entity post-filter injection tests
+# ──────────────────────────────────────────────────────────────
+class TestEntityPostFilter:
+    """Entity-aware post-filter: when user asks about a specific bot/station/bin,
+    the KPI SQL should be wrapped in a subquery that filters to that entity."""
+
+    # ── Bot entity tests ──
+
+    def test_bot_id_filters_active_vs_inactive(self, resolver):
+        """'bot active vs inactive for bot 1 in frk today'
+        → bot KPI with BOT_ID output should be wrapped with entity filter."""
+        match = resolver.resolve(
+            "bot active vs inactive for BOT-0001 in frk today",
+            tenant_values=["frk"],
+            bot_id="BOT-0001",
+        )
+        assert match is not None, "Should match a bot KPI"
+        assert match.category == "bot"
+        # KPI output includes BOT_ID column → should be wrapped
+        if "entity_filter_bot_id" in match.parameters_applied:
+            assert "_ef" in match.sql, "SQL should be wrapped in entity filter subquery"
+            assert "BOT-0001" in match.sql, "BOT_ID value must appear in SQL"
+
+    def test_bot_id_filters_kpi008_alarms(self, resolver):
+        """'total alarms for bot 3 in frk' → kpi_008 wrapped with BOT_ID filter."""
+        match = resolver.resolve(
+            "total alarms for BOT-0003 in frk",
+            tenant_values=["frk"],
+            bot_id="BOT-0003",
+        )
+        assert match is not None, "Should match a bot alarm KPI"
+        assert match.kpi_id == "kpi_008"
+        # kpi_008 output has BOT_ID column → entity filter should wrap
+        assert "_ef" in match.sql, "SQL should be wrapped in entity filter subquery"
+        assert "BOT-0003" in match.sql
+        assert "entity_filter_bot_id" in match.parameters_applied
+
+    def test_bot_id_kpi006_already_filtered_no_double_wrap(self, resolver):
+        """kpi_006 uses ${bot_id:sqlstring} → substitution already places the
+        bot_id in the SQL. The post-filter should NOT double-wrap."""
+        match = resolver.resolve(
+            "bins per hour for BOT-0003 in frk",
+            tenant_values=["frk"],
+            bot_id="BOT-0003",
+        )
+        if match and match.kpi_id in ("kpi_006", "kpi_007"):
+            # The bot_id should be in SQL from ${bot_id:sqlstring} substitution
+            assert "BOT-0003" in match.sql
+            # Should NOT have entity filter wrapper since value already present
+            assert "entity_filter_bot_id" not in match.parameters_applied
+
+    def test_no_bot_id_no_wrapping(self, resolver):
+        """'bot active vs inactive in frk' (no specific bot)
+        → kpi_001 SQL returned without entity wrapper."""
+        match = resolver.resolve(
+            "bot active vs inactive in frk today",
+            tenant_values=["frk"],
+        )
+        assert match is not None
+        # No wrapping — no _ef in SQL
+        assert "_ef" not in match.sql or "entity_filter_bot_id" not in match.parameters_applied
+
+    def test_aggregate_kpi_no_matching_column(self, resolver):
+        """'how many active bots in frk' → kpi_002 (Active Bots), output is
+        COUNT with no BOT_ID column → entity filter should NOT wrap."""
+        match = resolver.resolve(
+            "how many active bots in frk today",
+            tenant_values=["frk"],
+            bot_id="BOT-0003",
+        )
+        if match and match.kpi_id == "kpi_002":
+            # kpi_002 output is just COUNT (ACTIVE_BOTS) — no BOT_ID column to filter
+            assert "entity_filter_bot_id" not in match.parameters_applied
+
+    # ── Station entity tests ──
+
+    def test_station_id_filters_kpi062_active_inactive(self, resolver):
+        """'station 3 active vs inactive hours in frk'
+        → station KPI wrapped with station filter including ST-3 variant."""
+        match = resolver.resolve(
+            "STATION-0003 active vs inactive hours in frk today",
+            tenant_values=["frk"],
+            station_id="STATION-0003",
+        )
+        assert match is not None, "Should match a station KPI"
+        assert match.category == "station"
+        # Station KPIs output a 'Station' column → should be wrapped
+        assert "_ef" in match.sql, "SQL should be wrapped"
+        # Should contain ST-3 variant since station KPIs output ST-N format
+        assert "ST-3" in match.sql or "STATION-0003" in match.sql
+        assert "entity_filter_station_id" in match.parameters_applied
+
+    def test_station_id_variants_generated(self, resolver):
+        """_station_id_variants should generate ST-N format."""
+        from app.services.sql_assistant.kpi_resolver import DashboardKPIResolver
+        variants = DashboardKPIResolver._station_id_variants("STATION-0003")
+        assert "STATION-0003" in variants
+        assert "ST-3" in variants
+        assert "3" in variants
+        assert "STATION-3" in variants
+
+    # ── Direct method tests ──
+
+    def test_extract_columns_simple_select(self, resolver):
+        """Column extraction from simple SELECT."""
+        sql = "SELECT COUNT(*) AS total_bins FROM bin_info_master WHERE x = 1"
+        cols = resolver._extract_outermost_select_columns(sql)
+        assert "total_bins" in cols
+
+    def test_extract_columns_with_cte(self, resolver):
+        """Column extraction skips CTEs and finds the final SELECT."""
+        sql = (
+            "WITH cte AS (SELECT bot_id, x FROM t) "
+            "SELECT b.BOT_ID, ROUND(x, 2) AS ACTIVE_HOURS "
+            "FROM cte b"
+        )
+        cols = resolver._extract_outermost_select_columns(sql)
+        assert "bot_id" in cols
+        assert "active_hours" in cols
+
+    def test_extract_columns_concat_as(self, resolver):
+        """Column extraction handles CONCAT(...) AS alias."""
+        sql = (
+            "SELECT CONCAT('ST-', sa.Station) AS Station, "
+            "ROUND(x, 2) AS ActiveHours FROM t"
+        )
+        cols = resolver._extract_outermost_select_columns(sql)
+        assert "station" in cols
+        assert "activehours" in cols
+
+    def test_inject_no_entities_returns_unchanged(self, resolver):
+        """No entities → SQL returned unchanged."""
+        sql = "SELECT BOT_ID, x FROM t WHERE y = 1"
+        params = {"location": "frk"}
+        new_sql, new_params = resolver._inject_entity_filters(sql, params)
+        assert new_sql == sql
+        assert new_params == params
+
+    def test_inject_bot_id_wraps_sql(self, resolver):
+        """Direct test: _inject_entity_filters wraps SQL for bot_id."""
+        sql = "SELECT b.BOT_ID, ROUND(x, 2) AS ACTIVE_HOURS FROM bot_master b WHERE b.`host-location` = 'frk'"
+        params = {"location": "frk"}
+        new_sql, new_params = resolver._inject_entity_filters(
+            sql, params, bot_id="BOT-0001"
+        )
+        assert "SELECT * FROM (" in new_sql
+        assert "_ef" in new_sql
+        assert "BOT-0001" in new_sql
+        assert "entity_filter_bot_id" in new_params
+
+    def test_inject_station_id_uses_variants(self, resolver):
+        """Direct test: station filter uses IN clause with variants."""
+        sql = "SELECT CONCAT('ST-', sa.Station) AS Station, x FROM t WHERE y = 1"
+        params = {}
+        new_sql, new_params = resolver._inject_entity_filters(
+            sql, params, station_id="STATION-0003"
+        )
+        assert "SELECT * FROM (" in new_sql
+        assert "ST-3" in new_sql
+        assert "STATION-0003" in new_sql
+        assert "entity_filter_station_id" in new_params
+
+    def test_inject_skips_when_value_already_in_sql(self, resolver):
+        """If bot_id value is already in SQL, no wrapping should happen."""
+        sql = "SELECT time, value FROM t WHERE bot_id IN ('BOT-0003') AND x = 1"
+        params = {"bot_id": "BOT-0003"}
+        new_sql, new_params = resolver._inject_entity_filters(
+            sql, params, bot_id="BOT-0003"
+        )
+        assert "SELECT * FROM (" not in new_sql
+        assert "_ef" not in new_sql
+
+    def test_inject_skips_aggregate_no_entity_column(self, resolver):
+        """Aggregate KPI with no entity column → no wrapping."""
+        sql = "SELECT COUNT(DISTINCT BOT_ID) AS ACTIVE_BOTS FROM task_master_log WHERE x = 1"
+        params = {}
+        new_sql, new_params = resolver._inject_entity_filters(
+            sql, params, bot_id="BOT-0003"
+        )
+        # ACTIVE_BOTS column doesn't match "bot_id" pattern → no wrapping
+        assert "SELECT * FROM (" not in new_sql
+
+
+# ──────────────────────────────────────────────────────────────
+# Entity-lookup guard tests — queries about specific entities
+# should NOT hit the KPI path
+# ──────────────────────────────────────────────────────────────
+class TestEntityLookupGuard:
+    """Entity-lookup queries (location, IP, status, tower-side, counters)
+    must return None from the resolver — they should fall through to SQL
+    generation instead of falsely matching bot/bin/station KPIs."""
+
+    # ── Bot entity lookups (should all be rejected) ──
+
+    def test_where_is_bot_rejected(self, resolver):
+        """'where is BOT-0001 in frk' → should NOT match any KPI."""
+        match = resolver.resolve(
+            "where is BOT-0001 in frk",
+            tenant_values=["frk"],
+            bot_id="BOT-0001",
+        )
+        assert match is None, (
+            f"Entity lookup 'where is BOT-0001' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_bot_ip_rejected(self, resolver):
+        """'what is the ip of BOT-0027 in chennai' → entity lookup, not KPI."""
+        match = resolver.resolve(
+            "what is the ip of BOT-0027 in chennai",
+            tenant_values=["chennai"],
+            bot_id="BOT-0027",
+        )
+        assert match is None, (
+            f"Entity lookup 'ip of BOT-0027' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_bot_counter_increasing_rejected(self, resolver):
+        """'are the counters of BOT-0027 increasing at chennai' → lookup."""
+        match = resolver.resolve(
+            "are the counters of BOT-0027 is increasing at chennai",
+            tenant_values=["chennai"],
+            bot_id="BOT-0027",
+        )
+        assert match is None, (
+            f"Entity lookup 'counters increasing' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_bot_tower_side_rejected(self, resolver):
+        """'where is BOT-0001 in frk give me tower side' → lookup."""
+        match = resolver.resolve(
+            "where is BOT-0001 in frk give me coordinates with tower side",
+            tenant_values=["frk"],
+            bot_id="BOT-0001",
+        )
+        assert match is None, (
+            f"Entity lookup 'tower side' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_bot_left_or_right_rejected(self, resolver):
+        """'where is BOT-0001 in frk also give me left or right' → lookup."""
+        match = resolver.resolve(
+            "where is BOT-0001 in frk also give me left or right",
+            tenant_values=["frk"],
+            bot_id="BOT-0001",
+        )
+        assert match is None, (
+            f"Entity lookup 'left or right' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_bot_current_location_rejected(self, resolver):
+        """'current location of BOT-0001' → location lookup, not KPI."""
+        match = resolver.resolve(
+            "current location of BOT-0001 in frk",
+            tenant_values=["frk"],
+            bot_id="BOT-0001",
+        )
+        assert match is None, (
+            f"Entity lookup 'current location' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_bot_charging_point_rejected(self, resolver):
+        """'is BOT-0003 going to charging point' → state lookup."""
+        match = resolver.resolve(
+            "is BOT-0003 not going to charging point in frk",
+            tenant_values=["frk"],
+            bot_id="BOT-0003",
+        )
+        assert match is None, (
+            f"Entity lookup 'charging point' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_bot_status_rejected(self, resolver):
+        """'status of BOT-0001 in frk' → status lookup."""
+        match = resolver.resolve(
+            "status of BOT-0001 in frk",
+            tenant_values=["frk"],
+            bot_id="BOT-0001",
+        )
+        assert match is None, (
+            f"Entity lookup 'status of BOT' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    # ── Bin entity lookups (should all be rejected) ──
+
+    def test_where_is_bin_rejected(self, resolver):
+        """'where is BIN-0324 in frk' → location lookup."""
+        match = resolver.resolve(
+            "where is BIN-0324 in frk",
+            tenant_values=["frk"],
+            bin_id="BIN-0324",
+        )
+        assert match is None, (
+            f"Entity lookup 'where is BIN' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_bin_contents_rejected(self, resolver):
+        """'what is in BIN-0100' → contents lookup."""
+        match = resolver.resolve(
+            "what is in BIN-0100 in frk",
+            tenant_values=["frk"],
+            bin_id="BIN-0100",
+        )
+        assert match is None, (
+            f"Entity lookup 'what is in BIN' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_bin_location_details_rejected(self, resolver):
+        """'details of BIN-0050 in blr' → property lookup."""
+        match = resolver.resolve(
+            "details of BIN-0050 in blr",
+            tenant_values=["blr"],
+            bin_id="BIN-0050",
+        )
+        assert match is None, (
+            f"Entity lookup 'details of BIN' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    # ── Station entity lookups (should all be rejected) ──
+
+    def test_station_previous_bot_rejected(self, resolver):
+        """'what was the previous bot at STATION-0001 in frk' → lookup."""
+        match = resolver.resolve(
+            "what was the previous bot at STATION-0001 in frk",
+            tenant_values=["frk"],
+            station_id="STATION-0001",
+        )
+        assert match is None, (
+            f"Entity lookup 'previous bot at station' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_station_config_rejected(self, resolver):
+        """'configuration of STATION-0005 in blr' → config lookup."""
+        match = resolver.resolve(
+            "configuration of STATION-0005 in blr",
+            tenant_values=["blr"],
+            station_id="STATION-0005",
+        )
+        assert match is None, (
+            f"Entity lookup 'config of station' falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    # ── Bare entity ID (just "BOT-0001") should not match KPI ──
+
+    def test_bare_entity_id_rejected(self, resolver):
+        """Just 'BOT-0001' by itself → not a KPI query."""
+        match = resolver.resolve(
+            "BOT-0001",
+            bot_id="BOT-0001",
+        )
+        assert match is None, (
+            f"Bare entity ID falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_bare_entity_with_location_rejected(self, resolver):
+        """'BOT-0001 in frk' → not a KPI query."""
+        match = resolver.resolve(
+            "BOT-0001 in frk",
+            tenant_values=["frk"],
+            bot_id="BOT-0001",
+        )
+        assert match is None, (
+            f"Bare entity+location falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    # ── KPI queries WITH entity IDs (should still match!) ──
+
+    def test_bot_active_inactive_with_entity_still_matches(self, resolver):
+        """'bot active vs inactive for BOT-0001 in frk today' → IS a KPI query."""
+        match = resolver.resolve(
+            "bot active vs inactive for BOT-0001 in frk today",
+            tenant_values=["frk"],
+            bot_id="BOT-0001",
+        )
+        assert match is not None, "KPI query with entity ID should match"
+        assert match.category == "bot"
+
+    def test_alarms_for_bot_with_entity_still_matches(self, resolver):
+        """'total alarms for BOT-0003 in frk' → IS a KPI query."""
+        match = resolver.resolve(
+            "total alarms for BOT-0003 in frk",
+            tenant_values=["frk"],
+            bot_id="BOT-0003",
+        )
+        assert match is not None, "KPI query with entity ID should match"
+        assert "alarm" in match.kpi_name.lower()
+
+    def test_downtime_for_bot_with_entity_still_matches(self, resolver):
+        """'downtime for BOT-0012 in frk' → IS a KPI query."""
+        match = resolver.resolve(
+            "downtime for BOT-0012 in frk",
+            tenant_values=["frk"],
+            bot_id="BOT-0012",
+        )
+        assert match is not None, "KPI query with entity ID should match"
+        assert match.category == "bot"
+
+    def test_station_utilization_with_entity_still_matches(self, resolver):
+        """'station 3 utilization in frk' → IS a KPI query."""
+        match = resolver.resolve(
+            "STATION-0003 utilization in frk",
+            tenant_values=["frk"],
+            station_id="STATION-0003",
+        )
+        assert match is not None, "KPI query with entity ID should match"
+        assert match.category == "station"
+
+    def test_active_bots_no_entity_still_matches(self, resolver):
+        """'how many active bots in frk' (no specific bot) → IS a KPI query."""
+        match = resolver.resolve(
+            "how many active bots in frk",
+            tenant_values=["frk"],
+        )
+        assert match is not None, "Aggregate KPI query should match"
+        assert match.category == "bot"
+
+    # ── Direct _is_entity_lookup_query function tests ──
+
+    def test_guard_function_rejects_where_is_bot(self):
+        from app.services.sql_assistant.kpi_resolver import _is_entity_lookup_query
+        assert _is_entity_lookup_query("where is BOT-0001 in frk", bot_id="BOT-0001")
+
+    def test_guard_function_rejects_ip_of_bot(self):
+        from app.services.sql_assistant.kpi_resolver import _is_entity_lookup_query
+        assert _is_entity_lookup_query("what is the ip of BOT-0027", bot_id="BOT-0027")
+
+    def test_guard_function_allows_active_inactive_with_entity(self):
+        from app.services.sql_assistant.kpi_resolver import _is_entity_lookup_query
+        assert not _is_entity_lookup_query(
+            "bot active vs inactive for BOT-0001 in frk today",
+            bot_id="BOT-0001"
+        )
+
+    def test_guard_function_allows_alarms_with_entity(self):
+        from app.services.sql_assistant.kpi_resolver import _is_entity_lookup_query
+        assert not _is_entity_lookup_query(
+            "total alarms for BOT-0003 today",
+            bot_id="BOT-0003"
+        )
+
+    def test_guard_function_no_entity_returns_false(self):
+        from app.services.sql_assistant.kpi_resolver import _is_entity_lookup_query
+        assert not _is_entity_lookup_query("how many bots are active")
+
+    def test_guard_function_rejects_counter_query(self):
+        from app.services.sql_assistant.kpi_resolver import _is_entity_lookup_query
+        assert _is_entity_lookup_query(
+            "are the counters of BOT-0027 increasing at chennai",
+            bot_id="BOT-0027"
+        )
+
+    def test_guard_function_rejects_tower_side(self):
+        from app.services.sql_assistant.kpi_resolver import _is_entity_lookup_query
+        assert _is_entity_lookup_query(
+            "give me tower side of BOT-0001 in frk",
+            bot_id="BOT-0001"
+        )
+
+    def test_guard_function_rejects_bare_entity(self):
+        from app.services.sql_assistant.kpi_resolver import _is_entity_lookup_query
+        assert _is_entity_lookup_query("BOT-0001", bot_id="BOT-0001")
+
+    def test_guard_function_rejects_where_is_bin(self):
+        from app.services.sql_assistant.kpi_resolver import _is_entity_lookup_query
+        assert _is_entity_lookup_query("where is BIN-0324 in frk", bin_id="BIN-0324")

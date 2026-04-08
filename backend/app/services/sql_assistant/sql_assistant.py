@@ -1063,10 +1063,13 @@ class SQLAssistantService:
             _kpi_time_to   = None
 
         # ── Extract additional entities for KPI param substitution ──
-        # EntityResolver stores keys in UPPERCASE (BOT_ID, STATION_ID)
+        # EntityResolver stores keys in UPPERCASE (BOT_ID, STATION_ID, etc.)
         _bot_id = entities.get("BOT_ID")
         _category_value = entities.get("CATEGORY_VALUE")
         _station_id = entities.get("STATION_ID")
+        _bin_id = entities.get("BIN_ID")
+        _wave_id = entities.get("WAVE_ID")
+        _order_id = entities.get("ORDER_ID")
 
         try:
             kpi_match = self.kpi_resolver.resolve(
@@ -1079,6 +1082,9 @@ class SQLAssistantService:
                 bot_id=_bot_id,
                 category_value=_category_value,
                 station_id=_station_id,
+                bin_id=_bin_id,
+                wave_id=_wave_id,
+                order_id=_order_id,
                 original_question=original_question,
             )
         except Exception as e:

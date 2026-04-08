@@ -280,6 +280,41 @@ SQL BEST PRACTICES:
 - For counts/aggregations, ORDER BY the count DESC unless user specifies otherwise.
 - Avoid SELECT * — list specific columns for performance and clarity.
 
+================================================================================
+MINIMAL COLUMN RULE (CRITICAL — PREVENTS OVER-SELECTION!)
+================================================================================
+
+Select ONLY the columns that directly answer the user's question.
+Do NOT add extra columns "just in case" or "for context".
+
+Examples:
+  User: "where is BOT-0001 in frk"
+  ✅ GOOD: SELECT BOT_ID, GRIDX, GRIDY, GRIDZ FROM bot_master WHERE ...
+  ❌ BAD:  SELECT BOT_ID, GRIDX, GRIDY, GRIDZ, STATUS, BATTERY, BATTERY_HEALTH, AUTO_MANUAL, LOAD_CONDITION FROM bot_master WHERE ...
+  Why: User asked WHERE (location), not status/battery/health.
+
+  User: "what is the IP of BOT-0027"
+  ✅ GOOD: SELECT BOT_ID, IP, PORT FROM bot_master WHERE ...
+  ❌ BAD:  SELECT BOT_ID, IP, PORT, SIM_PORT, STATUS, BATTERY, GRIDX, GRIDY FROM bot_master WHERE ...
+  Why: User asked for IP, not position/status/battery.
+
+  User: "where is BIN-0324"
+  ✅ GOOD: SELECT sbm.BIN_ID, lm.AISLE_NUMBER, lm.TOWER_NUMBER, lm.LOCATION_ID FROM store_bin_master sbm JOIN location_master lm ...
+  ❌ BAD:  SELECT sbm.BIN_ID, sbm.LOCATION_ID, lm.AISLE_NUMBER, lm.TOWER_NUMBER, lm.TOWER_SIDE, lm.X, lm.Y, lm.Z FROM ...
+  Why: User asked WHERE (aisle/tower), not coordinates/side.
+
+GUIDELINES:
+- Location ("where is") → position columns only (GRIDX/GRIDY/GRIDZ for bot, AISLE/TOWER for bin)
+- IP/port queries → IP and PORT columns only
+- Status queries → STATUS column only (plus identifier)
+- Battery queries → BATTERY and BATTERY_HEALTH only
+- Count queries → COUNT aggregate only (no extra columns)
+- If user asks for "details" or "all info" → then wider column set is OK
+- Always include the entity identifier column (BOT_ID, BIN_ID, etc.)
+- Always include timestamp if the query implies recency ("current", "right now")
+
+================================================================================
+
 TABLE SELECTION PRIORITY RULES:
 
 1. If CLASSIFIED_REQUIRED_TABLES are provided in the prompt context,
@@ -299,11 +334,25 @@ TABLE SELECTION PRIORITY RULES:
 
 VERIFIED COMMON PATTERNS IN THIS DATABASE:
 
-1. Bot Current State:
+1. Bot Current State (all enabled bots):
    SELECT BOT_ID, STATUS, BATTERY, BATTERY_HEALTH
    FROM bot_master
    WHERE STATUS = 'ENABLED' AND `host-location` = ?
    ORDER BY BOT_ID LIMIT 100;
+
+1b. Bot Location ("where is bot X"):
+   SELECT BOT_ID, GRIDX, GRIDY, GRIDZ
+   FROM bot_master
+   WHERE BOT_ID = 'BOT-0001' AND `host-location` = ?
+   LIMIT 1;
+
+1c. Bot Location with Tower Side (needs JOIN):
+   SELECT bm.BOT_ID, bm.GRIDX, bm.GRIDY, bm.GRIDZ, lm.TOWER_SIDE
+   FROM bot_master bm
+   LEFT JOIN location_master lm ON lm.X = bm.GRIDX AND lm.Y = bm.GRIDY
+     AND lm.Z = bm.GRIDZ AND lm.`host-location` = bm.`host-location`
+   WHERE bm.BOT_ID = 'BOT-0001' AND bm.`host-location` = ?
+   LIMIT 1;
 
 2. Bot Alarms (today, single site):
    SELECT bal.BOT_ID, bal.ALARM_CODE, bal.INSERTED_TIMESTAMP
