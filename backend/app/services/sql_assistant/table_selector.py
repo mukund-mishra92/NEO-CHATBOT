@@ -133,8 +133,10 @@ class TableSelector:
             ):
                 category_bonus += 0.2
 
-            if "log" in category and any(
-                w in question_lower for w in ["history", "trend", "past"]
+            if ("log" in category or table.lower().endswith("_log")) and any(
+                w in question_lower for w in ["history", "trend", "past",
+                                               "previous", "earlier", "before",
+                                               "last", "old"]
             ):
                 category_bonus += 0.3
 

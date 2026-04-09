@@ -552,14 +552,20 @@ CRITICAL COLUMN FACTS (verified against real database):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 4. ENUM REGISTRY — All enum values per table.column
+# 4. ENUM REGISTRY — DEPRECATED: kept as fallback reference only.
+#    Actual enum values are now auto-extracted from Table_information.csv
+#    during SchemaRegistry._load_csv() → self.enum_registry.
+#    When connecting to a new site, regenerate the CSV and the enum
+#    values will be picked up automatically — no manual edits needed.
 # ══════════════════════════════════════════════════════════════════════════════
 
 ENUM_REGISTRY: Dict[str, Dict[str, List[str]]] = {
     "bot_master": {
         "STATUS": ["ENABLED", "DISABLED"],
-        "AUTO_MANUAL": ["AUTO", "MANUAL"],
-        "LOAD_CONDITION": ["LOAD", "UNLOAD", "UNKNOWN"],
+        "AUTO_MANUAL": ["auto", "manual"],  # lowercase in DB!
+        "LOAD_CONDITION": ["UL", "LD"],  # UL=Unloaded, LD=Loaded
+        "BATTERY_HEALTH": ["GOOD", "AVERAGE", "CRITICAL"],
+        "ALARM_TYPE": ["NORMAL", "MAINTENANCE", "PSEUDO"],
     },
     "bot_master_log": {
         "STATUS": ["ENABLED", "DISABLED"],
@@ -581,7 +587,8 @@ ENUM_REGISTRY: Dict[str, Dict[str, List[str]]] = {
     "wave_master": {
         "WAVE_TYPE": [
             "PUT", "PICK", "STOCK_AUDIT", "BIN_LOADING",
-            "BIN_EMPTY", "REPLENISHMENT",
+            "PUT_STORAGE_REQUEST", "PICK_ORDER_REQUEST",
+            "LOCATION_AUDIT", "THROUGHPUT_WAVE",
         ],
         "WAVE_STATUS": [
             "PENDING", "UPLOADED", "STATION_SELECTED",
@@ -589,42 +596,52 @@ ENUM_REGISTRY: Dict[str, Dict[str, List[str]]] = {
         ],
     },
     "hw_station_master": {
-        "STATION_TYPE": ["GTP", "GTC", "MANUAL", "RETURN", "CHARGING"],
+        "STATION_TYPE": ["GTP_STATION", "GTC_STATION"],  # NOT 'GTP'/'GTC'!
         "STATUS": ["ENABLED", "DISABLED"],
-        "STATION_STATUS": ["IDLE", "ACTIVE", "PROCESSING", "OFFLINE"],
+        "WAVE_STATUS": ["NO_WAVE", "WAITING_OPERATOR", "WAVE_LIVE", "STATION_PAUSE"],
+    },
+    "hw_ptl_master": {
+        "STATUS": ["LPN_OPEN", "LPN_CLOSED", "ENABLED", "DISABLED", "LPN_SCAN"],
     },
     "location_master": {
         "AISLE_NUMBER": [
             "A01", "A02", "A03", "A04", "A05", "A06", "A07", "A08",
             "A09", "A10", "A11", "A12", "A13", "A14", "A15", "A16",
             "A17", "A18", "A19", "A20", "A21", "A22", "A23", "A24",
-            "RA01", "RA02", "RA03", "URA01", "URA02", "URA03", "URA04",
+            "RA01", "RA02", "RA03", "RA04", "RA05", "RA06", "RA07", "RA08",
+            "RA09", "RA10", "RA11", "RA12", "RA13", "RA14", "RA15", "RA16",
+            "RA17", "RA18", "RA19", "RA20",
+            "URA01", "URA02", "URA03", "URA04",
         ],
         "TOWER_NUMBER": [
             "T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08", "T09", "T10",
+            "T11", "T12", "T13", "T14", "T15", "T16", "T17", "T18", "T19", "T20",
+            "T21", "T22", "T23",
         ],
+        "TOWER_SIDE": ["LEFT", "RIGHT"],
     },
     "order_bin_mapping": {
+        "TYPE": ["STATION_PICK", "RACK_PICK", "RECOVERY_PICK", "LOCATION_PICK"],  # NOT just 'PICK'!
         "STATUS": [
             "PENDING", "TASK_ALLOCATED", "BIN_PICKED", "ON_STATION",
             "TASK_COMPLETED", "OPERATION_COMPLETED",
-            "SHORT_PICK", "LEFT_OVER", "RECOVERY",
+            "PRE_ON_STATION", "POST_ON_STATION", "RACK_PENDING",
         ],
     },
     "pick_wave_order_master": {
         "STATUS": [
-            "PENDING", "TASK_ALLOCATED", "BIN_PICKED", "ON_STATION",
-            "TASK_COMPLETED", "OPERATION_COMPLETED", "SHORT_PICK",
+            "PENDING", "PICK_STARTED", "PICK_COMPLETED",
+            "ORDER_COMPLETED", "MID_WAVE_AUDIT_STARTED", "MID_WAVE_AUDIT_COMPLETED",
         ],
     },
     "put_wave_order_master": {
         "STATUS": [
-            "PENDING", "TASK_ALLOCATED", "BIN_PICKED", "ON_STATION",
-            "TASK_COMPLETED", "OPERATION_COMPLETED", "SHORT_PUT",
+            "PUT_STARTED", "PUT_COMPLETED", "PENDING",
+            "INVENTORY_UPDATED", "PUT_SUSPENDED",
         ],
     },
     "bin_info_master": {
-        "BIN_TYPE": ["STANDARD", "TOTE", "PALLET"],
+        "BIN_TYPE": ["SEGMENT", "VIRTUAL_BIN"],
     },
     "sku_master": {
         "VELOCITY": ["A", "B", "C", "D", "NA"],
@@ -638,9 +655,15 @@ ENUM_REGISTRY: Dict[str, Dict[str, List[str]]] = {
     },
     "stock_audit_wave_order_master": {
         "STATUS": [
-            "PENDING", "TASK_ALLOCATED", "BIN_PICKED", "ON_STATION",
-            "TASK_COMPLETED", "OPERATION_COMPLETED",
+            "PENDING", "AUDIT_STARTED", "AUDIT_COMPLETED",
+            "AUDIT_SKIPPED", "INVENTORY_UPDATED",
         ],
+    },
+    "station_no_read_logs": {
+        "TYPE": ["FAILREAD", "NOREAD", "BADREAD"],
+    },
+    "lpn_master": {
+        "LPN_STATUS": ["LPN_OPEN", "LPN_CLOSED"],
     },
     "maintenance_task_master": {
         "STATUS": ["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED"],
@@ -668,12 +691,15 @@ class SchemaRegistry:
         self.tables: Dict[str, Dict[str, Any]] = {}
         self.column_index: Dict[str, Set[str]] = defaultdict(set)
         self.join_graph: Dict[str, Dict[str, Dict]] = defaultdict(dict)
+        # Dynamic enum registry — populated from Table_information.csv
+        self.enum_registry: Dict[str, Dict[str, List[str]]] = {}
 
         self._load_csv()
         self._build_join_graph()
         logger.info(
             f"SchemaRegistry: {len(self.tables)} tables, "
-            f"{sum(len(v) for v in self.join_graph.values())} edges"
+            f"{sum(len(v) for v in self.join_graph.values())} edges, "
+            f"{sum(len(v) for v in self.enum_registry.values())} enum columns"
         )
 
     # ── CSV Loading ──────────────────────────────────────────────────────
@@ -699,6 +725,30 @@ class SchemaRegistry:
                 }
                 for col in parsed:
                     self.column_index[col["name"].upper()].add(tname)
+                # Extract enum columns and their values from raw column text
+                enums = self._extract_enums(cols_raw)
+                if enums:
+                    self.enum_registry[tname] = enums
+
+    @staticmethod
+    def _extract_enums(raw: str) -> Dict[str, List[str]]:
+        """Parse enum columns and their values from raw column definition text.
+
+        Example input:
+            STATUS(enum('ENABLED','DISABLED')), STATION_TYPE(enum('GTP_STATION','GTC_STATION'))
+        Returns:
+            {'STATUS': ['ENABLED', 'DISABLED'], 'STATION_TYPE': ['GTP_STATION', 'GTC_STATION']}
+        """
+        enums: Dict[str, List[str]] = {}
+        # Match patterns like: COLUMN_NAME(enum('VAL1','VAL2',...))  
+        for m in re.finditer(r"(\w+)\(enum\(([^)]+)\)\)", raw):
+            col_name = m.group(1)
+            val_str = m.group(2)
+            values = [v.strip().strip("'").strip('"') for v in val_str.split(",")]
+            values = [v for v in values if v]  # filter empty
+            if values:
+                enums[col_name] = values
+        return enums
 
     @staticmethod
     def _parse_columns(raw: str) -> List[Dict[str, str]]:
@@ -825,13 +875,13 @@ class SchemaRegistry:
     # ── Enum & Column Lookup ────────────────────────────────────────────
 
     def get_enum_values(self, table: str, column: str) -> Optional[List[str]]:
-        return ENUM_REGISTRY.get(table, {}).get(column)
+        return self.enum_registry.get(table, {}).get(column)
 
     def get_relevant_enums(self, tables: List[str]) -> Dict[str, Dict[str, List[str]]]:
         result: Dict[str, Dict[str, List[str]]] = {}
         for t in tables:
-            if t in ENUM_REGISTRY:
-                result[t] = ENUM_REGISTRY[t]
+            if t in self.enum_registry:
+                result[t] = self.enum_registry[t]
         return result
 
     def get_table_columns(self, table: str) -> List[Dict[str, str]]:

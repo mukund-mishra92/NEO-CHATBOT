@@ -1,0 +1,4490 @@
+{
+  "should_match": [
+    {
+      "idx": 1,
+      "query": "How many hours was each bot active and inactive during the selected time period",
+      "status": "MATCH",
+      "kpi_id": "kpi_001",
+      "kpi_name": "Active vs Inactive hours for bot",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          1.0
+        ],
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.9217
+        ],
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.9212
+        ]
+      ]
+    },
+    {
+      "idx": 2,
+      "query": "How active were the bots compared to inactive time",
+      "status": "MATCH",
+      "kpi_id": "kpi_001",
+      "kpi_name": "Active vs Inactive hours for bot",
+      "score": 0.9522,
+      "top3": [
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.9522
+        ],
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.6826
+        ],
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          0.6069
+        ]
+      ]
+    },
+    {
+      "idx": 3,
+      "query": "Show bot active vs inactive hours breakdown",
+      "status": "MATCH",
+      "kpi_id": "kpi_001",
+      "kpi_name": "Active vs Inactive hours for bot",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          1.0
+        ],
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.7128
+        ],
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.6946
+        ]
+      ]
+    },
+    {
+      "idx": 4,
+      "query": "Which bots had the most downtime vs uptime",
+      "status": "MATCH",
+      "kpi_id": "kpi_001",
+      "kpi_name": "Active vs Inactive hours for bot",
+      "score": 0.6858,
+      "top3": [
+        [
+          "kpi_012",
+          "Bot-Downtime (Mins)",
+          0.7347
+        ],
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.6858
+        ],
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.5664
+        ]
+      ]
+    },
+    {
+      "idx": 5,
+      "query": "How many bots were active during the selected time period",
+      "status": "MATCH",
+      "kpi_id": "kpi_001",
+      "kpi_name": "Active vs Inactive hours for bot",
+      "score": 0.8423,
+      "top3": [
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.8423
+        ],
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.7372
+        ],
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.6722
+        ]
+      ]
+    },
+    {
+      "idx": 6,
+      "query": "Count bots that worked in the selected time range",
+      "status": "MATCH",
+      "kpi_id": "kpi_002",
+      "kpi_name": "Active number of Bots",
+      "score": 0.634,
+      "top3": [
+        [
+          "kpi_002",
+          "Active number of Bots",
+          0.634
+        ],
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.6111
+        ],
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.6012
+        ]
+      ]
+    },
+    {
+      "idx": 7,
+      "query": "How many bots completed tasks in the given period",
+      "status": "MATCH",
+      "kpi_id": "kpi_002",
+      "kpi_name": "Active number of Bots",
+      "score": 0.8107,
+      "top3": [
+        [
+          "kpi_002",
+          "Active number of Bots",
+          0.8107
+        ]
+      ]
+    },
+    {
+      "idx": 8,
+      "query": "Show the number of bots that were actually working",
+      "status": "MATCH",
+      "kpi_id": "kpi_002",
+      "kpi_name": "Active number of Bots",
+      "score": 0.6926,
+      "top3": [
+        [
+          "kpi_002",
+          "Active number of Bots",
+          0.6926
+        ],
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.6613
+        ]
+      ]
+    },
+    {
+      "idx": 9,
+      "query": "How many bots had task activity in the selected window",
+      "status": "MATCH",
+      "kpi_id": "kpi_002",
+      "kpi_name": "Active number of Bots",
+      "score": 0.8177,
+      "top3": [
+        [
+          "kpi_002",
+          "Active number of Bots",
+          0.8177
+        ]
+      ]
+    },
+    {
+      "idx": 10,
+      "query": "How many bots were inactive during the selected time period",
+      "status": "MATCH",
+      "kpi_id": "kpi_003",
+      "kpi_name": "Number of Inactive Bots",
+      "score": 0.9446,
+      "top3": [
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.9446
+        ],
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.7377
+        ],
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.5859
+        ]
+      ]
+    },
+    {
+      "idx": 11,
+      "query": "How many bots are currently inactive or idle",
+      "status": "MATCH",
+      "kpi_id": "kpi_003",
+      "kpi_name": "Number of Inactive Bots",
+      "score": 0.9042,
+      "top3": [
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.9042
+        ]
+      ]
+    },
+    {
+      "idx": 12,
+      "query": "Count inactive bots",
+      "status": "MATCH",
+      "kpi_id": "kpi_003",
+      "kpi_name": "Number of Inactive Bots",
+      "score": 0.8343,
+      "top3": [
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.8343
+        ],
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.5847
+        ]
+      ]
+    },
+    {
+      "idx": 13,
+      "query": "Which bots are not working",
+      "status": "MATCH",
+      "kpi_id": "kpi_003",
+      "kpi_name": "Number of Inactive Bots",
+      "score": 0.6397,
+      "top3": [
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.6397
+        ]
+      ]
+    },
+    {
+      "idx": 14,
+      "query": "Show idle bot count",
+      "status": "MATCH",
+      "kpi_id": "kpi_003",
+      "kpi_name": "Number of Inactive Bots",
+      "score": 0.6824,
+      "top3": [
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.6824
+        ]
+      ]
+    },
+    {
+      "idx": 15,
+      "query": "What was the average active time per bot per day",
+      "status": "MATCH",
+      "kpi_id": "kpi_004",
+      "kpi_name": "Average  Active Hours for bot",
+      "score": 0.9165,
+      "top3": [
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.9165
+        ],
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.8587
+        ],
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.7174
+        ]
+      ]
+    },
+    {
+      "idx": 16,
+      "query": "What is the average hours each bot was active",
+      "status": "MATCH",
+      "kpi_id": "kpi_004",
+      "kpi_name": "Average  Active Hours for bot",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          1.0
+        ],
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.9465
+        ],
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.8915
+        ]
+      ]
+    },
+    {
+      "idx": 17,
+      "query": "Show average bot active hours",
+      "status": "MATCH",
+      "kpi_id": "kpi_004",
+      "kpi_name": "Average  Active Hours for bot",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          1.0
+        ],
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.9381
+        ],
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.8787
+        ]
+      ]
+    },
+    {
+      "idx": 18,
+      "query": "How many hours on average was each bot working",
+      "status": "MATCH",
+      "kpi_id": "kpi_004",
+      "kpi_name": "Average  Active Hours for bot",
+      "score": 0.8579,
+      "top3": [
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.8579
+        ],
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.8423
+        ],
+        [
+          "kpi_002",
+          "Active number of Bots",
+          0.7368
+        ]
+      ]
+    },
+    {
+      "idx": 19,
+      "query": "What was the average inactive time per bot per day",
+      "status": "MATCH",
+      "kpi_id": "kpi_005",
+      "kpi_name": "Average Inactive Hours for bot",
+      "score": 0.7713,
+      "top3": [
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.7999
+        ],
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.7713
+        ],
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.7017
+        ]
+      ]
+    },
+    {
+      "idx": 20,
+      "query": "What is the average bot idle time in hours",
+      "status": "MATCH",
+      "kpi_id": "kpi_005",
+      "kpi_name": "Average Inactive Hours for bot",
+      "score": 0.9003,
+      "top3": [
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.9003
+        ],
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.8668
+        ],
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.8356
+        ]
+      ]
+    },
+    {
+      "idx": 21,
+      "query": "Show average bot inactive hours",
+      "status": "MATCH",
+      "kpi_id": "kpi_005",
+      "kpi_name": "Average Inactive Hours for bot",
+      "score": 0.9129,
+      "top3": [
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.9367
+        ],
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.9129
+        ],
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.8704
+        ]
+      ]
+    },
+    {
+      "idx": 22,
+      "query": "How many hours on average was each bot not working",
+      "status": "MATCH",
+      "kpi_id": "kpi_005",
+      "kpi_name": "Average Inactive Hours for bot",
+      "score": 0.8313,
+      "top3": [
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.8313
+        ],
+        [
+          "kpi_005",
+          "Average Inactive Hours for bot",
+          0.8313
+        ],
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.7323
+        ]
+      ]
+    },
+    {
+      "idx": 23,
+      "query": "For each bot, how many bins were processed per hour including both active and inactive time",
+      "status": "MATCH",
+      "kpi_id": "kpi_006",
+      "kpi_name": "Bins Per Hour (Bot active + inactive time)",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          1.0
+        ],
+        [
+          "kpi_007",
+          "Bins Per Hour (Active Time Only)",
+          0.6084
+        ],
+        [
+          "kpi_011",
+          "Home Time per Bot (Hours)",
+          0.5938
+        ]
+      ]
+    },
+    {
+      "idx": 24,
+      "query": "What was the average bins per hour across bots using total elapsed time",
+      "status": "MATCH",
+      "kpi_id": "kpi_006",
+      "kpi_name": "Bins Per Hour (Bot active + inactive time)",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          1.0
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.6283
+        ],
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.6061
+        ]
+      ]
+    },
+    {
+      "idx": 25,
+      "query": "How many bins per hour did each bot process",
+      "status": "MATCH",
+      "kpi_id": "kpi_006",
+      "kpi_name": "Bins Per Hour (Bot active + inactive time)",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          1.0
+        ]
+      ]
+    },
+    {
+      "idx": 26,
+      "query": "What is the bin throughput per bot",
+      "status": "MATCH",
+      "kpi_id": "kpi_006",
+      "kpi_name": "Bins Per Hour (Bot active + inactive time)",
+      "score": 0.929,
+      "top3": [
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          0.929
+        ]
+      ]
+    },
+    {
+      "idx": 27,
+      "query": "Show bins per hour for bots",
+      "status": "MATCH",
+      "kpi_id": "kpi_006",
+      "kpi_name": "Bins Per Hour (Bot active + inactive time)",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          1.0
+        ],
+        [
+          "kpi_007",
+          "Bins Per Hour (Active Time Only)",
+          0.6433
+        ]
+      ]
+    },
+    {
+      "idx": 28,
+      "query": "BPH for each bot",
+      "status": "MATCH",
+      "kpi_id": "kpi_006",
+      "kpi_name": "Bins Per Hour (Bot active + inactive time)",
+      "score": 0.9307,
+      "top3": [
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          0.9307
+        ]
+      ]
+    },
+    {
+      "idx": 29,
+      "query": "What was each bot's bins per hour considering only active working time",
+      "status": "MATCH",
+      "kpi_id": "kpi_007",
+      "kpi_name": "Bins Per Hour (Active Time Only)",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_007",
+          "Bins Per Hour (Active Time Only)",
+          1.0
+        ],
+        [
+          "kpi_011",
+          "Home Time per Bot (Hours)",
+          0.7423
+        ],
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          0.679
+        ]
+      ]
+    },
+    {
+      "idx": 30,
+      "query": "Show BPH calculated using active time only, excluding idle periods",
+      "status": "MATCH",
+      "kpi_id": "kpi_007",
+      "kpi_name": "Bins Per Hour (Active Time Only)",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_007",
+          "Bins Per Hour (Active Time Only)",
+          1.0
+        ],
+        [
+          "kpi_062",
+          "Station-wise Active vs Inactive Hours",
+          0.5908
+        ]
+      ]
+    },
+    {
+      "idx": 31,
+      "query": "How many bins did bots process per active hour",
+      "status": "MATCH",
+      "kpi_id": "kpi_001",
+      "kpi_name": "Active vs Inactive hours for bot",
+      "score": 0.8174,
+      "top3": [
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.8174
+        ],
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.7544
+        ],
+        [
+          "kpi_007",
+          "Bins Per Hour (Active Time Only)",
+          0.7417
+        ]
+      ]
+    },
+    {
+      "idx": 32,
+      "query": "Bins per hour based on active time \u2014 not total elapsed time",
+      "status": "MATCH",
+      "kpi_id": "kpi_007",
+      "kpi_name": "Bins Per Hour (Active Time Only)",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_007",
+          "Bins Per Hour (Active Time Only)",
+          1.0
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.6171
+        ],
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.5765
+        ]
+      ]
+    },
+    {
+      "idx": 33,
+      "query": "What is the bin productivity rate per bot using only their working hours",
+      "status": "MATCH",
+      "kpi_id": "kpi_006",
+      "kpi_name": "Bins Per Hour (Bot active + inactive time)",
+      "score": 0.9767,
+      "top3": [
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          0.9767
+        ],
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          0.7062
+        ],
+        [
+          "kpi_011",
+          "Home Time per Bot (Hours)",
+          0.6215
+        ]
+      ]
+    },
+    {
+      "idx": 34,
+      "query": "BPH active time per bot",
+      "status": "MATCH",
+      "kpi_id": "kpi_007",
+      "kpi_name": "Bins Per Hour (Active Time Only)",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_007",
+          "Bins Per Hour (Active Time Only)",
+          1.0
+        ],
+        [
+          "kpi_011",
+          "Home Time per Bot (Hours)",
+          0.5924
+        ]
+      ]
+    },
+    {
+      "idx": 35,
+      "query": "How many alarms did each bot generate during the selected time period",
+      "status": "MATCH",
+      "kpi_id": "kpi_008",
+      "kpi_name": "Total Alarms per Bot",
+      "score": 0.7346,
+      "top3": [
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.7346
+        ],
+        [
+          "kpi_009",
+          "Alarm Type per Bot",
+          0.7042
+        ],
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.5702
+        ]
+      ]
+    },
+    {
+      "idx": 36,
+      "query": "How many alarms did each bot raise",
+      "status": "MATCH",
+      "kpi_id": "kpi_008",
+      "kpi_name": "Total Alarms per Bot",
+      "score": 0.6467,
+      "top3": [
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.6467
+        ],
+        [
+          "kpi_009",
+          "Alarm Type per Bot",
+          0.6142
+        ]
+      ]
+    },
+    {
+      "idx": 37,
+      "query": "Show alarm count per bot",
+      "status": "MATCH",
+      "kpi_id": "kpi_008",
+      "kpi_name": "Total Alarms per Bot",
+      "score": 0.6739,
+      "top3": [
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.6739
+        ],
+        [
+          "kpi_009",
+          "Alarm Type per Bot",
+          0.6458
+        ]
+      ]
+    },
+    {
+      "idx": 38,
+      "query": "Which bots have the most alarms",
+      "status": "MATCH",
+      "kpi_id": "kpi_008",
+      "kpi_name": "Total Alarms per Bot",
+      "score": 0.6975,
+      "top3": [
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.6975
+        ],
+        [
+          "kpi_009",
+          "Alarm Type per Bot",
+          0.6613
+        ]
+      ]
+    },
+    {
+      "idx": 39,
+      "query": "For each bot, which alarm types were generated, and how many times did each alarm occur",
+      "status": "MATCH",
+      "kpi_id": "kpi_009",
+      "kpi_name": "Alarm Type per Bot",
+      "score": 0.7703,
+      "top3": [
+        [
+          "kpi_009",
+          "Alarm Type per Bot",
+          0.7703
+        ],
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.7371
+        ]
+      ]
+    },
+    {
+      "idx": 40,
+      "query": "Show alarm breakdown by type for each bot",
+      "status": "MATCH",
+      "kpi_id": "kpi_009",
+      "kpi_name": "Alarm Type per Bot",
+      "score": 0.6955,
+      "top3": [
+        [
+          "kpi_009",
+          "Alarm Type per Bot",
+          0.6955
+        ],
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.6588
+        ]
+      ]
+    },
+    {
+      "idx": 41,
+      "query": "Which alarm types occurred most frequently per bot",
+      "status": "MATCH",
+      "kpi_id": "kpi_009",
+      "kpi_name": "Alarm Type per Bot",
+      "score": 0.7245,
+      "top3": [
+        [
+          "kpi_009",
+          "Alarm Type per Bot",
+          0.7245
+        ],
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.7074
+        ]
+      ]
+    },
+    {
+      "idx": 42,
+      "query": "What are the different alarm types each bot triggered",
+      "status": "MATCH",
+      "kpi_id": "kpi_009",
+      "kpi_name": "Alarm Type per Bot",
+      "score": 0.6962,
+      "top3": [
+        [
+          "kpi_009",
+          "Alarm Type per Bot",
+          0.6962
+        ],
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.6568
+        ]
+      ]
+    },
+    {
+      "idx": 43,
+      "query": "Alarm distribution per bot",
+      "status": "MATCH",
+      "kpi_id": "kpi_008",
+      "kpi_name": "Total Alarms per Bot",
+      "score": 0.6236,
+      "top3": [
+        [
+          "kpi_009",
+          "Alarm Type per Bot",
+          0.6358
+        ],
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.6236
+        ]
+      ]
+    },
+    {
+      "idx": 44,
+      "query": "For each bot and hour, how many active minutes did it have",
+      "status": "MATCH",
+      "kpi_id": "kpi_001",
+      "kpi_name": "Active vs Inactive hours for bot",
+      "score": 0.8985,
+      "top3": [
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.8985
+        ],
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.8205
+        ],
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.7482
+        ]
+      ]
+    },
+    {
+      "idx": 45,
+      "query": "How many minutes was each bot active per hour",
+      "status": "MATCH",
+      "kpi_id": "kpi_001",
+      "kpi_name": "Active vs Inactive hours for bot",
+      "score": 0.8528,
+      "top3": [
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.8528
+        ],
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.7285
+        ],
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          0.671
+        ]
+      ]
+    },
+    {
+      "idx": 46,
+      "query": "Show hourly bot activity in minutes",
+      "status": "MATCH",
+      "kpi_id": "kpi_010",
+      "kpi_name": "Bots Active Time (mins) per Hour",
+      "score": 0.9158,
+      "top3": [
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.9158
+        ],
+        [
+          "kpi_012",
+          "Bot-Downtime (Mins)",
+          0.7741
+        ],
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          0.7023
+        ]
+      ]
+    },
+    {
+      "idx": 47,
+      "query": "Bot working time per hour breakdown",
+      "status": "MATCH",
+      "kpi_id": "kpi_010",
+      "kpi_name": "Bots Active Time (mins) per Hour",
+      "score": 0.833,
+      "top3": [
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.833
+        ],
+        [
+          "kpi_007",
+          "Bins Per Hour (Active Time Only)",
+          0.8209
+        ],
+        [
+          "kpi_006",
+          "Bins Per Hour (Bot active + inactive time)",
+          0.7982
+        ]
+      ]
+    },
+    {
+      "idx": 48,
+      "query": "What is the hourly active time for bots",
+      "status": "MATCH",
+      "kpi_id": "kpi_001",
+      "kpi_name": "Active vs Inactive hours for bot",
+      "score": 0.9217,
+      "top3": [
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.9217
+        ],
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.7659
+        ],
+        [
+          "kpi_004",
+          "Average  Active Hours for bot",
+          0.6852
+        ]
+      ]
+    },
+    {
+      "idx": 49,
+      "query": "How many hours did each bot stay at its home or rest position",
+      "status": "MATCH",
+      "kpi_id": "kpi_011",
+      "kpi_name": "Home Time per Bot (Hours)",
+      "score": 0.9483,
+      "top3": [
+        [
+          "kpi_011",
+          "Home Time per Bot (Hours)",
+          0.9483
+        ],
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.5668
+        ]
+      ]
+    },
+    {
+      "idx": 50,
+      "query": "How long did each bot spend at home position",
+      "status": "MATCH",
+      "kpi_id": "kpi_011",
+      "kpi_name": "Home Time per Bot (Hours)",
+      "score": 0.8588,
+      "top3": [
+        [
+          "kpi_011",
+          "Home Time per Bot (Hours)",
+          0.8588
+        ]
+      ]
+    },
+    {
+      "idx": 51,
+      "query": "Show home time breakdown by bot in hours",
+      "status": "MATCH",
+      "kpi_id": "kpi_011",
+      "kpi_name": "Home Time per Bot (Hours)",
+      "score": 0.9924,
+      "top3": [
+        [
+          "kpi_011",
+          "Home Time per Bot (Hours)",
+          0.9924
+        ],
+        [
+          "kpi_010",
+          "Bots Active Time (mins) per Hour",
+          0.6784
+        ],
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.6441
+        ]
+      ]
+    },
+    {
+      "idx": 52,
+      "query": "Which bots had the most home/idle time",
+      "status": "MATCH",
+      "kpi_id": "kpi_011",
+      "kpi_name": "Home Time per Bot (Hours)",
+      "score": 0.8888,
+      "top3": [
+        [
+          "kpi_011",
+          "Home Time per Bot (Hours)",
+          0.8888
+        ],
+        [
+          "kpi_003",
+          "Number of Inactive Bots",
+          0.6689
+        ],
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.6055
+        ]
+      ]
+    },
+    {
+      "idx": 53,
+      "query": "Bot home dwell time",
+      "status": "MATCH",
+      "kpi_id": "kpi_011",
+      "kpi_name": "Home Time per Bot (Hours)",
+      "score": 0.8076,
+      "top3": [
+        [
+          "kpi_011",
+          "Home Time per Bot (Hours)",
+          0.8076
+        ]
+      ]
+    },
+    {
+      "idx": 54,
+      "query": "How many minutes of downtime did each bot have per day due to alarms or issues",
+      "status": "MATCH",
+      "kpi_id": "kpi_012",
+      "kpi_name": "Bot-Downtime (Mins)",
+      "score": 0.7443,
+      "top3": [
+        [
+          "kpi_012",
+          "Bot-Downtime (Mins)",
+          0.7443
+        ],
+        [
+          "kpi_008",
+          "Total Alarms per Bot",
+          0.68
+        ],
+        [
+          "kpi_009",
+          "Alarm Type per Bot",
+          0.6493
+        ]
+      ]
+    },
+    {
+      "idx": 55,
+      "query": "How much downtime did each bot have",
+      "status": "MATCH",
+      "kpi_id": "kpi_012",
+      "kpi_name": "Bot-Downtime (Mins)",
+      "score": 0.6976,
+      "top3": [
+        [
+          "kpi_012",
+          "Bot-Downtime (Mins)",
+          0.6976
+        ]
+      ]
+    },
+    {
+      "idx": 56,
+      "query": "Show bot downtime in minutes",
+      "status": "MATCH",
+      "kpi_id": "kpi_012",
+      "kpi_name": "Bot-Downtime (Mins)",
+      "score": 0.6969,
+      "top3": [
+        [
+          "kpi_012",
+          "Bot-Downtime (Mins)",
+          0.6969
+        ]
+      ]
+    },
+    {
+      "idx": 57,
+      "query": "Which bots had the most downtime",
+      "status": "MATCH",
+      "kpi_id": "kpi_012",
+      "kpi_name": "Bot-Downtime (Mins)",
+      "score": 0.7127,
+      "top3": [
+        [
+          "kpi_012",
+          "Bot-Downtime (Mins)",
+          0.7127
+        ],
+        [
+          "kpi_001",
+          "Active vs Inactive hours for bot",
+          0.5832
+        ]
+      ]
+    },
+    {
+      "idx": 58,
+      "query": "Bot downtime per day",
+      "status": "MATCH",
+      "kpi_id": "kpi_012",
+      "kpi_name": "Bot-Downtime (Mins)",
+      "score": 0.8316,
+      "top3": [
+        [
+          "kpi_012",
+          "Bot-Downtime (Mins)",
+          0.8316
+        ]
+      ]
+    },
+    {
+      "idx": 59,
+      "query": "How many physical bins are available at the selected location(s)",
+      "status": "MATCH",
+      "kpi_id": "kpi_013",
+      "kpi_name": "Total Bins",
+      "score": 0.821,
+      "top3": [
+        [
+          "kpi_013",
+          "Total Bins",
+          0.821
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.7512
+        ],
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.7058
+        ]
+      ]
+    },
+    {
+      "idx": 60,
+      "query": "What is the total number of bins",
+      "status": "MATCH",
+      "kpi_id": "kpi_013",
+      "kpi_name": "Total Bins",
+      "score": 0.892,
+      "top3": [
+        [
+          "kpi_013",
+          "Total Bins",
+          0.892
+        ],
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.817
+        ],
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.8091
+        ]
+      ]
+    },
+    {
+      "idx": 61,
+      "query": "How many bins are in the warehouse",
+      "status": "MATCH",
+      "kpi_id": "kpi_013",
+      "kpi_name": "Total Bins",
+      "score": 0.7922,
+      "top3": [
+        [
+          "kpi_013",
+          "Total Bins",
+          0.7922
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.7111
+        ]
+      ]
+    },
+    {
+      "idx": 62,
+      "query": "Show total bin count",
+      "status": "MATCH",
+      "kpi_id": "kpi_013",
+      "kpi_name": "Total Bins",
+      "score": 0.8644,
+      "top3": [
+        [
+          "kpi_013",
+          "Total Bins",
+          0.8644
+        ],
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.8364
+        ],
+        [
+          "kpi_032",
+          "Total Bin Blocked",
+          0.8318
+        ]
+      ]
+    },
+    {
+      "idx": 63,
+      "query": "Count all bins at the selected location",
+      "status": "MATCH",
+      "kpi_id": "kpi_013",
+      "kpi_name": "Total Bins",
+      "score": 0.7363,
+      "top3": [
+        [
+          "kpi_013",
+          "Total Bins",
+          0.7363
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.6778
+        ],
+        [
+          "kpi_032",
+          "Total Bin Blocked",
+          0.6382
+        ]
+      ]
+    },
+    {
+      "idx": 64,
+      "query": "How many bins are currently in use at the selected location(s)",
+      "status": "MATCH",
+      "kpi_id": "kpi_014",
+      "kpi_name": "Bins Used",
+      "score": 0.7971,
+      "top3": [
+        [
+          "kpi_014",
+          "Bins Used",
+          0.7971
+        ],
+        [
+          "kpi_032",
+          "Total Bin Blocked",
+          0.7143
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.7084
+        ]
+      ]
+    },
+    {
+      "idx": 65,
+      "query": "How many bins are currently occupied",
+      "status": "MATCH",
+      "kpi_id": "kpi_014",
+      "kpi_name": "Bins Used",
+      "score": 0.7327,
+      "top3": [
+        [
+          "kpi_014",
+          "Bins Used",
+          0.7327
+        ]
+      ]
+    },
+    {
+      "idx": 66,
+      "query": "Show count of bins that are in use",
+      "status": "MATCH",
+      "kpi_id": "kpi_014",
+      "kpi_name": "Bins Used",
+      "score": 0.8956,
+      "top3": [
+        [
+          "kpi_014",
+          "Bins Used",
+          0.8956
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.8057
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.7912
+        ]
+      ]
+    },
+    {
+      "idx": 67,
+      "query": "How many bins have inventory",
+      "status": "MATCH",
+      "kpi_id": "kpi_014",
+      "kpi_name": "Bins Used",
+      "score": 0.8107,
+      "top3": [
+        [
+          "kpi_014",
+          "Bins Used",
+          0.8107
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.7153
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.7124
+        ]
+      ]
+    },
+    {
+      "idx": 68,
+      "query": "Count used bins",
+      "status": "MATCH",
+      "kpi_id": "kpi_014",
+      "kpi_name": "Bins Used",
+      "score": 0.7336,
+      "top3": [
+        [
+          "kpi_014",
+          "Bins Used",
+          0.7336
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.69
+        ],
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          0.6775
+        ]
+      ]
+    },
+    {
+      "idx": 69,
+      "query": "What percentage of bins are currently being used at the selected location(s)",
+      "status": "MATCH",
+      "kpi_id": "kpi_015",
+      "kpi_name": "Bin Utilisation",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          1.0
+        ],
+        [
+          "kpi_018",
+          "Bin Segment Utilisation",
+          0.8845
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.8508
+        ]
+      ]
+    },
+    {
+      "idx": 70,
+      "query": "What is the bin utilization percentage",
+      "status": "MATCH",
+      "kpi_id": "kpi_015",
+      "kpi_name": "Bin Utilisation",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          1.0
+        ],
+        [
+          "kpi_018",
+          "Bin Segment Utilisation",
+          0.8203
+        ],
+        [
+          "kpi_021",
+          "Volume Utilization",
+          0.8093
+        ]
+      ]
+    },
+    {
+      "idx": 71,
+      "query": "bin utilization %",
+      "status": "MATCH",
+      "kpi_id": "kpi_015",
+      "kpi_name": "Bin Utilisation",
+      "score": 0.8688,
+      "top3": [
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          0.8688
+        ],
+        [
+          "kpi_018",
+          "Bin Segment Utilisation",
+          0.6599
+        ],
+        [
+          "kpi_021",
+          "Volume Utilization",
+          0.6138
+        ]
+      ]
+    },
+    {
+      "idx": 72,
+      "query": "How full are the bins",
+      "status": "MATCH",
+      "kpi_id": "kpi_015",
+      "kpi_name": "Bin Utilisation",
+      "score": 0.6196,
+      "top3": [
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          0.6196
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.6092
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.5531
+        ]
+      ]
+    },
+    {
+      "idx": 73,
+      "query": "What percent of bins are in use",
+      "status": "MATCH",
+      "kpi_id": "kpi_015",
+      "kpi_name": "Bin Utilisation",
+      "score": 0.8735,
+      "top3": [
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          0.8735
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.6093
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.5822
+        ]
+      ]
+    },
+    {
+      "idx": 74,
+      "query": "Show bin occupancy rate",
+      "status": "MATCH",
+      "kpi_id": "kpi_015",
+      "kpi_name": "Bin Utilisation",
+      "score": 0.6189,
+      "top3": [
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          0.6189
+        ]
+      ]
+    },
+    {
+      "idx": 75,
+      "query": "How many total bin segments are available at the selected location(s)",
+      "status": "MATCH",
+      "kpi_id": "kpi_016",
+      "kpi_name": "Total Bin Segment",
+      "score": 0.8969,
+      "top3": [
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.8969
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.8195
+        ],
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.81
+        ]
+      ]
+    },
+    {
+      "idx": 76,
+      "query": "What is the total number of bin segments",
+      "status": "MATCH",
+      "kpi_id": "kpi_016",
+      "kpi_name": "Total Bin Segment",
+      "score": 0.8969,
+      "top3": [
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.8969
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.8069
+        ],
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.7665
+        ]
+      ]
+    },
+    {
+      "idx": 77,
+      "query": "How many bin segments exist",
+      "status": "MATCH",
+      "kpi_id": "kpi_016",
+      "kpi_name": "Total Bin Segment",
+      "score": 0.7578,
+      "top3": [
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.7578
+        ]
+      ]
+    },
+    {
+      "idx": 78,
+      "query": "Show total bin segment count",
+      "status": "MATCH",
+      "kpi_id": "kpi_016",
+      "kpi_name": "Total Bin Segment",
+      "score": 0.9093,
+      "top3": [
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.9093
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.8539
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.8245
+        ]
+      ]
+    },
+    {
+      "idx": 79,
+      "query": "Count all bin segments at this location",
+      "status": "MATCH",
+      "kpi_id": "kpi_016",
+      "kpi_name": "Total Bin Segment",
+      "score": 0.7378,
+      "top3": [
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.7378
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.6531
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.6476
+        ]
+      ]
+    },
+    {
+      "idx": 80,
+      "query": "How many bin segments are currently in use at the selected location(s)",
+      "status": "MATCH",
+      "kpi_id": "kpi_017",
+      "kpi_name": "Bin Segment Used",
+      "score": 0.7766,
+      "top3": [
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.7766
+        ],
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.7281
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.7267
+        ]
+      ]
+    },
+    {
+      "idx": 81,
+      "query": "How many bin segments are currently occupied",
+      "status": "MATCH",
+      "kpi_id": "kpi_017",
+      "kpi_name": "Bin Segment Used",
+      "score": 0.7697,
+      "top3": [
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.7697
+        ],
+        [
+          "kpi_042",
+          "Bin Segment Usage Distribution",
+          0.6118
+        ]
+      ]
+    },
+    {
+      "idx": 82,
+      "query": "Show count of bin segments in use",
+      "status": "MATCH",
+      "kpi_id": "kpi_017",
+      "kpi_name": "Bin Segment Used",
+      "score": 0.8979,
+      "top3": [
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.8979
+        ],
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.795
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.7878
+        ]
+      ]
+    },
+    {
+      "idx": 83,
+      "query": "How many bin segments have inventory",
+      "status": "MATCH",
+      "kpi_id": "kpi_017",
+      "kpi_name": "Bin Segment Used",
+      "score": 0.8163,
+      "top3": [
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.8163
+        ],
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.7385
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.7361
+        ]
+      ]
+    },
+    {
+      "idx": 84,
+      "query": "Count used bin segments",
+      "status": "MATCH",
+      "kpi_id": "kpi_042",
+      "kpi_name": "Bin Segment Usage Distribution",
+      "score": 0.7183,
+      "top3": [
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.7546
+        ],
+        [
+          "kpi_042",
+          "Bin Segment Usage Distribution",
+          0.7183
+        ],
+        [
+          "kpi_018",
+          "Bin Segment Utilisation",
+          0.6968
+        ]
+      ]
+    },
+    {
+      "idx": 85,
+      "query": "What percentage of total bin segments are currently being used at the selected location(s)",
+      "status": "MATCH",
+      "kpi_id": "kpi_015",
+      "kpi_name": "Bin Utilisation",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          1.0
+        ],
+        [
+          "kpi_018",
+          "Bin Segment Utilisation",
+          0.9195
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.914
+        ]
+      ]
+    },
+    {
+      "idx": 86,
+      "query": "What percentage of bin segments are in use",
+      "status": "MATCH",
+      "kpi_id": "kpi_015",
+      "kpi_name": "Bin Utilisation",
+      "score": 0.7913,
+      "top3": [
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          0.7913
+        ],
+        [
+          "kpi_018",
+          "Bin Segment Utilisation",
+          0.6897
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.6739
+        ]
+      ]
+    },
+    {
+      "idx": 87,
+      "query": "Show bin segment utilisation rate",
+      "status": "MATCH",
+      "kpi_id": "kpi_042",
+      "kpi_name": "Bin Segment Usage Distribution",
+      "score": 0.794,
+      "top3": [
+        [
+          "kpi_042",
+          "Bin Segment Usage Distribution",
+          0.794
+        ],
+        [
+          "kpi_018",
+          "Bin Segment Utilisation",
+          0.7362
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.6989
+        ]
+      ]
+    },
+    {
+      "idx": 88,
+      "query": "How utilized are the bin segments",
+      "status": "MATCH",
+      "kpi_id": "kpi_018",
+      "kpi_name": "Bin Segment Utilisation",
+      "score": 0.7163,
+      "top3": [
+        [
+          "kpi_015",
+          "Bin Utilisation",
+          0.7298
+        ],
+        [
+          "kpi_018",
+          "Bin Segment Utilisation",
+          0.7163
+        ],
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.6258
+        ]
+      ]
+    },
+    {
+      "idx": 89,
+      "query": "Bin segment occupancy percentage",
+      "status": "MATCH",
+      "kpi_id": "kpi_042",
+      "kpi_name": "Bin Segment Usage Distribution",
+      "score": 0.7496,
+      "top3": [
+        [
+          "kpi_042",
+          "Bin Segment Usage Distribution",
+          0.7496
+        ],
+        [
+          "kpi_018",
+          "Bin Segment Utilisation",
+          0.7161
+        ],
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.6107
+        ]
+      ]
+    },
+    {
+      "idx": 90,
+      "query": "What is the total storage capacity of all physical bins, in cubic meters, at the selected location(s)",
+      "status": "MATCH",
+      "kpi_id": "kpi_019",
+      "kpi_name": "Total Bin Capacity",
+      "score": 0.9094,
+      "top3": [
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.9094
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.8759
+        ],
+        [
+          "kpi_022",
+          "Total Bin Weight Capacity",
+          0.8755
+        ]
+      ]
+    },
+    {
+      "idx": 91,
+      "query": "What is the total storage capacity in bins",
+      "status": "MATCH",
+      "kpi_id": "kpi_019",
+      "kpi_name": "Total Bin Capacity",
+      "score": 0.8763,
+      "top3": [
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.8763
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.8589
+        ],
+        [
+          "kpi_022",
+          "Total Bin Weight Capacity",
+          0.8528
+        ]
+      ]
+    },
+    {
+      "idx": 92,
+      "query": "Show total bin capacity",
+      "status": "MATCH",
+      "kpi_id": "kpi_019",
+      "kpi_name": "Total Bin Capacity",
+      "score": 0.8838,
+      "top3": [
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.8838
+        ],
+        [
+          "kpi_022",
+          "Total Bin Weight Capacity",
+          0.859
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.8376
+        ]
+      ]
+    },
+    {
+      "idx": 93,
+      "query": "How much bin capacity exists",
+      "status": "MATCH",
+      "kpi_id": "kpi_019",
+      "kpi_name": "Total Bin Capacity",
+      "score": 0.799,
+      "top3": [
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.799
+        ],
+        [
+          "kpi_022",
+          "Total Bin Weight Capacity",
+          0.7003
+        ]
+      ]
+    },
+    {
+      "idx": 94,
+      "query": "Total bin storage available",
+      "status": "MATCH",
+      "kpi_id": "kpi_019",
+      "kpi_name": "Total Bin Capacity",
+      "score": 0.8732,
+      "top3": [
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.8732
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.8582
+        ],
+        [
+          "kpi_016",
+          "Total Bin Segment",
+          0.8042
+        ]
+      ]
+    },
+    {
+      "idx": 95,
+      "query": "How much bin volume is currently occupied, in cubic meters, at the selected location(s)",
+      "status": "MATCH",
+      "kpi_id": "kpi_046",
+      "kpi_name": "Bin-wise Volume Utilization (%)",
+      "score": 0.8423,
+      "top3": [
+        [
+          "kpi_046",
+          "Bin-wise Volume Utilization (%)",
+          0.8423
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.7698
+        ],
+        [
+          "kpi_017",
+          "Bin Segment Used",
+          0.7281
+        ]
+      ]
+    },
+    {
+      "idx": 96,
+      "query": "How much bin volume is occupied",
+      "status": "MATCH",
+      "kpi_id": "kpi_046",
+      "kpi_name": "Bin-wise Volume Utilization (%)",
+      "score": 0.7919,
+      "top3": [
+        [
+          "kpi_046",
+          "Bin-wise Volume Utilization (%)",
+          0.7919
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.7077
+        ]
+      ]
+    },
+    {
+      "idx": 97,
+      "query": "Show volume utilization in cubic meters",
+      "status": "MATCH",
+      "kpi_id": "kpi_021",
+      "kpi_name": "Volume Utilization",
+      "score": 0.8595,
+      "top3": [
+        [
+          "kpi_021",
+          "Volume Utilization",
+          0.8595
+        ]
+      ]
+    },
+    {
+      "idx": 98,
+      "query": "What is the occupied volume in bins",
+      "status": "MATCH",
+      "kpi_id": "kpi_014",
+      "kpi_name": "Bins Used",
+      "score": 0.8303,
+      "top3": [
+        [
+          "kpi_046",
+          "Bin-wise Volume Utilization (%)",
+          0.8695
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.8303
+        ],
+        [
+          "kpi_023",
+          "Occupied Weight",
+          0.7428
+        ]
+      ]
+    },
+    {
+      "idx": 99,
+      "query": "Total bin volume currently used",
+      "status": "MATCH",
+      "kpi_id": "kpi_014",
+      "kpi_name": "Bins Used",
+      "score": 0.835,
+      "top3": [
+        [
+          "kpi_046",
+          "Bin-wise Volume Utilization (%)",
+          0.8711
+        ],
+        [
+          "kpi_014",
+          "Bins Used",
+          0.835
+        ],
+        [
+          "kpi_019",
+          "Total Bin Capacity",
+          0.821
+        ]
+      ]
+    },
+    {
+      "idx": 100,
+      "query": "What percentage of the total bin volume is currently occupied at the selected location(s)? | What is the volume utilization percentage? | Show the percentage of bin volume that is occupied",
+      "status": "MATCH",
+      "kpi_id": "kpi_046",
+      "kpi_name": "Bin-wise Volume Utilization (%)",
+      "score": 0.9828,
+      "top3": [
+        [
+          "kpi_046",
+          "Bin-wise Volume Utilization (%)",
+          0.9828
+        ],
+        [
+          "kpi_018",
+          "Bin Segment Utilisation",
+          0.9251
+        ],
+        [
+          "kpi_024",
+          "Weight Utilisation",
+          0.8858
+        ]
+      ]
+    },
+    {
+      "idx": 101,
+      "query": "How full are the bins by volume",
+      "status": "MATCH",
+      "kpi_id": "kpi_046",
+      "kpi_name": "Bin-wise Volume Utilization (%)",
+      "score": 0.8395,
+      "top3": [
+        [
+          "kpi_046",
+          "Bin-wise Volume Utilization (%)",
+          0.8395
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.5908
+        ]
+      ]
+    },
+    {
+      "idx": 102,
+      "query": "Bin volume occupancy rate",
+      "status": "MATCH",
+      "kpi_id": "kpi_046",
+      "kpi_name": "Bin-wise Volume Utilization (%)",
+      "score": 0.8717,
+      "top3": [
+        [
+          "kpi_046",
+          "Bin-wise Volume Utilization (%)",
+          0.8717
+        ]
+      ]
+    }
+  ],
+  "should_not_match": [
+    {
+      "idx": 1,
+      "query": "Total bots at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 2,
+      "query": "Total bots at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 3,
+      "query": "Total bots at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 4,
+      "query": "Total active hours of all bots in faruknagar yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 5,
+      "query": "Total inactive hours of all bots in frk this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 6,
+      "query": "Show bins per hour using only active time in chennai in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 7,
+      "query": "Show bins per hour using full elapsed time in blr for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 8,
+      "query": "How many bots had at least one alarm in shakti today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 9,
+      "query": "Show total alarms per bot in bangalore yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 10,
+      "query": "Show active hours and inactive hours per bot in faruknagar this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 11,
+      "query": "How many minutes were bots down because of alarms in frk in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 12,
+      "query": "How many alarms did each bot raise in chennai for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 13,
+      "query": "How many bins are currently in use at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 14,
+      "query": "How many physical bins exist at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 15,
+      "query": "How many bins are currently in use at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 16,
+      "query": "How many segments currently hold inventory at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 17,
+      "query": "How many bin segments are configured at frk",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 18,
+      "query": "How many bin segments currently hold inventory at chennai",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 19,
+      "query": "What is the current occupied volume in bins at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 20,
+      "query": "What is the total volume capacity of all bins at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 21,
+      "query": "What is the occupied inventory volume in cubic meters at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 22,
+      "query": "What is the current occupied weight across all bins at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 23,
+      "query": "What is the total configured weight capacity of all bins at frk",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 24,
+      "query": "What is the current occupied weight across all bins at chennai",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 25,
+      "query": "How many occupied locations currently have a bin assigned at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 26,
+      "query": "How many storage locations exist in total at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 27,
+      "query": "Show category-wise total inventory quantity at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 28,
+      "query": "Show category-wise distinct SKU count at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 29,
+      "query": "Which 10 SKUs had the highest pick quantity at frk yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 30,
+      "query": "Which 10 SKUs had the highest put quantity at chennai this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 31,
+      "query": "How many distinct bins are currently stored in blocked locations at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 32,
+      "query": "How many blocked-location records exist right now at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 33,
+      "query": "What is the total on-hand unit quantity in live inventory at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 34,
+      "query": "How many distinct SKUs are currently in live inventory at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 35,
+      "query": "What is the total on-hand unit quantity at frk",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 36,
+      "query": "What is the total on-hand unit quantity at chennai",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 37,
+      "query": "How many bins are marked as AUDIT_MARKED in live inventory at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 38,
+      "query": "How many storage locations are flagged for audit but not marked yet at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 39,
+      "query": "How many bins are currently marked AUDIT_MARKED at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 40,
+      "query": "How many blocked locations currently exist at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 41,
+      "query": "How many distinct blocked SKUs are stored in blocked locations at frk",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 42,
+      "query": "How many bin segments currently hold inventory at chennai",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 43,
+      "query": "Show expiry ageing buckets by total quantity at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 44,
+      "query": "Show expiry ageing buckets by distinct SKU count at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 45,
+      "query": "Show expiry ageing buckets by quantity at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 46,
+      "query": "What percent of total bin volume is occupied at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 47,
+      "query": "Show bin-wise overall weight and volume utilization at frk",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 48,
+      "query": "How many waves were completed by wave type in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_048",
+      "kpi_name": "Wave Counts by Type",
+      "score": 0.6466,
+      "top3": [
+        [
+          "kpi_048",
+          "Wave Counts by Type",
+          0.6466
+        ],
+        [
+          "kpi_049",
+          "Total Waves Run",
+          0.5519
+        ]
+      ]
+    },
+    {
+      "idx": 49,
+      "query": "Show date-wise completed wave count by wave type",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 50,
+      "query": "Show overall average OLBP and QPL for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_086",
+      "kpi_name": "OLBP",
+      "score": 0.8825,
+      "top3": [
+        [
+          "kpi_086",
+          "OLBP",
+          0.8825
+        ],
+        [
+          "kpi_087",
+          "QPL",
+          0.8455
+        ],
+        [
+          "kpi_098",
+          "Avg OLBP",
+          0.7854
+        ]
+      ]
+    },
+    {
+      "idx": 51,
+      "query": "Show overall average QBP for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_088",
+      "kpi_name": "QBP",
+      "score": 0.8854,
+      "top3": [
+        [
+          "kpi_088",
+          "QBP",
+          0.8854
+        ],
+        [
+          "kpi_100",
+          "Avg QBP",
+          0.8097
+        ],
+        [
+          "kpi_051",
+          "QBP = OLBP x QPL",
+          0.605
+        ]
+      ]
+    },
+    {
+      "idx": 52,
+      "query": "What is the total child-order count created in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_093",
+      "kpi_name": "Avg. Quantity Per Child Order",
+      "score": 0.5869,
+      "top3": [
+        [
+          "kpi_055",
+          "Avg. Order Lines per Child Order",
+          0.5917
+        ],
+        [
+          "kpi_093",
+          "Avg. Quantity Per Child Order",
+          0.5869
+        ],
+        [
+          "kpi_052",
+          "Parent to Child Order Ratio Trend",
+          0.5756
+        ]
+      ]
+    },
+    {
+      "idx": 53,
+      "query": "Show date-wise average total item quantity per parent order",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 54,
+      "query": "Show date-wise average distinct order lines per parent order",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 55,
+      "query": "Show date-wise average distinct order lines per parent order",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 56,
+      "query": "Show date-wise average pick completion time for child orders",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 57,
+      "query": "Show date-wise average pick completion time for parent orders",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 58,
+      "query": "Show date-wise average child orders created per parent order",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 59,
+      "query": "Show date-wise closed LPN count only",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 60,
+      "query": "Show date-wise put quantity by put reason without stock adjustments",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 61,
+      "query": "Show date-wise put stock adjustment quantity by put reason",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 62,
+      "query": "Show station-wise productive hours and idle hours in shakti for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 63,
+      "query": "Show station-wise active hours and inactive hours in bangalore today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 64,
+      "query": "Show station-wise productive hours and idle hours in faruknagar yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 65,
+      "query": "Show station-wise active hours and inactive hours in frk this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 66,
+      "query": "Show station-wise average OLBP and QPL and QBP for pick operations in chennai in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 67,
+      "query": "Show overall average OLBP, QPL and QBP for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_086",
+      "kpi_name": "OLBP",
+      "score": 0.8955,
+      "top3": [
+        [
+          "kpi_086",
+          "OLBP",
+          0.8955
+        ],
+        [
+          "kpi_088",
+          "QBP",
+          0.8627
+        ],
+        [
+          "kpi_087",
+          "QPL",
+          0.8474
+        ]
+      ]
+    },
+    {
+      "idx": 68,
+      "query": "Show station-wise picked quantity with actual picking hours in shakti today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 69,
+      "query": "Show overall average order lines fulfilled per bin in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_086",
+      "kpi_name": "OLBP",
+      "score": 0.847,
+      "top3": [
+        [
+          "kpi_086",
+          "OLBP",
+          0.847
+        ],
+        [
+          "kpi_089",
+          "OBP",
+          0.8418
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.7316
+        ]
+      ]
+    },
+    {
+      "idx": 70,
+      "query": "How many stations were used in faruknagar this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 71,
+      "query": "Show overall closed LPN count in frk in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 72,
+      "query": "Show overall average eaches packed per closed LPN in chennai for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 73,
+      "query": "Show station-wise closed LPN count with eaches in blr today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 74,
+      "query": "Show station-wise no-read percentage over presented pick bins in shakti yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 75,
+      "query": "Show overall no-read event split by station scan position in bangalore this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 76,
+      "query": "Show station-wise pick bin-segment presentation rate with active hours in faruknagar in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 77,
+      "query": "Show station-wise pick bin presentation rate with active hours in frk for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 78,
+      "query": "Show station-wise pick bin presentation rate with active hours in chennai today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 79,
+      "query": "Show station-wise picking seconds per picked unit in blr yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 80,
+      "query": "Show station-wise put quantity with actual putting hours in shakti this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 81,
+      "query": "Show station-wise put bin-segment presentation rate with active hours in bangalore in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 82,
+      "query": "Show station-wise put bin presentation rate with active hours in faruknagar for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 83,
+      "query": "Show station-wise put bin presentation rate with active hours in frk today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 84,
+      "query": "Show station-wise put net IPP and gross IPP in chennai yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 85,
+      "query": "Show station-wise active hours split into pick, put, stock audit and mid audit in blr this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 86,
+      "query": "Show overall average orders fulfilled per bin in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_069",
+      "kpi_name": "Avg. OBP",
+      "score": 0.8815,
+      "top3": [
+        [
+          "kpi_069",
+          "Avg. OBP",
+          0.8815
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.7541
+        ],
+        [
+          "kpi_089",
+          "OBP",
+          0.7244
+        ]
+      ]
+    },
+    {
+      "idx": 87,
+      "query": "Show overall average order lines fulfilled per bin in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_086",
+      "kpi_name": "OLBP",
+      "score": 0.847,
+      "top3": [
+        [
+          "kpi_086",
+          "OLBP",
+          0.847
+        ],
+        [
+          "kpi_089",
+          "OBP",
+          0.8418
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.7316
+        ]
+      ]
+    },
+    {
+      "idx": 88,
+      "query": "Show overall average order lines fulfilled per bin in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_086",
+      "kpi_name": "OLBP",
+      "score": 0.847,
+      "top3": [
+        [
+          "kpi_086",
+          "OLBP",
+          0.847
+        ],
+        [
+          "kpi_089",
+          "OBP",
+          0.8418
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.7316
+        ]
+      ]
+    },
+    {
+      "idx": 89,
+      "query": "Show overall average order lines fulfilled per bin in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_086",
+      "kpi_name": "OLBP",
+      "score": 0.847,
+      "top3": [
+        [
+          "kpi_086",
+          "OLBP",
+          0.847
+        ],
+        [
+          "kpi_089",
+          "OBP",
+          0.8418
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.7316
+        ]
+      ]
+    },
+    {
+      "idx": 90,
+      "query": "Show overall average orders fulfilled per bin in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_069",
+      "kpi_name": "Avg. OBP",
+      "score": 0.8815,
+      "top3": [
+        [
+          "kpi_069",
+          "Avg. OBP",
+          0.8815
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.7541
+        ],
+        [
+          "kpi_089",
+          "OBP",
+          0.7244
+        ]
+      ]
+    },
+    {
+      "idx": 91,
+      "query": "Show overall pick net IPP for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_094",
+      "kpi_name": "Net IPP",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_094",
+          "Net IPP",
+          1.0
+        ],
+        [
+          "kpi_091",
+          "PICK IPP Trend",
+          0.8109
+        ],
+        [
+          "kpi_066",
+          "IPP by Station- Pick",
+          0.7332
+        ]
+      ]
+    },
+    {
+      "idx": 92,
+      "query": "Show overall put net IPP for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_101",
+      "kpi_name": "Net IPP-Put",
+      "score": 1.0,
+      "top3": [
+        [
+          "kpi_101",
+          "Net IPP-Put",
+          1.0
+        ],
+        [
+          "kpi_092",
+          "PUT IPP",
+          0.807
+        ],
+        [
+          "kpi_094",
+          "Net IPP",
+          0.7369
+        ]
+      ]
+    },
+    {
+      "idx": 93,
+      "query": "Show date-wise average total item quantity per parent order",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 94,
+      "query": "Show station-wise pick net IPP and gross IPP in faruknagar yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 95,
+      "query": "Show overall pick net IPP based on actual picking time in frk this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 96,
+      "query": "Show overall average OPS from orders data for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_090",
+      "kpi_name": "OPS",
+      "score": 0.8943,
+      "top3": [
+        [
+          "kpi_090",
+          "OPS",
+          0.8943
+        ],
+        [
+          "kpi_096",
+          "Avg. OPS",
+          0.8109
+        ]
+      ]
+    },
+    {
+      "idx": 97,
+      "query": "Show station-wise picked quantity with actual picking hours in blr for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 98,
+      "query": "Show overall average OLBP from orders data for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_086",
+      "kpi_name": "OLBP",
+      "score": 0.9384,
+      "top3": [
+        [
+          "kpi_086",
+          "OLBP",
+          0.9384
+        ],
+        [
+          "kpi_098",
+          "Avg OLBP",
+          0.826
+        ],
+        [
+          "kpi_089",
+          "OBP",
+          0.7621
+        ]
+      ]
+    },
+    {
+      "idx": 99,
+      "query": "Show overall average QPL from orders data for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_087",
+      "kpi_name": "QPL",
+      "score": 0.9286,
+      "top3": [
+        [
+          "kpi_087",
+          "QPL",
+          0.9286
+        ],
+        [
+          "kpi_099",
+          "Avg QPL",
+          0.8081
+        ],
+        [
+          "kpi_050",
+          "OLBP / QPL",
+          0.6535
+        ]
+      ]
+    },
+    {
+      "idx": 100,
+      "query": "Show overall average QBP from orders data for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_088",
+      "kpi_name": "QBP",
+      "score": 0.9304,
+      "top3": [
+        [
+          "kpi_088",
+          "QBP",
+          0.9304
+        ],
+        [
+          "kpi_100",
+          "Avg QBP",
+          0.8091
+        ],
+        [
+          "kpi_051",
+          "QBP = OLBP x QPL",
+          0.6472
+        ]
+      ]
+    },
+    {
+      "idx": 101,
+      "query": "Show station-wise put net IPP and gross IPP in frk in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 102,
+      "query": "Which bot had the highest active hours in blr in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 103,
+      "query": "How many bots were inactive in shakti for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 104,
+      "query": "How many bots were active in bangalore today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 105,
+      "query": "How many bots were active in faruknagar yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 106,
+      "query": "How many bots stayed inactive in frk this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 107,
+      "query": "What is the overall average BPH across the whole day in chennai",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 108,
+      "query": "What is the total number of completed bin moves in blr for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 109,
+      "query": "What are the alarm types seen for each bot in shakti today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 110,
+      "query": "How many bots raised alarms in bangalore yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 111,
+      "query": "How many minutes were all bots active in total in faruknagar this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 112,
+      "query": "Show idle hours per bot based on no task activity in frk in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 113,
+      "query": "Show home hours for each bot in chennai for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 114,
+      "query": "What percent of bins are occupied at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 115,
+      "query": "What percent of bins are in use at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 116,
+      "query": "How many physical bins exist at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 117,
+      "query": "What percent of segments are occupied at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 118,
+      "query": "What percent of segments are occupied at frk",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 119,
+      "query": "How many configured segments exist at chennai",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 120,
+      "query": "What percent of total bin volume is used at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 121,
+      "query": "What percent of total bin volume is occupied at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 122,
+      "query": "What is the total volume capacity of bins at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 123,
+      "query": "What percent of total weight capacity is used at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 124,
+      "query": "What percent of total weight capacity is used at frk",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 125,
+      "query": "What is the total weight capacity of all bins at chennai",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 126,
+      "query": "How many physical bins exist at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 127,
+      "query": "How many blocked locations currently exist at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 128,
+      "query": "How many distinct SKUs are currently in inventory at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 129,
+      "query": "What is the total on-hand inventory quantity at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 130,
+      "query": "What is the total put quantity across all SKUs at frk yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 131,
+      "query": "What is the total picked quantity across all SKUs at chennai this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 132,
+      "query": "How many blocked SKUs exist in blocked locations at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 133,
+      "query": "How many blocked SKUs are stored in blocked locations at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 134,
+      "query": "Show category-wise distinct SKU count at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 135,
+      "query": "How much quantity is reserved for putaway at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 136,
+      "query": "What is the quantity reserved for picking at frk",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 137,
+      "query": "What is the quantity reserved for putaway at chennai",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 138,
+      "query": "How many bins completed mid-wave pick audit at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 139,
+      "query": "How many bins completed mid-wave pick audit at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 140,
+      "query": "How many storage locations are flagged for audit but not marked yet at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 141,
+      "query": "How many distinct bins are stored in blocked locations at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 142,
+      "query": "How many blocked locations are there right now at frk",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 143,
+      "query": "Show bin-wise free weight and free volume at chennai",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 144,
+      "query": "Give me expiry ageing detail by sku, batch and bin at blr",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 145,
+      "query": "Give me expiry ageing detail by sku, batch and bin at shakti",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 146,
+      "query": "Show expiry ageing buckets by distinct SKU count at bangalore",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 147,
+      "query": "What is the total occupied weight across all bins at faruknagar",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 148,
+      "query": "What is the current total on-hand quantity for each SKU at frk",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 149,
+      "query": "Show date-wise average OLBP and QPL across all stations",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 150,
+      "query": "How many closed LPNs were there date-wise in the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 151,
+      "query": "Show date-wise average QBP across all stations",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 152,
+      "query": "Show date-wise average OLBP and QPL across all stations",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 153,
+      "query": "Show date-wise average order lines per parent order",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 154,
+      "query": "Show date-wise average child orders created per parent order",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 155,
+      "query": "Show date-wise average picked quantity per order created",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 156,
+      "query": "Show date-wise average child orders per parent order",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 157,
+      "query": "Show parent-order split summary with child counts and quantity",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_058",
+      "kpi_name": "ORDER SPLIT SUMMARY",
+      "score": 0.7025,
+      "top3": [
+        [
+          "kpi_058",
+          "ORDER SPLIT SUMMARY",
+          0.7025
+        ],
+        [
+          "kpi_054",
+          "Avg. Quantity Per Parent Order",
+          0.6726
+        ],
+        [
+          "kpi_093",
+          "Avg. Quantity Per Child Order",
+          0.6426
+        ]
+      ]
+    },
+    {
+      "idx": 158,
+      "query": "Show date-wise average distinct order lines per child order",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 159,
+      "query": "Show date-wise average distinct order lines per parent order",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 160,
+      "query": "Show station-wise closed LPN count with eaches",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 161,
+      "query": "Show date-wise pick leftover quantity by pick reason",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 162,
+      "query": "What is the total leftover quantity from picking in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_034",
+      "kpi_name": "Total Quantity",
+      "score": 0.7311,
+      "top3": [
+        [
+          "kpi_034",
+          "Total Quantity",
+          0.7311
+        ],
+        [
+          "kpi_097",
+          "picked quantity",
+          0.7165
+        ],
+        [
+          "kpi_041",
+          "Total Blocked Quantity",
+          0.7079
+        ]
+      ]
+    },
+    {
+      "idx": 163,
+      "query": "What is the overall active station count in shakti for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 164,
+      "query": "What is the productive utilization percentage for each station in bangalore today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 165,
+      "query": "Show station-wise active hours and inactive hours in faruknagar yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 166,
+      "query": "Show station-wise productive hours and idle hours in frk this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 167,
+      "query": "Show overall pick net IPP in chennai in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 168,
+      "query": "Show station-wise pick net IPP and gross IPP in blr for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 169,
+      "query": "Show overall pick net IPP in shakti today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 170,
+      "query": "Show station-wise average OLBP and QPL and QBP in bangalore yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 171,
+      "query": "Show overall closed LPN count for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_073",
+      "kpi_name": "LPNsClosed",
+      "score": 0.9478,
+      "top3": [
+        [
+          "kpi_073",
+          "LPNsClosed",
+          0.9478
+        ],
+        [
+          "kpi_070",
+          "Station-wise LPNs Closed",
+          0.6621
+        ],
+        [
+          "kpi_059",
+          "Total LPN Closed & Picked Qty. Trend",
+          0.586
+        ]
+      ]
+    },
+    {
+      "idx": 172,
+      "query": "Show station-wise closed LPN count with eaches in frk in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 173,
+      "query": "Show overall closed LPN count in chennai for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 174,
+      "query": "Show overall average eaches packed per closed LPN in blr today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 175,
+      "query": "How many total no-read events happened in shakti yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 176,
+      "query": "Show station-wise pick bin presentation rate in bangalore this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 177,
+      "query": "Show hourly pick bin presentation count by station in faruknagar in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 178,
+      "query": "Show hourly pick bin presentation count by station in frk for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 179,
+      "query": "Show station-wise pick bin-segment presentation rate with active hours in chennai today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 180,
+      "query": "Show overall picked quantity linked to closed LPNs in blr yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 181,
+      "query": "Show overall put net IPP in shakti this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 182,
+      "query": "Show hourly put bin presentation count by station in bangalore in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 183,
+      "query": "Show hourly put bin presentation count by station in faruknagar for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 184,
+      "query": "Show station-wise put bin-segment presentation rate with active hours in frk today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 185,
+      "query": "Show overall put net IPP in chennai yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 186,
+      "query": "Show station-wise put quantity with actual putting hours in blr this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 187,
+      "query": "Show overall average picked quantity per order line in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_097",
+      "kpi_name": "picked quantity",
+      "score": 0.835,
+      "top3": [
+        [
+          "kpi_097",
+          "picked quantity",
+          0.835
+        ],
+        [
+          "kpi_087",
+          "QPL",
+          0.7351
+        ],
+        [
+          "kpi_054",
+          "Avg. Quantity Per Parent Order",
+          0.6593
+        ]
+      ]
+    },
+    {
+      "idx": 188,
+      "query": "Show overall derived QBP for the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_088",
+      "kpi_name": "QBP",
+      "score": 0.8876,
+      "top3": [
+        [
+          "kpi_088",
+          "QBP",
+          0.8876
+        ],
+        [
+          "kpi_100",
+          "Avg QBP",
+          0.7331
+        ],
+        [
+          "kpi_051",
+          "QBP = OLBP x QPL",
+          0.6027
+        ]
+      ]
+    },
+    {
+      "idx": 189,
+      "query": "Show overall average picked quantity per order line in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_097",
+      "kpi_name": "picked quantity",
+      "score": 0.835,
+      "top3": [
+        [
+          "kpi_097",
+          "picked quantity",
+          0.835
+        ],
+        [
+          "kpi_087",
+          "QPL",
+          0.7351
+        ],
+        [
+          "kpi_054",
+          "Avg. Quantity Per Parent Order",
+          0.6593
+        ]
+      ]
+    },
+    {
+      "idx": 190,
+      "query": "Show overall average OPS in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_090",
+      "kpi_name": "OPS",
+      "score": 0.8569,
+      "top3": [
+        [
+          "kpi_090",
+          "OPS",
+          0.8569
+        ],
+        [
+          "kpi_096",
+          "Avg. OPS",
+          0.7848
+        ]
+      ]
+    },
+    {
+      "idx": 191,
+      "query": "Show overall average order lines fulfilled per bin in the selected period",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_086",
+      "kpi_name": "OLBP",
+      "score": 0.847,
+      "top3": [
+        [
+          "kpi_086",
+          "OLBP",
+          0.847
+        ],
+        [
+          "kpi_089",
+          "OBP",
+          0.8418
+        ],
+        [
+          "kpi_013",
+          "Total Bins",
+          0.7316
+        ]
+      ]
+    },
+    {
+      "idx": 192,
+      "query": "Show date-wise put net IPP and gross IPP trend",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 193,
+      "query": "Show date-wise pick net IPP and gross IPP trend",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 194,
+      "query": "What is the total quantity created in orders each day",
+      "status": "FALSE_POS",
+      "kpi_id": "kpi_034",
+      "kpi_name": "Total Quantity",
+      "score": 0.6116,
+      "top3": [
+        [
+          "kpi_034",
+          "Total Quantity",
+          0.6116
+        ],
+        [
+          "kpi_041",
+          "Total Blocked Quantity",
+          0.5614
+        ]
+      ]
+    },
+    {
+      "idx": 195,
+      "query": "Show overall pick gross IPP based on station occupancy time in faruknagar yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 196,
+      "query": "Show station-wise pick net IPP and gross IPP in frk this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 197,
+      "query": "Show overall average orders fulfilled per bin in chennai in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 198,
+      "query": "Show overall closed LPN count in blr for the selected period",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 199,
+      "query": "Show overall average orders fulfilled per bin in shakti today",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 200,
+      "query": "Show overall average derived QBP in bangalore yesterday",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 201,
+      "query": "Show overall average OLBP in faruknagar this week",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    },
+    {
+      "idx": 202,
+      "query": "Show station-wise put quantity with actual putting hours in frk in the selected shift",
+      "status": "CORRECT_REJECT",
+      "kpi_id": null,
+      "kpi_name": null,
+      "score": 0.0,
+      "top3": []
+    }
+  ]
+}

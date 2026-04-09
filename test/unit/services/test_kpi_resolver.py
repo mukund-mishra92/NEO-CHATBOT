@@ -1337,3 +1337,474 @@ class TestEntityLookupGuard:
     def test_guard_function_rejects_where_is_bin(self):
         from app.services.sql_assistant.kpi_resolver import _is_entity_lookup_query
         assert _is_entity_lookup_query("where is BIN-0324 in frk", bin_id="BIN-0324")
+
+
+# ══════════════════════════════════════════════════════════════════════
+# REGRESSION TESTS — Fixes from last 2 days (2026-04-28 / 2026-04-29)
+# ══════════════════════════════════════════════════════════════════════
+
+
+# ──────────────────────────────────────────────────────────────
+# FIX 1: Active hours false positive — "active hours" → kpi_001
+#        not kpi_002 (count).  The family disambiguation now
+#        detects "hours"/"time"/"minutes" alongside "active" and
+#        routes to kpi_001 (hours breakdown).
+# ──────────────────────────────────────────────────────────────
+class TestActiveHoursDisambiguation:
+    """Active hours/time queries must route to kpi_001 (Active vs Inactive
+    Hours), NOT kpi_002 (count of active bots)."""
+
+    def test_total_active_hours_all_bots(self, resolver):
+        """'Total active hours of all bots in faruknagar yesterday' → kpi_001."""
+        match = resolver.resolve(
+            "Total active hours of all bots in faruknagar yesterday",
+            tenant_values=["frk"],
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_001", (
+            f"Expected kpi_001 (Active vs Inactive Hours) but got "
+            f"{match.kpi_id} ({match.kpi_name}, score={match.match_score:.3f})"
+        )
+
+    def test_active_hours_for_each_bot(self, resolver):
+        """'give me active hours for each bot in faruknagar yesterday' → kpi_001."""
+        match = resolver.resolve(
+            "give me active hours for each bot in faruknagar yesterday",
+            tenant_values=["frk"],
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_001", (
+            f"Expected kpi_001 but got {match.kpi_id} ({match.kpi_name})"
+        )
+
+    def test_active_hours_bot_wise(self, resolver):
+        """'give me active hours fo bot in faruknagar bot wise for yesterday' → kpi_001."""
+        match = resolver.resolve(
+            "give me active hours fo bot in faruknagar bot wise for yesterday",
+            tenant_values=["frk"],
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_001", (
+            f"Expected kpi_001 but got {match.kpi_id} ({match.kpi_name})"
+        )
+
+    def test_active_time_each_bot(self, resolver):
+        """'active time for each bot in frk' → kpi_001 (time word)."""
+        match = resolver.resolve(
+            "active time for each bot in frk",
+            tenant_values=["frk"],
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_001", (
+            f"Expected kpi_001 but got {match.kpi_id} ({match.kpi_name})"
+        )
+
+    def test_how_many_active_bots_still_kpi002(self, resolver):
+        """'how many bots were active in shakti yesterday' → kpi_002 (COUNT, not hours).
+        The count-intent ("how many") + no time-unit word → kpi_002."""
+        match = resolver.resolve(
+            "how many bots were active in shakti yesterday",
+            tenant_values=["shakti"],
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_002", (
+            f"Expected kpi_002 (Active Bots count) but got "
+            f"{match.kpi_id} ({match.kpi_name})"
+        )
+
+    def test_average_active_hours_kpi004(self, resolver):
+        """'average active hours in frk this week' → kpi_004 (avg active hours)."""
+        match = resolver.resolve(
+            "average active hours in frk this week",
+            tenant_values=["frk"],
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_004", (
+            f"Expected kpi_004 (Avg Active Hours) but got "
+            f"{match.kpi_id} ({match.kpi_name})"
+        )
+
+    def test_inactive_bots_count_kpi003(self, resolver):
+        """'number of inactive bots in chennai' → kpi_003 (inactive count)."""
+        match = resolver.resolve(
+            "number of inactive bots in chennai",
+            tenant_values=["chennai"],
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_003", (
+            f"Expected kpi_003 (Inactive Bots count) but got "
+            f"{match.kpi_id} ({match.kpi_name})"
+        )
+
+    def test_bot_downtime_kpi012(self, resolver):
+        """'bot downtime in frk yesterday' → kpi_012 (dedicated Bot-Downtime KPI)."""
+        match = resolver.resolve(
+            "bot downtime in frk yesterday",
+            tenant_values=["frk"],
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_012", (
+            f"Expected kpi_012 (Bot-Downtime) but got {match.kpi_id} ({match.kpi_name})"
+        )
+
+    # ── inactive_hours_intent tests: "inactive time/hours" → kpi_001 ──
+
+    def test_inactive_time_for_bot_routes_kpi001(self, resolver):
+        """'inactive time for bot 9' → kpi_001 (hours breakdown), NOT kpi_003 (count)."""
+        match = resolver.resolve(
+            "inactive time for bot 9",
+            bot_id="BOT-0009",
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_001", (
+            f"Expected kpi_001 (Active vs Inactive Hours) but got "
+            f"{match.kpi_id} ({match.kpi_name}, score={match.match_score:.3f})"
+        )
+
+    def test_total_inactive_time_in_hours_routes_kpi001(self, resolver):
+        """'total inactive time in hours for bot 9 in frk today' → kpi_001."""
+        match = resolver.resolve(
+            "total inactive time in hours for bot 9 in frk today",
+            tenant_values=["frk"],
+            bot_id="BOT-0009",
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_001", (
+            f"Expected kpi_001 but got {match.kpi_id} ({match.kpi_name})"
+        )
+
+    def test_inactive_hours_for_all_bots_routes_kpi001(self, resolver):
+        """'inactive hours for all bots in frk' → kpi_001 (hours), NOT kpi_003 (count)."""
+        match = resolver.resolve(
+            "inactive hours for all bots in frk",
+            tenant_values=["frk"],
+        )
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_001", (
+            f"Expected kpi_001 but got {match.kpi_id} ({match.kpi_name})"
+        )
+
+    def test_inactive_bots_count_still_kpi003(self, resolver):
+        """'inactive bots' → kpi_003 (count). No time word → stays count."""
+        match = resolver.resolve("inactive bots")
+        assert match is not None, "Should match a KPI"
+        assert match.kpi_id == "kpi_003", (
+            f"Expected kpi_003 (Inactive Bots count) but got "
+            f"{match.kpi_id} ({match.kpi_name})"
+        )
+
+
+# ──────────────────────────────────────────────────────────────
+# FIX 2: KPI false positive guards — queries that ask about
+#        "expected quantity" or are detail listings must NOT
+#        match any KPI (should fall through to SQL path).
+# ──────────────────────────────────────────────────────────────
+class TestKPIFalsePositiveGuards:
+    """Queries that superficially overlap with KPI keywords but
+    actually need SQL generation must be rejected by the resolver."""
+
+    def test_expected_quantity_rejected(self, resolver):
+        """'sum expected quantity and sum of picked quantity in pick wave' → None.
+        No pre-built KPI returns 'expected quantity'."""
+        match = resolver.resolve(
+            "sum expected quantity and sum of picked quantity in pick wave",
+            tenant_values=["frk"],
+        )
+        assert match is None, (
+            f"'expected quantity' query falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_expected_qty_shorthand_rejected(self, resolver):
+        """'expected qty vs actual qty in frk' → None."""
+        match = resolver.resolve(
+            "expected qty vs actual qty in frk",
+            tenant_values=["frk"],
+        )
+        assert match is None, (
+            f"'expected qty' query falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_sum_expected_quantity_rejected(self, resolver):
+        """'sum of expected quantity for today pick waves' → None."""
+        match = resolver.resolve(
+            "sum of expected quantity for today pick waves",
+            tenant_values=["frk"],
+        )
+        assert match is None, (
+            f"'sum of expected' query falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_which_wave_on_which_station_rejected(self, resolver):
+        """'which wave is running on which station in chennai today' → None.
+        This is a detail/listing query, not a KPI aggregation."""
+        match = resolver.resolve(
+            "which wave is running on which station in chennai today",
+            tenant_values=["chennai"],
+        )
+        assert match is None, (
+            f"Detail listing query falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_show_running_waves_at_each_station_rejected(self, resolver):
+        """'show running waves at each station' → None (detail listing)."""
+        match = resolver.resolve(
+            "show running waves at each station",
+            tenant_values=["frk"],
+        )
+        assert match is None, (
+            f"Detail listing query falsely matched: "
+            f"{match.kpi_name} (score={match.match_score:.3f})"
+        )
+
+    def test_list_all_waves_with_stations_low_confidence(self, resolver):
+        """'list all waves with their station assignment' — if it matches,
+        it should be low-confidence (below HIGH_CONFIDENCE threshold)."""
+        match = resolver.resolve(
+            "list all waves with their station assignment",
+            tenant_values=["frk"],
+        )
+        if match is not None:
+            assert match.match_score < 0.75, (
+                f"Expected low-confidence or None for listing query, "
+                f"got {match.kpi_name} with score={match.match_score:.3f}"
+            )
+
+
+# ──────────────────────────────────────────────────────────────
+# FIX 3: AUTO_ACCEPT_THRESHOLD and top_candidates field
+#        Tiered KPI strategy constants and match data.
+# ──────────────────────────────────────────────────────────────
+class TestTieredKPIStrategy:
+    """Verify that the AUTO_ACCEPT_THRESHOLD constant exists and
+    top_candidates is populated on KPIMatch results."""
+
+    def test_auto_accept_threshold_exists(self, resolver):
+        """AUTO_ACCEPT_THRESHOLD should be 0.98."""
+        assert hasattr(resolver, "AUTO_ACCEPT_THRESHOLD")
+        assert resolver.AUTO_ACCEPT_THRESHOLD == 0.98
+
+    def test_top_candidates_populated_on_match(self, resolver):
+        """When a KPI matches, top_candidates should have 1-5 candidates."""
+        match = resolver.resolve("active bots in frk", tenant_values=["frk"])
+        assert match is not None
+        assert hasattr(match, "top_candidates")
+        assert isinstance(match.top_candidates, list)
+        assert len(match.top_candidates) >= 1
+        assert len(match.top_candidates) <= 5
+
+    def test_top_candidates_have_required_fields(self, resolver):
+        """Each candidate should have kpi_id, kpi_name, score, logic."""
+        match = resolver.resolve("total bins in blr", tenant_values=["blr"])
+        assert match is not None
+        for cand in match.top_candidates:
+            assert "kpi_id" in cand
+            assert "kpi_name" in cand
+            assert "score" in cand
+            assert isinstance(cand["score"], float)
+
+    def test_top_candidates_sorted_descending(self, resolver):
+        """Candidates should be sorted by score descending."""
+        match = resolver.resolve("active bots in frk", tenant_values=["frk"])
+        assert match is not None
+        if len(match.top_candidates) > 1:
+            scores = [c["score"] for c in match.top_candidates]
+            assert scores == sorted(scores, reverse=True), (
+                f"Candidates not sorted desc: {scores}"
+            )
+
+    def test_top_candidates_first_matches_result(self, resolver):
+        """The first candidate's kpi_id should match the resolved kpi_id."""
+        match = resolver.resolve("total bins", tenant_values=["frk"])
+        assert match is not None
+        assert match.top_candidates[0]["kpi_id"] == match.kpi_id
+
+    def test_kpimatch_top_candidates_field_default(self):
+        """KPIMatch dataclass should default top_candidates to empty list."""
+        m = KPIMatch(
+            kpi_id="kpi_999",
+            kpi_name="Test KPI",
+            category="bot",
+            chart_type="bar",
+            logic="test",
+            sql="SELECT 1",
+            raw_query="SELECT 1",
+            match_score=0.99,
+            tables_used=["t1"],
+            requires_location=False,
+            requires_time_range=False,
+            parameters_applied={},
+        )
+        assert m.top_candidates == []
+
+    def test_top_candidates_include_user_queries(self, resolver):
+        """Each top candidate should include user_queries list."""
+        match = resolver.resolve("total bins in blr", tenant_values=["blr"])
+        assert match is not None
+        for cand in match.top_candidates:
+            assert "user_queries" in cand, (
+                f"Candidate {cand['kpi_id']} missing user_queries"
+            )
+            assert isinstance(cand["user_queries"], list)
+
+
+# ──────────────────────────────────────────────────────────────
+# FIX 4: Detail listing guard (_is_detail_listing_query)
+#        Record-level listing queries must be rejected.
+# ──────────────────────────────────────────────────────────────
+class TestDetailListingGuard:
+    """Verify that _is_detail_listing_query correctly identifies
+    record-level detail queries vs. KPI aggregation queries."""
+
+    def test_which_wave_which_station_is_detail(self):
+        from app.services.sql_assistant.kpi_resolver import _is_detail_listing_query
+        assert _is_detail_listing_query(
+            "which wave is running on which station in chennai today"
+        )
+
+    def test_show_running_waves_is_detail(self):
+        from app.services.sql_assistant.kpi_resolver import _is_detail_listing_query
+        assert _is_detail_listing_query("show running waves at each station")
+
+    def test_station_wave_hours_is_not_detail(self):
+        from app.services.sql_assistant.kpi_resolver import _is_detail_listing_query
+        assert not _is_detail_listing_query(
+            "station-wise wave hours in frk today"
+        )
+
+    def test_how_many_hours_is_not_detail(self):
+        from app.services.sql_assistant.kpi_resolver import _is_detail_listing_query
+        assert not _is_detail_listing_query(
+            "how many hours did waves run at each station"
+        )
+
+    def test_total_active_bots_is_not_detail(self):
+        from app.services.sql_assistant.kpi_resolver import _is_detail_listing_query
+        assert not _is_detail_listing_query("total active bots in frk")
+
+
+# ──────────────────────────────────────────────────────────────
+# §18  Column-projection tests
+#        Verify _apply_column_projection wraps SQL to show only
+#        the columns relevant to the user's intent.
+# ──────────────────────────────────────────────────────────────
+class TestColumnProjection:
+    """Tests for intent-based column projection on kpi_001."""
+
+    # ── Helper ─────────────────────────────────────────────────
+    def _make_resolver(self):
+        from app.services.sql_assistant.kpi_resolver import DashboardKPIResolver
+        return DashboardKPIResolver.__new__(DashboardKPIResolver)
+
+    SAMPLE_KPI001_SQL = (
+        "SELECT BOT_ID, ACTIVE_HOURS, INACTIVE_HOURS\n"
+        "FROM dbo.vw_BotActiveInactiveHours\n"
+        "WHERE REPORT_DATE = CAST(GETDATE() AS DATE);"
+    )
+
+    # ── active-only intent ─────────────────────────────────────
+    def test_active_only_projects_active_hours(self):
+        r = self._make_resolver()
+        sql, pa = r._apply_column_projection(
+            self.SAMPLE_KPI001_SQL, {}, "active time of bot 9 in frk today", "kpi_001",
+        )
+        # Outer SELECT must have only BOT_ID + ACTIVE_HOURS
+        outer_select = sql.split("\nFROM (")[0]  # text before inner subquery
+        assert "_cp.BOT_ID" in outer_select
+        assert "_cp.ACTIVE_HOURS" in outer_select
+        assert "INACTIVE_HOURS" not in outer_select
+        assert pa.get("column_projection") == "active_only"
+
+    def test_active_hours_phrasing(self):
+        r = self._make_resolver()
+        sql, pa = r._apply_column_projection(
+            self.SAMPLE_KPI001_SQL, {}, "what are active hours for each bot in frk", "kpi_001",
+        )
+        outer_select = sql.split("\nFROM (")[0]
+        assert "_cp.ACTIVE_HOURS" in outer_select
+        assert "INACTIVE_HOURS" not in outer_select
+        assert pa["column_projection"] == "active_only"
+
+    # ── inactive-only intent ───────────────────────────────────
+    def test_inactive_only_projects_inactive_hours(self):
+        r = self._make_resolver()
+        sql, pa = r._apply_column_projection(
+            self.SAMPLE_KPI001_SQL, {}, "inactive time of bot 9 in frk today", "kpi_001",
+        )
+        outer_select = sql.split("\nFROM (")[0]
+        assert "_cp.BOT_ID" in outer_select
+        assert "_cp.INACTIVE_HOURS" in outer_select
+        assert "ACTIVE_HOURS" not in outer_select.replace("INACTIVE_HOURS", "")
+        assert pa.get("column_projection") == "inactive_only"
+
+    def test_inactive_hours_phrasing(self):
+        r = self._make_resolver()
+        sql, pa = r._apply_column_projection(
+            self.SAMPLE_KPI001_SQL, {}, "show inactive hours for bots in frk", "kpi_001",
+        )
+        assert "_cp.INACTIVE_HOURS" in sql
+        assert pa["column_projection"] == "inactive_only"
+
+    # ── "vs" / comparison → no projection ──────────────────────
+    def test_vs_query_keeps_all_columns(self):
+        r = self._make_resolver()
+        sql, pa = r._apply_column_projection(
+            self.SAMPLE_KPI001_SQL, {},
+            "active vs inactive time of bot 9 in frk today", "kpi_001",
+        )
+        # No wrapping at all — original SQL returned as-is
+        assert "_cp" not in sql
+        assert "column_projection" not in pa
+
+    def test_versus_query_keeps_all_columns(self):
+        r = self._make_resolver()
+        sql, pa = r._apply_column_projection(
+            self.SAMPLE_KPI001_SQL, {},
+            "active versus inactive hours for bot in frk", "kpi_001",
+        )
+        assert "_cp" not in sql
+        assert "column_projection" not in pa
+
+    def test_compared_query_keeps_all_columns(self):
+        r = self._make_resolver()
+        sql, pa = r._apply_column_projection(
+            self.SAMPLE_KPI001_SQL, {},
+            "active hours compared to inactive hours in frk", "kpi_001",
+        )
+        assert "_cp" not in sql
+        assert "column_projection" not in pa
+
+    # ── Non-kpi_001 KPIs are unaffected ────────────────────────
+    def test_non_kpi001_no_projection(self):
+        r = self._make_resolver()
+        original_sql = "SELECT BOT_ID, DOWNTIME_MINS FROM dbo.vw_BotDowntime;"
+        sql, pa = r._apply_column_projection(
+            original_sql, {}, "active time of bot 9 in frk", "kpi_012",
+        )
+        assert sql == original_sql
+        assert "column_projection" not in pa
+
+    # ── SQL structure: wrapped query is valid subquery ─────────
+    def test_wrapped_sql_contains_subquery(self):
+        r = self._make_resolver()
+        sql, _ = r._apply_column_projection(
+            self.SAMPLE_KPI001_SQL, {}, "active time of bot in frk", "kpi_001",
+        )
+        assert sql.startswith("SELECT _cp.")
+        assert "FROM (" in sql
+        assert ") AS _cp;" in sql
+
+    # ── Trailing semicolons handled ────────────────────────────
+    def test_trailing_semicolon_stripped_from_inner_sql(self):
+        r = self._make_resolver()
+        sql, _ = r._apply_column_projection(
+            self.SAMPLE_KPI001_SQL, {}, "active hours for bot in frk", "kpi_001",
+        )
+        # Inner SQL should not have a trailing semicolon
+        inner_start = sql.index("FROM (") + len("FROM (\n")
+        inner_end = sql.index("\n) AS _cp;")
+        inner_sql = sql[inner_start:inner_end]
+        assert not inner_sql.rstrip().endswith(";")

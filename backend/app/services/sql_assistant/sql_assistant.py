@@ -166,7 +166,183 @@ class SQLAssistantService:
         # Archive handler (dynamic _archive table routing for historical date ranges)
         self.archive_handler = ArchiveHandler(self.db_config)
 
+        # Load business rules for missing-table detection
+        self.business_rules = self._load_business_rules()
+
         logger.info(f"✅ SQLAssistantService initialized with {len(self.schema)} tables")
+
+    # ----------------------------------------------------------
+    # LOAD BUSINESS RULES
+    # ----------------------------------------------------------
+    def _load_business_rules(self) -> dict:
+        """Load business rules from config/sql_assistant_config.json for missing-table detection."""
+        config_path = settings.DATA_DIR.parent / "config" / "sql_assistant_config.json"
+        if not config_path.exists():
+            logger.info("ℹ️ No sql_assistant_config.json found — business rules disabled")
+            return {}
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                config = json.load(f)
+            rules = config.get("business_rules", {})
+            logger.info(f"📋 Loaded {len(rules)} business rules for table validation")
+            return rules
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to load business rules: {e}")
+            return {}
+
+    # ----------------------------------------------------------
+    # MISSING TABLE DETECTION
+    # ----------------------------------------------------------
+    # Keyword→table mappings for concepts that may not be in a business rule
+    # but are strongly tied to a specific table.  If the table is absent from
+    # the schema CSV the user should get a clear error instead of a hallucination.
+    _CONCEPT_TABLE_MAP = [
+        # (keywords_any_of, required_tables, description)
+        (
+            ["wcs to wms", "wcs_to_wms", "payload from wcs", "json response from wms",
+             "json response received from wms", "wms payload", "wcs payload",
+             "api payload", "closing the lpn"],
+            ["wcs_to_wms_payload"],
+            "WCS→WMS integration payload data",
+        ),
+        (
+            ["wms to wcs payload", "wms_to_wcs_payload"],
+            ["wms_to_wcs_payload"],
+            "WMS→WCS integration payload data",
+        ),
+        (
+            ["task master", "task_master", "active task", "current task",
+             "live task", "running task"],
+            ["task_master"],
+            "Live task execution data (task_master)",
+        ),
+        (
+            ["bot charging log", "charging bit log", "bot_charging_bit_log",
+             "charging history", "charging telemetry"],
+            ["bot_charging_bit_log"],
+            "Bot charging telemetry log",
+        ),
+    ]
+
+    def _check_required_tables(self, clean_question: str) -> dict | None:
+        """
+        Check if the question matches a business rule whose required_table(s)
+        are NOT available in the current schema (Table_information.csv).
+
+        Also checks keyword→table concept mappings for broader coverage.
+
+        Returns dict with {rule_name, required_tables, missing_tables} if
+        a critical table is missing, else None.
+        """
+        question_lower = clean_question.lower()
+        best_match = None
+        best_hits = 0
+
+        # --- Pass 1: business rules (trigger-based) ---
+        if self.business_rules:
+            for rule_name, rule_config in self.business_rules.items():
+                triggers = rule_config.get("triggers", [])
+                hit_count = sum(1 for t in triggers if t.lower() in question_lower)
+                if hit_count <= 0:
+                    continue
+
+                # Gather required tables for this rule
+                required = []
+                if "required_tables" in rule_config:
+                    required = list(rule_config["required_tables"])
+                elif "required_table" in rule_config:
+                    required = [rule_config["required_table"]]
+
+                if not required:
+                    continue
+
+                missing = [t for t in required if t not in self.schema]
+                if missing and hit_count > best_hits:
+                    best_hits = hit_count
+                    best_match = {
+                        "rule_name": rule_name,
+                        "description": rule_config.get("description", ""),
+                        "required_tables": required,
+                        "missing_tables": missing,
+                        "trigger_hits": hit_count,
+                    }
+
+        # --- Pass 2: keyword→table concept mappings ---
+        for keywords, required_tables, description in self._CONCEPT_TABLE_MAP:
+            hit_count = sum(1 for kw in keywords if kw in question_lower)
+            if hit_count <= 0:
+                continue
+            missing = [t for t in required_tables if t not in self.schema]
+            if missing and hit_count > best_hits:
+                best_hits = hit_count
+                best_match = {
+                    "rule_name": f"concept:{required_tables[0]}",
+                    "description": description,
+                    "required_tables": required_tables,
+                    "missing_tables": missing,
+                    "trigger_hits": hit_count,
+                }
+
+        return best_match
+
+    def _build_missing_table_response(
+        self, missing_info: dict, session_id: str, entities: dict
+    ) -> ChatResponse:
+        """Build a clear user-facing response when a required table is missing from schema."""
+        missing_str = ", ".join(f"`{t}`" for t in missing_info["missing_tables"])
+        rule_desc = missing_info.get("description", "")
+
+        # Check if the missing table exists in business_context (table_descriptions.json)
+        # — this means the table is known but not yet in the DB/schema CSV
+        known_tables = [
+            t for t in missing_info["missing_tables"]
+            if t in self.business_context
+        ]
+        unknown_tables = [
+            t for t in missing_info["missing_tables"]
+            if t not in self.business_context
+        ]
+
+        msg_parts = [
+            f"Your question requires data from the table(s) {missing_str}, "
+            f"which {'is' if len(missing_info['missing_tables']) == 1 else 'are'} "
+            f"**not currently available** in the database schema."
+        ]
+
+        if rule_desc:
+            msg_parts.append(f"\n\n**Context:** {rule_desc}")
+
+        if known_tables:
+            known_str = ", ".join(f"`{t}`" for t in known_tables)
+            msg_parts.append(
+                f"\n\nThe table(s) {known_str} are recognized in the system configuration "
+                f"but have not been added to this environment's database yet. "
+                f"Please ask your administrator to enable CDC replication for "
+                f"{'this table' if len(known_tables) == 1 else 'these tables'}."
+            )
+
+        if unknown_tables:
+            unknown_str = ", ".join(f"`{t}`" for t in unknown_tables)
+            msg_parts.append(
+                f"\n\nThe table(s) {unknown_str} are not recognized in the system. "
+                f"Please verify the table name with your database team."
+            )
+
+        response_text = "".join(msg_parts)
+
+        return ChatResponse(
+            response=response_text,
+            chatbot_type=ChatbotType.SQL_ASSISTANT,
+            session_id=session_id,
+            sources=[],
+            confidence_score=0.0,
+            metadata={
+                "error": "required_table_not_available",
+                "missing_tables": missing_info["missing_tables"],
+                "rule_name": missing_info["rule_name"],
+                "resolved_entities": entities,
+            },
+        )
 
     # ----------------------------------------------------------
     # LOAD SCHEMA
@@ -775,6 +951,20 @@ class SQLAssistantService:
         else:
 
             # --------------------------------------------------
+            # MISSING TABLE CHECK (before any generation)
+            # --------------------------------------------------
+            missing_table_info = self._check_required_tables(clean_question)
+            if missing_table_info:
+                logger.warning(
+                    f"⚠️ Required table(s) missing from schema: "
+                    f"{missing_table_info['missing_tables']} "
+                    f"(rule={missing_table_info['rule_name']})"
+                )
+                return self._build_missing_table_response(
+                    missing_table_info, session_id, entities
+                )
+
+            # --------------------------------------------------
             # DETERMINISTIC SCHEMA SCOPING
             # --------------------------------------------------
             validated_tables = self.table_priority_loader.get_validated_tables_for_query(clean_question)
@@ -1008,6 +1198,340 @@ class SQLAssistantService:
 
         return response
     # ----------------------------------------------------------
+    # 📊 LLM KPI VALIDATOR — mid-confidence matches (55-90%)
+    # ----------------------------------------------------------
+    def _llm_validate_kpi(
+        self, user_query: str, candidates: list, current_kpi_id: str
+    ) -> str | None:
+        """
+        Use LLM to pick the best KPI from top candidates for a user query.
+
+        Called when the KPI match score is between 55% and 90% (mid-confidence).
+        The LLM sees the user query + top-3 KPI candidates (name, logic,
+        tables) and returns the best KPI id, or "NONE" if no KPI is a
+        good match (should fall through to SQL generation).
+
+        Returns:
+            Selected kpi_id (str) or None (reject all → SQL path)
+        """
+        if not candidates:
+            return None
+
+        # Build candidate descriptions for the LLM
+        candidate_lines = []
+        for i, c in enumerate(candidates, 1):
+            candidate_lines.append(
+                f"  {i}. id={c['kpi_id']}, name=\"{c['kpi_name']}\", "
+                f"score={c['score']:.2f}\n"
+                f"     logic: {c['logic'][:200]}\n"
+                f"     tables: {', '.join(c.get('tables_used', []))}\n"
+                f"     chart_type: {c.get('chart_type', 'unknown')}"
+            )
+        candidates_text = "\n".join(candidate_lines)
+
+        prompt = f"""You are a warehouse analytics KPI selector.
+
+USER QUERY: "{user_query}"
+
+The system found these potential KPI matches (pre-built dashboard queries).
+Pick the ONE KPI that BEST answers the user's question, or say NONE if
+none of them are a good fit (the query needs custom SQL instead).
+
+CANDIDATES:
+{candidates_text}
+
+RULES:
+- If the user asks for raw data, per-row details, or specific entity lookups → NONE
+- If the user asks for a metric/aggregation that a KPI provides → pick that KPI
+- "active hours" / "time" / "minutes" for bots = hours breakdown KPI (not count)  
+- "how many" / "count" without time units = count KPI
+- If the user's intent clearly doesn't match ANY candidate's logic → NONE
+
+Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
+
+        try:
+            client = self.sql_engine.openai_client
+            if client is None:
+                logger.warning("📊 LLM KPI validator: no OpenAI client available")
+                return current_kpi_id  # fall back to original match
+
+            resp = client.responses.create(
+                model=self.sql_engine.model,
+                input=prompt,
+                temperature=0,
+                timeout=15,
+            )
+            answer = resp.output_text.strip().lower().replace('"', '').replace("'", '')
+
+            logger.info(
+                f"📊 LLM KPI validator: query='{user_query[:80]}' → "
+                f"answer='{answer}' (original={current_kpi_id})"
+            )
+
+            if answer == "none":
+                return None
+
+            # Validate the returned id is in our candidates
+            valid_ids = {c["kpi_id"] for c in candidates}
+            if answer in valid_ids:
+                return answer
+            # Try partial match (e.g., "kpi_001" in "the best match is kpi_001")
+            for vid in valid_ids:
+                if vid in answer:
+                    return vid
+
+            logger.warning(
+                f"📊 LLM KPI validator: unexpected answer '{answer}', "
+                f"keeping original={current_kpi_id}"
+            )
+            return current_kpi_id
+
+        except Exception as e:
+            logger.warning(f"📊 LLM KPI validator error: {e}, keeping original={current_kpi_id}")
+            return current_kpi_id
+
+    # ----------------------------------------------------------
+    # 📊 LLM KPI QUERY REFINEMENT (SQL-aware, replaces simple validator)
+    # ----------------------------------------------------------
+
+    # JSON schema for the structured LLM response
+    _KPI_REFINE_SCHEMA = {
+        "type": "object",
+        "properties": {
+            "selected_kpi_id": {
+                "type": "string",
+                "description": "The kpi_id that best matches, or NONE",
+            },
+            "sql": {
+                "type": "string",
+                "description": "The SQL query to execute — original or modified",
+            },
+            "chart_type": {
+                "type": "string",
+                "description": "Chart type for display",
+            },
+            "explanation": {
+                "type": "string",
+                "description": "Brief explanation of why this KPI was selected and any modifications made",
+            },
+        },
+        "required": ["selected_kpi_id", "sql", "chart_type", "explanation"],
+        "additionalProperties": False,
+    }
+
+    def _llm_refine_kpi_query(
+        self,
+        user_query: str,
+        kpi_match,                      # KPIMatch from resolver
+        tenant_values: list,
+        time_from: str,
+        time_to: str,
+        all_sites: bool,
+        bot_id: str = None,
+        station_id: str = None,
+        bin_id: str = None,
+        wave_id: str = None,
+        order_id: str = None,
+        category_value: str = None,
+        location_breakdown: bool = False,
+    ) -> dict | None:
+        """
+        LLM-enhanced KPI query refinement.
+
+        When KPI match is in the mid-confidence band (0.50–0.90), the LLM
+        sees the user query + top-3 KPI SQL queries (parameter-substituted)
+        + table/column guidance, and either:
+          • picks the best KPI query as-is,
+          • modifies it (e.g. column projection), or
+          • rejects all (→ SQL generation path).
+
+        Returns dict with {kpi_id, sql, kpi_name, chart_type, explanation,
+        tables_used, logic, score} or None (reject → SQL gen).
+        """
+        if not kpi_match.top_candidates:
+            return None
+
+        client = getattr(self.sql_engine, "openai_client", None)
+        if client is None:
+            logger.warning("📊 LLM KPI refiner: no OpenAI client available")
+            return None
+
+        # ── Prepare substituted SQL for each top candidate ────────────
+        candidate_sqls = []
+        for c in kpi_match.top_candidates[:5]:
+            kpi_entry = None
+            for entry in self.kpi_resolver.kpis:
+                if entry.id == c["kpi_id"]:
+                    kpi_entry = entry
+                    break
+            if not kpi_entry:
+                continue
+
+            sql, params = self.kpi_resolver._substitute_params(
+                kpi_entry.query, tenant_values, time_from, time_to,
+                all_sites, question=user_query, bot_id=bot_id,
+                category_value=category_value, station_id=station_id,
+                location_breakdown=location_breakdown, kpi_id=kpi_entry.id,
+            )
+            sql, params = self.kpi_resolver._inject_entity_filters(
+                sql, params, bot_id=bot_id, station_id=station_id,
+                bin_id=bin_id, wave_id=wave_id, order_id=order_id,
+            )
+
+            candidate_sqls.append({
+                "kpi_id": c["kpi_id"],
+                "kpi_name": c["kpi_name"],
+                "score": c["score"],
+                "logic": c["logic"],
+                "chart_type": c.get("chart_type", "table chart"),
+                "tables_used": c.get("tables_used", []),
+                "user_queries": c.get("user_queries", []),
+                "sql": sql,
+            })
+
+        if not candidate_sqls:
+            return None
+
+        # ── Table/column guidance ─────────────────────────────────────
+        all_tables = set()
+        for c in candidate_sqls:
+            all_tables.update(c.get("tables_used", []))
+
+        table_schema_lines = []
+        for tbl in sorted(all_tables):
+            cols = self.schema.get(tbl)
+            if cols:
+                # cols is a list of column-name strings
+                col_names = cols if isinstance(cols[0], str) else [c["name"] for c in cols]
+                table_schema_lines.append(
+                    f"  TABLE: {tbl}\n  COLUMNS: {', '.join(col_names)}"
+                )
+        table_context = "\n".join(table_schema_lines) if table_schema_lines else "(no schema)"
+
+        # ── Build candidate blocks ────────────────────────────────────
+        candidate_blocks = []
+        for i, c in enumerate(candidate_sqls, 1):
+            # Include example user queries from the KPI registry
+            uq = c.get("user_queries", [])
+            uq_text = ""
+            if uq:
+                uq_lines = "\n".join(f"  - {q}" for q in uq[:5])
+                uq_text = f"\nExample user questions this KPI answers:\n{uq_lines}\n"
+            candidate_blocks.append(
+                f"--- KPI {i}: {c['kpi_id']} ---\n"
+                f"Name: {c['kpi_name']}\n"
+                f"Logic: {c['logic'][:350]}\n"
+                f"Chart type: {c['chart_type']}\n"
+                f"Tables: {', '.join(c['tables_used'])}"
+                f"{uq_text}\n"
+                f"SQL:\n{c['sql']}"
+            )
+        candidates_text = "\n\n".join(candidate_blocks)
+
+        # ── Prompt ────────────────────────────────────────────────────
+        prompt = (
+            "You are a warehouse analytics SQL expert. The user asked a question "
+            "and the system matched it to these top KPI dashboard queries.\n\n"
+            f'USER QUERY: "{user_query}"\n\n'
+            f"TOP KPI CANDIDATES (with their parameter-substituted SQL):\n\n"
+            f"{candidates_text}\n\n"
+            f"TABLE / COLUMN REFERENCE (only these tables exist):\n{table_context}\n\n"
+            "CRITICAL CONSTRAINT:\n"
+            "You MUST pick one of the above KPI candidates. These KPIs contain "
+            "proven, tested SQL that is already parameterised for the user's "
+            "location and time range. Do NOT return NONE unless the user's "
+            "question is completely unrelated to warehouse operations (e.g. "
+            "weather, sports, jokes). If the user asks for a metric that is "
+            "computable from the columns in ANY candidate's SQL, pick that "
+            "candidate and adjust its SQL.\n\n"
+            "YOUR TASK:\n"
+            "1. Pick the KPI whose SQL can best answer the user's question.\n"
+            "2. If it matches perfectly → return its SQL as-is.\n"
+            "3. If it's close but needs modification, you may:\n"
+            "   a. COLUMN PROJECTION: wrap in subquery to select fewer columns:\n"
+            "      SELECT _cp.COL1 FROM ( <original_sql_without_semicolon> ) AS _cp;\n"
+            "   b. AGGREGATION: wrap to SUM/AVG/COUNT over original columns:\n"
+            "      SELECT SUM(_cp.INACTIVE_HOURS) AS TOTAL_INACTIVE_HOURS "
+            "FROM ( <original_sql_without_semicolon> ) AS _cp "
+            "WHERE _cp.BOT_ID = 'BOT-0009';\n"
+            "   c. FILTER: add WHERE to the wrapper to filter specific rows.\n"
+            "4. NEVER invent new tables or columns. Use ONLY what exists in the "
+            "   candidate SQL and the TABLE/COLUMN REFERENCE above.\n"
+            "5. Preserve the inner SQL structure exactly (CTEs, JOINs, WHERE, "
+            "   ORDER BY). Only wrap the outer SELECT.\n\n"
+            "DOMAIN RULES:\n"
+            "• \"active time/hours\" for a specific bot → Active vs Inactive hours "
+            "KPI, project BOT_ID + ACTIVE_HOURS.\n"
+            "• \"inactive time/hours\" for a specific bot → Active vs Inactive hours "
+            "KPI, project BOT_ID + INACTIVE_HOURS.\n"
+            "• \"total inactive time\" for a bot → Active vs Inactive hours KPI, "
+            "project BOT_ID + INACTIVE_HOURS (this gives per-bot hours, which IS "
+            "the total inactive time for that bot).\n"
+            "• \"active vs inactive\" or comparison → keep ALL columns.\n"
+            "• \"how many bots\" / \"count of bots\" (no time words) → count KPI.\n"
+            "• \"number of inactive bots\" / \"count inactive bots\" → Inactive Bots count KPI.\n"
+            "• The SQL must be valid MySQL 8.x.\n\n"
+            "Respond with valid JSON matching the required schema."
+        )
+
+        try:
+            resp = client.responses.create(
+                model=self.sql_engine.model,
+                input=prompt,
+                temperature=0,
+                timeout=30,
+                text={
+                    "format": {
+                        "type": "json_schema",
+                        "name": "kpi_refinement",
+                        "strict": True,
+                        "schema": self._KPI_REFINE_SCHEMA,
+                    }
+                },
+            )
+            result = json.loads(resp.output_text)
+
+            selected_id = result.get("selected_kpi_id", "NONE").strip()
+            logger.info(
+                f"📊 LLM KPI refiner: selected_kpi_id='{selected_id}' "
+                f"for '{user_query[:80]}'. "
+                f"explanation='{result.get('explanation', '')[:200]}'"
+            )
+
+            if selected_id.upper() == "NONE":
+                logger.info(
+                    f"📊 LLM KPI refiner: rejected all candidates "
+                    f"for '{user_query[:80]}' — falling through to SQL gen"
+                )
+                return None
+
+            # Validate the selected id is in our candidates
+            valid_ids = {c["kpi_id"] for c in candidate_sqls}
+            if selected_id not in valid_ids:
+                logger.warning(
+                    f"📊 LLM KPI refiner: invalid id '{selected_id}', "
+                    f"valid={valid_ids}. Falling back."
+                )
+                return None
+
+            selected = next(c for c in candidate_sqls if c["kpi_id"] == selected_id)
+
+            return {
+                "kpi_id": selected_id,
+                "kpi_name": selected["kpi_name"],
+                "sql": result["sql"],
+                "chart_type": result.get("chart_type", selected["chart_type"]),
+                "explanation": result.get("explanation", ""),
+                "tables_used": selected["tables_used"],
+                "logic": selected["logic"],
+                "score": selected["score"],
+            }
+
+        except Exception as e:
+            logger.warning(f"📊 LLM KPI refiner error: {e}")
+            return None
+
+    # ----------------------------------------------------------
     # 📊 DASHBOARD KPI MATCH
     # ----------------------------------------------------------
     def _try_kpi_match(self, clean_question: str, entities: dict, session_id: str,
@@ -1095,10 +1619,95 @@ class SQLAssistantService:
             return None
 
         # ═══════════════════════════════════════════════════════
-        #  KPI MATCHED — execute the pre-built query.
-        #  High-confidence matches (≥0.75) are terminal.
-        #  Lower-confidence matches are accepted but logged.
+        #  TIERED KPI STRATEGY:
+        #    ≥ 0.90  → auto-accept (high confidence, execute directly)
+        #    0.55–0.90 → LLM refines from top-3 KPI SQL queries
+        #    < 0.55  → already rejected by resolver (never reaches here)
         # ═══════════════════════════════════════════════════════
+
+        # Log top candidates for diagnostics
+        if kpi_match.top_candidates:
+            for c in kpi_match.top_candidates:
+                logger.info(
+                    f"📊 KPI candidate: id={c['kpi_id']}, "
+                    f"'{c['kpi_name']}' (score={c['score']:.3f})"
+                )
+
+        # ── Always route through LLM refiner ──
+        # Even high-scoring keyword matches can pick the wrong KPI
+        # within a family (e.g. station-wise vs trend vs stat for IPP).
+        # The LLM sees top-5 candidates with their SQL + example user
+        # queries and makes the final pick.
+        logger.info(
+            f"📊 KPI match ({kpi_match.match_score:.3f}): "
+            f"invoking LLM KPI refiner for '{kpi_match.kpi_name}'"
+        )
+        llm_result = self._llm_refine_kpi_query(
+            user_query=clean_question,
+            kpi_match=kpi_match,
+            tenant_values=tenant_values,
+            time_from=_kpi_time_from,
+            time_to=_kpi_time_to,
+            all_sites=all_sites,
+            bot_id=_bot_id,
+            station_id=_station_id,
+            bin_id=_bin_id,
+            wave_id=_wave_id,
+            order_id=_order_id,
+            category_value=_category_value,
+            location_breakdown=location_breakdown,
+        )
+
+        if llm_result is None:
+            # LLM refiner unavailable or rejected all → use top-1 as fallback
+            logger.info(
+                f"📊 LLM refiner returned None for: '{clean_question}' — "
+                f"using top KPI match '{kpi_match.kpi_name}' as fallback"
+            )
+            return kpi_match
+
+        # ── Build KPIMatch from LLM-refined result ──
+        selected_id = llm_result["kpi_id"]
+        picked_entry = None
+        for kpi_entry in self.kpi_resolver.kpis:
+            if kpi_entry.id == selected_id:
+                picked_entry = kpi_entry
+                break
+
+        if picked_entry:
+            from .kpi_resolver import KPIMatch
+            refined_params = kpi_match.parameters_applied.copy()
+            refined_params["llm_refined"] = "true"
+            if selected_id != kpi_match.kpi_id:
+                refined_params["llm_switched_from"] = kpi_match.kpi_id
+            if llm_result.get("explanation"):
+                refined_params["llm_explanation"] = llm_result["explanation"][:200]
+
+            kpi_match = KPIMatch(
+                kpi_id=selected_id,
+                kpi_name=picked_entry.kpi_name,
+                category=picked_entry.category,
+                chart_type=llm_result.get("chart_type", picked_entry.chart_type),
+                logic=picked_entry.logic,
+                sql=llm_result["sql"],
+                raw_query=picked_entry.query,
+                match_score=llm_result.get("score", kpi_match.match_score),
+                tables_used=picked_entry.tables_used,
+                requires_location=picked_entry.requires_location,
+                requires_time_range=picked_entry.requires_time_range,
+                parameters_applied=refined_params,
+                top_candidates=kpi_match.top_candidates,
+            )
+            logger.info(
+                f"📊 LLM refined KPI: {selected_id} '{picked_entry.kpi_name}' "
+                f"(switched={selected_id != kpi_match.kpi_id}). "
+                f"Explanation: {llm_result.get('explanation', '')[:150]}"
+            )
+        else:
+            logger.warning(
+                f"📊 LLM refiner returned unknown kpi_id={selected_id}, "
+                f"keeping original match"
+            )
 
         logger.info(
             f"📊 Dashboard KPI hit: id={kpi_match.kpi_id}, '{kpi_match.kpi_name}' "

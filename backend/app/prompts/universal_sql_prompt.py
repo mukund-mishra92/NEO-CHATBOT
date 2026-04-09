@@ -127,6 +127,15 @@ SINGLE-TABLE SUFFICIENCY CHECKLIST:
 - Need SKU name? → NOW you must JOIN article_registered (live_inventory_master has only ARTICLE_ID)
 - Need expiry date? → NOW you must JOIN sku_batch_master
 
+TABLE SELECTION: MASTER vs LOG (_log) TABLES:
+When a master table AND its corresponding _log table exist (e.g. order_bin_mapping
+vs order_bin_mapping_log), pick the correct one based on the user's intent:
+- "previous", "past", "old", "earlier", "before", "history" → USE the _log table
+  (it records historical snapshots / state changes).
+- "current", "latest", "live", "right now", "status" → USE the master table
+  (it holds the current state).
+Example: "previous bot at station 1" → order_bin_mapping_log (not order_bin_mapping)
+
 ================================================================================
 
 CRITICAL SCHEMA FACTS (VERIFIED 2026-03-23):
@@ -139,8 +148,19 @@ CRITICAL SCHEMA FACTS (VERIFIED 2026-03-23):
 ✓ bot_master.STATUS enum: 'ENABLED', 'DISABLED' (NOT 'ACTIVE'/'INACTIVE')
 ✓ bot_master.LOAD_CONDITION enum: 'UL', 'LD' (Unloaded/Loaded)
 ✓ bot_master.BATTERY_HEALTH enum: 'GOOD', 'AVERAGE', 'CRITICAL'
-✓ location_master.AISLE_NUMBER enum: 'A01'-'A24', 'RA01'-'RA03', 'URA01'-'URA04'
-✓ location_master.TOWER_NUMBER enum: 'T01'-'T10'
+✓ hw_station_master.STATION_TYPE enum: 'GTP_STATION', 'GTC_STATION' (NOT 'GTP'/'GTC'!)
+✓ hw_station_master.STATUS enum: 'ENABLED', 'DISABLED'
+✓ hw_station_master.WAVE_STATUS enum: 'NO_WAVE', 'WAITING_OPERATOR', 'WAVE_LIVE', 'STATION_PAUSE'
+✓ wave_master.WAVE_TYPE enum: 'PUT', 'PICK', 'STOCK_AUDIT', 'BIN_LOADING', 'PUT_STORAGE_REQUEST', 'PICK_ORDER_REQUEST', 'LOCATION_AUDIT', 'THROUGHPUT_WAVE'
+✓ wave_master.WAVE_STATUS enum: 'PENDING', 'UPLOADED', 'STATION_SELECTED', 'PROCESSING', 'COMPLETED', 'LEFT_OVER'
+✓ order_bin_mapping.TYPE enum: 'STATION_PICK', 'RACK_PICK', 'RECOVERY_PICK', 'LOCATION_PICK' (NOT just 'PICK'!)
+✓ order_bin_mapping.STATUS enum: 'PENDING', 'TASK_ALLOCATED', 'BIN_PICKED', 'ON_STATION', 'TASK_COMPLETED', 'OPERATION_COMPLETED', 'PRE_ON_STATION', 'POST_ON_STATION', 'RACK_PENDING'
+✓ pick_wave_order_master.STATUS enum: 'PENDING', 'PICK_STARTED', 'PICK_COMPLETED', 'ORDER_COMPLETED', 'MID_WAVE_AUDIT_STARTED', 'MID_WAVE_AUDIT_COMPLETED'
+✓ put_wave_order_master.STATUS enum: 'PUT_STARTED', 'PUT_COMPLETED', 'PENDING', 'INVENTORY_UPDATED', 'PUT_SUSPENDED'
+✓ task_master_log.STATUS enum: 'PENDING', 'ASSIGNED', 'PROCESSING', 'COMPLETED'
+✓ location_master.AISLE_NUMBER enum: 'A01'-'A24', 'RA01'-'RA20', 'URA01'-'URA04'
+✓ location_master.TOWER_NUMBER enum: 'T01'-'T23'
+✓ location_master.TOWER_SIDE enum: 'LEFT', 'RIGHT'
 ✓ `host-location` column exists in EVERY table (backtick-escape required!)
 
 ================================================================================
@@ -183,6 +203,33 @@ VERIFIED TABLE RELATIONSHIPS (JOIN PATHS)
 
 8) Station → Location (Station Physical Position):
    hw_station_master.LOCATION_ID → location_master.LOCATION_ID
+
+9) Wave → Pick Orders (Which wave runs on which station):
+   wave_master.WAVE_ID → pick_wave_order_master.WAVE_ID
+   pick_wave_order_master.STATION_ID → hw_station_master.STATION_ID
+   Gives: STATION_ID, ORDER_BIN_ID, STATUS, EXPECTED_QUANTITY, PICKED_QUANTITY
+
+10) Wave → Put Orders:
+    wave_master.WAVE_ID → put_wave_order_master.WAVE_ID
+    Gives: STATION_ID (via wave or BIN routing), STATUS, EXPECTED_QUANTITY, PUT_QUANTITY
+
+11) Wave → Station Rule Mapping:
+    wave_master.WAVE_ID → wave_station_rule_mapping.WAVE_ID
+    wave_station_rule_mapping.STATION_ID → hw_station_master.STATION_ID
+
+12) Order Bin Mapping → Station/Bot Assignment:
+    order_bin_mapping.STATION_ID → hw_station_master.STATION_ID
+    order_bin_mapping.BOT_ID → bot_master.BOT_ID
+    For historical: order_bin_mapping_log (same columns + LOGGED_TIMESTAMP)
+
+13) Bot → Charging Station:
+    bot_master.BOT_ID (filter CHARGING_BIT=1) — no direct FK to hw_charging_station_master
+
+14) Station → PTLs (Pick-to-Light modules per station):
+    hw_station_master.STATION_ID → hw_ptl_master.PARENT_ID
+    Gives: hw_ptl_master.PTL_ID, STATUS, IP, PORT, IS_ACTIVE
+    Filter GTC stations: hw_station_master.STATION_TYPE = 'GTC_STATION' (NOT 'GTC'!)
+    hw_charging_station_master has STATION_ID + LOCATION_ID for physical charging points
 
 REMEMBER: ALL JOINs above must ALSO include:
   AND t1.`host-location` = t2.`host-location`
@@ -255,6 +302,28 @@ COMMON MISTAKES TO AVOID (VERIFIED ERRORS FROM PRODUCTION)
    GOOD: SELECT COUNT(DISTINCT lim.BIN_ID) FROM live_inventory_master lim
          WHERE lim.QUANTITY > 0 AND lim.IS_ACTIVE = 1 AND lim.`host-location` = 'frk'
    RULE: If the primary table has all needed columns, do NOT add a JOIN.
+
+❌ MISTAKE 14: Wrong enum value for hw_station_master.STATION_TYPE
+   The enum values include the suffix '_STATION'!
+   BAD:  WHERE hm.STATION_TYPE = 'GTC'
+   GOOD: WHERE hm.STATION_TYPE = 'GTC_STATION'
+   BAD:  WHERE hm.STATION_TYPE = 'GTP'
+   GOOD: WHERE hm.STATION_TYPE = 'GTP_STATION'
+
+❌ MISTAKE 15: Wrong enum value for order_bin_mapping.TYPE
+   BAD:  WHERE obm.TYPE = 'PICK'
+   GOOD: WHERE obm.TYPE = 'STATION_PICK'   (or 'RACK_PICK', 'RECOVERY_PICK', 'LOCATION_PICK')
+
+❌ MISTAKE 16: Wrong filter for bot charging status
+   bot_master.STATUS is ONLY 'ENABLED'/'DISABLED' — there is NO 'CHARGING' value!
+   BAD:  WHERE bm.STATUS = 'CHARGING'
+   GOOD: WHERE bm.CHARGING_BIT = 1   (1 = bot is charging / at charger)
+   GOOD: WHERE bm.CHARGING_BIT = 0   (0 = bot is NOT charging)
+   Note: "bot not going to charging" → bots that SHOULD be charging but are NOT:
+         WHERE bm.CHARGING_BIT = 1 AND bm.STATUS = 'ENABLED'
+         (CHARGING_BIT=1 means charging is requested/active)
+   Battery columns: BATTERY (%), BATTERY_HEALTH ('GOOD'/'AVERAGE'/'CRITICAL'),
+                    BATTERY_VOLTS, AH_REMAINING_PERCENTAGE
 
 ================================================================================
 

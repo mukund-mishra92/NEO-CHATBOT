@@ -108,6 +108,8 @@ class KPIMatch:
     requires_location: bool
     requires_time_range: bool
     parameters_applied: Dict[str, str] = field(default_factory=dict)
+    # Top candidates (id, name, score) — used by LLM validator for mid-confidence matches
+    top_candidates: List[Dict[str, Any]] = field(default_factory=list)
 
 
 # ============================================================
@@ -177,6 +179,12 @@ SYNONYMS = {
     # SynonymResolver maps putaway/put-away→put
     "put":     ["put", "putaway", "put-away"],
     "putaway": ["putaway", "put-away", "put"],
+    # Abbreviation expansions (user may type short forms)
+    "qty": ["qty", "quantity"],
+    "quantity": ["quantity", "qty"],
+    # Singular/plural that stem normalisation may miss
+    "audit":  ["audit", "audits"],
+    "audits": ["audits", "audit"],
 }
 
 # Warehouse acronym ↔ full-phrase expansions.
@@ -283,6 +291,43 @@ def _is_schema_query(question: str) -> bool:
 
 
 # ============================================================
+# Detail / listing query guard
+# ============================================================
+# Queries that ask for specific record-level mappings ("which wave is
+# on which station", "list all running waves") are NOT KPI aggregations.
+# They need a SQL SELECT with raw rows, not a pre-built dashboard metric.
+
+_DETAIL_LISTING_PATTERNS: List[re.Pattern] = [
+    re.compile(p, re.IGNORECASE) for p in (
+        # "which X is/are on/at/running on which Y"
+        r"\bwhich\s+\w+\s+(?:is|are)\s+(?:running\s+)?(?:on|at|in)\s+which\b",
+        # "which wave is running" / "which waves are running"
+        r"\bwhich\s+(?:\w+\s+)?waves?\s+(?:is|are)\s+(?:running|active|open|in\s+progress)",
+        # "which put or pick wave is running on which station"
+        r"\bwhich\s+(?:\w+\s+(?:or|and)\s+)?\w*\s*wave\s+is\s+(?:running|active)",
+        # "list running/active waves" / "show running waves"
+        r"\b(?:list|show|give|get)\s+(?:all\s+)?(?:running|active|open)\s+waves?",
+        # "wave id" or "wave number" or "wave name" — implies row-level detail
+        r"\bwave\s*(?:id|number|name|no\.)\b",
+        # "map of X to Y" / "mapping between X and Y"
+        r"\b(?:map|mapping)\s+(?:of|between)\s+\w+\s+(?:to|and)\s+\w+",
+    )
+]
+
+
+def _is_detail_listing_query(question: str) -> bool:
+    """Return True if the query asks for record-level detail, not KPI aggregation.
+
+    Examples:
+        "which wave is running on which station in chennai today"  → True
+        "show running waves at each station"                       → True
+        "station-wise wave hours in frk today"                     → False (KPI aggregation)
+        "how many hours did waves run at each station"             → False (KPI aggregation)
+    """
+    return any(pat.search(question) for pat in _DETAIL_LISTING_PATTERNS)
+
+
+# ============================================================
 # Entity-lookup guard
 # ============================================================
 # Entity IDs (BOT-0001, BIN-0324, STATION-0003, …) contain domain
@@ -292,7 +337,8 @@ def _is_schema_query(question: str) -> bool:
 # no KPI to serve the answer — those are row-level SQL lookups.
 
 _ENTITY_ID_RE = re.compile(
-    r'\b(?:BOT|BIN|STATION|ST|WAVE|ORD|ORDER)[- _]?\d{2,6}\b',
+    r'\b(?:BOT|BIN|STATION|ST|WAVE|ORD|ORDER)[- _]?\d{2,6}\b'
+    r'|\b[xXyYzZ]\s*=\s*\d+',
     re.IGNORECASE,
 )
 
@@ -331,6 +377,10 @@ _LOOKUP_SIGNAL_RE = re.compile(
     r'|details?\s+of|info\s+(?:about|of|for)'
     r'|status\s+of|state\s+of'
     r'|what\s+(?:bins?|is\s+in|does)\s'
+    r'|\bbattery\s*(?:level|health|percentage|status|%)?'
+    r'|\bspeed\s+of\b|\bload\s+(?:condition|weight)\b'
+    r'|(?:which|what)\s+bot\s+is\s+at'
+    r'|bot\s+(?:is\s+)?at\s+(?:location|position|grid)'
     r')',
     re.IGNORECASE,
 )
@@ -402,13 +452,30 @@ def _has_count_intent(question: str) -> bool:
     return has_count and not has_pct
 
 
+_METRIC_NEGATIVE_CONTEXT_RE = re.compile(
+    r'\b(?:avoid|not\s+for|not\s+a|don.?t\s+use)\b.*?\b(?:'
+    + '|'.join(re.escape(ind) for ind in _METRIC_KPI_INDICATORS)
+    + r')\b',
+    re.IGNORECASE,
+)
+
+
 def _kpi_returns_metric(kpi: KPIEntry) -> bool:
     """
     Return True if the KPI computes a percentage, rate, or ratio
     rather than a plain count / total.
+
+    Uses word-boundary matching and strips negative-context sentences
+    (e.g. "Avoid using it for percentage questions") so they don't
+    false-positive.
     """
     text = (kpi.kpi_name + " " + kpi.logic).lower()
-    return any(indicator in text for indicator in _METRIC_KPI_INDICATORS)
+    # Remove negative-context sentences to avoid false positives
+    text_cleaned = _METRIC_NEGATIVE_CONTEXT_RE.sub('', text)
+    return any(
+        re.search(rf'\b{re.escape(indicator)}\b', text_cleaned)
+        for indicator in _METRIC_KPI_INDICATORS
+    )
 
 
 def _has_any_phrase(question: str, phrases: Tuple[str, ...]) -> bool:
@@ -527,8 +594,8 @@ class DashboardKPIResolver:
     KEYWORD_ONLY_THRESHOLD = 0.65
 
     # Weight split for hybrid scoring
-    EMBEDDING_WEIGHT = 0.65
-    KEYWORD_WEIGHT = 0.35
+    EMBEDDING_WEIGHT = 0.75
+    KEYWORD_WEIGHT = 0.25
 
     # Minimum gap between #1 and #2 candidates to accept a match.
     # If the top two KPIs are within this margin, fall through to
@@ -538,7 +605,12 @@ class DashboardKPIResolver:
     # High-confidence threshold — above this, match is terminal (no fallback).
     # Between MATCH_THRESHOLD and HIGH_CONFIDENCE, match is accepted but
     # logged as low-confidence for monitoring.
-    HIGH_CONFIDENCE_THRESHOLD = 0.75
+    HIGH_CONFIDENCE_THRESHOLD = 0.85
+
+    # Auto-accept threshold — above this, KPI match is executed directly
+    # without LLM refinement.  Between MATCH_THRESHOLD (0.55) and this,
+    # the caller should use LLM refiner to pick/modify from top candidates.
+    AUTO_ACCEPT_THRESHOLD = 0.98
 
     def __init__(self, registry_path: Optional[str] = None):
         if registry_path is None:
@@ -1032,9 +1104,19 @@ class DashboardKPIResolver:
         # ── Bot active/inactive family detection ──
         has_active = _has_any_phrase(q_lower, ("active",))
         has_inactive = _has_any_phrase(q_lower, ("inactive",))
-        active_vs_inactive_intent = has_active and has_inactive   # both → kpi_001
-        active_only_intent = has_active and not has_inactive       # → kpi_002
-        inactive_only_intent = has_inactive and not has_active     # → kpi_003
+        # "active hours", "active time", "hours for bot", "idle time" etc.
+        # → user wants HOURS breakdown (kpi_001), NOT a COUNT (kpi_002/003)
+        has_time_unit = _has_any_phrase(q_lower, (
+            "hours", "hour", "time", "minutes", "minute",
+            "downtime", "down time", "uptime", "up time",
+            "idle time", "idletime",
+        ))
+        active_hours_intent = has_active and has_time_unit  # → kpi_001 (hours)
+        active_vs_inactive_intent = (has_active and has_inactive) or active_hours_intent  # both / hours → kpi_001
+        active_only_intent = has_active and not has_inactive and not has_time_unit  # → kpi_002 (count)
+        # "inactive time", "inactive hours" → user wants HOURS breakdown (kpi_001), not COUNT (kpi_003)
+        inactive_hours_intent = has_inactive and has_time_unit and not has_active  # → kpi_001
+        inactive_only_intent = has_inactive and not has_active and not has_time_unit  # → kpi_003 (count only)
 
         adjusted: List[Tuple[float, KPIEntry]] = []
         for score, kpi in scored:
@@ -1094,11 +1176,28 @@ class DashboardKPIResolver:
             # kpi_001 = Active vs Inactive (hours breakdown per bot)
             # kpi_002 = Active Bots (count)
             # kpi_003 = Inactive Bots (count)
-            # When user says BOTH "active" and "inactive" → kpi_001.
-            # "active" only → kpi_002.  "inactive" only → kpi_003.
+            # When user says "active hours"/"active time" or BOTH "active"
+            # and "inactive" → kpi_001 (hours breakdown per bot).
+            # "active" only (no time unit) → kpi_002 (count).
+            # "inactive" only → kpi_003 (count).
             # Only apply for BOT-scope queries (skip station-scope).
             if not station_scope:
-                if active_vs_inactive_intent:
+                if active_hours_intent:
+                    # Strong boost for kpi_001 — user explicitly wants hours
+                    if kid == "kpi_001":
+                        new_score = min(new_score + 0.25, 1.0)
+                    elif kid in {"kpi_002", "kpi_003"}:
+                        new_score *= 0.55   # heavy penalty — count KPIs are wrong for hours
+                    # Average active/inactive hours KPIs
+                    has_avg = _has_any_phrase(q_lower, ("average", "avg", "mean"))
+                    has_total = _has_any_phrase(q_lower, ("total", "sum", "overall"))
+                    if has_avg and not has_total:
+                        if kid == "kpi_004":   # avg active hours
+                            new_score = min(new_score + 0.15, 1.0)
+                        elif kid == "kpi_005":  # avg inactive hours
+                            if has_inactive:
+                                new_score = min(new_score + 0.15, 1.0)
+                elif active_vs_inactive_intent:
                     if kid == "kpi_001":
                         new_score = min(new_score + 0.20, 1.0)
                     elif kid in {"kpi_002", "kpi_003"}:
@@ -1108,11 +1207,183 @@ class DashboardKPIResolver:
                         new_score = min(new_score + 0.10, 1.0)
                     elif kid in {"kpi_001", "kpi_003"}:
                         new_score *= 0.82
+                elif inactive_hours_intent:
+                    # "inactive time/hours" → user wants hours breakdown (kpi_001)
+                    if kid == "kpi_001":
+                        new_score = min(new_score + 0.25, 1.0)
+                    elif kid in {"kpi_002", "kpi_003"}:
+                        new_score *= 0.55   # heavy penalty — count KPIs are wrong for hours
+                    # Average inactive hours
+                    has_avg = _has_any_phrase(q_lower, ("average", "avg", "mean"))
+                    has_total = _has_any_phrase(q_lower, ("total", "sum", "overall"))
+                    if has_avg and not has_total:
+                        if kid == "kpi_005":   # avg inactive hours
+                            new_score = min(new_score + 0.15, 1.0)
                 elif inactive_only_intent:
                     if kid == "kpi_003":
                         new_score = min(new_score + 0.10, 1.0)
                     elif kid in {"kpi_001", "kpi_002"}:
                         new_score *= 0.82
+
+            # ── Inventory sibling disambiguation ─────────────────────────
+            # These clusters share 90%+ of keywords.  Discriminating words
+            # in the query must outweigh generic overlap.
+
+            # Bin-wise Volume Util vs overall Bin Util
+            # "per bin" / "each bin" / "bin wise" + "volume" → kpi_046
+            has_per_bin = _has_any_phrase(q_lower, (
+                "per bin", "each bin", "bin wise", "bin-wise",
+                "binwise", "for each bin", "bin level", "bin-level",
+            ))
+            has_volume = _has_any_phrase(q_lower, ("volume",))
+            if has_per_bin and has_volume:
+                if kid == "kpi_046":
+                    new_score = min(new_score + 0.20, 1.0)
+                elif kid in {"kpi_015", "kpi_020", "kpi_021"}:
+                    new_score *= 0.65
+            elif has_per_bin and not has_volume:
+                # "per bin" without "volume" — could still be kpi_046
+                if kid == "kpi_046":
+                    new_score = min(new_score + 0.10, 1.0)
+                elif kid in {"kpi_015", "kpi_020"}:
+                    new_score *= 0.80
+
+            # Bin Segment Usage Distribution vs Bins Used / Bin Segment Used
+            # "segment" + ("distribution"/"usage"/"breakdown") → kpi_042
+            has_segment = _has_any_phrase(q_lower, ("segment",))
+            has_dist = _has_any_phrase(q_lower, (
+                "distribution", "usage", "breakdown", "detailed", "view",
+            ))
+            if has_segment and has_dist:
+                if kid == "kpi_042":
+                    new_score = min(new_score + 0.20, 1.0)
+                elif kid in {"kpi_014", "kpi_017", "kpi_016", "kpi_018"}:
+                    new_score *= 0.60
+            elif has_segment:
+                # "segment" alone without distribution-type words
+                if kid == "kpi_042":
+                    new_score = min(new_score + 0.10, 1.0)
+                elif kid == "kpi_014":
+                    new_score *= 0.75
+
+            # Blocked quantity vs Total quantity
+            # "blocked" + "quantity/items/inventory" → kpi_041, not kpi_034
+            has_blocked = _has_any_phrase(q_lower, ("blocked",))
+            has_qty_words = _has_any_phrase(q_lower, (
+                "quantity", "qty", "items", "inventory", "stock",
+            ))
+            if has_blocked:
+                # Blocked + quantity/items → kpi_041
+                if has_qty_words:
+                    if kid == "kpi_041":
+                        new_score = min(new_score + 0.15, 1.0)
+                    elif kid in {"kpi_034", "kpi_028"}:
+                        new_score *= 0.70
+                # Blocked SKUs vs Category-wise Distinct SKU
+                # "blocked" + "sku" → kpi_040, not kpi_027
+                if _has_any_phrase(q_lower, ("sku", "skus")):
+                    if kid == "kpi_040":
+                        new_score = min(new_score + 0.15, 1.0)
+                    elif kid == "kpi_027":
+                        new_score *= 0.70
+                # Blocked locations: "blocked" + "location" → kpi_031
+                if _has_any_phrase(q_lower, ("location", "locations")):
+                    if kid == "kpi_031":
+                        new_score = min(new_score + 0.15, 1.0)
+                    elif kid in {"kpi_041", "kpi_032"}:
+                        new_score *= 0.80
+
+            # Distinct SKU vs Category-wise Distinct SKU
+            # "distinct sku" without "category"/"per category"/"by category"
+            has_distinct_sku = _has_any_phrase(q_lower, ("distinct sku", "distinct skus", "unique sku", "unique skus"))
+            has_category = _has_any_phrase(q_lower, ("category", "categories", "category-wise", "categorywise", "per category", "by category"))
+            if has_distinct_sku and not has_category:
+                if kid == "kpi_033":
+                    new_score = min(new_score + 0.15, 1.0)
+                elif kid == "kpi_027":
+                    new_score *= 0.75
+
+            # ── Bin Utilisation vs Bins Used vs Volume Utilisation family ──
+            # kpi_014 = Bins Used (count), kpi_015 = Bin Utilisation (%)
+            # kpi_020 = Bin Volume Utilization, kpi_021 = Volume Utilization (%)
+            # kpi_046 = Bin-wise Volume Util (%)
+            has_pct = _has_any_phrase(q_lower, (
+                "percentage", "utilization", "utilisation", "utilized",
+                "utilised", "percent",
+            ))
+            has_bin_word = _has_any_phrase(q_lower, ("bin", "bins"))
+            # "bin" + "volume" → kpi_046 (Bin-wise Volume Util)
+            if has_bin_word and has_volume:
+                if kid == "kpi_046":
+                    new_score = min(new_score + 0.18, 1.0)
+                elif kid in {"kpi_015", "kpi_020", "kpi_021"}:
+                    new_score *= 0.70
+            # "volume" without "bin" → kpi_021 (overall Volume Util)
+            elif has_volume and not has_bin_word:
+                if kid == "kpi_021":
+                    new_score = min(new_score + 0.15, 1.0)
+                elif kid in {"kpi_046", "kpi_015", "kpi_020"}:
+                    new_score *= 0.70
+            # "bin" + "percentage/utilisation" without "volume" → kpi_015
+            elif has_bin_word and has_pct and not has_volume and not has_segment:
+                if kid == "kpi_015":
+                    new_score = min(new_score + 0.15, 1.0)
+                elif kid in {"kpi_014", "kpi_046", "kpi_020"}:
+                    new_score *= 0.70
+
+            # ── Home time vs Active hours family ──
+            # kpi_004 = Average Active Hours for bot
+            # kpi_005 = Average Inactive Hours for bot
+            # kpi_011 = Home Time per Bot (Hours)
+            has_home = _has_any_phrase(q_lower, (
+                "home", "home time", "stay at home", "stayed at home",
+                "idle at home", "at home",
+            ))
+            if has_home:
+                if kid == "kpi_011":
+                    new_score = min(new_score + 0.20, 1.0)
+                elif kid in {"kpi_004", "kpi_005"}:
+                    new_score *= 0.65
+
+            # ── Expiry ageing family ──
+            # kpi_043 = SKU Count by Expiry Ageing (days)
+            # kpi_044 = SKU Quantity by Expiry Ageing (days)
+            # kpi_045 = SKU wise Expiry Ageing
+            has_expiry = _has_any_phrase(q_lower, ("expiry", "ageing", "aging", "expire"))
+            has_quantity = _has_any_phrase(q_lower, ("quantity", "qty"))
+            has_count = _has_any_phrase(q_lower, ("count", "how many"))
+            if has_expiry:
+                if has_quantity and not has_count:
+                    # "quantity" + expiry → kpi_044
+                    if kid == "kpi_044":
+                        new_score = min(new_score + 0.15, 1.0)
+                    elif kid in {"kpi_043", "kpi_045"}:
+                        new_score *= 0.70
+                elif has_count and not has_quantity:
+                    # "count" + expiry → kpi_043
+                    if kid == "kpi_043":
+                        new_score = min(new_score + 0.15, 1.0)
+                    elif kid in {"kpi_044", "kpi_045"}:
+                        new_score *= 0.70
+
+            # ── "expected quantity" mismatch — no KPI returns this ────────────
+            # No pre-built KPI calculates "expected quantity" from
+            # pick_wave_order_master.  When the user asks for expected
+            # quantity alongside picked quantity, they need raw SQL.
+            # Penalise ALL KPIs that mention pick/station to force SQL.
+            has_expected = _has_any_phrase(q_lower, (
+                "expected quantity", "expected qty",
+                "sum expected", "sum of expected",
+            ))
+            if has_expected:
+                # No KPI returns "expected quantity" — always needs SQL.
+                # Apply a uniform heavy penalty to ALL KPIs so the resolver
+                # yields None and the query falls through to the SQL path.
+                new_score *= 0.35
+                logger.debug(
+                    f"📊 {kid} penalty: user asks 'expected quantity' "
+                    f"which no KPI returns — forcing SQL path"
+                )
 
             adjusted.append((new_score, kpi))
 
@@ -1190,6 +1461,16 @@ class DashboardKPIResolver:
         ):
             logger.info(
                 f"📊 KPI reject: entity-lookup query detected — '{question}'"
+            )
+            return None
+
+        # ── Detail/listing query guard ──────────────────────────────────
+        # "which wave is running on which station" is a record-level
+        # listing query — not a KPI aggregation like "station-wise wave
+        # hours".  These need SQL with raw rows, not pre-built KPIs.
+        if _is_detail_listing_query(question):
+            logger.info(
+                f"📊 KPI reject: detail/listing query detected — '{question}'"
             )
             return None
 
@@ -1318,6 +1599,18 @@ class DashboardKPIResolver:
         # lexical intent handling than raw embeddings can provide.
         scored = self._apply_family_intent_boosts(question, scored, chart_intent)
 
+        # ── Post-boost threshold re-check ────────────────────────────────────
+        # Penalties applied during family-intent boosts may push scores below
+        # the original match threshold.  Filter them out so penalised KPIs
+        # don't leak through as low-confidence matches.
+        scored = [(s, k) for s, k in scored if s >= threshold]
+        if not scored:
+            logger.info(
+                "📊 All candidates fell below threshold after family-intent "
+                "boosts — returning None (SQL path)."
+            )
+            return None
+
         best_score, best_kpi = scored[0]
 
         # ── Ambiguity check: reject if top two candidates are too close ──
@@ -1427,6 +1720,24 @@ class DashboardKPIResolver:
             order_id=order_id,
         )
 
+        # ── Column projection: select only relevant columns based on intent ──
+        sql, params_applied = self._apply_column_projection(
+            sql, params_applied, question, best_kpi.id,
+        )
+
+        # ── Build top candidates list for LLM refinement ───────────────
+        top_candidates = []
+        for s, k in scored[:5]:
+            top_candidates.append({
+                "kpi_id": k.id,
+                "kpi_name": k.kpi_name,
+                "score": round(s, 4),
+                "logic": k.logic,
+                "tables_used": k.tables_used,
+                "chart_type": k.chart_type,
+                "user_queries": k.user_queries[:5],  # example questions from registry
+            })
+
         match = KPIMatch(
             kpi_id=best_kpi.id,
             kpi_name=best_kpi.kpi_name,
@@ -1440,6 +1751,7 @@ class DashboardKPIResolver:
             requires_location=best_kpi.requires_location,
             requires_time_range=best_kpi.requires_time_range,
             parameters_applied=params_applied,
+            top_candidates=top_candidates,
         )
 
         logger.info(
@@ -1511,15 +1823,237 @@ class DashboardKPIResolver:
     # TIME-RANGE PARSING
     # ----------------------------------------------------------
 
+    # def _parse_time_range(self, question: str) -> Union[timedelta, Tuple[datetime, datetime]]:
+    #     """
+    #     Extract time range from natural-language expressions in the question.
+
+    #     Returns:
+    #         timedelta  – for relative ranges ("last 3 days", "yesterday")
+    #         (from_dt, to_dt) tuple – for absolute date ranges
+    #                                  ("from 2 to 3 march", "march 2 to march 5")
+
+    #     Extended to cover:
+    #       - Absolute date ranges ("from 2 to 3 march", "between march 2 and march 5")
+    #       - Day names         ("on Monday", "last Tuesday")
+    #       - Time-of-day       ("this morning", "this afternoon")
+    #       - Specific dates    ("April 3", "March 23rd", "3rd April")
+    #       - "now" / "current" (last 1 hour)
+    #     """
+    #     q = question.lower()
+    #     # Anchor "now" to IST so that relative ranges ("today", "yesterday",
+    #     # "last Monday", named-day lookups) are resolved in the correct timezone.
+    #     now = datetime.now(tz=_IST_TZ).replace(tzinfo=None)
+
+    #     # ── Word-to-number conversion so "last one hour" works ──
+    #     _WORD_NUMS = {
+    #         'one': '1', 'two': '2', 'three': '3', 'four': '4',
+    #         'five': '5', 'six': '6', 'seven': '7', 'eight': '8',
+    #         'nine': '9', 'ten': '10', 'eleven': '11', 'twelve': '12',
+    #         'fifteen': '15', 'twenty': '20', 'thirty': '30',
+    #     }
+    #     for word, digit in _WORD_NUMS.items():
+    #         q = re.sub(rf'\b{word}\b', digit, q)
+
+    #     # ── Month name lookup (used by absolute & single-date patterns) ──
+    #     _MONTHS = {
+    #         'january': 1, 'february': 2, 'march': 3, 'april': 4,
+    #         'may': 5, 'june': 6, 'july': 7, 'august': 8,
+    #         'september': 9, 'october': 10, 'november': 11, 'december': 12,
+    #         'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4,
+    #         'jun': 6, 'jul': 7, 'aug': 8, 'sep': 9,
+    #         'oct': 10, 'nov': 11, 'dec': 12,
+    #     }
+    #     _MONTH_PAT = '|'.join(_MONTHS.keys())
+    #     _ORD = r'(?:st|nd|rd|th)?'   # optional ordinal suffix
+
+    #     # ── Absolute date-range patterns (MUST be checked before single-date) ──
+    #     # Helper to build a datetime, falling back to previous year if future
+    #     def _make_dt(month_name: str, day: int) -> datetime:
+    #         mi = _MONTHS[month_name.lower()]
+    #         try:
+    #             dt = datetime(now.year, mi, day)
+    #         except ValueError:
+    #             return now  # invalid date
+    #         if dt.date() > now.date():
+    #             dt = datetime(now.year - 1, mi, day)
+    #         return dt
+
+    #     # Pattern 1: "from 2 to 3 march" / "from 2nd to 3rd march"
+    #     #            "between 2 and 3 march" / "2 to 3 march"
+    #     rm = re.search(
+    #         rf'(?:from|between)?\s*(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}\s+({_MONTH_PAT})',
+    #         q,
+    #     )
+    #     if rm:
+    #         d1, d2 = int(rm.group(1)), int(rm.group(2))
+    #         mn = rm.group(3)
+    #         from_dt = _make_dt(mn, d1)
+    #         to_dt = _make_dt(mn, d2)
+    #         if from_dt > to_dt:
+    #             from_dt, to_dt = to_dt, from_dt
+    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
+    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
+    #         logger.debug(f"⏰ Absolute range (pattern-1): {from_dt} → {to_dt}")
+    #         return (from_dt, to_dt)
+
+    #     # Pattern 2: "march 2 to march 3" / "march 2nd to march 5th"
+    #     #            "from march 2 to march 3" / "between march 2 and march 5"
+    #     rm = re.search(
+    #         rf'(?:from|between)?\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}',
+    #         q,
+    #     )
+    #     if rm:
+    #         from_dt = _make_dt(rm.group(1), int(rm.group(2)))
+    #         to_dt = _make_dt(rm.group(3), int(rm.group(4)))
+    #         if from_dt > to_dt:
+    #             from_dt, to_dt = to_dt, from_dt
+    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
+    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
+    #         logger.debug(f"⏰ Absolute range (pattern-2): {from_dt} → {to_dt}")
+    #         return (from_dt, to_dt)
+
+    #     # Pattern 3: "march 2 to 5" / "from april 1 to 15" / "between jan 10 and 20"
+    #     rm = re.search(
+    #         rf'(?:from|between)?\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}',
+    #         q,
+    #     )
+    #     if rm:
+    #         mn = rm.group(1)
+    #         d1, d2 = int(rm.group(2)), int(rm.group(3))
+    #         from_dt = _make_dt(mn, d1)
+    #         to_dt = _make_dt(mn, d2)
+    #         if from_dt > to_dt:
+    #             from_dt, to_dt = to_dt, from_dt
+    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
+    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
+    #         logger.debug(f"⏰ Absolute range (pattern-3): {from_dt} → {to_dt}")
+    #         return (from_dt, to_dt)
+
+    #     # Pattern 4: "2 march to 5 march" / "2nd march to 5th april"
+    #     rm = re.search(
+    #         rf'(\d{{1,2}}){_ORD}\s*({_MONTH_PAT})\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}\s*({_MONTH_PAT})',
+    #         q,
+    #     )
+    #     if rm:
+    #         from_dt = _make_dt(rm.group(2), int(rm.group(1)))
+    #         to_dt = _make_dt(rm.group(4), int(rm.group(3)))
+    #         if from_dt > to_dt:
+    #             from_dt, to_dt = to_dt, from_dt
+    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
+    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
+    #         logger.debug(f"⏰ Absolute range (pattern-4): {from_dt} → {to_dt}")
+    #         return (from_dt, to_dt)
+
+    #     # "last N days"
+    #     m = re.search(r'last\s+(\d+)\s+days?', q)
+    #     if m:
+    #         return timedelta(days=int(m.group(1)))
+
+    #     # "last N hours"
+    #     m = re.search(r'last\s+(\d+)\s+hours?', q)
+    #     if m:
+    #         return timedelta(hours=int(m.group(1)))
+
+    #     # "yesterday"
+    #     if 'yesterday' in q:
+    #         return timedelta(days=1)
+
+    #     # "today"
+    #     if re.search(r'\btoday\b', q):
+    #         return timedelta(days=0)
+
+    #     # "last (one|1)? week(s)"
+    #     m = re.search(r'last\s+(?:one|1)?\s*weeks?', q)
+    #     if m:
+    #         return timedelta(weeks=1)
+
+    #     # "last N weeks"
+    #     m = re.search(r'last\s+(\d+)\s+weeks?', q)
+    #     if m:
+    #         return timedelta(weeks=int(m.group(1)))
+
+    #     # "last (one|1)? month(s)"
+    #     m = re.search(r'last\s+(?:one|1)?\s*months?', q)
+    #     if m:
+    #         return timedelta(days=30)
+
+    #     # "last N months"
+    #     m = re.search(r'last\s+(\d+)\s+months?', q)
+    #     if m:
+    #         return timedelta(days=30 * int(m.group(1)))
+
+    #     # ── Extended patterns (Case-2 fix) ─────────────────────────────────
+
+    #     # Named weekday: "on Monday", "last Tuesday", "data for Wednesday"
+    #     _WEEKDAYS = (
+    #         "monday", "tuesday", "wednesday", "thursday",
+    #         "friday", "saturday", "sunday",
+    #     )
+    #     _WEEKDAY_INDEX = {d: i for i, d in enumerate(_WEEKDAYS)}  # mon=0 … sun=6
+    #     day_m = re.search(
+    #         r'\b(' + '|'.join(_WEEKDAYS) + r')\b', q
+    #     )
+    #     if day_m:
+    #         target_idx = _WEEKDAY_INDEX[day_m.group(1)]   # 0=Mon … 6=Sun
+    #         current_idx = now.weekday()                    # 0=Mon … 6=Sun
+    #         days_ago = (current_idx - target_idx) % 7
+    #         if days_ago == 0:
+    #             days_ago = 7   # "Monday" when today is Monday → last Monday
+    #         return timedelta(days=days_ago)
+
+    #     # "this morning" / "this afternoon" / "this evening" / "this night"
+    #     if re.search(r'\bthis\s+(?:morning|afternoon|evening|night)\b', q):
+    #         return timedelta(hours=12)   # broad same-day window
+
+    #     # Specific date — "April 3", "March 23rd", "3rd April", "jan 5th"
+    #     # (_MONTHS and _MONTH_PAT already defined above)
+    #     # "April 3" / "April 3rd"
+    #     mdate = re.search(
+    #         rf'\b({_MONTH_PAT})\s+(\d{{1,2}})(?:st|nd|rd|th)?\b', q
+    #     )
+    #     if not mdate:
+    #         # "3rd April" / "3 April"
+    #         mdate = re.search(
+    #             rf'\b(\d{{1,2}})(?:st|nd|rd|th)?\s+({_MONTH_PAT})\b', q
+    #         )
+    #         if mdate:
+    #             # swap groups so we can use uniform logic below
+    #             day_num = int(mdate.group(1))
+    #             month_idx = _MONTHS[mdate.group(2).lower()]
+    #             mdate = None   # handled manually below
+    #             try:
+    #                 target = datetime(now.year, month_idx, day_num)
+    #                 if target > now:
+    #                     target = datetime(now.year - 1, month_idx, day_num)
+    #                 return now - target
+    #             except ValueError:
+    #                 pass
+    #     if mdate:
+    #         try:
+    #             month_idx = _MONTHS[mdate.group(1).lower()]
+    #             day_num = int(mdate.group(2))
+    #             target = datetime(now.year, month_idx, day_num)
+    #             if target > now:
+    #                 target = datetime(now.year - 1, month_idx, day_num)
+    #             return now - target
+    #         except ValueError:
+    #             pass   # invalid date, fall through
+
+    #     # "now" / "currently" → last 1 hour
+    #     if re.search(r'\b(now|current(?:ly)?)\b', q):
+    #         return timedelta(hours=1)
+
+    #     # Default: 1 day (Grafana default)
+    #     return timedelta(days=1)
     def _parse_time_range(self, question: str) -> Union[timedelta, Tuple[datetime, datetime]]:
         """
         Extract time range from natural-language expressions in the question.
-
+ 
         Returns:
             timedelta  – for relative ranges ("last 3 days", "yesterday")
             (from_dt, to_dt) tuple – for absolute date ranges
                                      ("from 2 to 3 march", "march 2 to march 5")
-
+ 
         Extended to cover:
           - Absolute date ranges ("from 2 to 3 march", "between march 2 and march 5")
           - Day names         ("on Monday", "last Tuesday")
@@ -1531,7 +2065,7 @@ class DashboardKPIResolver:
         # Anchor "now" to IST so that relative ranges ("today", "yesterday",
         # "last Monday", named-day lookups) are resolved in the correct timezone.
         now = datetime.now(tz=_IST_TZ).replace(tzinfo=None)
-
+ 
         # ── Word-to-number conversion so "last one hour" works ──
         _WORD_NUMS = {
             'one': '1', 'two': '2', 'three': '3', 'four': '4',
@@ -1541,7 +2075,7 @@ class DashboardKPIResolver:
         }
         for word, digit in _WORD_NUMS.items():
             q = re.sub(rf'\b{word}\b', digit, q)
-
+ 
         # ── Month name lookup (used by absolute & single-date patterns) ──
         _MONTHS = {
             'january': 1, 'february': 2, 'march': 3, 'april': 4,
@@ -1553,7 +2087,7 @@ class DashboardKPIResolver:
         }
         _MONTH_PAT = '|'.join(_MONTHS.keys())
         _ORD = r'(?:st|nd|rd|th)?'   # optional ordinal suffix
-
+ 
         # ── Absolute date-range patterns (MUST be checked before single-date) ──
         # Helper to build a datetime, falling back to previous year if future
         def _make_dt(month_name: str, day: int) -> datetime:
@@ -1565,7 +2099,7 @@ class DashboardKPIResolver:
             if dt.date() > now.date():
                 dt = datetime(now.year - 1, mi, day)
             return dt
-
+ 
         # Pattern 1: "from 2 to 3 march" / "from 2nd to 3rd march"
         #            "between 2 and 3 march" / "2 to 3 march"
         rm = re.search(
@@ -1583,7 +2117,7 @@ class DashboardKPIResolver:
             to_dt = to_dt.replace(hour=23, minute=59, second=59)
             logger.debug(f"⏰ Absolute range (pattern-1): {from_dt} → {to_dt}")
             return (from_dt, to_dt)
-
+ 
         # Pattern 2: "march 2 to march 3" / "march 2nd to march 5th"
         #            "from march 2 to march 3" / "between march 2 and march 5"
         rm = re.search(
@@ -1599,7 +2133,7 @@ class DashboardKPIResolver:
             to_dt = to_dt.replace(hour=23, minute=59, second=59)
             logger.debug(f"⏰ Absolute range (pattern-2): {from_dt} → {to_dt}")
             return (from_dt, to_dt)
-
+ 
         # Pattern 3: "march 2 to 5" / "from april 1 to 15" / "between jan 10 and 20"
         rm = re.search(
             rf'(?:from|between)?\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}',
@@ -1616,7 +2150,7 @@ class DashboardKPIResolver:
             to_dt = to_dt.replace(hour=23, minute=59, second=59)
             logger.debug(f"⏰ Absolute range (pattern-3): {from_dt} → {to_dt}")
             return (from_dt, to_dt)
-
+ 
         # Pattern 4: "2 march to 5 march" / "2nd march to 5th april"
         rm = re.search(
             rf'(\d{{1,2}}){_ORD}\s*({_MONTH_PAT})\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}\s*({_MONTH_PAT})',
@@ -1631,47 +2165,50 @@ class DashboardKPIResolver:
             to_dt = to_dt.replace(hour=23, minute=59, second=59)
             logger.debug(f"⏰ Absolute range (pattern-4): {from_dt} → {to_dt}")
             return (from_dt, to_dt)
-
+ 
         # "last N days"
         m = re.search(r'last\s+(\d+)\s+days?', q)
         if m:
             return timedelta(days=int(m.group(1)))
-
+ 
         # "last N hours"
         m = re.search(r'last\s+(\d+)\s+hours?', q)
         if m:
             return timedelta(hours=int(m.group(1)))
-
-        # "yesterday"
+ 
+        # "yesterday" → full-day range (00:00:00 – 23:59:59 IST)
         if 'yesterday' in q:
-            return timedelta(days=1)
-
-        # "today"
+            yd = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0)
+            return (yd, yd.replace(hour=23, minute=59, second=59))
+ 
+        # "today" → full-day range (00:00:00 – 23:59:59 IST)
+        # Matches Grafana behaviour: the whole calendar day, not just up-to-now.
         if re.search(r'\btoday\b', q):
-            return timedelta(days=0)
-
+            td = now.replace(hour=0, minute=0, second=0)
+            return (td, td.replace(hour=23, minute=59, second=59))
+ 
         # "last (one|1)? week(s)"
         m = re.search(r'last\s+(?:one|1)?\s*weeks?', q)
         if m:
             return timedelta(weeks=1)
-
+ 
         # "last N weeks"
         m = re.search(r'last\s+(\d+)\s+weeks?', q)
         if m:
             return timedelta(weeks=int(m.group(1)))
-
+ 
         # "last (one|1)? month(s)"
         m = re.search(r'last\s+(?:one|1)?\s*months?', q)
         if m:
             return timedelta(days=30)
-
+ 
         # "last N months"
         m = re.search(r'last\s+(\d+)\s+months?', q)
         if m:
             return timedelta(days=30 * int(m.group(1)))
-
+ 
         # ── Extended patterns (Case-2 fix) ─────────────────────────────────
-
+ 
         # Named weekday: "on Monday", "last Tuesday", "data for Wednesday"
         _WEEKDAYS = (
             "monday", "tuesday", "wednesday", "thursday",
@@ -1688,11 +2225,11 @@ class DashboardKPIResolver:
             if days_ago == 0:
                 days_ago = 7   # "Monday" when today is Monday → last Monday
             return timedelta(days=days_ago)
-
+ 
         # "this morning" / "this afternoon" / "this evening" / "this night"
         if re.search(r'\bthis\s+(?:morning|afternoon|evening|night)\b', q):
             return timedelta(hours=12)   # broad same-day window
-
+ 
         # Specific date — "April 3", "March 23rd", "3rd April", "jan 5th"
         # (_MONTHS and _MONTH_PAT already defined above)
         # "April 3" / "April 3rd"
@@ -1726,14 +2263,13 @@ class DashboardKPIResolver:
                 return now - target
             except ValueError:
                 pass   # invalid date, fall through
-
+ 
         # "now" / "currently" → last 1 hour
         if re.search(r'\b(now|current(?:ly)?)\b', q):
             return timedelta(hours=1)
-
+ 
         # Default: 1 day (Grafana default)
         return timedelta(days=1)
-
     # ----------------------------------------------------------
     # PARAMETER SUBSTITUTION
     # ----------------------------------------------------------
@@ -2192,6 +2728,91 @@ class DashboardKPIResolver:
             variants.append(f"STATION-{n}")           # STATION-3 (no zero-pad)
         return variants
 
+    # ----------------------------------------------------------
+    # COLUMN PROJECTION — select only relevant columns from KPI
+    # ----------------------------------------------------------
+    # Some KPIs return multiple metric columns (e.g. kpi_001 returns
+    # both ACTIVE_HOURS and INACTIVE_HOURS).  When the user asks
+    # only about one metric, we wrap the SQL in a subquery that
+    # projects just the requested columns.
+
+    # Map: kpi_id → list of (intent_name, detect_fn, columns_to_keep)
+    # detect_fn(question_lower) → True means this intent matches.
+    # columns_to_keep is a list of column aliases (case-insensitive).
+    # The first matching intent wins; if none matches, no projection.
+
+    _COLUMN_PROJECTION_RULES: Dict[str, List[Tuple[str, Any, List[str]]]] = {}
+
+    @classmethod
+    def _init_column_projection_rules(cls):
+        """Build the projection rules once.  Called after class definition."""
+
+        def _active_only(q: str) -> bool:
+            """User asks only about active hours/time — NOT inactive."""
+            has_active = _has_any_phrase(q, ("active",))
+            has_inactive = _has_any_phrase(q, ("inactive",))
+            has_vs = _has_any_phrase(q, ("vs", "versus", "compared"))
+            has_time = _has_any_phrase(q, (
+                "hours", "hour", "time", "minutes", "minute",
+            ))
+            return has_active and has_time and not has_inactive and not has_vs
+
+        def _inactive_only(q: str) -> bool:
+            """User asks only about inactive hours/time — NOT active."""
+            has_active = _has_any_phrase(q, ("active",))
+            has_inactive = _has_any_phrase(q, ("inactive",))
+            has_vs = _has_any_phrase(q, ("vs", "versus", "compared"))
+            has_time = _has_any_phrase(q, (
+                "hours", "hour", "time", "minutes", "minute",
+            ))
+            return has_inactive and has_time and not has_active and not has_vs
+
+        cls._COLUMN_PROJECTION_RULES = {
+            # kpi_001: Active vs Inactive hours for bot
+            # Output columns: BOT_ID, ACTIVE_HOURS, INACTIVE_HOURS
+            "kpi_001": [
+                ("active_only",   _active_only,   ["BOT_ID", "ACTIVE_HOURS"]),
+                ("inactive_only", _inactive_only,  ["BOT_ID", "INACTIVE_HOURS"]),
+                # If both or "vs" → keep all columns (no projection)
+            ],
+        }
+
+    def _apply_column_projection(
+        self,
+        sql: str,
+        params_applied: Dict[str, str],
+        question: str,
+        kpi_id: str,
+    ) -> Tuple[str, Dict[str, str]]:
+        """Wrap SQL in a column-projecting subquery if the user's intent
+        only needs a subset of the KPI's output columns.
+
+        Returns (possibly_wrapped_sql, updated_params_applied).
+        """
+        rules = self._COLUMN_PROJECTION_RULES.get(kpi_id)
+        if not rules:
+            return sql, params_applied
+
+        q_lower = question.lower()
+
+        for intent_name, detect_fn, columns in rules:
+            if detect_fn(q_lower):
+                # Wrap: SELECT col1, col2 FROM (...) AS _cp
+                inner_sql = sql.rstrip().rstrip(";")
+                col_list = ", ".join(f"_cp.{c}" for c in columns)
+                wrapped_sql = (
+                    f"SELECT {col_list}\n"
+                    f"FROM (\n{inner_sql}\n) AS _cp;"
+                )
+                params_applied["column_projection"] = intent_name
+                logger.info(
+                    f"📊 Column projection applied: intent={intent_name}, "
+                    f"columns={columns} for kpi_id={kpi_id}"
+                )
+                return wrapped_sql, params_applied
+
+        return sql, params_applied
+
     def _inject_entity_filters(
         self,
         sql: str,
@@ -2324,3 +2945,7 @@ class DashboardKPIResolver:
     def get_categories(self) -> List[str]:
         """Return distinct KPI categories."""
         return sorted(set(k.category for k in self.kpis))
+
+
+# Initialize the column projection rules after class definition
+DashboardKPIResolver._init_column_projection_rules()

@@ -729,22 +729,27 @@
       ]
     },
     "bot_charging": {
-      "description": "Bot charging status and location - use bot_master with charging-specific columns",
+      "description": "Bot charging status - use bot_master.CHARGING_BIT (1=charging/at charger, 0=not charging). STATUS is ENABLED/DISABLED, not CHARGING.",
       "required_table": "bot_master",
       "required_filters": [
-        "STATUS = 'CHARGING'"
+        "CHARGING_BIT = 1"
       ],
       "additional_columns": [
-        "BATTERY_LEVEL",
-        "CHARGING_STATION_ID"
+        "BATTERY",
+        "BATTERY_HEALTH",
+        "BATTERY_VOLTS",
+        "AH_REMAINING_PERCENTAGE"
       ],
-      "timestamp_column": "LAST_UPDATED_TIMESTAMP",
+      "timestamp_column": "UPDATED_TIMESTAMP",
       "triggers": [
         "bot charging",
         "bots charging",
         "charging bot",
         "bot battery",
-        "bots at charging station"
+        "bots at charging station",
+        "bot not going to charging",
+        "bot not charging",
+        "charging point"
       ]
     },
     "inventory_by_bin": {
