@@ -1823,237 +1823,15 @@ class DashboardKPIResolver:
     # TIME-RANGE PARSING
     # ----------------------------------------------------------
 
-    # def _parse_time_range(self, question: str) -> Union[timedelta, Tuple[datetime, datetime]]:
-    #     """
-    #     Extract time range from natural-language expressions in the question.
-
-    #     Returns:
-    #         timedelta  – for relative ranges ("last 3 days", "yesterday")
-    #         (from_dt, to_dt) tuple – for absolute date ranges
-    #                                  ("from 2 to 3 march", "march 2 to march 5")
-
-    #     Extended to cover:
-    #       - Absolute date ranges ("from 2 to 3 march", "between march 2 and march 5")
-    #       - Day names         ("on Monday", "last Tuesday")
-    #       - Time-of-day       ("this morning", "this afternoon")
-    #       - Specific dates    ("April 3", "March 23rd", "3rd April")
-    #       - "now" / "current" (last 1 hour)
-    #     """
-    #     q = question.lower()
-    #     # Anchor "now" to IST so that relative ranges ("today", "yesterday",
-    #     # "last Monday", named-day lookups) are resolved in the correct timezone.
-    #     now = datetime.now(tz=_IST_TZ).replace(tzinfo=None)
-
-    #     # ── Word-to-number conversion so "last one hour" works ──
-    #     _WORD_NUMS = {
-    #         'one': '1', 'two': '2', 'three': '3', 'four': '4',
-    #         'five': '5', 'six': '6', 'seven': '7', 'eight': '8',
-    #         'nine': '9', 'ten': '10', 'eleven': '11', 'twelve': '12',
-    #         'fifteen': '15', 'twenty': '20', 'thirty': '30',
-    #     }
-    #     for word, digit in _WORD_NUMS.items():
-    #         q = re.sub(rf'\b{word}\b', digit, q)
-
-    #     # ── Month name lookup (used by absolute & single-date patterns) ──
-    #     _MONTHS = {
-    #         'january': 1, 'february': 2, 'march': 3, 'april': 4,
-    #         'may': 5, 'june': 6, 'july': 7, 'august': 8,
-    #         'september': 9, 'october': 10, 'november': 11, 'december': 12,
-    #         'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4,
-    #         'jun': 6, 'jul': 7, 'aug': 8, 'sep': 9,
-    #         'oct': 10, 'nov': 11, 'dec': 12,
-    #     }
-    #     _MONTH_PAT = '|'.join(_MONTHS.keys())
-    #     _ORD = r'(?:st|nd|rd|th)?'   # optional ordinal suffix
-
-    #     # ── Absolute date-range patterns (MUST be checked before single-date) ──
-    #     # Helper to build a datetime, falling back to previous year if future
-    #     def _make_dt(month_name: str, day: int) -> datetime:
-    #         mi = _MONTHS[month_name.lower()]
-    #         try:
-    #             dt = datetime(now.year, mi, day)
-    #         except ValueError:
-    #             return now  # invalid date
-    #         if dt.date() > now.date():
-    #             dt = datetime(now.year - 1, mi, day)
-    #         return dt
-
-    #     # Pattern 1: "from 2 to 3 march" / "from 2nd to 3rd march"
-    #     #            "between 2 and 3 march" / "2 to 3 march"
-    #     rm = re.search(
-    #         rf'(?:from|between)?\s*(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}\s+({_MONTH_PAT})',
-    #         q,
-    #     )
-    #     if rm:
-    #         d1, d2 = int(rm.group(1)), int(rm.group(2))
-    #         mn = rm.group(3)
-    #         from_dt = _make_dt(mn, d1)
-    #         to_dt = _make_dt(mn, d2)
-    #         if from_dt > to_dt:
-    #             from_dt, to_dt = to_dt, from_dt
-    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
-    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
-    #         logger.debug(f"⏰ Absolute range (pattern-1): {from_dt} → {to_dt}")
-    #         return (from_dt, to_dt)
-
-    #     # Pattern 2: "march 2 to march 3" / "march 2nd to march 5th"
-    #     #            "from march 2 to march 3" / "between march 2 and march 5"
-    #     rm = re.search(
-    #         rf'(?:from|between)?\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}',
-    #         q,
-    #     )
-    #     if rm:
-    #         from_dt = _make_dt(rm.group(1), int(rm.group(2)))
-    #         to_dt = _make_dt(rm.group(3), int(rm.group(4)))
-    #         if from_dt > to_dt:
-    #             from_dt, to_dt = to_dt, from_dt
-    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
-    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
-    #         logger.debug(f"⏰ Absolute range (pattern-2): {from_dt} → {to_dt}")
-    #         return (from_dt, to_dt)
-
-    #     # Pattern 3: "march 2 to 5" / "from april 1 to 15" / "between jan 10 and 20"
-    #     rm = re.search(
-    #         rf'(?:from|between)?\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}',
-    #         q,
-    #     )
-    #     if rm:
-    #         mn = rm.group(1)
-    #         d1, d2 = int(rm.group(2)), int(rm.group(3))
-    #         from_dt = _make_dt(mn, d1)
-    #         to_dt = _make_dt(mn, d2)
-    #         if from_dt > to_dt:
-    #             from_dt, to_dt = to_dt, from_dt
-    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
-    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
-    #         logger.debug(f"⏰ Absolute range (pattern-3): {from_dt} → {to_dt}")
-    #         return (from_dt, to_dt)
-
-    #     # Pattern 4: "2 march to 5 march" / "2nd march to 5th april"
-    #     rm = re.search(
-    #         rf'(\d{{1,2}}){_ORD}\s*({_MONTH_PAT})\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}\s*({_MONTH_PAT})',
-    #         q,
-    #     )
-    #     if rm:
-    #         from_dt = _make_dt(rm.group(2), int(rm.group(1)))
-    #         to_dt = _make_dt(rm.group(4), int(rm.group(3)))
-    #         if from_dt > to_dt:
-    #             from_dt, to_dt = to_dt, from_dt
-    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
-    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
-    #         logger.debug(f"⏰ Absolute range (pattern-4): {from_dt} → {to_dt}")
-    #         return (from_dt, to_dt)
-
-    #     # "last N days"
-    #     m = re.search(r'last\s+(\d+)\s+days?', q)
-    #     if m:
-    #         return timedelta(days=int(m.group(1)))
-
-    #     # "last N hours"
-    #     m = re.search(r'last\s+(\d+)\s+hours?', q)
-    #     if m:
-    #         return timedelta(hours=int(m.group(1)))
-
-    #     # "yesterday"
-    #     if 'yesterday' in q:
-    #         return timedelta(days=1)
-
-    #     # "today"
-    #     if re.search(r'\btoday\b', q):
-    #         return timedelta(days=0)
-
-    #     # "last (one|1)? week(s)"
-    #     m = re.search(r'last\s+(?:one|1)?\s*weeks?', q)
-    #     if m:
-    #         return timedelta(weeks=1)
-
-    #     # "last N weeks"
-    #     m = re.search(r'last\s+(\d+)\s+weeks?', q)
-    #     if m:
-    #         return timedelta(weeks=int(m.group(1)))
-
-    #     # "last (one|1)? month(s)"
-    #     m = re.search(r'last\s+(?:one|1)?\s*months?', q)
-    #     if m:
-    #         return timedelta(days=30)
-
-    #     # "last N months"
-    #     m = re.search(r'last\s+(\d+)\s+months?', q)
-    #     if m:
-    #         return timedelta(days=30 * int(m.group(1)))
-
-    #     # ── Extended patterns (Case-2 fix) ─────────────────────────────────
-
-    #     # Named weekday: "on Monday", "last Tuesday", "data for Wednesday"
-    #     _WEEKDAYS = (
-    #         "monday", "tuesday", "wednesday", "thursday",
-    #         "friday", "saturday", "sunday",
-    #     )
-    #     _WEEKDAY_INDEX = {d: i for i, d in enumerate(_WEEKDAYS)}  # mon=0 … sun=6
-    #     day_m = re.search(
-    #         r'\b(' + '|'.join(_WEEKDAYS) + r')\b', q
-    #     )
-    #     if day_m:
-    #         target_idx = _WEEKDAY_INDEX[day_m.group(1)]   # 0=Mon … 6=Sun
-    #         current_idx = now.weekday()                    # 0=Mon … 6=Sun
-    #         days_ago = (current_idx - target_idx) % 7
-    #         if days_ago == 0:
-    #             days_ago = 7   # "Monday" when today is Monday → last Monday
-    #         return timedelta(days=days_ago)
-
-    #     # "this morning" / "this afternoon" / "this evening" / "this night"
-    #     if re.search(r'\bthis\s+(?:morning|afternoon|evening|night)\b', q):
-    #         return timedelta(hours=12)   # broad same-day window
-
-    #     # Specific date — "April 3", "March 23rd", "3rd April", "jan 5th"
-    #     # (_MONTHS and _MONTH_PAT already defined above)
-    #     # "April 3" / "April 3rd"
-    #     mdate = re.search(
-    #         rf'\b({_MONTH_PAT})\s+(\d{{1,2}})(?:st|nd|rd|th)?\b', q
-    #     )
-    #     if not mdate:
-    #         # "3rd April" / "3 April"
-    #         mdate = re.search(
-    #             rf'\b(\d{{1,2}})(?:st|nd|rd|th)?\s+({_MONTH_PAT})\b', q
-    #         )
-    #         if mdate:
-    #             # swap groups so we can use uniform logic below
-    #             day_num = int(mdate.group(1))
-    #             month_idx = _MONTHS[mdate.group(2).lower()]
-    #             mdate = None   # handled manually below
-    #             try:
-    #                 target = datetime(now.year, month_idx, day_num)
-    #                 if target > now:
-    #                     target = datetime(now.year - 1, month_idx, day_num)
-    #                 return now - target
-    #             except ValueError:
-    #                 pass
-    #     if mdate:
-    #         try:
-    #             month_idx = _MONTHS[mdate.group(1).lower()]
-    #             day_num = int(mdate.group(2))
-    #             target = datetime(now.year, month_idx, day_num)
-    #             if target > now:
-    #                 target = datetime(now.year - 1, month_idx, day_num)
-    #             return now - target
-    #         except ValueError:
-    #             pass   # invalid date, fall through
-
-    #     # "now" / "currently" → last 1 hour
-    #     if re.search(r'\b(now|current(?:ly)?)\b', q):
-    #         return timedelta(hours=1)
-
-    #     # Default: 1 day (Grafana default)
-    #     return timedelta(days=1)
     def _parse_time_range(self, question: str) -> Union[timedelta, Tuple[datetime, datetime]]:
         """
         Extract time range from natural-language expressions in the question.
- 
+
         Returns:
             timedelta  – for relative ranges ("last 3 days", "yesterday")
             (from_dt, to_dt) tuple – for absolute date ranges
                                      ("from 2 to 3 march", "march 2 to march 5")
- 
+
         Extended to cover:
           - Absolute date ranges ("from 2 to 3 march", "between march 2 and march 5")
           - Day names         ("on Monday", "last Tuesday")
@@ -2065,7 +1843,7 @@ class DashboardKPIResolver:
         # Anchor "now" to IST so that relative ranges ("today", "yesterday",
         # "last Monday", named-day lookups) are resolved in the correct timezone.
         now = datetime.now(tz=_IST_TZ).replace(tzinfo=None)
- 
+
         # ── Word-to-number conversion so "last one hour" works ──
         _WORD_NUMS = {
             'one': '1', 'two': '2', 'three': '3', 'four': '4',
@@ -2075,7 +1853,7 @@ class DashboardKPIResolver:
         }
         for word, digit in _WORD_NUMS.items():
             q = re.sub(rf'\b{word}\b', digit, q)
- 
+
         # ── Month name lookup (used by absolute & single-date patterns) ──
         _MONTHS = {
             'january': 1, 'february': 2, 'march': 3, 'april': 4,
@@ -2087,7 +1865,7 @@ class DashboardKPIResolver:
         }
         _MONTH_PAT = '|'.join(_MONTHS.keys())
         _ORD = r'(?:st|nd|rd|th)?'   # optional ordinal suffix
- 
+
         # ── Absolute date-range patterns (MUST be checked before single-date) ──
         # Helper to build a datetime, falling back to previous year if future
         def _make_dt(month_name: str, day: int) -> datetime:
@@ -2099,7 +1877,7 @@ class DashboardKPIResolver:
             if dt.date() > now.date():
                 dt = datetime(now.year - 1, mi, day)
             return dt
- 
+
         # Pattern 1: "from 2 to 3 march" / "from 2nd to 3rd march"
         #            "between 2 and 3 march" / "2 to 3 march"
         rm = re.search(
@@ -2117,7 +1895,7 @@ class DashboardKPIResolver:
             to_dt = to_dt.replace(hour=23, minute=59, second=59)
             logger.debug(f"⏰ Absolute range (pattern-1): {from_dt} → {to_dt}")
             return (from_dt, to_dt)
- 
+
         # Pattern 2: "march 2 to march 3" / "march 2nd to march 5th"
         #            "from march 2 to march 3" / "between march 2 and march 5"
         rm = re.search(
@@ -2133,7 +1911,7 @@ class DashboardKPIResolver:
             to_dt = to_dt.replace(hour=23, minute=59, second=59)
             logger.debug(f"⏰ Absolute range (pattern-2): {from_dt} → {to_dt}")
             return (from_dt, to_dt)
- 
+
         # Pattern 3: "march 2 to 5" / "from april 1 to 15" / "between jan 10 and 20"
         rm = re.search(
             rf'(?:from|between)?\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}',
@@ -2150,7 +1928,7 @@ class DashboardKPIResolver:
             to_dt = to_dt.replace(hour=23, minute=59, second=59)
             logger.debug(f"⏰ Absolute range (pattern-3): {from_dt} → {to_dt}")
             return (from_dt, to_dt)
- 
+
         # Pattern 4: "2 march to 5 march" / "2nd march to 5th april"
         rm = re.search(
             rf'(\d{{1,2}}){_ORD}\s*({_MONTH_PAT})\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}\s*({_MONTH_PAT})',
@@ -2165,50 +1943,47 @@ class DashboardKPIResolver:
             to_dt = to_dt.replace(hour=23, minute=59, second=59)
             logger.debug(f"⏰ Absolute range (pattern-4): {from_dt} → {to_dt}")
             return (from_dt, to_dt)
- 
+
         # "last N days"
         m = re.search(r'last\s+(\d+)\s+days?', q)
         if m:
             return timedelta(days=int(m.group(1)))
- 
+
         # "last N hours"
         m = re.search(r'last\s+(\d+)\s+hours?', q)
         if m:
             return timedelta(hours=int(m.group(1)))
- 
-        # "yesterday" → full-day range (00:00:00 – 23:59:59 IST)
+
+        # "yesterday"
         if 'yesterday' in q:
-            yd = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0)
-            return (yd, yd.replace(hour=23, minute=59, second=59))
- 
-        # "today" → full-day range (00:00:00 – 23:59:59 IST)
-        # Matches Grafana behaviour: the whole calendar day, not just up-to-now.
+            return timedelta(days=1)
+
+        # "today"
         if re.search(r'\btoday\b', q):
-            td = now.replace(hour=0, minute=0, second=0)
-            return (td, td.replace(hour=23, minute=59, second=59))
- 
+            return timedelta(days=0)
+
         # "last (one|1)? week(s)"
         m = re.search(r'last\s+(?:one|1)?\s*weeks?', q)
         if m:
             return timedelta(weeks=1)
- 
+
         # "last N weeks"
         m = re.search(r'last\s+(\d+)\s+weeks?', q)
         if m:
             return timedelta(weeks=int(m.group(1)))
- 
+
         # "last (one|1)? month(s)"
         m = re.search(r'last\s+(?:one|1)?\s*months?', q)
         if m:
             return timedelta(days=30)
- 
+
         # "last N months"
         m = re.search(r'last\s+(\d+)\s+months?', q)
         if m:
             return timedelta(days=30 * int(m.group(1)))
- 
+
         # ── Extended patterns (Case-2 fix) ─────────────────────────────────
- 
+
         # Named weekday: "on Monday", "last Tuesday", "data for Wednesday"
         _WEEKDAYS = (
             "monday", "tuesday", "wednesday", "thursday",
@@ -2225,11 +2000,11 @@ class DashboardKPIResolver:
             if days_ago == 0:
                 days_ago = 7   # "Monday" when today is Monday → last Monday
             return timedelta(days=days_ago)
- 
+
         # "this morning" / "this afternoon" / "this evening" / "this night"
         if re.search(r'\bthis\s+(?:morning|afternoon|evening|night)\b', q):
             return timedelta(hours=12)   # broad same-day window
- 
+
         # Specific date — "April 3", "March 23rd", "3rd April", "jan 5th"
         # (_MONTHS and _MONTH_PAT already defined above)
         # "April 3" / "April 3rd"
@@ -2263,13 +2038,238 @@ class DashboardKPIResolver:
                 return now - target
             except ValueError:
                 pass   # invalid date, fall through
- 
+
         # "now" / "currently" → last 1 hour
         if re.search(r'\b(now|current(?:ly)?)\b', q):
             return timedelta(hours=1)
- 
+
         # Default: 1 day (Grafana default)
         return timedelta(days=1)
+    # def _parse_time_range(self, question: str) -> Union[timedelta, Tuple[datetime, datetime]]:
+    #     """
+    #     Extract time range from natural-language expressions in the question.
+ 
+    #     Returns:
+    #         timedelta  – for relative ranges ("last 3 days", "yesterday")
+    #         (from_dt, to_dt) tuple – for absolute date ranges
+    #                                  ("from 2 to 3 march", "march 2 to march 5")
+ 
+    #     Extended to cover:
+    #       - Absolute date ranges ("from 2 to 3 march", "between march 2 and march 5")
+    #       - Day names         ("on Monday", "last Tuesday")
+    #       - Time-of-day       ("this morning", "this afternoon")
+    #       - Specific dates    ("April 3", "March 23rd", "3rd April")
+    #       - "now" / "current" (last 1 hour)
+    #     """
+    #     q = question.lower()
+    #     # Anchor "now" to IST so that relative ranges ("today", "yesterday",
+    #     # "last Monday", named-day lookups) are resolved in the correct timezone.
+    #     now = datetime.now(tz=_IST_TZ).replace(tzinfo=None)
+ 
+    #     # ── Word-to-number conversion so "last one hour" works ──
+    #     _WORD_NUMS = {
+    #         'one': '1', 'two': '2', 'three': '3', 'four': '4',
+    #         'five': '5', 'six': '6', 'seven': '7', 'eight': '8',
+    #         'nine': '9', 'ten': '10', 'eleven': '11', 'twelve': '12',
+    #         'fifteen': '15', 'twenty': '20', 'thirty': '30',
+    #     }
+    #     for word, digit in _WORD_NUMS.items():
+    #         q = re.sub(rf'\b{word}\b', digit, q)
+ 
+    #     # ── Month name lookup (used by absolute & single-date patterns) ──
+    #     _MONTHS = {
+    #         'january': 1, 'february': 2, 'march': 3, 'april': 4,
+    #         'may': 5, 'june': 6, 'july': 7, 'august': 8,
+    #         'september': 9, 'october': 10, 'november': 11, 'december': 12,
+    #         'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4,
+    #         'jun': 6, 'jul': 7, 'aug': 8, 'sep': 9,
+    #         'oct': 10, 'nov': 11, 'dec': 12,
+    #     }
+    #     _MONTH_PAT = '|'.join(_MONTHS.keys())
+    #     _ORD = r'(?:st|nd|rd|th)?'   # optional ordinal suffix
+ 
+    #     # ── Absolute date-range patterns (MUST be checked before single-date) ──
+    #     # Helper to build a datetime, falling back to previous year if future
+    #     def _make_dt(month_name: str, day: int) -> datetime:
+    #         mi = _MONTHS[month_name.lower()]
+    #         try:
+    #             dt = datetime(now.year, mi, day)
+    #         except ValueError:
+    #             return now  # invalid date
+    #         if dt.date() > now.date():
+    #             dt = datetime(now.year - 1, mi, day)
+    #         return dt
+ 
+    #     # Pattern 1: "from 2 to 3 march" / "from 2nd to 3rd march"
+    #     #            "between 2 and 3 march" / "2 to 3 march"
+    #     rm = re.search(
+    #         rf'(?:from|between)?\s*(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}\s+({_MONTH_PAT})',
+    #         q,
+    #     )
+    #     if rm:
+    #         d1, d2 = int(rm.group(1)), int(rm.group(2))
+    #         mn = rm.group(3)
+    #         from_dt = _make_dt(mn, d1)
+    #         to_dt = _make_dt(mn, d2)
+    #         if from_dt > to_dt:
+    #             from_dt, to_dt = to_dt, from_dt
+    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
+    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
+    #         logger.debug(f"⏰ Absolute range (pattern-1): {from_dt} → {to_dt}")
+    #         return (from_dt, to_dt)
+ 
+    #     # Pattern 2: "march 2 to march 3" / "march 2nd to march 5th"
+    #     #            "from march 2 to march 3" / "between march 2 and march 5"
+    #     rm = re.search(
+    #         rf'(?:from|between)?\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}',
+    #         q,
+    #     )
+    #     if rm:
+    #         from_dt = _make_dt(rm.group(1), int(rm.group(2)))
+    #         to_dt = _make_dt(rm.group(3), int(rm.group(4)))
+    #         if from_dt > to_dt:
+    #             from_dt, to_dt = to_dt, from_dt
+    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
+    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
+    #         logger.debug(f"⏰ Absolute range (pattern-2): {from_dt} → {to_dt}")
+    #         return (from_dt, to_dt)
+ 
+    #     # Pattern 3: "march 2 to 5" / "from april 1 to 15" / "between jan 10 and 20"
+    #     rm = re.search(
+    #         rf'(?:from|between)?\s*({_MONTH_PAT})\s+(\d{{1,2}}){_ORD}\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}',
+    #         q,
+    #     )
+    #     if rm:
+    #         mn = rm.group(1)
+    #         d1, d2 = int(rm.group(2)), int(rm.group(3))
+    #         from_dt = _make_dt(mn, d1)
+    #         to_dt = _make_dt(mn, d2)
+    #         if from_dt > to_dt:
+    #             from_dt, to_dt = to_dt, from_dt
+    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
+    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
+    #         logger.debug(f"⏰ Absolute range (pattern-3): {from_dt} → {to_dt}")
+    #         return (from_dt, to_dt)
+ 
+    #     # Pattern 4: "2 march to 5 march" / "2nd march to 5th april"
+    #     rm = re.search(
+    #         rf'(\d{{1,2}}){_ORD}\s*({_MONTH_PAT})\s*(?:to|-|and)\s*(\d{{1,2}}){_ORD}\s*({_MONTH_PAT})',
+    #         q,
+    #     )
+    #     if rm:
+    #         from_dt = _make_dt(rm.group(2), int(rm.group(1)))
+    #         to_dt = _make_dt(rm.group(4), int(rm.group(3)))
+    #         if from_dt > to_dt:
+    #             from_dt, to_dt = to_dt, from_dt
+    #         from_dt = from_dt.replace(hour=0, minute=0, second=0)
+    #         to_dt = to_dt.replace(hour=23, minute=59, second=59)
+    #         logger.debug(f"⏰ Absolute range (pattern-4): {from_dt} → {to_dt}")
+    #         return (from_dt, to_dt)
+ 
+    #     # "last N days"
+    #     m = re.search(r'last\s+(\d+)\s+days?', q)
+    #     if m:
+    #         return timedelta(days=int(m.group(1)))
+ 
+    #     # "last N hours"
+    #     m = re.search(r'last\s+(\d+)\s+hours?', q)
+    #     if m:
+    #         return timedelta(hours=int(m.group(1)))
+ 
+    #     # "yesterday" → full-day range (00:00:00 – 23:59:59 IST)
+    #     if 'yesterday' in q:
+    #         yd = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0)
+    #         return (yd, yd.replace(hour=23, minute=59, second=59))
+ 
+    #     # "today" → full-day range (00:00:00 – 23:59:59 IST)
+    #     # Matches Grafana behaviour: the whole calendar day, not just up-to-now.
+    #     if re.search(r'\btoday\b', q):
+    #         td = now.replace(hour=0, minute=0, second=0)
+    #         return (td, td.replace(hour=23, minute=59, second=59))
+ 
+    #     # "last (one|1)? week(s)"
+    #     m = re.search(r'last\s+(?:one|1)?\s*weeks?', q)
+    #     if m:
+    #         return timedelta(weeks=1)
+ 
+    #     # "last N weeks"
+    #     m = re.search(r'last\s+(\d+)\s+weeks?', q)
+    #     if m:
+    #         return timedelta(weeks=int(m.group(1)))
+ 
+    #     # "last (one|1)? month(s)"
+    #     m = re.search(r'last\s+(?:one|1)?\s*months?', q)
+    #     if m:
+    #         return timedelta(days=30)
+ 
+    #     # "last N months"
+    #     m = re.search(r'last\s+(\d+)\s+months?', q)
+    #     if m:
+    #         return timedelta(days=30 * int(m.group(1)))
+ 
+    #     # ── Extended patterns (Case-2 fix) ─────────────────────────────────
+ 
+    #     # Named weekday: "on Monday", "last Tuesday", "data for Wednesday"
+    #     _WEEKDAYS = (
+    #         "monday", "tuesday", "wednesday", "thursday",
+    #         "friday", "saturday", "sunday",
+    #     )
+    #     _WEEKDAY_INDEX = {d: i for i, d in enumerate(_WEEKDAYS)}  # mon=0 … sun=6
+    #     day_m = re.search(
+    #         r'\b(' + '|'.join(_WEEKDAYS) + r')\b', q
+    #     )
+    #     if day_m:
+    #         target_idx = _WEEKDAY_INDEX[day_m.group(1)]   # 0=Mon … 6=Sun
+    #         current_idx = now.weekday()                    # 0=Mon … 6=Sun
+    #         days_ago = (current_idx - target_idx) % 7
+    #         if days_ago == 0:
+    #             days_ago = 7   # "Monday" when today is Monday → last Monday
+    #         return timedelta(days=days_ago)
+ 
+    #     # "this morning" / "this afternoon" / "this evening" / "this night"
+    #     if re.search(r'\bthis\s+(?:morning|afternoon|evening|night)\b', q):
+    #         return timedelta(hours=12)   # broad same-day window
+ 
+    #     # Specific date — "April 3", "March 23rd", "3rd April", "jan 5th"
+    #     # (_MONTHS and _MONTH_PAT already defined above)
+    #     # "April 3" / "April 3rd"
+    #     mdate = re.search(
+    #         rf'\b({_MONTH_PAT})\s+(\d{{1,2}})(?:st|nd|rd|th)?\b', q
+    #     )
+    #     if not mdate:
+    #         # "3rd April" / "3 April"
+    #         mdate = re.search(
+    #             rf'\b(\d{{1,2}})(?:st|nd|rd|th)?\s+({_MONTH_PAT})\b', q
+    #         )
+    #         if mdate:
+    #             # swap groups so we can use uniform logic below
+    #             day_num = int(mdate.group(1))
+    #             month_idx = _MONTHS[mdate.group(2).lower()]
+    #             mdate = None   # handled manually below
+    #             try:
+    #                 target = datetime(now.year, month_idx, day_num)
+    #                 if target > now:
+    #                     target = datetime(now.year - 1, month_idx, day_num)
+    #                 return now - target
+    #             except ValueError:
+    #                 pass
+    #     if mdate:
+    #         try:
+    #             month_idx = _MONTHS[mdate.group(1).lower()]
+    #             day_num = int(mdate.group(2))
+    #             target = datetime(now.year, month_idx, day_num)
+    #             if target > now:
+    #                 target = datetime(now.year - 1, month_idx, day_num)
+    #             return now - target
+    #         except ValueError:
+    #             pass   # invalid date, fall through
+ 
+    #     # "now" / "currently" → last 1 hour
+    #     if re.search(r'\b(now|current(?:ly)?)\b', q):
+    #         return timedelta(hours=1)
+ 
+    #     # Default: 1 day (Grafana default)
+    #     return timedelta(days=1)
     # ----------------------------------------------------------
     # PARAMETER SUBSTITUTION
     # ----------------------------------------------------------
