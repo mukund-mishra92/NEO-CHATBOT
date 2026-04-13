@@ -11,3 +11,6 @@ class QueryCacheManager:
 
     def set(self, session_id: str, question: str, response):
         self._cache[(session_id, question)] = response
+
+    def invalidate(self, session_id: str, question: str):
+        self._cache.pop((session_id, question), None)

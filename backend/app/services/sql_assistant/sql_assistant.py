@@ -1940,9 +1940,21 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                 },
             )
 
-        response_text = self.formatter.format(
-            clean_question, sql, execution_result, 0.95
-        )
+        # ── Build KPI-specific response text (no raw SQL in body) ──
+        # The SQL is available via metadata.sql_query + "View SQL" button.
+        # Response text should describe the KPI result, not expose the query.
+        if rows:
+            table_md = self.formatter._format_table(rows)
+            response_text = (
+                f"**{kpi_match.kpi_name}**\n\n"
+                f"Rows returned: {row_count}\n\n"
+                f"{table_md}"
+            )
+        else:
+            response_text = (
+                f"**{kpi_match.kpi_name}**\n\n"
+                f"No data found for the selected time range and location."
+            )
         columns = []
         query_results = []
         if rows:
@@ -2178,8 +2190,12 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                 },
             )
 
-        response_text = self.formatter.format(
-            clean_question, sql, execution_result, 0.95
+        # Build KPI-specific response (no raw SQL in body)
+        table_md = self.formatter._format_table(rows)
+        response_text = (
+            f"**{picked_entry.kpi_name}**\n\n"
+            f"Rows returned: {row_count}\n\n"
+            f"{table_md}"
         )
         columns = list(rows[0].keys()) if isinstance(rows[0], dict) else []
         query_results = [dict(r) if hasattr(r, 'keys') else r for r in rows]
@@ -2259,6 +2275,10 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             f"📊 KPI skip → SQL generator for: '{clean_question}' "
             f"entities={entities}"
         )
+
+        # Clear any cached disambiguation response for this question+session
+        # so process_query doesn't just return the old 3-button response.
+        self.cache.invalidate(session_id, clean_question)
 
         # Skip KPI and SP matching — go straight to SQL generation.
         # Delegate to process_query but with a marker to skip KPI.
