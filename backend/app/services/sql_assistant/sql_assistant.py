@@ -900,7 +900,8 @@ class SQLAssistantService:
         # 📊 DASHBOARD KPI MATCH (pre-built Grafana queries)
         # --------------------------------------------------
         kpi_response = self._try_kpi_match(clean_question, entities, session_id,
-                                               original_question=question)
+                                               original_question=question,
+                                               user_id=getattr(request, 'user_id', None))
         if kpi_response:
             self.cache.set(session_id, clean_question, kpi_response)
             return kpi_response
@@ -1535,7 +1536,7 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
     # 📊 DASHBOARD KPI MATCH
     # ----------------------------------------------------------
     def _try_kpi_match(self, clean_question: str, entities: dict, session_id: str,
-                        original_question: str = None):
+                        original_question: str = None, user_id: str = None):
         """
         📊  DASHBOARD KPI PIPELINE  (deterministic — NO LLM fallback)
 
@@ -1748,6 +1749,33 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                 f"no alternative SQL was generated to avoid incorrect data."
             )
 
+            # ── Log failed KPI execution to DB ──
+            try:
+                chat_id = self.chat_history_service.log_chat_interaction(
+                    session_id=session_id,
+                    chatbot_type="sql_assistant",
+                    user_query=original_question or clean_question,
+                    assistant_response=error_response,
+                    confidence_score=0.0,
+                    response_time_ms=0,
+                    user_id=user_id,
+                )
+                self.chat_history_service.log_sql_query(
+                    chat_id=chat_id,
+                    session_id=session_id,
+                    user_query=original_question or clean_question,
+                    generated_sql=sql,
+                    execution_status="failed",
+                    error_message=str(e),
+                    rows_returned=0,
+                    execution_time_ms=0,
+                    tables_used=kpi_match.tables_used if hasattr(kpi_match, 'tables_used') else [],
+                    intent="dashboard_kpi",
+                    user_id=user_id,
+                )
+            except Exception as log_err:
+                logger.warning(f"⚠️ KPI chat history logging failed (non-fatal): {log_err}")
+
             return ChatResponse(
                 response=error_response,
                 chatbot_type=ChatbotType.SQL_ASSISTANT,
@@ -1796,6 +1824,33 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                 f"📊 KPI id={kpi_match.kpi_id}, '{kpi_match.kpi_name}' matched but returned 0 rows "
                 f"for location={tenant_values}"
             )
+
+            # ── Log no-data KPI execution to DB ──
+            try:
+                chat_id = self.chat_history_service.log_chat_interaction(
+                    session_id=session_id,
+                    chatbot_type="sql_assistant",
+                    user_query=original_question or clean_question,
+                    assistant_response=no_data_text,
+                    confidence_score=0.95,
+                    response_time_ms=execution_result.execution_time_ms if hasattr(execution_result, 'execution_time_ms') else 0,
+                    user_id=user_id,
+                )
+                self.chat_history_service.log_sql_query(
+                    chat_id=chat_id,
+                    session_id=session_id,
+                    user_query=original_question or clean_question,
+                    generated_sql=sql,
+                    execution_status="success",
+                    rows_returned=0,
+                    execution_time_ms=execution_result.execution_time_ms if hasattr(execution_result, 'execution_time_ms') else 0,
+                    tables_used=kpi_match.tables_used if hasattr(kpi_match, 'tables_used') else [],
+                    intent="dashboard_kpi",
+                    user_id=user_id,
+                )
+            except Exception as log_err:
+                logger.warning(f"⚠️ KPI chat history logging failed (non-fatal): {log_err}")
+
             return ChatResponse(
                 response=no_data_text,
                 chatbot_type=ChatbotType.SQL_ASSISTANT,
@@ -1851,6 +1906,32 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             "columns": columns,
             "available_chart_types": self._available_charts_for(effective_chart_type, columns),
         }
+
+        # ── Log successful KPI execution to DB ──
+        try:
+            chat_id = self.chat_history_service.log_chat_interaction(
+                session_id=session_id,
+                chatbot_type="sql_assistant",
+                user_query=original_question or clean_question,
+                assistant_response=response_text,
+                confidence_score=0.95,
+                response_time_ms=execution_result.execution_time_ms if hasattr(execution_result, 'execution_time_ms') else 0,
+                user_id=user_id,
+            )
+            self.chat_history_service.log_sql_query(
+                chat_id=chat_id,
+                session_id=session_id,
+                user_query=original_question or clean_question,
+                generated_sql=sql,
+                execution_status="success",
+                rows_returned=row_count,
+                execution_time_ms=execution_result.execution_time_ms if hasattr(execution_result, 'execution_time_ms') else 0,
+                tables_used=kpi_match.tables_used if hasattr(kpi_match, 'tables_used') else [],
+                intent="dashboard_kpi",
+                user_id=user_id,
+            )
+        except Exception as log_err:
+            logger.warning(f"⚠️ KPI chat history logging failed (non-fatal): {log_err}")
 
         return ChatResponse(
             response=response_text,
