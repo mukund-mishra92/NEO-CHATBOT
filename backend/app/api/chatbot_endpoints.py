@@ -16,6 +16,7 @@ from ..models.schemas import (
     ChatRequest, 
     ChatResponse, 
     ChatbotType,
+    KPISelectionRequest,
     SQLQueryRequest,
     SQLQueryResponse,
     SystemHealthStatus
@@ -641,6 +642,32 @@ async def match_dashboard_kpi(question: str, tenant: str = None, top_k: int = 3)
         }
     except Exception as e:
         logger.error(f"Error matching KPIs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/dashboard/kpis/select", response_model=ChatResponse)
+async def select_kpi(request: KPISelectionRequest):
+    """
+    Handle user's KPI selection from disambiguation UI.
+
+    The user is shown two candidate KPIs when the system is unsure.
+    They can pick one of the two, or choose 'none' to fall through
+    to the SQL generator.
+    """
+    try:
+        logger.info(
+            f"📊 KPI selection: kpi_id='{request.kpi_id}', "
+            f"question='{request.original_question[:80]}'"
+        )
+        response = sql_service.process_kpi_selection(
+            kpi_id=request.kpi_id,
+            original_question=request.original_question,
+            session_id=request.session_id,
+            user_id=request.user_id,
+        )
+        return response
+    except Exception as e:
+        logger.error(f"Error in KPI selection: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

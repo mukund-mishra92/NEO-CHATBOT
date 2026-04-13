@@ -2345,6 +2345,114 @@
             font-weight: 600;
             margin-left: auto;
         }
+
+        /* ── KPI Disambiguation ── */
+        .kpi-disambiguation-container {
+            background: linear-gradient(135deg, rgba(124,58,237,0.04), rgba(59,130,246,0.04));
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            max-width: 520px;
+        }
+        .kpi-disambig-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 13px;
+            color: #374151;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+        .kpi-disambig-header i {
+            color: #7c3aed;
+            font-size: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .kpi-disambig-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .kpi-disambig-btn {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 12px 14px;
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.9);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            font-family: inherit;
+        }
+        .kpi-disambig-btn:hover {
+            border-color: #7c3aed;
+            background: rgba(124,58,237,0.06);
+            box-shadow: 0 2px 8px rgba(124,58,237,0.15);
+            transform: translateY(-1px);
+        }
+        .kpi-disambig-btn:disabled {
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .kpi-disambig-btn.selected {
+            border-color: #7c3aed;
+            background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(59,130,246,0.05));
+            box-shadow: 0 2px 10px rgba(124,58,237,0.2);
+        }
+        .kpi-option-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #1f2937;
+        }
+        .kpi-option-label i { color: #7c3aed; font-size: 14px; }
+        .kpi-option-detail {
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.4;
+            padding-left: 22px;
+        }
+        .kpi-option-score {
+            font-size: 10px;
+            color: #7c3aed;
+            font-weight: 600;
+            padding-left: 22px;
+        }
+        .kpi-option-none {
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-style: dashed;
+            background: rgba(239,68,68,0.03);
+            border-color: rgba(239,68,68,0.25);
+        }
+        .kpi-option-none:hover {
+            border-color: #ef4444;
+            background: rgba(239,68,68,0.06);
+            box-shadow: 0 2px 8px rgba(239,68,68,0.12);
+        }
+        .kpi-option-none i { color: #ef4444; font-size: 14px; }
+        .kpi-option-none strong { font-size: 12px; color: #374151; }
+        .kpi-option-hint {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-left: auto;
+        }
+        .kpi-disambig-loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 0 0;
+            font-size: 12px;
+            color: #7c3aed;
+        }
+        .kpi-disambig-loading i { font-size: 14px; }
     </style>
 </head>
 <body>
@@ -2879,6 +2987,68 @@
         let semiAutoDiagSession = null;
         let sopSessionId = null;
         let sopCurrentStatus = null;
+
+        // ── KPI Disambiguation handler ──
+        async function handleKpiSelection(disambigId, kpiId, originalQuestion) {
+            const container = document.getElementById(disambigId);
+            if (!container) return;
+
+            // Disable all buttons to prevent double-click
+            container.querySelectorAll('.kpi-disambig-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.pointerEvents = 'none';
+            });
+
+            // Highlight the selected button
+            if (event && event.target) {
+                const selectedBtn = event.target.closest('.kpi-disambig-btn');
+                if (selectedBtn) {
+                    selectedBtn.style.opacity = '1';
+                    selectedBtn.classList.add('selected');
+                }
+            }
+
+            // Show loading indicator
+            const loadingEl = document.getElementById(disambigId + '_loading');
+            if (loadingEl) loadingEl.style.display = 'flex';
+
+            try {
+                showTypingIndicator();
+
+                const resp = await fetch('/api/chatbot/dashboard/kpis/select', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        kpi_id: kpiId,
+                        original_question: originalQuestion,
+                        session_id: sessionId,
+                        user_id: getEffectiveUserId(),
+                    }),
+                });
+
+                if (!resp.ok) {
+                    const errorText = await resp.text();
+                    throw new Error('KPI selection failed: ' + resp.status + ': ' + errorText);
+                }
+
+                const data = await resp.json();
+                hideTypingIndicator();
+                if (loadingEl) loadingEl.style.display = 'none';
+
+                // Render the response as a new assistant message
+                const responseText = data.response || '';
+                await addMessage('assistant', responseText, data, true);
+
+                messageCount++;
+                document.getElementById('messageCount').textContent = messageCount;
+
+            } catch (err) {
+                hideTypingIndicator();
+                if (loadingEl) loadingEl.style.display = 'none';
+                await addMessage('assistant', 'Error: ' + (err.message || 'KPI selection failed.'), {}, false);
+            }
+        }
 
         async function sendMessage() {
             if (responseInProgress) {
@@ -4577,6 +4747,52 @@
 
             // === SQL Assistant: Two-column card layout ===
             if (isSqlAssistant) {
+
+                // ── KPI Disambiguation UI ──
+                const disambig = data?.metadata?.kpi_disambiguation;
+                if (disambig && disambig.candidates && disambig.candidates.length >= 2) {
+                    const c1 = disambig.candidates[0];
+                    const c2 = disambig.candidates[1];
+                    const origQ = (disambig.original_question || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const disambigId = 'kpi_disambig_' + Math.random().toString(36).substr(2, 9);
+
+                    return `<div class="kpi-disambiguation-container" id="${disambigId}">
+                        <div class="kpi-disambig-header">
+                            <i class="fas fa-question-circle"></i>
+                            <span>${html || 'I found multiple matching KPIs. Please select the one you\'re looking for:'}</span>
+                        </div>
+                        <div class="kpi-disambig-options">
+                            <button class="kpi-disambig-btn kpi-option-1"
+                                onclick="handleKpiSelection('${disambigId}', '${c1.kpi_id}', '${origQ}')">
+                                <div class="kpi-option-label">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <strong>${escapeHtml(c1.kpi_name)}</strong>
+                                </div>
+                                <div class="kpi-option-detail">${escapeHtml((c1.logic || '').substring(0, 150))}${(c1.logic || '').length > 150 ? '…' : ''}</div>
+                                <span class="kpi-option-score">${(c1.score * 100).toFixed(0)}% match</span>
+                            </button>
+                            <button class="kpi-disambig-btn kpi-option-2"
+                                onclick="handleKpiSelection('${disambigId}', '${c2.kpi_id}', '${origQ}')">
+                                <div class="kpi-option-label">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <strong>${escapeHtml(c2.kpi_name)}</strong>
+                                </div>
+                                <div class="kpi-option-detail">${escapeHtml((c2.logic || '').substring(0, 150))}${(c2.logic || '').length > 150 ? '…' : ''}</div>
+                                <span class="kpi-option-score">${(c2.score * 100).toFixed(0)}% match</span>
+                            </button>
+                            <button class="kpi-disambig-btn kpi-option-none"
+                                onclick="handleKpiSelection('${disambigId}', 'none', '${origQ}')">
+                                <i class="fas fa-times-circle"></i>
+                                <strong>None of these</strong>
+                                <span class="kpi-option-hint">Generate custom SQL instead</span>
+                            </button>
+                        </div>
+                        <div class="kpi-disambig-loading" id="${disambigId}_loading" style="display:none;">
+                            <i class="fas fa-spinner fa-spin"></i> Processing your selection…
+                        </div>
+                    </div>`;
+                }
+
                 const cardId = 'sqlcard_' + Math.random().toString(36).substr(2, 9);
                 let sqlConfidenceInline = '';
                 if (data.confidence_score) {

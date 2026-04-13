@@ -91,6 +91,54 @@ export function formatMessage(content, data = {}, messageType = 'assistant') {
     // SQL ASSISTANT — two-column card layout            ║
     // ══════════════════════════════════════════════════╝
     if (isSqlAssist) {
+
+        // ── KPI Disambiguation UI ──
+        // When the backend is unsure between two KPIs, it returns
+        // metadata.kpi_disambiguation with candidates for the user to pick.
+        const disambig = data?.metadata?.kpi_disambiguation;
+        if (disambig && disambig.candidates?.length >= 2) {
+            const c1 = disambig.candidates[0];
+            const c2 = disambig.candidates[1];
+            const origQ = disambig.original_question || '';
+            const disambigId = 'kpi_disambig_' + Math.random().toString(36).substr(2, 9);
+
+            return `<div class="kpi-disambiguation-container" id="${disambigId}">
+                <div class="kpi-disambig-header">
+                    <i class="fas fa-question-circle"></i>
+                    <span>${html || 'I found multiple matching KPIs. Please select the one you\'re looking for:'}</span>
+                </div>
+                <div class="kpi-disambig-options">
+                    <button class="kpi-disambig-btn kpi-option-1"
+                        onclick="handleKpiSelection('${disambigId}', '${c1.kpi_id}', '${escapeHtml(origQ).replace(/'/g, "\\'")}')">
+                        <div class="kpi-option-label">
+                            <i class="fas fa-chart-bar"></i>
+                            <strong>${escapeHtml(c1.kpi_name)}</strong>
+                        </div>
+                        <div class="kpi-option-detail">${escapeHtml((c1.logic || '').substring(0, 120))}${(c1.logic || '').length > 120 ? '…' : ''}</div>
+                        <span class="kpi-option-score">${(c1.score * 100).toFixed(0)}% match</span>
+                    </button>
+                    <button class="kpi-disambig-btn kpi-option-2"
+                        onclick="handleKpiSelection('${disambigId}', '${c2.kpi_id}', '${escapeHtml(origQ).replace(/'/g, "\\'")}')">
+                        <div class="kpi-option-label">
+                            <i class="fas fa-chart-bar"></i>
+                            <strong>${escapeHtml(c2.kpi_name)}</strong>
+                        </div>
+                        <div class="kpi-option-detail">${escapeHtml((c2.logic || '').substring(0, 120))}${(c2.logic || '').length > 120 ? '…' : ''}</div>
+                        <span class="kpi-option-score">${(c2.score * 100).toFixed(0)}% match</span>
+                    </button>
+                    <button class="kpi-disambig-btn kpi-option-none"
+                        onclick="handleKpiSelection('${disambigId}', 'none', '${escapeHtml(origQ).replace(/'/g, "\\'")}')">
+                        <i class="fas fa-times-circle"></i>
+                        <strong>None of these</strong>
+                        <span class="kpi-option-hint">Generate custom SQL instead</span>
+                    </button>
+                </div>
+                <div class="kpi-disambig-loading" id="${disambigId}_loading" style="display:none;">
+                    <i class="fas fa-spinner fa-spin"></i> Processing your selection…
+                </div>
+            </div>`;
+        }
+
         const cardId = 'sqlcard_' + Math.random().toString(36).substr(2, 9);
 
         let sqlConfidenceInline = '';

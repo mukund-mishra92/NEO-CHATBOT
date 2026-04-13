@@ -41,6 +41,14 @@ class ChatRequest(BaseModel):
     context: Optional[Dict[str, Any]] = None
 
 
+class KPISelectionRequest(BaseModel):
+    """Request when user selects a KPI from disambiguation options."""
+    kpi_id: str = Field(..., description="Selected KPI id, or 'none' for SQL generator fallback")
+    original_question: str = Field(..., description="The original user question")
+    session_id: Optional[str] = None
+    user_id: Optional[str] = None
+
+
 class SourceDocument(BaseModel):
     """Document source for RAG"""
     document_name: str

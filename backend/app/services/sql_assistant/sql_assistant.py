@@ -900,7 +900,8 @@ class SQLAssistantService:
         # 📊 DASHBOARD KPI MATCH (pre-built Grafana queries)
         # --------------------------------------------------
         kpi_response = self._try_kpi_match(clean_question, entities, session_id,
-                                               original_question=question)
+                                               original_question=question,
+                                               user_id=getattr(request, 'user_id', None))
         if kpi_response:
             self.cache.set(session_id, clean_question, kpi_response)
             return kpi_response
@@ -1535,7 +1536,7 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
     # 📊 DASHBOARD KPI MATCH
     # ----------------------------------------------------------
     def _try_kpi_match(self, clean_question: str, entities: dict, session_id: str,
-                        original_question: str = None):
+                        original_question: str = None, user_id: str = None):
         """
         📊  DASHBOARD KPI PIPELINE  (deterministic — NO LLM fallback)
 
@@ -1548,6 +1549,11 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
         KPI = pre-defined business logic.  Inventing SQL is a bug.
         """
         if not self.kpi_resolver:
+            return None
+
+        # Skip KPI matching if flag is set (user chose "None of these")
+        if getattr(self, '_skip_kpi_match', False):
+            logger.info("📊 KPI matching skipped (user disambiguation: none of these)")
             return None
 
         # ── Extract tenant values ──
@@ -1619,9 +1625,10 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             return None
 
         # ═══════════════════════════════════════════════════════
-        #  TIERED KPI STRATEGY:
-        #    ≥ 0.90  → auto-accept (high confidence, execute directly)
-        #    0.55–0.90 → LLM refines from top-3 KPI SQL queries
+        #  TIERED KPI STRATEGY (with user disambiguation):
+        #    ≥ 0.92  → auto-accept (high confidence, execute directly)
+        #    < 0.92 and top-2 diff < 0.5 → ask user to pick
+        #    < 0.92 and top-2 diff ≥ 0.5 → LLM refines from top-3
         #    < 0.55  → already rejected by resolver (never reaches here)
         # ═══════════════════════════════════════════════════════
 
@@ -1633,30 +1640,89 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                     f"'{c['kpi_name']}' (score={c['score']:.3f})"
                 )
 
-        # ── Always route through LLM refiner ──
-        # Even high-scoring keyword matches can pick the wrong KPI
-        # within a family (e.g. station-wise vs trend vs stat for IPP).
-        # The LLM sees top-5 candidates with their SQL + example user
-        # queries and makes the final pick.
-        logger.info(
-            f"📊 KPI match ({kpi_match.match_score:.3f}): "
-            f"invoking LLM KPI refiner for '{kpi_match.kpi_name}'"
-        )
-        llm_result = self._llm_refine_kpi_query(
-            user_query=clean_question,
-            kpi_match=kpi_match,
-            tenant_values=tenant_values,
-            time_from=_kpi_time_from,
-            time_to=_kpi_time_to,
-            all_sites=all_sites,
-            bot_id=_bot_id,
-            station_id=_station_id,
-            bin_id=_bin_id,
-            wave_id=_wave_id,
-            order_id=_order_id,
-            category_value=_category_value,
-            location_breakdown=location_breakdown,
-        )
+        # ── Disambiguation check ──
+        # If top-1 score < 0.92 and the gap to top-2 is < 0.5,
+        # return a special response so the frontend can ask the user.
+        from .kpi_resolver import DashboardKPIResolver as _Resolver
+        if (
+            kpi_match.match_score < _Resolver.DISAMBIGUATION_AUTO_EXECUTE
+            and len(kpi_match.top_candidates) >= 2
+        ):
+            top1 = kpi_match.top_candidates[0]
+            top2 = kpi_match.top_candidates[1]
+            score_diff = top1["score"] - top2["score"]
+            if score_diff < _Resolver.DISAMBIGUATION_SCORE_DIFF:
+                logger.info(
+                    f"📊 KPI disambiguation triggered: "
+                    f"top1='{top1['kpi_name']}' ({top1['score']:.3f}), "
+                    f"top2='{top2['kpi_name']}' ({top2['score']:.3f}), "
+                    f"diff={score_diff:.3f} < {_Resolver.DISAMBIGUATION_SCORE_DIFF}"
+                )
+                disambiguation_text = (
+                    f"I found multiple matching KPIs for your question. "
+                    f"Please select the one you're looking for:"
+                )
+                return ChatResponse(
+                    response=disambiguation_text,
+                    chatbot_type=ChatbotType.SQL_ASSISTANT,
+                    session_id=session_id,
+                    sources=[],
+                    confidence_score=kpi_match.match_score,
+                    query_results=[],
+                    metadata={
+                        "kpi_disambiguation": {
+                            "original_question": original_question or clean_question,
+                            "candidates": [
+                                {
+                                    "kpi_id": top1["kpi_id"],
+                                    "kpi_name": top1["kpi_name"],
+                                    "score": top1["score"],
+                                    "logic": top1.get("logic", ""),
+                                    "category": top1.get("category", ""),
+                                    "chart_type": top1.get("chart_type", ""),
+                                },
+                                {
+                                    "kpi_id": top2["kpi_id"],
+                                    "kpi_name": top2["kpi_name"],
+                                    "score": top2["score"],
+                                    "logic": top2.get("logic", ""),
+                                    "category": top2.get("category", ""),
+                                    "chart_type": top2.get("chart_type", ""),
+                                },
+                            ],
+                        },
+                    },
+                )
+
+        # ── High-confidence auto-execute (>= 0.92) — skip LLM refiner ──
+        if kpi_match.match_score >= _Resolver.DISAMBIGUATION_AUTO_EXECUTE:
+            logger.info(
+                f"📊 KPI high-confidence auto-execute ({kpi_match.match_score:.3f} >= "
+                f"{_Resolver.DISAMBIGUATION_AUTO_EXECUTE}): '{kpi_match.kpi_name}'"
+            )
+            # Skip LLM refiner, go straight to execution
+            llm_result = None
+        else:
+            # ── LLM refiner for mid-confidence matches ──
+            logger.info(
+                f"📊 KPI match ({kpi_match.match_score:.3f}): "
+                f"invoking LLM KPI refiner for '{kpi_match.kpi_name}'"
+            )
+            llm_result = self._llm_refine_kpi_query(
+                user_query=clean_question,
+                kpi_match=kpi_match,
+                tenant_values=tenant_values,
+                time_from=_kpi_time_from,
+                time_to=_kpi_time_to,
+                all_sites=all_sites,
+                bot_id=_bot_id,
+                station_id=_station_id,
+                bin_id=_bin_id,
+                wave_id=_wave_id,
+                order_id=_order_id,
+                category_value=_category_value,
+                location_breakdown=location_breakdown,
+            )
 
         if llm_result is None:
             # LLM refiner unavailable or rejected all → use top-1 as fallback
@@ -1748,6 +1814,33 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                 f"no alternative SQL was generated to avoid incorrect data."
             )
 
+            # ── Log failed KPI execution to DB ──
+            try:
+                chat_id = self.chat_history_service.log_chat_interaction(
+                    session_id=session_id,
+                    chatbot_type="sql_assistant",
+                    user_query=original_question or clean_question,
+                    assistant_response=error_response,
+                    confidence_score=0.0,
+                    response_time_ms=0,
+                    user_id=user_id,
+                )
+                self.chat_history_service.log_sql_query(
+                    chat_id=chat_id,
+                    session_id=session_id,
+                    user_query=original_question or clean_question,
+                    generated_sql=sql,
+                    execution_status="failed",
+                    error_message=str(e),
+                    rows_returned=0,
+                    execution_time_ms=0,
+                    tables_used=kpi_match.tables_used if hasattr(kpi_match, 'tables_used') else [],
+                    intent="dashboard_kpi",
+                    user_id=user_id,
+                )
+            except Exception as log_err:
+                logger.warning(f"⚠️ KPI chat history logging failed (non-fatal): {log_err}")
+
             return ChatResponse(
                 response=error_response,
                 chatbot_type=ChatbotType.SQL_ASSISTANT,
@@ -1796,6 +1889,33 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                 f"📊 KPI id={kpi_match.kpi_id}, '{kpi_match.kpi_name}' matched but returned 0 rows "
                 f"for location={tenant_values}"
             )
+
+            # ── Log no-data KPI execution to DB ──
+            try:
+                chat_id = self.chat_history_service.log_chat_interaction(
+                    session_id=session_id,
+                    chatbot_type="sql_assistant",
+                    user_query=original_question or clean_question,
+                    assistant_response=no_data_text,
+                    confidence_score=0.95,
+                    response_time_ms=execution_result.execution_time_ms if hasattr(execution_result, 'execution_time_ms') else 0,
+                    user_id=user_id,
+                )
+                self.chat_history_service.log_sql_query(
+                    chat_id=chat_id,
+                    session_id=session_id,
+                    user_query=original_question or clean_question,
+                    generated_sql=sql,
+                    execution_status="success",
+                    rows_returned=0,
+                    execution_time_ms=execution_result.execution_time_ms if hasattr(execution_result, 'execution_time_ms') else 0,
+                    tables_used=kpi_match.tables_used if hasattr(kpi_match, 'tables_used') else [],
+                    intent="dashboard_kpi",
+                    user_id=user_id,
+                )
+            except Exception as log_err:
+                logger.warning(f"⚠️ KPI chat history logging failed (non-fatal): {log_err}")
+
             return ChatResponse(
                 response=no_data_text,
                 chatbot_type=ChatbotType.SQL_ASSISTANT,
@@ -1852,6 +1972,32 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             "available_chart_types": self._available_charts_for(effective_chart_type, columns),
         }
 
+        # ── Log successful KPI execution to DB ──
+        try:
+            chat_id = self.chat_history_service.log_chat_interaction(
+                session_id=session_id,
+                chatbot_type="sql_assistant",
+                user_query=original_question or clean_question,
+                assistant_response=response_text,
+                confidence_score=0.95,
+                response_time_ms=execution_result.execution_time_ms if hasattr(execution_result, 'execution_time_ms') else 0,
+                user_id=user_id,
+            )
+            self.chat_history_service.log_sql_query(
+                chat_id=chat_id,
+                session_id=session_id,
+                user_query=original_question or clean_question,
+                generated_sql=sql,
+                execution_status="success",
+                rows_returned=row_count,
+                execution_time_ms=execution_result.execution_time_ms if hasattr(execution_result, 'execution_time_ms') else 0,
+                tables_used=kpi_match.tables_used if hasattr(kpi_match, 'tables_used') else [],
+                intent="dashboard_kpi",
+                user_id=user_id,
+            )
+        except Exception as log_err:
+            logger.warning(f"⚠️ KPI chat history logging failed (non-fatal): {log_err}")
+
         return ChatResponse(
             response=response_text,
             chatbot_type=ChatbotType.SQL_ASSISTANT,
@@ -1866,6 +2012,262 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                 "dashboard_kpi": dashboard_metadata,
             },
         )
+
+    # ----------------------------------------------------------
+    # 📊 KPI DISAMBIGUATION — user selected a KPI from options
+    # ----------------------------------------------------------
+    def process_kpi_selection(self, kpi_id: str, original_question: str,
+                              session_id: str = None, user_id: str = None):
+        """
+        Execute a specific KPI selected by the user during disambiguation.
+
+        If kpi_id == "none", the user rejected both KPIs — route the
+        original question through the normal SQL generation pipeline
+        (skipping KPI matching).
+        """
+        if kpi_id == "none":
+            logger.info(
+                f"📊 KPI disambiguation: user chose 'None of these' — "
+                f"routing to SQL generator for: '{original_question}'"
+            )
+            # Build a synthetic ChatRequest and process through normal pipeline
+            # but skip KPI matching by setting a flag
+            from app.models.schemas import ChatRequest
+            request = ChatRequest(
+                message=original_question,
+                chatbot_type=ChatbotType.SQL_ASSISTANT,
+                session_id=session_id,
+                user_id=user_id,
+            )
+            return self._process_query_skip_kpi(request)
+
+        # ── User picked a specific KPI — execute it ──
+        logger.info(
+            f"📊 KPI disambiguation: user selected kpi_id='{kpi_id}' "
+            f"for question: '{original_question}'"
+        )
+
+        if not self.kpi_resolver:
+            return ChatResponse(
+                response="KPI resolver is not available.",
+                chatbot_type=ChatbotType.SQL_ASSISTANT,
+                session_id=session_id,
+                sources=[],
+                confidence_score=0.0,
+            )
+
+        # Find the KPI entry
+        picked_entry = None
+        for entry in self.kpi_resolver.kpis:
+            if entry.id == kpi_id:
+                picked_entry = entry
+                break
+
+        if not picked_entry:
+            return ChatResponse(
+                response=f"KPI '{kpi_id}' not found in registry.",
+                chatbot_type=ChatbotType.SQL_ASSISTANT,
+                session_id=session_id,
+                sources=[],
+                confidence_score=0.0,
+            )
+
+        # Re-extract entities from the original question
+        clean_question, entities = self.preprocessor.process(original_question)
+
+        if self.multi_tenant_enabled and entities.get(self.tenant_column):
+            entities = self._map_tenant_to_actual_values(entities)
+
+        tenant_values = entities.get(self.tenant_column)
+        all_sites = entities.get("_all_sites", False)
+        location_breakdown = entities.get("_location_breakdown", False)
+
+        if isinstance(tenant_values, str):
+            tenant_values = [tenant_values]
+        elif not tenant_values:
+            tenant_values = None
+
+        # Parse time range
+        try:
+            _parsed = self.kpi_resolver._parse_time_range(clean_question)
+            from datetime import datetime as _dt, timedelta as _td
+            _now = _dt.now()
+            if isinstance(_parsed, tuple):
+                _kpi_time_from = _parsed[0].strftime("%Y-%m-%d %H:%M:%S")
+                _kpi_time_to = _parsed[1].strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                _delta = _parsed
+                if _delta.total_seconds() == 0:
+                    _kpi_time_from = _now.strftime("%Y-%m-%d 00:00:00")
+                else:
+                    _kpi_time_from = (_now - _delta).strftime("%Y-%m-%d %H:%M:%S")
+                _kpi_time_to = _now.strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            _kpi_time_from = None
+            _kpi_time_to = None
+
+        _bot_id = entities.get("BOT_ID")
+        _category_value = entities.get("CATEGORY_VALUE")
+        _station_id = entities.get("STATION_ID")
+        _bin_id = entities.get("BIN_ID")
+        _wave_id = entities.get("WAVE_ID")
+        _order_id = entities.get("ORDER_ID")
+
+        # Substitute parameters
+        sql, params_applied = self.kpi_resolver._substitute_params(
+            picked_entry.query, tenant_values, _kpi_time_from, _kpi_time_to,
+            all_sites, question=clean_question,
+            bot_id=_bot_id, category_value=_category_value,
+            station_id=_station_id, location_breakdown=location_breakdown,
+            kpi_id=picked_entry.id,
+        )
+        sql, params_applied = self.kpi_resolver._inject_entity_filters(
+            sql, params_applied,
+            bot_id=_bot_id, station_id=_station_id,
+            bin_id=_bin_id, wave_id=_wave_id, order_id=_order_id,
+        )
+
+        params_applied["user_selected"] = "true"
+
+        # Execute
+        try:
+            execution_result = self.executor.execute_trusted(
+                sql, label=f"KPI:{picked_entry.kpi_name}"
+            )
+        except Exception as e:
+            logger.error(
+                f"🚫 KPI user-selected id={kpi_id} execution failed: {e}"
+            )
+            return ChatResponse(
+                response=(
+                    f"Your selected KPI (**{picked_entry.kpi_name}**) "
+                    f"matched but execution failed:\n\n```\n{e}\n```"
+                ),
+                chatbot_type=ChatbotType.SQL_ASSISTANT,
+                session_id=session_id,
+                sources=[],
+                confidence_score=0.0,
+            )
+
+        rows = execution_result.rows if hasattr(execution_result, 'rows') else []
+        row_count = len(rows) if rows else 0
+
+        if not rows or row_count == 0:
+            return ChatResponse(
+                response=(
+                    f"The selected KPI **{picked_entry.kpi_name}** "
+                    f"returned no data for the given filters."
+                ),
+                chatbot_type=ChatbotType.SQL_ASSISTANT,
+                session_id=session_id,
+                sources=[],
+                confidence_score=0.95,
+                query_results=[],
+                metadata={
+                    "sql_query": sql,
+                    "row_count": 0,
+                    "dashboard_kpi": {
+                        "kpi_id": picked_entry.id,
+                        "kpi_name": picked_entry.kpi_name,
+                        "category": picked_entry.category,
+                        "chart_type": picked_entry.chart_type,
+                        "parameters_applied": params_applied,
+                        "source": "dashboard_kpi",
+                        "status": "no_data",
+                    },
+                },
+            )
+
+        response_text = self.formatter.format(
+            clean_question, sql, execution_result, 0.95
+        )
+        columns = list(rows[0].keys()) if isinstance(rows[0], dict) else []
+        query_results = [dict(r) if hasattr(r, 'keys') else r for r in rows]
+
+        dashboard_metadata = {
+            "kpi_id": picked_entry.id,
+            "kpi_name": picked_entry.kpi_name,
+            "category": picked_entry.category,
+            "chart_type": picked_entry.chart_type,
+            "logic": picked_entry.logic,
+            "match_score": 1.0,
+            "tables_used": picked_entry.tables_used,
+            "parameters_applied": params_applied,
+            "source": "dashboard_kpi",
+            "columns": columns,
+            "available_chart_types": self._available_charts_for(picked_entry.chart_type, columns),
+        }
+
+        # Log to DB
+        try:
+            chat_id = self.chat_history_service.log_chat_interaction(
+                session_id=session_id,
+                chatbot_type="sql_assistant",
+                user_query=original_question,
+                assistant_response=response_text,
+                confidence_score=0.95,
+                response_time_ms=execution_result.execution_time_ms if hasattr(execution_result, 'execution_time_ms') else 0,
+                user_id=user_id,
+            )
+            self.chat_history_service.log_sql_query(
+                chat_id=chat_id,
+                session_id=session_id,
+                user_query=original_question,
+                generated_sql=sql,
+                execution_status="success",
+                rows_returned=row_count,
+                execution_time_ms=execution_result.execution_time_ms if hasattr(execution_result, 'execution_time_ms') else 0,
+                tables_used=picked_entry.tables_used,
+                intent="dashboard_kpi_user_selected",
+                user_id=user_id,
+            )
+        except Exception as log_err:
+            logger.warning(f"⚠️ KPI selection chat history logging failed: {log_err}")
+
+        return ChatResponse(
+            response=response_text,
+            chatbot_type=ChatbotType.SQL_ASSISTANT,
+            session_id=session_id,
+            sources=[],
+            confidence_score=0.95,
+            query_results=query_results,
+            metadata={
+                "sql_query": sql,
+                "row_count": row_count,
+                "resolved_entities": entities,
+                "dashboard_kpi": dashboard_metadata,
+            },
+        )
+
+    def _process_query_skip_kpi(self, request):
+        """
+        Process a query through the normal SQL generation pipeline,
+        skipping KPI matching entirely. Used when the user selects
+        'None of these' during KPI disambiguation.
+        """
+        self._refresh_sql_engine_if_needed()
+
+        session_id = request.session_id
+        question = request.message
+
+        clean_question, entities = self.preprocessor.process(question)
+
+        if self.multi_tenant_enabled and entities.get(self.tenant_column):
+            entities = self._map_tenant_to_actual_values(entities)
+
+        logger.info(
+            f"📊 KPI skip → SQL generator for: '{clean_question}' "
+            f"entities={entities}"
+        )
+
+        # Skip KPI and SP matching — go straight to SQL generation.
+        # Delegate to process_query but with a marker to skip KPI.
+        # Store the skip flag temporarily on the instance.
+        self._skip_kpi_match = True
+        try:
+            return self.process_query(request)
+        finally:
+            self._skip_kpi_match = False
 
     def _try_sp_match(self, clean_question: str, entities: dict):
         """

@@ -612,6 +612,14 @@ class DashboardKPIResolver:
     # the caller should use LLM refiner to pick/modify from top candidates.
     AUTO_ACCEPT_THRESHOLD = 0.98
 
+    # ── Disambiguation thresholds ──
+    # If top-1 score >= this, execute directly (high confidence)
+    DISAMBIGUATION_AUTO_EXECUTE = 0.92
+    # If top-1 score < DISAMBIGUATION_AUTO_EXECUTE and the score
+    # difference between top-1 and top-2 is less than this, ask the
+    # user to pick between the two candidates.
+    DISAMBIGUATION_SCORE_DIFF = 0.1
+
     def __init__(self, registry_path: Optional[str] = None):
         if registry_path is None:
             # Try multiple fallback paths
@@ -926,15 +934,26 @@ class DashboardKPIResolver:
         keyword_score = self._score_match(question, kpi)
 
         if not self._embeddings_available or question_embedding is None:
+            logger.debug(
+                f"📊 KPI keyword-only: '{kpi.kpi_name}' kw={keyword_score:.4f} "
+                f"(emb_available={self._embeddings_available}, q_emb={'yes' if question_embedding is not None else 'NO'})"
+            )
             return keyword_score
 
         kpi_emb = self.kpi_embeddings.get(kpi.id)
         if kpi_emb is None:
+            logger.debug(
+                f"📊 KPI no-embedding fallback: '{kpi.kpi_name}' kw={keyword_score:.4f} (kpi_emb missing)"
+            )
             return keyword_score
 
         embedding_score = float(np.dot(question_embedding, kpi_emb))
         hybrid = (self.EMBEDDING_WEIGHT * embedding_score
                   + self.KEYWORD_WEIGHT * keyword_score)
+        logger.debug(
+            f"📊 KPI hybrid: '{kpi.kpi_name}' emb={embedding_score:.4f} "
+            f"kw={keyword_score:.4f} → hybrid={hybrid:.4f}"
+        )
         return hybrid
 
     def _get_question_embedding(self, question: str) -> Optional[np.ndarray]:
@@ -1490,23 +1509,56 @@ class DashboardKPIResolver:
         # terminology ("SKU", "robot").  Using the original question preserves
         # semantic proximity.  Keyword scoring uses the normalised question
         # and expands via SYNONYMS to bridge the gap.
+        #
+        # IMPORTANT: Do NOT strip the question for embedding.  Embeddings
+        # handle filler/time/location words gracefully — stripping reduces
+        # semantic signal (e.g. "bots inactive ?" vs the full natural-language
+        # question).  Keyword scoring continues to use the stripped version.
         if original_question:
-            embed_question = strip_matching_noise(original_question)
+            embed_question = original_question
         else:
-            embed_question = match_question
+            embed_question = question
         q_embedding = self._get_question_embedding(embed_question)
 
         # Choose threshold based on available scoring method
         threshold = (self.MATCH_THRESHOLD if self._embeddings_available
                      else self.KEYWORD_ONLY_THRESHOLD)
+        logger.info(
+            f"📊 KPI scoring: embeddings={'yes' if self._embeddings_available else 'NO'}, "
+            f"q_embedding={'yes' if q_embedding is not None else 'NO'}, "
+            f"threshold={threshold}, candidates={len(candidates)}"
+        )
 
         scored = []
+        all_scores = []  # diagnostic: track ALL scores
         for kpi in candidates:
             score = self._hybrid_score(match_question, kpi, q_embedding)
+            all_scores.append((score, kpi))
             if score >= threshold:
                 scored.append((score, kpi))
 
         if not scored:
+            # Log top 5 scores even though below threshold — critical for debugging
+            all_scores.sort(key=lambda x: x[0], reverse=True)
+            top5 = all_scores[:5]
+            top5_info = ", ".join(
+                f"'{k.kpi_name}'={s:.4f}" for s, k in top5
+            )
+            logger.info(
+                f"📊 KPI no match: all {len(all_scores)} candidates below "
+                f"threshold {threshold}. Top 5 scores: [{top5_info}]"
+            )
+            # Show component breakdown for the best candidate
+            if top5:
+                best_score, best_kpi = top5[0]
+                kw = self._score_match(match_question, best_kpi)
+                kpi_emb = self.kpi_embeddings.get(best_kpi.id) if self._embeddings_available else None
+                emb_sim = float(np.dot(q_embedding, kpi_emb)) if (q_embedding is not None and kpi_emb is not None) else None
+                logger.info(
+                    f"📊 KPI best candidate breakdown: '{best_kpi.kpi_name}' "
+                    f"kw_score={kw:.4f}, emb_sim={emb_sim}, "
+                    f"embed_question='{embed_question}'"
+                )
             return None
 
         scored.sort(key=lambda x: x[0], reverse=True)

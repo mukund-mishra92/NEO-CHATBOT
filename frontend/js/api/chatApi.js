@@ -217,3 +217,23 @@ export async function fetchStatistics() {
     if (!resp.ok) throw new Error('Statistics fetch failed');
     return resp.json();
 }
+
+/* ── KPI disambiguation selection ── */
+
+export async function selectKpi({ kpiId, originalQuestion, sessionId, userId }) {
+    const resp = await fetch(`${API_BASE}/api/chatbot/dashboard/kpis/select`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            kpi_id: kpiId,
+            original_question: originalQuestion,
+            session_id: sessionId,
+            user_id: userId,
+        }),
+    });
+    if (!resp.ok) {
+        const errorText = await resp.text();
+        throw new Error(`KPI selection failed: ${resp.status}: ${errorText}`);
+    }
+    return resp.json();
+}

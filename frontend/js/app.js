@@ -142,6 +142,61 @@ export function sendMessageText(text) {
     sendMessage(text);
 }
 
+/**
+ * Handle KPI disambiguation selection.
+ * Called when the user clicks one of the three options
+ * (KPI 1, KPI 2, or "None of these").
+ */
+export async function handleKpiSelection(disambigId, kpiId, originalQuestion) {
+    const container = document.getElementById(disambigId);
+    if (!container) return;
+
+    // Disable all buttons to prevent double-click
+    container.querySelectorAll('.kpi-disambig-btn').forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.pointerEvents = 'none';
+    });
+
+    // Highlight the selected button
+    const selectedBtn = event?.target?.closest?.('.kpi-disambig-btn');
+    if (selectedBtn) {
+        selectedBtn.style.opacity = '1';
+        selectedBtn.classList.add('selected');
+    }
+
+    // Show loading indicator
+    const loadingEl = document.getElementById(`${disambigId}_loading`);
+    if (loadingEl) loadingEl.style.display = 'flex';
+
+    const sessionId = State.get('sessionId');
+    const userId = getEffectiveUserId();
+
+    try {
+        showTypingIndicator('sql_assistant');
+
+        const data = await chatApi.selectKpi({
+            kpiId,
+            originalQuestion,
+            sessionId,
+            userId,
+        });
+
+        hideTypingIndicator();
+
+        if (loadingEl) loadingEl.style.display = 'none';
+
+        const responseText = data.response || data.message || '';
+        data._userMessage = originalQuestion;
+        appendMessage('assistant', responseText, data, false, null);
+
+    } catch (err) {
+        hideTypingIndicator();
+        if (loadingEl) loadingEl.style.display = 'none';
+        appendMessage('system', `<em>Error: ${err.message || 'KPI selection failed.'}</em>`, {}, false, null);
+    }
+}
+
 /* ══════════════════════════════════════════════════════════════════
    2.  MISC ACTIONS
 ═══════════════════════════════════════════════════════════════════ */
@@ -290,6 +345,7 @@ window.exportTableToCSV      = exportTableToCSV;
 window.renderKpiChart        = renderKpiChart;
 window.switchKpiChart        = switchKpiChart;
 window.toggleKpiViz          = toggleKpiViz;
+window.handleKpiSelection    = handleKpiSelection;
 
 // Pagination (also set in markdownRenderer but set again for safety)
 window.paginateTable         = paginateTable;

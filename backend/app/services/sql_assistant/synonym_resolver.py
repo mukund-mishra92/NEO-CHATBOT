@@ -6,16 +6,14 @@ class SynonymResolver:
     """
     Normalize user language to schema-aligned terminology.
     Example:
-        'sku' -> 'article'
         'product' -> 'article'
         'bot' -> 'robot'
     """
 
     DEFAULT_SYNONYMS: Dict[str, str] = {
-        "sku": "article",
-        "skus": "articles",
         "product": "article",
         "products": "articles",
+        "GTC":"station",
         "item": "article",
         "items": "articles",
         "robot" : "bot",
