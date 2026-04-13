@@ -204,6 +204,64 @@
             color: #adb5bd;
         }
 
+        .chatbot-btn.auto-detect {
+            border: 1.5px dashed #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .chatbot-btn.auto-detect.active {
+            background: linear-gradient(135deg, #667eea 0%, #00c9a7 100%);
+            color: white;
+            border: 1.5px solid transparent;
+            box-shadow: 0 8px 18px rgba(0, 201, 167, 0.28);
+        }
+
+        .auto-detect-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 6px;
+            vertical-align: middle;
+            animation: badge-appear 0.3s ease-out;
+        }
+
+        .auto-detect-badge.knowledge_base { background: #e8f5e9; color: #2e7d32; }
+        .auto-detect-badge.sql_assistant { background: #e3f2fd; color: #1565c0; }
+        .auto-detect-badge.semi_auto_diagnostic { background: #fff3e0; color: #e65100; }
+
+        @keyframes badge-appear {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .classifying-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 8px;
+        }
+
+        .classifying-indicator .spinner {
+            width: 12px;
+            height: 12px;
+            border: 2px solid #667eea33;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .chat-main {
             display: flex;
             flex: 1;
@@ -2494,7 +2552,10 @@
         <!-- Chatbot Type Selector -->
         <div class="chatbot-selector">
             <span style="font-weight: 600; color: #6c757d;">Choose Assistant:</span>
-            <button class="chatbot-btn active" data-type="knowledge_base">
+            <button class="chatbot-btn auto-detect active" data-type="auto">
+                <i class="fas fa-magic"></i> Auto Detect
+            </button>
+            <button class="chatbot-btn" data-type="knowledge_base">
                 <i class="fas fa-book"></i> Knowledge Base
             </button>
             <button class="chatbot-btn" data-type="sql_assistant">
@@ -2506,6 +2567,7 @@
             <button class="chatbot-btn disabled" data-type="diagnostic" disabled>
                 <i class="fas fa-stethoscope"></i> Diagnostic Support
             </button>
+            <span id="autoDetectStatus" style="display:none;"></span>
         </div>
 
         <!-- Main Chat Area -->
@@ -2517,7 +2579,7 @@
                     <i class="fas fa-comments"></i>
                     <h3>Welcome to NEO AI Assistant</h3>
                     <p>I'm here to help you with documentation, SQL queries, and system diagnostics.</p>
-                    <p style="margin-top: 10px; font-size: 14px;">Select an assistant type above and start chatting</p>
+                    <p style="margin-top: 10px; font-size: 14px;">Just type your question — I'll automatically route it to the right assistant</p>
                     
                     <div class="suggestion-chips" id="suggestionChips">
                         <!-- Dynamic suggestions based on chatbot type -->
@@ -2564,7 +2626,7 @@
                     </div>
                     <div class="sidebar-stat-pill">
                         <div class="stat-label">Assistant</div>
-                        <div class="stat-value" id="activeAssistant" style="font-size: 12px;">Knowledge Base</div>
+                        <div class="stat-value" id="activeAssistant" style="font-size: 12px;">Auto Detect</div>
                     </div>
                 </div>
 
@@ -2692,7 +2754,7 @@
         })();
 
         // Global variables
-        let currentChatbotType = 'knowledge_base';
+        let currentChatbotType = 'auto';
         let sessionId = null;
         let messageCount = 0;
         let responseInProgress = false;
@@ -2778,6 +2840,12 @@
 
         // Suggestions for each chatbot type
         const suggestions = {
+            auto: [
+                "What is NEO warehouse system?",
+                "Show me today's throughput at FRK",
+                "Bot 1234 is not moving",
+                "How many active bots in BLR?"
+            ],
             knowledge_base: [
                 "What is NEO warehouse system?",
                 "Tell me about order management features",
@@ -2836,6 +2904,10 @@
                     
                     console.log(`🔄 Switching from ${oldChatbotType} to ${newChatbotType}`);
 
+                    // Clear auto-detect badge when switching modes
+                    const autoStatus = document.getElementById('autoDetectStatus');
+                    if (autoStatus) autoStatus.style.display = 'none';
+
                     // 🔥 IMPORTANT FIX
                     // sessionId = null;
                     // document.getElementById('currentSessionId').textContent = 'No active session';
@@ -2844,7 +2916,7 @@
                     
                     // Reset semi-auto diagnostic session when switching AWAY from it
                     // 🔥 FIX: Don't reset sopSessionId when switching TO semi_auto_diagnostic
-                    if (currentChatbotType !== 'semi_auto_diagnostic') {
+                    if (currentChatbotType !== 'semi_auto_diagnostic' && currentChatbotType !== 'auto') {
                         semiAutoDiagSession = null;
                         sopSessionId = null;
                         sopCurrentStatus = null;
@@ -2863,9 +2935,9 @@
                     //     existingCard.closest('.message')?.remove();
                     // }}
                     
-                    // Show upload area only for knowledge base
+                    // Show upload area for knowledge base and auto mode
                     const uploadArea = document.getElementById('uploadArea');
-                    if (currentChatbotType === 'knowledge_base') {
+                    if (currentChatbotType === 'knowledge_base' || currentChatbotType === 'auto') {
                         uploadArea.classList.add('active');
                     } else {
                         uploadArea.classList.remove('active');
@@ -2873,7 +2945,7 @@
 
                     // Show/hide attachment button and clear attached file when switching types
                     const attachBtn = document.getElementById('attachBtn');
-                    if (currentChatbotType === 'knowledge_base') {
+                    if (currentChatbotType === 'knowledge_base' || currentChatbotType === 'auto') {
                         attachBtn.style.display = '';
                     } else {
                         attachBtn.style.display = 'none';
@@ -3050,6 +3122,71 @@
             }
         }
 
+        // ========== Intent Auto-Classification ==========
+        const _intentNameMap = {
+            'knowledge_base': 'Knowledge Base',
+            'sql_assistant': 'SQL Assistant',
+            'semi_auto_diagnostic': 'Semi-Auto Diagnostic'
+        };
+        const _intentIconMap = {
+            'knowledge_base': 'fa-book',
+            'sql_assistant': 'fa-database',
+            'semi_auto_diagnostic': 'fa-tools'
+        };
+
+        async function classifyIntent(message) {
+            /**
+             * Call the backend /api/chatbot/classify endpoint to determine
+             * which service should handle this query.
+             * Returns: 'knowledge_base' | 'sql_assistant' | 'semi_auto_diagnostic'
+             */
+            const statusEl = document.getElementById('autoDetectStatus');
+            try {
+                // Show classifying indicator
+                statusEl.style.display = 'inline-flex';
+                statusEl.innerHTML = '<span class="classifying-indicator"><span class="spinner"></span> Classifying...</span>';
+
+                const resp = await fetch('/api/chatbot/classify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, session_id: sessionId })
+                });
+
+                if (!resp.ok) {
+                    console.warn('⚠️ Classification endpoint returned', resp.status);
+                    statusEl.style.display = 'none';
+                    return 'knowledge_base';  // Fallback
+                }
+
+                const result = await resp.json();
+                const intent = result.intent || 'knowledge_base';
+                const confidence = result.confidence || 0;
+                const label = _intentNameMap[intent] || intent;
+                const icon = _intentIconMap[intent] || 'fa-robot';
+
+                // Show detected badge
+                statusEl.innerHTML = `<span class="auto-detect-badge ${intent}"><i class="fas ${icon}"></i> ${label} (${Math.round(confidence * 100)}%)</span>`;
+
+                // Update the active assistant stat
+                document.getElementById('activeAssistant').textContent = `Auto → ${label}`;
+
+                console.log(`🎯 Classified: ${intent} (${confidence.toFixed(2)}) via ${result.method}`);
+
+                // Auto-fade badge after 5 seconds
+                setTimeout(() => {
+                    if (statusEl.querySelector('.auto-detect-badge')) {
+                        statusEl.style.display = 'none';
+                    }
+                }, 5000);
+
+                return intent;
+            } catch (err) {
+                console.error('❌ Classification failed:', err);
+                statusEl.style.display = 'none';
+                return 'knowledge_base';  // Safe fallback
+            }
+        }
+
         async function sendMessage() {
             if (responseInProgress) {
                 return;
@@ -3099,8 +3236,15 @@
             const requestAbortSignal = activeResponseAbortController?.signal;
 
             try {
+                // ── Auto-detect intent if in "auto" mode ──
+                let resolvedType = currentChatbotType;
+                if (currentChatbotType === 'auto') {
+                    resolvedType = await classifyIntent(message);
+                    console.log(`🤖 Auto-detected intent: ${resolvedType}`);
+                }
+
                 // Check if semi-automated diagnostic
-                if (currentChatbotType === 'semi_auto_diagnostic') {
+                if (resolvedType === 'semi_auto_diagnostic') {
                     await handleSemiAutoDiagnostic(message);
                     hideTypingIndicator();
                     // Update message count for Semi-Auto Diagnostic too
@@ -3111,14 +3255,14 @@
                     // Build request payload - include attached document context if present
                     const payload = {
                         message: message,
-                        chatbot_type: currentChatbotType,
+                        chatbot_type: resolvedType,
                         session_id: sessionId,
                         user_id: getEffectiveUserId(),
                         conversation_history: []
                     };
 
                     // If a document is attached, include its text as context
-                    if (attachedDocumentText && currentChatbotType === 'knowledge_base') {
+                    if (attachedDocumentText && resolvedType === 'knowledge_base') {
                         payload.context = {
                             attached_document: attachedDocumentText,
                             attached_filename: attachedFileName

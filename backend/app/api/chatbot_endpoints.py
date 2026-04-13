@@ -6,7 +6,7 @@ FastAPI routes for chatbot functionality
 import logging
 import time
 import uuid
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pathlib import Path
@@ -26,6 +26,7 @@ from ..services.sql_assistant.sql_assistant import SQLAssistantService
 from ..services.diagnostic.diagnostic_service import DiagnosticService
 from ..services.chat_history_service import ChatHistoryService
 from ..services.agentic_service import get_agentic_service
+from ..services.intent_classifier import get_intent_classifier
 # NOTE: Old SemiAutomatedDiagnosticService has been replaced with SemiAutoSOPService
 # New SOP-based endpoints are in diagnostic_support_routes.py under /api/diagnostic-support/sop/*
 from app.core.config import settings
@@ -72,6 +73,50 @@ else:
 
 # DEPRECATED: Old session storage - now using session_manager instead
 # chat_sessions: Dict[str, list] = {}
+
+
+# ---------------------------------------------------------------------------
+# Intent Classification Endpoint
+# ---------------------------------------------------------------------------
+
+class ClassifyRequest(BaseModel):
+    """Request to classify a user query's intent."""
+    message: str
+    session_id: Optional[str] = None
+
+class ClassifyResponse(BaseModel):
+    """Response from the intent classifier."""
+    intent: str
+    confidence: float
+    method: str
+    reasoning: str
+
+
+@router.post("/classify", response_model=ClassifyResponse)
+async def classify_intent(request: ClassifyRequest):
+    """
+    Classify a user query to determine which chatbot service should handle it.
+    
+    Returns one of: knowledge_base, sql_assistant, semi_auto_diagnostic
+    """
+    try:
+        classifier = get_intent_classifier()
+        result = classifier.classify(request.message)
+        return ClassifyResponse(
+            intent=result["intent"],
+            confidence=result["confidence"],
+            method=result["method"],
+            reasoning=result["reasoning"]
+        )
+    except Exception as e:
+        logger.error(f"❌ Classification error: {e}")
+        # Default to knowledge_base on failure
+        return ClassifyResponse(
+            intent="knowledge_base",
+            confidence=0.30,
+            method="error_fallback",
+            reasoning=f"Classification failed: {str(e)}"
+        )
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -141,6 +186,21 @@ async def chat(request: ChatRequest):
             logger.info(f"📚 Context summary: {context_summary[:100]}...")
         
         # STEP 4: Route to appropriate service (with conversation history passed)
+        # If chatbot_type is GENERAL (or unspecified), auto-classify the intent
+        if request.chatbot_type == ChatbotType.GENERAL:
+            classifier = get_intent_classifier()
+            classification = classifier.classify(request.message)
+            resolved_type = classification["intent"]
+            logger.info(f"🤖 Auto-classified intent: {resolved_type} (confidence={classification['confidence']:.2f}, method={classification['method']})")
+            
+            # Map string to ChatbotType enum
+            type_map = {
+                "knowledge_base": ChatbotType.KNOWLEDGE_BASE,
+                "sql_assistant": ChatbotType.SQL_ASSISTANT,
+                "semi_auto_diagnostic": ChatbotType.SEMI_AUTO_DIAGNOSTIC,
+            }
+            request.chatbot_type = type_map.get(resolved_type, ChatbotType.KNOWLEDGE_BASE)
+        
         response = None
         
         if request.chatbot_type == ChatbotType.KNOWLEDGE_BASE:

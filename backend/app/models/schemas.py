@@ -13,6 +13,7 @@ class ChatbotType(str, Enum):
     KNOWLEDGE_BASE = "knowledge_base"
     SQL_ASSISTANT = "sql_assistant"
     DIAGNOSTIC = "diagnostic"
+    SEMI_AUTO_DIAGNOSTIC = "semi_auto_diagnostic"
     GENERAL = "general"
 
 
