@@ -588,7 +588,7 @@ class DashboardKPIResolver:
     # ── Thresholds ──
     # Hybrid score = 0.65 * embedding_similarity + 0.35 * keyword_score
     # Only scores above this are considered valid matches.
-    MATCH_THRESHOLD = 0.55
+    MATCH_THRESHOLD = 0.45
 
     # If embedding API is unavailable, use keyword-only with a stricter gate
     KEYWORD_ONLY_THRESHOLD = 0.65
@@ -608,17 +608,16 @@ class DashboardKPIResolver:
     HIGH_CONFIDENCE_THRESHOLD = 0.85
 
     # Auto-accept threshold — above this, KPI match is executed directly
-    # without LLM refinement.  Between MATCH_THRESHOLD (0.55) and this,
+    # without LLM refinement.  Between MATCH_THRESHOLD (0.50) and this,
     # the caller should use LLM refiner to pick/modify from top candidates.
     AUTO_ACCEPT_THRESHOLD = 0.98
 
     # ── Disambiguation thresholds ──
-    # If top-1 score >= this, execute directly (high confidence)
-    DISAMBIGUATION_AUTO_EXECUTE = 0.92
-    # If top-1 score < DISAMBIGUATION_AUTO_EXECUTE and the score
-    # difference between top-1 and top-2 is less than this, ask the
-    # user to pick between the two candidates.
-    DISAMBIGUATION_SCORE_DIFF = 0.1
+    # If the score difference between top-1 and top-2 is less than
+    # this, ask the user to pick between the two candidates.
+    # If diff >= this, execute the highest-scoring KPI directly.
+    # This applies at ANY score above MATCH_THRESHOLD.
+    DISAMBIGUATION_SCORE_DIFF = 0.03
 
     def __init__(self, registry_path: Optional[str] = None):
         if registry_path is None:

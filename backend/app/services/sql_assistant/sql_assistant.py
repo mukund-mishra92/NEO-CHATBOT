@@ -1320,6 +1320,104 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
         "additionalProperties": False,
     }
 
+    # JSON schema for column projection response
+    _KPI_PROJECT_SCHEMA = {
+        "type": "object",
+        "properties": {
+            "needs_projection": {
+                "type": "boolean",
+                "description": "True if the SQL needs column filtering, False if all columns are relevant",
+            },
+            "sql": {
+                "type": "string",
+                "description": "The projected SQL (wrapped in subquery) or the original SQL if no projection needed",
+            },
+        },
+        "required": ["needs_projection", "sql"],
+        "additionalProperties": False,
+    }
+
+    def _llm_project_columns(
+        self,
+        user_query: str,
+        kpi_entry,
+        substituted_sql: str,
+    ) -> str | None:
+        """
+        Lightweight LLM call to filter KPI output columns.
+
+        If the KPI returns more columns than the user asked for,
+        wraps the SQL in a subquery to project only relevant columns.
+
+        Returns the projected SQL string, or None if no projection needed
+        or LLM is unavailable.
+        """
+        client = getattr(self.sql_engine, "openai_client", None)
+        if client is None:
+            return None
+
+        prompt = (
+            "You are a SQL column projection expert. The user asked a question "
+            "and the system matched it to a KPI that may return extra columns.\n\n"
+            f'USER QUERY: "{user_query}"\n\n'
+            f"KPI NAME: {kpi_entry.kpi_name}\n"
+            f"KPI LOGIC: {kpi_entry.logic[:300]}\n\n"
+            f"SUBSTITUTED SQL:\n{substituted_sql}\n\n"
+            "YOUR TASK:\n"
+            "1. Check if the SQL returns columns the user did NOT ask for.\n"
+            "2. If YES → set needs_projection=true and wrap the SQL:\n"
+            "   SELECT _cp.COL1, _cp.COL2 FROM ( <original_sql_without_semicolon> ) AS _cp;\n"
+            "   Keep identifier columns (BOT_ID, STATION_ID, etc.) along with "
+            "   the requested metric columns.\n"
+            "3. If NO (all columns are relevant) → set needs_projection=false "
+            "   and return the original SQL unchanged.\n\n"
+            "RULES:\n"
+            "• If the user asks about ONLY 'active hours' → remove INACTIVE_HOURS column.\n"
+            "• If the user asks about ONLY 'inactive hours' → remove ACTIVE_HOURS column.\n"
+            "• If the user asks about both or says 'active vs inactive' → keep all.\n"
+            "• Always keep identifier columns (BOT_ID, STATION_ID, etc.).\n"
+            "• If only one metric column exists, no projection needed.\n"
+            "• The SQL must be valid MySQL 8.x.\n"
+            "• Do NOT add semicolons inside the subquery wrapper.\n\n"
+            "Respond with valid JSON."
+        )
+
+        try:
+            resp = client.responses.create(
+                model=self.sql_engine.model,
+                input=prompt,
+                temperature=0,
+                timeout=15,
+                text={
+                    "format": {
+                        "type": "json_schema",
+                        "name": "kpi_column_projection",
+                        "strict": True,
+                        "schema": self._KPI_PROJECT_SCHEMA,
+                    }
+                },
+            )
+            result = json.loads(resp.output_text)
+
+            if result.get("needs_projection"):
+                projected_sql = result.get("sql", "").strip()
+                if projected_sql:
+                    logger.info(
+                        f"📊 LLM column projection applied for "
+                        f"'{kpi_entry.kpi_name}'"
+                    )
+                    return projected_sql
+            else:
+                logger.info(
+                    f"📊 LLM column projection: no filtering needed for "
+                    f"'{kpi_entry.kpi_name}'"
+                )
+            return None
+
+        except Exception as e:
+            logger.warning(f"⚠️ LLM column projection error: {e}")
+            return None
+
     def _llm_refine_kpi_query(
         self,
         user_query: str,
@@ -1462,15 +1560,18 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             "   ORDER BY). Only wrap the outer SELECT.\n\n"
             "DOMAIN RULES:\n"
             "• \"active time/hours\" for a specific bot → Active vs Inactive hours "
-            "KPI, project BOT_ID + ACTIVE_HOURS.\n"
+            "KPI, project BOT_ID + ACTIVE_HOURS only. Remove INACTIVE_HOURS.\n"
             "• \"inactive time/hours\" for a specific bot → Active vs Inactive hours "
-            "KPI, project BOT_ID + INACTIVE_HOURS.\n"
+            "KPI, project BOT_ID + INACTIVE_HOURS only. Remove ACTIVE_HOURS.\n"
             "• \"total inactive time\" for a bot → Active vs Inactive hours KPI, "
             "project BOT_ID + INACTIVE_HOURS (this gives per-bot hours, which IS "
             "the total inactive time for that bot).\n"
             "• \"active vs inactive\" or comparison → keep ALL columns.\n"
             "• \"how many bots\" / \"count of bots\" (no time words) → count KPI.\n"
             "• \"number of inactive bots\" / \"count inactive bots\" → Inactive Bots count KPI.\n"
+            "• IMPORTANT: Only return columns that directly answer the user's "
+            "question. If the user asks about ONE metric, do NOT include other "
+            "metrics in the output. Always use column projection to filter.\n"
             "• The SQL must be valid MySQL 8.x.\n\n"
             "Respond with valid JSON matching the required schema."
         )
@@ -1625,11 +1726,11 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             return None
 
         # ═══════════════════════════════════════════════════════
-        #  TIERED KPI STRATEGY (with user disambiguation):
-        #    ≥ 0.92  → auto-accept (high confidence, execute directly)
-        #    < 0.92 and top-2 diff < 0.5 → ask user to pick
-        #    < 0.92 and top-2 diff ≥ 0.5 → LLM refines from top-3
-        #    < 0.55  → already rejected by resolver (never reaches here)
+        #  KPI STRATEGY (simplified):
+        #    < 0.45  → rejected by resolver (never reaches here)
+        #    ≥ 0.45, top-2 diff < 0.1 → ask user to pick
+        #    ≥ 0.45, top-2 diff ≥ 0.1 → execute highest KPI
+        #    LLM refiner ALWAYS runs on final KPI answer
         # ═══════════════════════════════════════════════════════
 
         # Log top candidates for diagnostics
@@ -1641,13 +1742,10 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                 )
 
         # ── Disambiguation check ──
-        # If top-1 score < 0.92 and the gap to top-2 is < 0.5,
-        # return a special response so the frontend can ask the user.
+        # If top-1 and top-2 diff < 0.1, ask the user to pick
+        # (regardless of the absolute score).
         from .kpi_resolver import DashboardKPIResolver as _Resolver
-        if (
-            kpi_match.match_score < _Resolver.DISAMBIGUATION_AUTO_EXECUTE
-            and len(kpi_match.top_candidates) >= 2
-        ):
+        if len(kpi_match.top_candidates) >= 2:
             top1 = kpi_match.top_candidates[0]
             top2 = kpi_match.top_candidates[1]
             score_diff = top1["score"] - top2["score"]
@@ -1694,35 +1792,29 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                     },
                 )
 
-        # ── High-confidence auto-execute (>= 0.92) — skip LLM refiner ──
-        if kpi_match.match_score >= _Resolver.DISAMBIGUATION_AUTO_EXECUTE:
-            logger.info(
-                f"📊 KPI high-confidence auto-execute ({kpi_match.match_score:.3f} >= "
-                f"{_Resolver.DISAMBIGUATION_AUTO_EXECUTE}): '{kpi_match.kpi_name}'"
-            )
-            # Skip LLM refiner, go straight to execution
-            llm_result = None
-        else:
-            # ── LLM refiner for mid-confidence matches ──
-            logger.info(
-                f"📊 KPI match ({kpi_match.match_score:.3f}): "
-                f"invoking LLM KPI refiner for '{kpi_match.kpi_name}'"
-            )
-            llm_result = self._llm_refine_kpi_query(
-                user_query=clean_question,
-                kpi_match=kpi_match,
-                tenant_values=tenant_values,
-                time_from=_kpi_time_from,
-                time_to=_kpi_time_to,
-                all_sites=all_sites,
-                bot_id=_bot_id,
-                station_id=_station_id,
-                bin_id=_bin_id,
-                wave_id=_wave_id,
-                order_id=_order_id,
-                category_value=_category_value,
-                location_breakdown=location_breakdown,
-            )
+        # ── Always run LLM refiner ──
+        # LLM refiner handles KPI selection refinement AND column
+        # projection (e.g. user asks "active hours" but KPI returns
+        # both ACTIVE_HOURS and INACTIVE_HOURS).
+        logger.info(
+            f"📊 KPI match ({kpi_match.match_score:.3f}): "
+            f"invoking LLM refiner for '{kpi_match.kpi_name}'"
+        )
+        llm_result = self._llm_refine_kpi_query(
+            user_query=clean_question,
+            kpi_match=kpi_match,
+            tenant_values=tenant_values,
+            time_from=_kpi_time_from,
+            time_to=_kpi_time_to,
+            all_sites=all_sites,
+            bot_id=_bot_id,
+            station_id=_station_id,
+            bin_id=_bin_id,
+            wave_id=_wave_id,
+            order_id=_order_id,
+            category_value=_category_value,
+            location_breakdown=location_breakdown,
+        )
 
         if llm_result is None:
             # LLM refiner unavailable or rejected all → use top-1 as fallback
@@ -2140,6 +2232,63 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
         )
 
         params_applied["user_selected"] = "true"
+
+        # ── Full LLM refiner for user-selected KPI ──
+        # The user picked a KPI but may need the SQL adjusted:
+        #   - Column projection ("active hours" → remove INACTIVE_HOURS)
+        #   - Aggregation ("total active hours" → SUM(ACTIVE_HOURS))
+        #   - Filtering ("for bot 9" → WHERE BOT_ID = 'BOT-0009')
+        # Build a synthetic KPIMatch so _llm_refine_kpi_query can process it.
+        try:
+            from .kpi_resolver import KPIMatch as _KPIMatch
+            synthetic_match = _KPIMatch(
+                kpi_id=picked_entry.id,
+                kpi_name=picked_entry.kpi_name,
+                category=picked_entry.category,
+                chart_type=picked_entry.chart_type,
+                logic=picked_entry.logic,
+                sql=sql,
+                raw_query=picked_entry.query,
+                match_score=1.0,
+                tables_used=picked_entry.tables_used,
+                requires_location=picked_entry.requires_location,
+                requires_time_range=picked_entry.requires_time_range,
+                parameters_applied=params_applied,
+                top_candidates=[{
+                    "kpi_id": picked_entry.id,
+                    "kpi_name": picked_entry.kpi_name,
+                    "score": 1.0,
+                    "logic": picked_entry.logic,
+                    "chart_type": picked_entry.chart_type,
+                    "tables_used": picked_entry.tables_used,
+                    "user_queries": picked_entry.user_queries,
+                }],
+            )
+            llm_result = self._llm_refine_kpi_query(
+                user_query=clean_question,
+                kpi_match=synthetic_match,
+                tenant_values=tenant_values,
+                time_from=_kpi_time_from,
+                time_to=_kpi_time_to,
+                all_sites=all_sites,
+                bot_id=_bot_id,
+                station_id=_station_id,
+                bin_id=_bin_id,
+                wave_id=_wave_id,
+                order_id=_order_id,
+                category_value=_category_value,
+                location_breakdown=location_breakdown,
+            )
+            if llm_result and llm_result.get("sql"):
+                sql = llm_result["sql"]
+                params_applied["llm_refined"] = "true"
+                logger.info(
+                    f"📊 LLM refiner applied to user-selected KPI: "
+                    f"'{picked_entry.kpi_name}'. "
+                    f"Explanation: {llm_result.get('explanation', '')[:150]}"
+                )
+        except Exception as refine_err:
+            logger.warning(f"⚠️ LLM refiner failed for user-selected KPI (non-fatal): {refine_err}")
 
         # Execute
         try:
