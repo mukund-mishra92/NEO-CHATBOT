@@ -101,7 +101,7 @@ class TestSimpleQueryFlow:
         )
         assert "```sql" in formatted
         assert "1523" in formatted
-        assert "Rows Returned: 1" in formatted
+        assert "Rows returned: 1" in formatted
 
     def test_top_articles_flow(self, full_pipeline):
         """
@@ -147,7 +147,7 @@ class TestSimpleQueryFlow:
 
         assert "ART-001" in formatted
         assert "300" in formatted
-        assert "Rows Returned: 5" in formatted
+        assert "Rows returned: 5" in formatted
 
 
 # =====================================================================
@@ -237,7 +237,7 @@ class TestTenantQueryFlow:
 
         assert "frk" in formatted
         assert "shakti" in formatted
-        assert "Rows Returned: 4" in formatted
+        assert "Rows returned: 4" in formatted
 
 
 # =====================================================================
@@ -428,4 +428,4 @@ class TestJoinQueryFlow:
 
         assert "Widget A" in formatted
         assert "ART-001" in formatted
-        assert "Rows Returned: 2" in formatted
+        assert "Rows returned: 2" in formatted

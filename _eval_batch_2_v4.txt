@@ -1,0 +1,282 @@
+﻿.\venv\Scripts\python.exe : 2026-04-15 14:30:14,450 [WARNING] 
+app.services.sql_assistant.sp_resolver: ΓÜá∩╕Å SP tables without 
+'host-location': {'wcs_to_wms_payload', 'api_master'}
+At line:1 char:64
++ ... ch $b ==="; .\venv\Scripts\python.exe -m evaluation.production_query_ ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2026-04-15 14:3..., 'api_master'} 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2026-04-15 14:30:15,199 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'No-Read Breakdown by Station Location' 
+score=0.636 (below HIGH_CONFIDENCE=0.85). Accepting but flagging for 
+monitoring.
+2026-04-15 14:30:16,106 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.33, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:30:17,799 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.798 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:18,705 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.022 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'Total Quantity' (0.725)
+2026-04-15 14:30:18,705 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Quantity' score=0.725 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:20,054 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Wave Counts by Type' score=0.628 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:21,378 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.688 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:22,662 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.837 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:26,308 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.608 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:28,485 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.801 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:29,657 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.032 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'Total Waves Run' (0.624)
+2026-04-15 14:30:29,658 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Waves Run' score=0.624 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:31,174 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.575 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:36,479 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.630 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:37,633 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.561 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:38,826 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.813 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:40,117 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'picked quantity' score=0.799 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:41,479 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.641 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:42,628 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bins Used' score=0.748 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:44,099 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.006 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'Total Bin Blocked' (0.730)
+2026-04-15 14:30:44,099 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bin Blocked' score=0.730 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:46,491 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Wave Counts by Type' score=0.674 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:30:49,949 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.631 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:05,876 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bin Audit Marked' score=0.618 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+  Loaded 650 production queries from queries_till_14_04.txt
+  Initializing SQL Assistant Service...
+  Service ready in 28.8s (91 tables)
+
+================================================================================
+  Production Query Evaluation -- 100 queries
+  Mode: DRY RUN (table selection only)
+================================================================================
+
+  [OK] #101 | route=sql_generation  | tables=[station_no_read_logs,bin_protrusion_master,bin_protrusion_master_log+9] | score=1.00 | issues=0 | Compare no-read error count vs bins processed per 
+  [OK] #102 | route=sql_generation  | tables=[pick_wave_order_master,short_pick_wave_reason,pick_wave_order_master_archive+9] | score=1.00 | issues=0 | Which site had the highest short-pick rate in comp
+  [OK] #103 | route=sp              | tables=[bin_protrusion_master,bin_protrusion_master_log,order_bin_task_master+9] | score=1.00 | issues=0 | Show total bins processed per station per site tod
+  [OK] #104 | route=sql_generation  | tables=[short_pick_wave_reason,picklist_split_recommendation_log,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | Show total short-pick quantity per site this week.
+  [OK] #105 | route=sql_generation  | tables=[wave_master,wave_master_archive,pick_wave_order_master+9] | score=1.00 | issues=0 | Show average wave completion time by wave type for
+  [OK] #106 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Show alarm rate per bot (% of bots with active ala
+  [OK] #107 | route=sp              | tables=[bin_protrusion_master,bin_info_master,store_bin_master+9] | score=1.00 | issues=0 | Show total occupied bins per site.
+  [OK] #108 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data,wms_to_wcs_order_line_level_pre_staged_data,picklist_split_order_master+9] | score=1.00 | issues=0 | Show pending order lines count per site.
+  [OK] #109 | route=sql_generation  | tables=[wave_master,wave_master_archive,put_wave_order_master+9] | score=1.00 | issues=0 | How many waves were completed today at each site?
+  [OK] #110 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_master+9] | score=1.00 | issues=0 | Show total alarms raised today for each site.
+  [OK] #111 | route=sql_generation  | tables=[bot_charging_bit_log_archive,bot_master,bot_history+9] | score=1.00 | issues=0 | Show average battery percentage per site.
+  [OK] #112 | route=reuse           | tables=[bot_master                              ] | score=1.00 | issues=0 | How many active bots does each site have?
+  [OK] #113 | route=sql_generation  | tables=[pick_wave_order_master,short_pick_wave_reason,pick_wave_order_master_archive+9] | score=1.00 | issues=0 | Across all sites today, what is the total number o
+  [OK] #114 | route=sql_generation  | tables=[bot_master,bot_alarm_log,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Across all sites, how many bots have both critical
+  [OK] #115 | route=sql_generation  | tables=[live_inventory_master,live_inventory_master_log,location_master+9] | score=1.00 | issues=0 | What is the total inventory quantity held across a
+  [OK] #116 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data,picklist_split_order_master,lpn_pick_wave_order_mapping+9] | score=1.00 | issues=0 | How many order lines are pending for picking acros
+  [OK] #117 | route=sql_generation  | tables=[wave_master,wave_master_archive,stock_audit_wave_order_master+9] | score=1.00 | issues=0 | How many waves were completed today across all sit
+  [OK] #118 | route=missing_table   | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many bot alarms were raised today across all s
+  [OK] #119 | route=sql_generation  | tables=[bot_master,bot_history,bot_charging_bit_log_archive+9] | score=1.00 | issues=0 | Show total bots with critical battery across all s
+  [OK] #120 | route=reuse           | tables=[bot_master                              ] | score=1.00 | issues=0 | How many bots are active across all sites right no
+  [OK] #121 | route=sp              | tables=[pick_wave_order_master,pick_wave_wms_data,put_wave_order_master+9] | score=1.00 | issues=0 | Show inventory movement per wave in bangalore toda
+  [OK] #122 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=0.85 | issues=1 | In bangalore, show bots that had an alarm AND comp
+  [OK] #123 | route=sql_generation  | tables=[live_inventory_master,order_bin_mapping,order_bin_task_master+9] | score=1.00 | issues=0 | For pending pick orders in banglore, show the curr
+  [OK] #124 | route=sql_generation  | tables=[bot_master,bin_protrusion_master,order_bin_task_master+9] | score=1.00 | issues=0 | Show bins currently being transported by bots in b
+  [OK] #125 | route=sql_generation  | tables=[short_put_wave_reason,short_pick_wave_reason,put_wave_wms_data_archive+9] | score=1.00 | issues=0 | List put waves at BLR in the last 7 days with thei
+  [OK] #126 | route=sql_generation  | tables=[pick_wave_order_master,wave_master,hw_station_master+9] | score=1.00 | issues=0 | Show which workstations handled which waves in ban
+  [OK] #127 | route=sql_generation  | tables=[bot_master,bin_protrusion_master,bot_alarm_log+9] | score=1.00 | issues=0 | How many bots are currently active in faruknagar?
+  [OK] #128 | route=sql_generation  | tables=[bot_master,bot_charging_bit_log_archive,bot_history+9] | score=1.00 | issues=0 | List bots with battery below 20% at frk.
+  [OK] #129 | route=sql_generation  | tables=[bot_master,bot_alarm_log,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many bots have an active alarm in faruknagar?
+  [OK] #130 | route=sql_generation  | tables=[bot_master,bot_charging_bit_log_archive,bot_history+9] | score=1.00 | issues=0 | Show bots with critical battery health in farukhna
+  [OK] #131 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_master+9] | score=1.00 | issues=0 | How many alarms were raised today in faruknagar?
+  [OK] #132 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | List the top 5 alarm codes by frequency this week 
+  [OK] #133 | route=sql_generation  | tables=[wave_master,put_wave_order_master,wave_master_archive+9] | score=1.00 | issues=0 | How many waves were completed today in faruknagar?
+  [OK] #134 | route=sql_generation  | tables=[pick_wave_order_master,pick_wave_order_master_archive,wave_master+9] | score=1.00 | issues=0 | List currently active pick waves at frk.
+  [OK] #135 | route=sql_generation  | tables=[wave_master,wave_master_archive,put_wave_wms_data+9] | score=1.00 | issues=0 | Find waves in faruknagar stuck in PROCESSING for m
+  [OK] #136 | route=sql_generation  | tables=[lpn_pick_wave_order_mapping,pick_wave_order_master,picklist_split_order_master+9] | score=1.00 | issues=0 | How many order lines are pending for picking in fa
+  [OK] #137 | route=sql_generation  | tables=[picklist_split_recommendation_log,short_pick_wave_reason,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | Show pick orders with short picks at frk in the la
+  [OK] #138 | route=sql_generation  | tables=[put_wave_order_master,put_wave_order_master_archive,short_put_wave_reason+9] | score=1.00 | issues=0 | How many put orders are currently pending in faruk
+  [OK] #139 | route=sql_generation  | tables=[hw_station_master,hardware_registered,hw_display_master+9] | score=1.00 | issues=0 | How many workstations are enabled in faruknagar?
+  [OK] #140 | route=sql_generation  | tables=[station_no_read_logs,hw_station_master,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | How many no-read errors happened at workstations t
+  [OK] #141 | route=sql_generation  | tables=[bin_protrusion_master,order_bin_task_master,bin_protrusion_master_log+9] | score=0.70 | issues=2 | Which workstations processed more than 50 bins tod
+2026-04-15 14:31:08,192 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.585 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:20,732 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bins Used' score=0.764 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:21,943 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bin Audit Marked' score=0.686 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:23,158 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.810 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:25,844 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.584 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:42,693 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bins Used' score=0.771 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:43,779 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.621 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:45,125 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bin Audit Marked' score=0.659 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:46,131 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Wave Counts by Type' score=0.616 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:47,414 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.807 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:31:49,936 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.631 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+  [OK] #142 | route=sql_generation  | tables=[stock_audit_wave_order_master,order_bin_task_purge_log,stock_audit_wave_order_master_archive+9] | score=1.00 | issues=0 | Show bins flagged for audit at frk.
+  [OK] #143 | route=sql_generation  | tables=[bot_master,bin_protrusion_master,bot_history+9] | score=1.00 | issues=0 | How many bots are currently active in bhiwandi?
+  [OK] #144 | route=sql_generation  | tables=[bot_master,bot_alarm_log,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many bots have an active alarm in bhiwandi?
+  [OK] #145 | route=sql_generation  | tables=[bot_master,bot_charging_bit_log_archive,bot_history+9] | score=1.00 | issues=0 | Show bots with critical battery health in bhiwandi
+  [OK] #146 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many alarms were raised today in bhiwandi?
+  [OK] #147 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | List all bypassed alarms in bhiwandi.
+  [OK] #148 | route=sql_generation  | tables=[wave_master,stock_audit_wave_order_master,put_wave_order_master+9] | score=1.00 | issues=0 | How many waves were completed today in bhiwandi?
+  [OK] #149 | route=sql_generation  | tables=[pick_wave_order_master,pick_wave_order_master_archive,wave_master+9] | score=1.00 | issues=0 | List currently active pick waves at shakti.
+  [OK] #150 | route=sql_generation  | tables=[pick_wave_order_master,pick_wave_wms_data,wms_to_wcs_order_line_request_data+9] | score=1.00 | issues=0 | How many order lines are pending for picking in bh
+  [OK] #151 | route=sql_generation  | tables=[picklist_split_recommendation_log,picklist_split_recommendation_cluster_log,short_pick_wave_reason+9] | score=1.00 | issues=0 | Show pick orders with short picks at shakti in the
+  [OK] #152 | route=sql_generation  | tables=[put_wave_order_master,put_wave_order_master_archive,short_put_wave_reason+9] | score=1.00 | issues=0 | How many put orders are currently pending in bhiwa
+  [OK] #153 | route=sql_generation  | tables=[hw_station_master,hw_display_master,bin_protrusion_master+9] | score=1.00 | issues=0 | How many workstations are enabled in bhiwandi?
+  [OK] #154 | route=sql_generation  | tables=[live_inventory_master,bin_info_master,live_inventory_master_log+9] | score=1.00 | issues=0 | How many bins currently hold inventory in bhiwandi
+  [OK] #155 | route=sql_generation  | tables=[stock_audit_wave_order_master,stock_audit_wave_order_master_archive,order_bin_task_purge_log+9] | score=1.00 | issues=0 | Show bins flagged for audit at shakti.
+  [OK] #156 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | How many bots are currently active in chennai?
+  [OK] #157 | route=sql_generation  | tables=[bot_master,bot_charging_bit_log_archive,bot_history+9] | score=1.00 | issues=0 | List bots with battery below 20% at chennai.
+  [OK] #158 | route=sql_generation  | tables=[bot_master,bot_alarm_log,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many bots have an active alarm in chennai?
+  [OK] #159 | route=sql_generation  | tables=[bot_master,bot_charging_bit_log_archive,bot_history+9] | score=1.00 | issues=0 | Show bots with critical battery health in chenai.
+  [OK] #160 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many alarms were raised today in chennai?
+  [OK] #161 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | List all bypassed alarms in chennai.
+  [OK] #162 | route=sql_generation  | tables=[wave_master,wave_master_archive,stock_audit_wave_order_master+9] | score=1.00 | issues=0 | How many waves were completed today in chennai?
+  [OK] #163 | route=sql_generation  | tables=[pick_wave_order_master,pick_wave_order_master_archive,pick_wave_wms_data+9] | score=1.00 | issues=0 | List currently active pick waves at chennai.
+  [OK] #164 | route=sql_generation  | tables=[wave_master,put_wave_wms_data,wave_master_archive+9] | score=1.00 | issues=0 | Find waves in chennai stuck in PROCESSING for more
+  [OK] #165 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data,pick_wave_order_master,pick_wave_wms_data+9] | score=1.00 | issues=0 | How many order lines are pending for picking in ch
+  [OK] #166 | route=sql_generation  | tables=[short_pick_wave_reason,picklist_split_recommendation_cluster_log,picklist_split_recommendation_log+9] | score=1.00 | issues=0 | Show pick orders with short picks at chennai in th
+  [OK] #167 | route=sql_generation  | tables=[put_wave_order_master,put_wave_order_master_archive,short_put_wave_reason+9] | score=1.00 | issues=0 | How many put orders are currently pending in chenn
+  [OK] #168 | route=sql_generation  | tables=[hw_charging_station_master,hw_station_master,hw_display_master+9] | score=1.00 | issues=0 | How many workstations are enabled in chennai?
+  [OK] #169 | route=sql_generation  | tables=[station_no_read_logs,hw_station_master,hw_charging_station_master+9] | score=1.00 | issues=0 | How many no-read errors happened at workstations t
+  [OK] #170 | route=sql_generation  | tables=[bin_protrusion_master,order_bin_task_master,bin_protrusion_master_log+9] | score=1.00 | issues=0 | Which workstations processed more than 50 bins tod
+  [OK] #171 | route=sql_generation  | tables=[live_inventory_master,store_bin_master,live_inventory_master_log+9] | score=1.00 | issues=0 | How many bins currently hold inventory in chennai?
+  [OK] #172 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Which bots in banglore raised more than 3 unique a
+  [OK] #173 | route=sql_generation  | tables=[stock_audit_wave_order_master,stock_audit_wave_order_master_archive,bin_protrusion_master+9] | score=1.00 | issues=0 | Show bins flagged for audit at chennai.
+  [OK] #174 | route=sql_generation  | tables=[hw_station_master,pick_wave_order_master,wave_master+9] | score=1.00 | issues=0 | Show which workstations handled which waves in che
+  [OK] #175 | route=sql_generation  | tables=[bot_master,bot_history,bin_protrusion_master+9] | score=1.00 | issues=0 | How many bots are currently active in bangalore?
+  [OK] #176 | route=sql_generation  | tables=[bot_master,bot_charging_bit_log_archive,bot_history+9] | score=1.00 | issues=0 | List bots with battery below 20% at BLR.
+  [OK] #177 | route=sql_generation  | tables=[bot_master,bot_alarm_log,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many bots have an active alarm in bangalore?
+  [OK] #178 | route=sql_generation  | tables=[bot_master,bot_charging_bit_log_archive,bot_history+9] | score=1.00 | issues=0 | Show bots with critical battery health in banglore
+  [OK] #179 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many alarms were raised today in bangalore?
+  [OK] #180 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_master+9] | score=1.00 | issues=0 | List the top 5 alarm codes by frequency this week 
+  [OK] #181 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_master+9] | score=1.00 | issues=0 | List all bypassed alarms in bangalore.
+  [OK] #182 | route=sql_generation  | tables=[wave_master,stock_audit_wave_order_master,wave_master_archive+9] | score=1.00 | issues=0 | How many waves were completed today in bangalore?
+  [OK] #183 | route=sql_generation  | tables=[pick_wave_order_master,pick_wave_order_master_archive,picklist_split_recommendation_log+9] | score=1.00 | issues=0 | List currently active pick waves at BLR.
+  [OK] #184 | route=sql_generation  | tables=[wave_master,wave_master_archive,pick_wave_wms_data+9] | score=1.00 | issues=0 | Find waves in bangalore stuck in PROCESSING for mo
+  [OK] #185 | route=sql_generation  | tables=[lpn_pick_wave_order_mapping,wms_to_wcs_order_line_request_data,pick_wave_order_master+9] | score=1.00 | issues=0 | How many order lines are pending for picking in ba
+  [OK] #186 | route=sql_generation  | tables=[picklist_split_recommendation_cluster_log,picklist_split_recommendation_log,short_pick_wave_reason+9] | score=1.00 | issues=0 | Show pick orders with short picks at BLR in the la
+2026-04-15 14:32:06,127 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bins Used' score=0.768 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:32:07,270 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bin Audit Marked' score=0.578 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:32:08,420 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.652 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:32:09,827 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.625 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:32:10,988 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Wave Counts by Type' score=0.550 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:32:12,756 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Waves Run' score=0.562 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:32:18,676 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bin Blocked' score=0.706 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+  [OK] #187 | route=sql_generation  | tables=[put_wave_order_master,put_wave_order_master_archive,short_put_wave_reason+9] | score=1.00 | issues=0 | How many put orders are currently pending in banga
+  [OK] #188 | route=sql_generation  | tables=[hw_station_master,location_master,hw_display_master+9] | score=1.00 | issues=0 | How many workstations are enabled in bangalore?
+  [OK] #189 | route=sql_generation  | tables=[station_no_read_logs,bot_master,test_lww_target+9] | score=1.00 | issues=0 | How many no-read errors happened at workstations t
+  [OK] #190 | route=sql_generation  | tables=[order_bin_task_master,bin_protrusion_master,order_bin_mapping+9] | score=0.70 | issues=2 | Which workstations processed more than 50 bins tod
+  [OK] #191 | route=sql_generation  | tables=[live_inventory_master,store_bin_master,bin_info_master+9] | score=1.00 | issues=0 | How many bins currently hold inventory in bangalor
+  [OK] #192 | route=sql_generation  | tables=[order_bin_task_purge_log,stock_audit_wave_order_master,bin_protrusion_master+9] | score=1.00 | issues=0 | Show bins flagged for audit at BLR.
+  [OK] #193 | route=sql_generation  | tables=[bot_master,bot_alarm_log,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Show bots in faruknagar that have an active alarm,
+  [OK] #194 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Which bots in farukhnagar raised more than 3 uniqu
+  [OK] #195 | route=sql_generation  | tables=[pick_wave_order_master,short_pick_wave_reason,pick_wave_order_master_archive+9] | score=1.00 | issues=0 | Find pick waves at frk where more than 10% of orde
+  [OK] #196 | route=sp              | tables=[put_wave_order_master,put_wave_order_master_archive,put_wave_wms_data+9] | score=1.00 | issues=0 | Show put waves in faruknagar completed today along
+  [OK] #197 | route=sql_generation  | tables=[short_pick_wave_reason,pick_wave_order_master,picklist_split_order_master+9] | score=1.00 | issues=0 | List short-pick reasons and quantities for pick or
+  [OK] #198 | route=sql_generation  | tables=[short_pick_wave_reason,short_put_wave_reason,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | Which short-pick reason is most common in farukhna
+  [OK] #199 | route=sql_generation  | tables=[bin_protrusion_master,bot_master,order_bin_task_master+9] | score=1.00 | issues=0 | Show which bots are currently carrying bins at far
+  [OK] #200 | route=sql_generation  | tables=[bin_protrusion_master,order_bin_task_master,hw_station_master+9] | score=1.00 | issues=0 | Show each station in faruknagar and how many bins 
+
+================================================================================
+  SUMMARY -- 100 queries evaluated
+================================================================================
+
+  -- Route Distribution --
+     sql_generation         93 (93.0%)
+     sp                      4 (4.0%)
+     reuse                   2 (2.0%)
+     missing_table           1 (1.0%)
+
+  -- Quality Scores --
+     Average score:    0.993
+     Perfect (>=0.95):   97 (97.0%)
+     Good (0.7-0.95):     3 (3.0%)
+     Poor (<0.7):         0 (0.0%)
+     Errors:              0 (0.0%)
+
+  -- Preprocessing --
+     Tenant extracted:  100/100
+     All-sites:          20/100
+
+  -- SQL Generation --
+     Total SQL gen:      93
+     With time filter:    0
+     With joins:          0
+     With tenant:         0
+     With LIMIT:          0
+
+  -- Top Issues --
+        5x  Expected table
+
+================================================================================
+
+  Results saved to C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\evaluation\production_query_results.json

@@ -13,6 +13,8 @@ class SynonymResolver:
     DEFAULT_SYNONYMS: Dict[str, str] = {
         "product": "article",
         "products": "articles",
+        "sku": "article",
+        "skus": "articles",
         "GTC":"station",
         "item": "article",
         "items": "articles",

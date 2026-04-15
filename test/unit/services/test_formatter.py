@@ -112,7 +112,7 @@ class TestFormat:
         )
         assert "```sql" in result
         assert "SELECT * FROM bal_pick_dtl" in result
-        assert "Rows Returned: 1" in result
+        assert "Rows returned: 1" in result
 
     def test_output_contains_data_table(self, formatter):
         result = formatter.format(

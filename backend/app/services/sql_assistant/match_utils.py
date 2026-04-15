@@ -94,6 +94,37 @@ _DOMAIN_SYNONYMS: dict = {
 }
 
 
+def strip_time_noise_for_embedding(question: str) -> str:
+    """Strip *only* time-range phrases from the question.
+
+    Unlike :func:`strip_matching_noise`, filler words, location names,
+    and sentence structure are preserved — this is intended for use with
+    embedding models that benefit from natural-language phrasing and
+    domain-contextual words (e.g. warehouse locations).
+
+    Only time constraints are removed because they dilute cosine
+    similarity without contributing domain-specific signal to KPI
+    or SP matching.
+
+    Examples
+    --------
+    >>> strip_time_noise_for_embedding("What is volume at bangalore today?")
+    'what is volume at bangalore?'
+    >>> strip_time_noise_for_embedding("give me bin per hour for last 5 days")
+    'give me bin per hour'
+    """
+    q = question.lower().strip()
+
+    # Remove time-range phrases only
+    for pat in _TIME_RES:
+        q = pat.sub(" ", q)
+
+    # Collapse whitespace
+    result = " ".join(q.split()).strip()
+
+    return result if result else question.lower().strip()
+
+
 def strip_matching_noise(question: str) -> str:
     """Return a *scoring-friendly* version of the question.
 

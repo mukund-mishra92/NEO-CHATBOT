@@ -142,8 +142,11 @@ def _build_service_stub(llm_response_json: dict):
 
     svc = MagicMock(spec=SQLAssistantService)
 
-    # Bind the real method to the mock
+    # Bind real methods to the mock
     svc._llm_refine_kpi_query = SQLAssistantService._llm_refine_kpi_query.__get__(svc)
+    svc._build_kpi_refiner_table_context = SQLAssistantService._build_kpi_refiner_table_context.__get__(svc)
+    svc._extract_output_columns = SQLAssistantService._extract_output_columns
+    svc._fix_wrapper_column_quoting = SQLAssistantService._fix_wrapper_column_quoting
     svc._KPI_REFINE_SCHEMA = SQLAssistantService._KPI_REFINE_SCHEMA
 
     # Mock OpenAI client
@@ -171,6 +174,23 @@ def _build_service_stub(llm_response_json: dict):
         "bot_master": ["BOT_ID", "host-location", "BOT_TYPE"],
         "task_master_log": ["BOT_ID", "TASK_ID", "STATUS", "LOGGED_TIMESTAMP", "host-location"],
     }
+
+    # Typed schema (from Table_information.csv) — needed by _build_kpi_refiner_table_context
+    svc._schema_typed = {
+        "bot_master": {
+            "columns_typed": "BOT_ID(varchar(10)), host-location(varchar(60)), BOT_TYPE(varchar(20))",
+            "primary_key": "BOT_ID, host-location",
+            "description": "Master table for bots",
+        },
+        "task_master_log": {
+            "columns_typed": "BOT_ID(varchar(10)), TASK_ID(bigint), STATUS(varchar(50)), LOGGED_TIMESTAMP(datetime), host-location(varchar(60))",
+            "primary_key": "TASK_ID, host-location",
+            "description": "Log table for bot tasks",
+        },
+    }
+
+    # Business context (from table_descriptions.json) — needed by _build_kpi_refiner_table_context
+    svc.business_context = {}
 
     return svc
 
@@ -580,3 +600,94 @@ class TestLLMKPIRefinerResult:
         )
         # The SQL should be exactly what the LLM returned
         assert result["sql"] == custom_sql
+
+
+class TestUnitConversionPrompt:
+    """The prompt must instruct the LLM to apply unit/derived-value conversions."""
+
+    def _kpi_match(self):
+        return KPIMatch(
+            kpi_id="kpi_003",
+            kpi_name="Number of Inactive Bots",
+            category="bot",
+            chart_type="stat",
+            logic="Returns count of inactive bots.",
+            sql="SELECT COUNT(*) AS INACTIVE_BOTS FROM bot_master;",
+            raw_query="SELECT COUNT(*) AS INACTIVE_BOTS FROM bot_master;",
+            match_score=0.72,
+            tables_used=["bot_master", "task_master_log"],
+            requires_location=True,
+            requires_time_range=True,
+            parameters_applied={},
+            top_candidates=_make_top_candidates(),
+        )
+
+    def test_prompt_contains_unit_conversion_rule(self):
+        """Prompt must contain the unit conversion instruction block."""
+        llm_resp = {
+            "selected_kpi_id": "kpi_001",
+            "sql": "SELECT 1;",
+            "chart_type": "bar chart",
+            "explanation": "test",
+        }
+        svc = _build_service_stub(llm_resp)
+        svc._llm_refine_kpi_query(
+            user_query="how many hours bot 27 was down today in frk",
+            kpi_match=self._kpi_match(),
+            tenant_values=["frk"],
+            time_from="2026-04-15 00:00:00",
+            time_to="2026-04-15 23:59:59",
+            all_sites=False,
+        )
+        call_args = svc.sql_engine.openai_client.responses.create.call_args
+        prompt = call_args.kwargs.get("input") or call_args[1].get("input")
+        # Must mention unit conversion
+        assert "UNIT / DERIVED VALUE CONVERSION" in prompt
+        # Must mention specific conversions
+        assert "minutes" in prompt.lower() and "hours" in prompt.lower()
+        assert "/ 60" in prompt
+        assert "ROUND" in prompt
+
+    def test_prompt_contains_output_columns(self):
+        """Prompt must list OUTPUT COLUMNS for each candidate."""
+        llm_resp = {
+            "selected_kpi_id": "kpi_001",
+            "sql": "SELECT 1;",
+            "chart_type": "bar chart",
+            "explanation": "test",
+        }
+        svc = _build_service_stub(llm_resp)
+        svc._llm_refine_kpi_query(
+            user_query="inactive hours for bots",
+            kpi_match=self._kpi_match(),
+            tenant_values=["frk"],
+            time_from=None,
+            time_to=None,
+            all_sites=False,
+        )
+        call_args = svc.sql_engine.openai_client.responses.create.call_args
+        prompt = call_args.kwargs.get("input") or call_args[1].get("input")
+        assert "OUTPUT COLUMNS" in prompt
+
+    def test_extract_output_columns_basic(self):
+        """Static method extracts aliases from a final SELECT."""
+        from app.services.sql_assistant.sql_assistant import SQLAssistantService
+        sql = (
+            "WITH cte AS (SELECT x FROM y) "
+            "SELECT activity_date AS time, BOT_ID, "
+            "downtime_seconds/60 AS Downtime "
+            "FROM daily_downtime"
+        )
+        cols = SQLAssistantService._extract_output_columns(sql)
+        assert "time" in cols
+        assert "Downtime" in cols
+
+    def test_extract_output_columns_backtick_aliases(self):
+        """Handles backtick-quoted aliases."""
+        from app.services.sql_assistant.sql_assistant import SQLAssistantService
+        sql = (
+            "SELECT SUM(x) AS `Total occupied weight (kg)` "
+            "FROM inventory"
+        )
+        cols = SQLAssistantService._extract_output_columns(sql)
+        assert "Total occupied weight (kg)" in cols

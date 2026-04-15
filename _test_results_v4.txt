@@ -1,0 +1,72 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot
+configfile: pytest.ini
+plugins: anyio-4.12.1, langsmith-0.6.2
+collected 661 items
+
+test\api\test_chatbot_endpoint.py ..........                             [  1%]
+test\api\test_classification_routes.py ....                              [  2%]
+test\api\test_sql_routes.py ...........                                  [  3%]
+test\e2e\test_api_e2e.py ............                                    [  5%]
+test\e2e\test_nl_to_sql_flow.py ..........                               [  7%]
+test\integration\test_classification_storage.py ..........               [  8%]
+test\integration\test_pipeline_flow.py ...........                       [ 10%]
+test\integration\test_reuse_engine_integration.py .......                [ 11%]
+test\unit\api\test_session_query_detection.py ...................        [ 14%]
+test\unit\models\test_schemas.py ...............                         [ 16%]
+test\unit\services\test_cache_manager.py ......                          [ 17%]
+test\unit\services\test_classification_service.py ......                 [ 18%]
+test\unit\services\test_column_resolver.py .......                       [ 19%]
+test\unit\services\test_confidence.py ......                             [ 20%]
+test\unit\services\test_entity_resolver.py ..........................    [ 24%]
+test\unit\services\test_formatter.py ...............                     [ 26%]
+test\unit\services\test_kpi_resolver.py ................................ [ 31%]
+........................................................................ [ 42%]
+......................................................................   [ 52%]
+test\unit\services\test_llm_kpi_refiner.py .................             [ 55%]
+test\unit\services\test_multimodal_rag.py .............................. [ 59%]
+...................................                                      [ 65%]
+test\unit\services\test_query_preprocessor.py .......................... [ 69%]
+.                                                                        [ 69%]
+test\unit\services\test_rag_evaluation.py ...................            [ 72%]
+test\unit\services\test_retry_engine.py ........                         [ 73%]
+test\unit\services\test_reuse_engine.py ...................              [ 76%]
+test\unit\services\test_schema_feedback.py ........                      [ 77%]
+test\unit\services\test_schema_registry_enums.py ..............          [ 79%]
+test\unit\services\test_schema_validator.py .............                [ 81%]
+test\unit\services\test_semantic_validator.py ..........                 [ 83%]
+test\unit\services\test_sql_validator.py ............................... [ 87%]
+........                                                                 [ 88%]
+test\unit\services\test_synonym_resolver.py .................            [ 91%]
+test\unit\services\test_table_priority_loader.py ...........             [ 93%]
+test\unit\services\test_table_selector.py ......                         [ 94%]
+test\unit\services\test_tenant_resolver.py ..................            [ 96%]
+test\unit\utils\test_session_manager.py .....................            [100%]
+
+============================== warnings summary ===============================
+venv\Lib\site-packages\_pytest\config\__init__.py:1428
+  C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-packages\_pytest\config\__init__.py:1428: PytestConfigWarning: Unknown config option: collect_ignore
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+test/api/test_chatbot_endpoint.py::TestHealthCheck::test_health_endpoint
+  C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\main.py:143: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+test/api/test_chatbot_endpoint.py::TestHealthCheck::test_health_endpoint
+  C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-packages\fastapi\applications.py:4576: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 661 passed, 3 warnings in 67.86s (0:01:07) ==================

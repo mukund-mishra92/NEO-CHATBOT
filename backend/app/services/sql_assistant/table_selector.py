@@ -66,16 +66,21 @@ class TableSelector:
         joins = meta.get("frequently_joined_with", [])
         analytics = meta.get("supports_analytics", [])
         self_sufficient = meta.get("self_sufficient_for", [])
+        not_needed = meta.get("not_needed_for", [])
+        category = meta.get("category", "")
 
-        return f"""
-        TABLE: {table}
-        DESCRIPTION: {description}
-        BUSINESS ATTRIBUTES: {' '.join(business_attrs)}
-        SELF-SUFFICIENT FOR: {' '.join(self_sufficient)}
-        COMMON JOINS: {' '.join(joins)}
-        ANALYTICS: {' '.join(analytics)}
-        COLUMNS: {' '.join(columns)}
-        """.strip()
+        parts = [
+            f"TABLE: {table}",
+            f"CATEGORY: {category}" if category else "",
+            f"DESCRIPTION: {description}",
+            f"BUSINESS ATTRIBUTES: {' '.join(business_attrs)}" if business_attrs else "",
+            f"SELF-SUFFICIENT FOR: {' '.join(self_sufficient)}" if self_sufficient else "",
+            f"COMMON JOINS: {' '.join(joins)}" if joins else "",
+            f"ANALYTICS: {' '.join(analytics)}" if analytics else "",
+            f"NOT NEEDED FOR: {' '.join(not_needed)}" if not_needed else "",
+            f"COLUMNS: {' '.join(columns)}",
+        ]
+        return "\n".join(p for p in parts if p)
 
     # ----------------------------------------------------------
     # MAIN SELECTION LOGIC

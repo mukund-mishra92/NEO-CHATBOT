@@ -1,0 +1,576 @@
+﻿.\venv\Scripts\python.exe : 2026-04-15 14:25:52,554 [WARNING] 
+app.services.chat_history_service: ΓÜá∩╕Å DB connection failed (attempt 1/3): 
+(2003, "Can't connect to MySQL server on '127.0.0.1' ([WinError 10061] No 
+connection could be made because the target machine actively refused it)")
+At line:1 char:1
++ .\venv\Scripts\python.exe -m evaluation.production_query_evaluator -- ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2026-04-15 14:2...y refused it)") 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2026-04-15 14:25:55,571 [WARNING] app.services.chat_history_service: ΓÜá∩╕Å DB 
+connection failed (attempt 2/3): (2003, "Can't connect to MySQL server on 
+'127.0.0.1' ([WinError 10061] No connection could be made because the target 
+machine actively refused it)")
+2026-04-15 14:25:59,602 [ERROR] app.services.chat_history_service: Γ¥î All 3 
+connection attempts failed
+2026-04-15 14:25:59,602 [ERROR] app.services.chat_history_service: Γ¥î Error 
+creating chat history tables: (2003, "Can't connect to MySQL server on 
+'127.0.0.1' ([WinError 10061] No connection could be made because the target 
+machine actively refused it)")
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-package
+s\pymysql\connections.py", line 661, in connect
+    sock = socket.create_connection(
+        (self.host, self.port), self.connect_timeout, **kwargs
+    )
+  File "C:\Users\Balmukund.Mishra\AppData\Local\Programs\Python\Python313\Lib\s
+ocket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Balmukund.Mishra\AppData\Local\Programs\Python\Python313\Lib\s
+ocket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+ConnectionRefusedError: [WinError 10061] No connection could be made because 
+the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\
+chat_history_service.py", line 93, in _ensure_tables_exist
+    conn = self._get_connection()
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\
+chat_history_service.py", line 83, in _get_connection
+    raise last_error
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\backend\app\services\
+chat_history_service.py", line 55, in _get_connection
+    conn = pymysql.connect(
+        host=self.db_config['host'],
+    ...<7 lines>...
+        write_timeout=30
+    )
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-package
+s\pymysql\connections.py", line 365, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\venv\Lib\site-package
+s\pymysql\connections.py", line 723, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 
+'127.0.0.1' ([WinError 10061] No connection could be made because the target 
+machine actively refused it)")
+2026-04-15 14:26:13,324 [WARNING] app.services.sql_assistant.sp_resolver: 
+ΓÜá∩╕Å SP tables without 'host-location': {'wcs_to_wms_payload', 'api_master'}
+2026-04-15 14:26:13,413 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: CHENNAI (score: 0.28, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:26:15,467 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:15,467 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:26:18,500 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:18,501 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:26:21,802 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:21,802 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:26:24,816 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:24,816 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å No tenant values found in database, skipping mapping
+2026-04-15 14:26:28,095 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:28,095 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å No tenant values found in database, skipping mapping
+2026-04-15 14:26:29,261 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: BANGALORE (score: 0.19, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:26:31,297 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:31,298 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:26:34,816 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:34,816 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å No tenant values found in database, skipping mapping
+2026-04-15 14:26:38,082 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:38,082 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å No tenant values found in database, skipping mapping
+2026-04-15 14:26:38,347 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.555 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:26:41,066 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:41,066 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å No tenant values found in database, skipping mapping
+2026-04-15 14:26:44,330 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:44,330 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å No tenant values found in database, skipping mapping
+2026-04-15 14:26:44,730 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Number of Inactive Bots' score=0.715 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:26:45,582 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: CHENNAI (score: 0.27, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:26:47,614 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:47,615 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:26:47,861 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Number of Inactive Bots' score=0.770 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:26:50,663 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:50,663 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:26:51,088 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Number of Inactive Bots' score=0.759 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:26:54,063 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:54,063 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:26:54,311 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Number of Inactive Bots' score=0.751 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:26:57,293 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:26:57,293 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å No tenant values found in database, skipping mapping
+2026-04-15 14:27:00,409 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:00,410 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:03,727 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:03,727 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:07,143 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:07,143 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:07,399 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.613 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:27:10,283 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:10,283 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:13,652 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:13,652 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:14,012 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.717 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:27:16,742 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:16,743 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:19,942 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:19,943 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:20,319 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Storage Location' score=0.791 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:27:23,243 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:23,243 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:23,979 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.848 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:27:27,342 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:27,343 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:27,748 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.030 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'Total Bins' (0.611)
+2026-04-15 14:27:27,748 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.611 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:27:30,492 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:30,492 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:34,491 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:34,491 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:37,734 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:37,734 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å No tenant values found in database, skipping mapping
+2026-04-15 14:27:38,121 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.670 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:27:39,046 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.45, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:27:41,085 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:41,085 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:44,869 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:44,869 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å No tenant values found in database, skipping mapping
+2026-04-15 14:27:45,288 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.647 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:27:46,378 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.21, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:27:48,417 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:48,417 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:49,935 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: BANGALORE (score: 0.13, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:27:51,968 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:51,968 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:55,162 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:55,162 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:56,603 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: BANGALORE (score: 0.22, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:27:58,623 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:27:58,623 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:27:59,909 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: SHAKTI (score: 0.43, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:28:01,937 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:28:01,937 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:28:02,325 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Location Blocked' score=0.707 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:05,237 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:28:05,237 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å No tenant values found in database, skipping mapping
+2026-04-15 14:28:06,386 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: BANGALORE (score: 0.18, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:28:08,406 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:28:08,406 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:28:08,810 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.003 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'Station-wise Bin Presentation per hour 
+(Put)' (0.556)
+2026-04-15 14:28:08,810 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Station-wise Bin Presentation per hour (Put)' 
+score=0.556 (below HIGH_CONFIDENCE=0.85). Accepting but flagging for 
+monitoring.
+2026-04-15 14:28:11,637 [ERROR] app.services.sql_assistant.tenant_resolver: 
+Γ¥î Failed to fetch actual tenant values: 2003 (HY000): Can't connect to MySQL 
+server on '127.0.0.1:3307' (10061)
+2026-04-15 14:28:11,637 [WARNING] app.services.sql_assistant.sql_assistant: 
+ΓÜá∩╕Å All-sites mode but no DB values found ΓÇö keeping configured values
+2026-04-15 14:28:12,054 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bin Utilisation' score=0.701 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:12,944 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: BANGALORE (score: 0.20, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:28:13,843 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.611 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:15,091 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.579 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:16,456 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.636 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:17,769 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.636 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:20,142 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Number of Inactive Bots' score=0.717 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+  Loaded 650 production queries from queries_till_14_04.txt
+  Initializing SQL Assistant Service...
+  Service ready in 33.4s (91 tables)
+
+================================================================================
+  Production Query Evaluation -- 100 queries
+  Mode: DRY RUN (table selection only)
+================================================================================
+
+  [OK] #  1 | route=sql_generation  | tables=[bot_master                              ] | score=1.00 | issues=0 | HOW MANY BOTS ARE AVAILABLE RIGHT NOW?
+  [OK] #  2 | route=sql_generation  | tables=[bot_master,bot_obstacle_log,hw_station_master+9] | score=1.00 | issues=0 | AMONG THEM HOW MANY ARE RUNNING AND HOW MANY ARE S
+  [OK] #  3 | route=sql_generation  | tables=[location_master,bot_master,hw_charging_station_master+9] | score=1.00 | issues=0 | AMONG THEM HOW MANY ARE RUNNING AND PARKING?
+  [OK] #  4 | route=sql_generation  | tables=[bot_master,bot_history,location_master+9] | score=1.00 | issues=0 | CAN YOU TELL ME WHICH BOTS AEE RUNNING IN FRK LOCA
+  [OK] #  5 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | Can you tell me the bots running in frk?
+  [OK] #  6 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_master+9] | score=1.00 | issues=0 | Which alarm code occurred most frequently?
+  [OK] #  7 | route=sql_generation  | tables=[bin_protrusion_master,bot_alarm_log,bot_master+9] | score=0.85 | issues=1 | can you tell me unique bots id are running in FRK 
+  [OK] #  8 | route=sql_generation  | tables=[bot_master,bin_protrusion_master,bot_charging_bit_log_archive+9] | score=0.85 | issues=1 | can you tell me unique bots id are running in Chen
+  [OK] #  9 | route=sql_generation  | tables=[bin_protrusion_master,bot_alarm_log,location_block_master+9] | score=1.00 | issues=0 | can you tell me unique bots id are running in faru
+  [OK] # 10 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | tell me total number of bot available in frk and s
+  [OK] # 11 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | tell me total count of bots available
+  [OK] # 12 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | total number of bots in the system
+  [OK] # 13 | route=sql_generation  | tables=[bot_master,bot_history,location_master+9] | score=1.00 | issues=0 | CAN YOU TELL ME TOTAL NO OF BOTS AVAILABLE ACROSS 
+  [OK] # 14 | route=sql_generation  | tables=[bot_master,bot_obstacle_log,bot_history+9] | score=1.00 | issues=0 | NOW CAN YOU TELL ME HOW MANY BOTS ARE THERE IN BAN
+  [OK] # 15 | route=sql_generation  | tables=[location_master,location_block_master,bot_master+9] | score=1.00 | issues=0 | AMONG THEM HOW MANY ARE ENABLED AND HOW MANY ARE D
+  [OK] # 16 | route=sql_generation  | tables=[location_master,bin_protrusion_master,store_bin_master+9] | score=1.00 | issues=0 | TOTAL HOW MANY BINS WE HAVE IN THE SYSTEM FOR ALL 
+  [OK] # 17 | route=sql_generation  | tables=[store_bin_master,bin_protrusion_master,bin_info_master+9] | score=1.00 | issues=0 | tell me the bins available in each locations with 
+  [OK] # 18 | route=sql_generation  | tables=[location_master,location_block_master,dashboard_log_location_block_master+9] | score=1.00 | issues=0 | can you tell me the count each location wise?
+  [OK] # 19 | route=sql_generation  | tables=[bin_protrusion_master,bin_info_master,store_bin_master+9] | score=1.00 | issues=0 | give me current bin position for each of the bin a
+  [OK] # 20 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | give me all the bots we have in the system
+  [OK] # 21 | route=sql_generation  | tables=[location_master,hw_station_master,hw_charging_station_master+9] | score=1.00 | issues=0 | give me total number of storage kocation we have i
+  [OK] # 22 | route=sql_generation  | tables=[store_bin_master,bin_info_master,bin_protrusion_master+9] | score=1.00 | issues=0 | how many total bins we have in all locations?
+  [OK] # 23 | route=sql_generation  | tables=[bin_protrusion_master,store_bin_master,location_master+9] | score=1.00 | issues=0 | now can you give bin count location wise
+  [OK] # 24 | route=sql_generation  | tables=[location_master,hw_station_master,hw_display_master+9] | score=1.00 | issues=0 | How many total workstations we have in all locatio
+  [OK] # 25 | route=sql_generation  | tables=[station_home_master,station_no_read_logs,location_master+9] | score=1.00 | issues=0 | now give me station count and id by location wise
+  [OK] # 26 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=0.85 | issues=1 | can you tell me - In faruknagar location which bot
+  [OK] # 27 | route=sql_generation  | tables=[wms_to_wcs_order_request_data_archive,wms_to_wcs_order_request_data,wms_to_wcs_order_line_request_data_archive+9] | score=1.00 | issues=0 | No I just want for today only
+  [OK] # 28 | route=sql_generation  | tables=[bot_alarm_log,bot_master,bot_manual_alarm_log_archive+9] | score=1.00 | issues=0 | no like I want the active alarms detailes raised i
+  [OK] # 29 | route=sql_generation  | tables=[test_lww_target,bot_master,hw_conveyor_mux_master+9] | score=1.00 | issues=0 | just tell me the count
+  [OK] # 30 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | no the alarms raised count
+  [OK] # 31 | route=sql_generation  | tables=[location_master,location_block_master,dashboard_log_location_block_master+9] | score=1.00 | issues=0 | and tell me this across all the locations?
+  [OK] # 32 | route=sql_generation  | tables=[hw_display_master,live_inventory_master,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | No i dont want distint I want totoal
+  [OK] # 33 | route=sql_generation  | tables=[location_master,location_block_master,dashboard_log_location_block_master+9] | score=1.00 | issues=0 | No total in all location combined
+  [OK] # 34 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=0.85 | issues=1 | which are top 5 bots in blr that has highest artic
+  [OK] # 35 | route=sql_generation  | tables=[order_bin_task_master,bin_protrusion_master,order_bin_mapping+9] | score=1.00 | issues=0 | How many bin loading operations happened per stati
+  [OK] # 36 | route=sql_generation  | tables=[bin_protrusion_master,order_bin_task_master,order_bin_mapping+9] | score=1.00 | issues=0 | How many bin loading operations happened per stati
+  [OK] # 37 | route=sql_generation  | tables=[maintenance_alarm_logs,bot_alarm_log,bot_manual_alarm_log_archive+9] | score=1.00 | issues=0 | give me total number of alarms logs today
+  [OK] # 38 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_master+9] | score=1.00 | issues=0 | give me total number of alarms logged at shakti si
+  [OK] # 39 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_manual_alarm_log_archive+9] | score=0.85 | issues=1 | give me total number of alarms logged at location 
+  [OK] # 40 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_manual_alarm_log_archive+9] | score=0.85 | issues=1 | give me total number of alarms logged at location 
+  [OK] # 41 | route=sql_generation  | tables=[location_master,hw_conveyor_master,hw_conveyor_mux_master+9] | score=1.00 | issues=0 | Please answer this in more depth with clear step-b
+  [OK] # 42 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | total number of bot we have in frk location
+  [OK] # 43 | route=sql_generation  | tables=[store_bin_master,bin_protrusion_master,order_bin_mapping+9] | score=1.00 | issues=0 | tell me total number of bins across all locations
+  [OK] # 44 | route=sql_generation  | tables=[store_bin_master,location_master,bin_protrusion_master+9] | score=1.00 | issues=0 | Can you tell me the total no of bins available acr
+2026-04-15 14:28:24,680 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bin Utilisation' score=0.720 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:27,127 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Station-wise Bin Presentation per hour (Put)' 
+score=0.557 (below HIGH_CONFIDENCE=0.85). Accepting but flagging for 
+monitoring.
+2026-04-15 14:28:28,074 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Station-wise Bin Presentation per hour (Pick)' 
+score=0.562 (below HIGH_CONFIDENCE=0.85). Accepting but flagging for 
+monitoring.
+2026-04-15 14:28:34,149 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.844 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:35,288 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.762 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:36,024 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: BANGALORE (score: 0.15, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:28:36,425 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.619 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:37,703 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.632 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:28:47,788 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: MUMBAI (score: 0.38, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:28:49,004 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.25, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:28:51,772 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: SHAKTI (score: 0.11, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:28:53,038 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: PUNE (score: 0.46, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:28:55,704 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.57, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:28:56,891 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.57, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:28:58,277 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Station-wise Waves (Hours)' score=0.629 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:29:02,049 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bins Used' score=0.575 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:29:12,701 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bin Blocked' score=0.717 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+  [OK] # 45 | route=sql_generation  | tables=[location_master,location_block_master,store_bin_master+9] | score=1.00 | issues=0 | nOW CAN YOU SEGREGATE THIS AVAILABLE LOCATION ALL
+  [OK] # 46 | route=sql_generation  | tables=[bin_protrusion_master_log,bin_protrusion_master,order_bin_task_master+9] | score=0.70 | issues=2 | how much bin loading happened at each station in e
+  [OK] # 47 | route=sql_generation  | tables=[bin_protrusion_master_log,bin_protrusion_master,order_bin_task_master+9] | score=0.85 | issues=1 | how many bin loading happened at each station in F
+  [OK] # 48 | route=sql_generation  | tables=[bin_protrusion_master_log,bin_protrusion_master,order_bin_task_master+9] | score=1.00 | issues=0 | how many bin loading happened at each station in e
+  [OK] # 49 | route=sql_generation  | tables=[bin_protrusion_master_log,picklist_split_recommendation_cluster_log,bin_protrusion_master+9] | score=1.00 | issues=0 | how many bin loading happened at each station in s
+  [OK] # 50 | route=sql_generation  | tables=[bin_protrusion_master_log,bin_protrusion_master,order_bin_task_master+9] | score=0.85 | issues=1 | how many bin loading happened at each station in F
+  [OK] # 51 | route=sql_generation  | tables=[bin_protrusion_master_log,bin_protrusion_master,order_bin_task_master+9] | score=0.85 | issues=1 | how many bin loading happened at each station in F
+  [OK] # 52 | route=sql_generation  | tables=[location_master,hw_conveyor_master,hw_conveyor_mux_master+9] | score=1.00 | issues=0 | Please answer this in more depth with clear step-b
+  [OK] # 53 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | how many total bots we have in the system
+  [OK] # 54 | route=sp              | tables=[bin_info_master,bin_protrusion_master,order_bin_mapping+9] | score=1.00 | issues=0 | total bins in the system
+  [OK] # 55 | route=sp              | tables=[bin_protrusion_master,bin_info_master,store_bin_master+9] | score=1.00 | issues=0 | total bin in faruknagar
+  [OK] # 56 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many alarms were triggered by bots today?
+  [OK] # 57 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many alarms were triggered by bots today at fa
+  [OK] # 58 | route=sql_generation  | tables=[bot_alarm_log,bot_obstacle_log,bot_alarm_log_archive+9] | score=1.00 | issues=0 | can you give me site wise bot alram logged today f
+  [OK] # 59 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Which alarm code occurred most frequently across s
+  [OK] # 60 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Which alarm code occurred most frequently across s
+  [OK] # 61 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Which alarm code occurred most frequently across a
+  [OK] # 62 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data,wms_to_wcs_order_line_level_pre_staged_data,wms_to_wcs_order_line_request_data_archive+9] | score=1.00 | issues=0 | How many order lines were completed today across a
+  [OK] # 63 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data,order_bin_mapping,lpn_pick_wave_order_mapping+9] | score=1.00 | issues=0 | How many order lines were completed today at faruk
+  [OK] # 64 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data,wms_to_wcs_order_level_pre_staged_data,wms_to_wcs_order_line_level_pre_staged_data+9] | score=1.00 | issues=0 | can you give me order lines completed today for ea
+  [OK] # 65 | route=sql_generation  | tables=[bot_master,maintenance_task_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Show the bots that are currently under maintenance
+  [OK] # 66 | route=sql_generation  | tables=[bot_master,maintenance_task_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | show me all the bots that are in maintenance
+  [OK] # 67 | route=reuse           | tables=[bot_master                              ] | score=1.00 | issues=0 | How many bots are in automatic mode?
+  [OK] # 68 | route=missing_table   | tables=[order_bin_task_master,bin_protrusion_master,bot_master+9] | score=1.00 | issues=0 | GIVE ME TASK STATUS FOR BOT-0007 IN ORDER BIN MAPP
+  [OK] # 69 | route=sql_generation  | tables=[task_master_log,maintenance_task_master,task_master_log_backup+9] | score=1.00 | issues=0 | SHOW ME ONLY THE TASK NOT COMPLETED ONE
+  [OK] # 70 | route=missing_table   | tables=[recovery_pick_task_master,order_bin_task_master,order_bin_mapping+9] | score=1.00 | issues=0 | DO NOT PICK THE DATA FROM TASK MASTER., IT SHOULD 
+  [OK] # 71 | route=missing_table   | tables=[task_master_log,bin_protrusion_master,bot_master+9] | score=1.00 | issues=0 | GIVE ME TASK STATUS where  status is not completed
+  [OK] # 72 | route=sql_generation  | tables=[bin_protrusion_master,bot_master,bot_obstacle_log+9] | score=1.00 | issues=0 | tell me how many steps are completed for BOT-0007
+  [OK] # 73 | route=missing_table   | tables=[bot_master,maintenance_task_master,bin_protrusion_master+9] | score=1.00 | issues=0 | tell me how many steps are completed for BOT-0007 
+  [OK] # 74 | route=sql_generation  | tables=[hw_station_master,wave_station_rule_mapping,stock_audit_wave_order_master+9] | score=1.00 | issues=0 | Show waves that were processed by STATION-0001 tod
+  [OK] # 75 | route=sql_generation  | tables=[wave_master,wave_master_archive,stock_audit_wave_order_master+9] | score=1.00 | issues=0 | Show waves that were processed in faruknagar today
+  [OK] # 76 | route=sql_generation  | tables=[hw_station_master,wave_master,put_wave_order_master+9] | score=1.00 | issues=0 | Which workstations have not processed any wave tod
+  [OK] # 77 | route=sql_generation  | tables=[order_bin_task_master,bin_protrusion_master,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | List workstations that processed more than 100 bin
+  [OK] # 78 | route=sql_generation  | tables=[picklist_split_order_master,pick_wave_order_master,lpn_pick_wave_order_mapping+9] | score=1.00 | issues=0 | List order lines where picking failed in faruknaga
+  [OK] # 79 | route=sql_generation  | tables=[pick_wave_order_master,pick_wave_order_master_archive,pick_wave_wms_data+9] | score=1.00 | issues=0 | How many order lines are currently pending for pic
+  [OK] # 80 | route=sql_generation  | tables=[lpn_pick_wave_order_mapping_archive,pick_wave_order_master,picklist_split_recommendation_log+9] | score=0.85 | issues=1 | List order lines where picking failed in last 3 da
+  [OK] # 81 | route=sql_generation  | tables=[wave_master,hw_station_master,wave_master_archive+9] | score=1.00 | issues=0 | Which workstations completed waves today in frk
+  [OK] # 82 | route=sql_generation  | tables=[wave_master,hw_station_master,stock_audit_wave_order_master+9] | score=1.00 | issues=0 | Which workstations completed waves today in bhiwan
+  [OK] # 83 | route=sql_generation  | tables=[bot_master,bot_history,bot_charging_bit_log_archive+9] | score=1.00 | issues=0 | Which bots have battery health marked as poor? for
+  [OK] # 84 | route=sql_generation  | tables=[bot_master,bot_charging_bit_log_archive,bot_history+9] | score=1.00 | issues=0 | list all the bots and their battery percent left w
+  [OK] # 85 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_master+9] | score=1.00 | issues=0 | List all bypassed alarms in faruknagar.
+  [OK] # 86 | route=sql_generation  | tables=[live_inventory_master,store_bin_master,bin_info_master+9] | score=1.00 | issues=0 | How many bins currently hold inventory in faruknag
+  [OK] # 87 | route=sql_generation  | tables=[wave_master,put_wave_wms_data,stock_audit_wave_order_master+9] | score=1.00 | issues=0 | Find waves in bhiwandi stuck in PROCESSING for mor
+  [OK] # 88 | route=sql_generation  | tables=[bot_master,bot_charging_bit_log_archive,bot_history+9] | score=1.00 | issues=0 | List bots with battery below 20% at shakti.
+2026-04-15 14:29:18,616 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Waves Run' score=0.677 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:29:19,986 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.594 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:29:21,116 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Wave Counts by Type' score=0.600 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:29:26,565 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.650 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:29:29,065 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.37, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:29:30,540 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.849 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+  [OK] # 89 | route=sql_generation  | tables=[bot_master,bot_alarm_log,maintenance_alarm_logs+9] | score=1.00 | issues=0 | List the top 5 alarm codes by frequency this week 
+  [OK] # 90 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | List the top 5 alarm codes by frequency this week 
+  [OK] # 91 | route=sql_generation  | tables=[pick_wave_order_master,pick_wave_order_master_archive,lpn_pick_wave_order_mapping+9] | score=1.00 | issues=0 | Show completed pick waves in faruknagar today alon
+  [OK] # 92 | route=sql_generation  | tables=[bot_alarm_log,bot_alarm_log_archive,bot_master+9] | score=0.85 | issues=1 | List bots in Faruknagar that had a recovery alarm 
+  [OK] # 93 | route=sql_generation  | tables=[pick_wave_order_master,pick_wave_order_master_archive,pick_wave_wms_data+9] | score=1.00 | issues=0 | Show active pick waves in Bhiwandi with their orde
+  [OK] # 94 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | How many bots are in Bengaluru?
+  [OK] # 95 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data,wms_to_wcs_order_line_request_data_archive,wms_to_wcs_order_line_level_pre_staged_data+9] | score=1.00 | issues=0 | How many order lines are pending in FRK right now?
+  [OK] # 96 | route=sql_generation  | tables=[wave_master,wave_master_archive,stock_audit_wave_order_master+9] | score=1.00 | issues=0 | How many waves completed today in chenai?
+  [OK] # 97 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | List bots with alarms in banglore.
+  [OK] # 98 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | How many bots are active in farukhnagar?
+  [OK] # 99 | route=sql_generation  | tables=[short_put_wave_reason,bot_obstacle_log,bot_obstacle_log_archive+9] | score=1.00 | issues=0 | Which site had the most short-put events in the la
+  [OK] #100 | route=sp              | tables=[live_inventory_master,bin_protrusion_master,bin_info_master+9] | score=1.00 | issues=0 | Show total inventory and occupied bin count per si
+
+================================================================================
+  SUMMARY -- 100 queries evaluated
+================================================================================
+
+  -- Route Distribution --
+     sql_generation         92 (92.0%)
+     missing_table           4 (4.0%)
+     sp                      3 (3.0%)
+     reuse                   1 (1.0%)
+
+  -- Quality Scores --
+     Average score:    0.980
+     Perfect (>=0.95):   88 (88.0%)
+     Good (0.7-0.95):    12 (12.0%)
+     Poor (<0.7):         0 (0.0%)
+     Errors:              0 (0.0%)
+
+  -- Preprocessing --
+     Tenant extracted:  100/100
+     All-sites:          51/100
+
+  -- SQL Generation --
+     Total SQL gen:      92
+     With time filter:    0
+     With joins:          0
+     With tenant:         0
+     With LIMIT:          0
+
+  -- Top Issues --
+       13x  Expected table
+
+================================================================================
+
+  Results saved to C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\evaluation\production_query_results.json

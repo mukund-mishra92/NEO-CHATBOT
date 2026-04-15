@@ -124,6 +124,8 @@ class SQLAssistantService:
         validations_file = settings.DATA_DIR / "database" / "table_priority_validations.jsonl"
         self.table_priority_loader = TablePriorityLoader(validations_file)
 
+        # Inject CSV category into business_context so TableSelector can use it
+        self._enrich_business_context_with_csv_categories(csv_path)
 
         self.table_selector = TableSelector(
             schema=self.schema,
@@ -347,8 +349,36 @@ class SQLAssistantService:
     # ----------------------------------------------------------
     # LOAD SCHEMA
     # ----------------------------------------------------------
+    def _enrich_business_context_with_csv_categories(self, csv_path) -> None:
+        """Inject table category from CSV into business_context dict.
+
+        table_descriptions.json has 0 entries with a 'category' field.
+        Table_information.csv has a Table_category column with 10 rich
+        categories (bot_master, log_table, bin_master, etc.).
+        Without this cross-reference, the 10% category_bonus weight in
+        TableSelector is always zero — a dead code path.
+        """
+        try:
+            with open(csv_path, newline="", encoding="utf-8-sig") as f:
+                reader = csv.DictReader(f)
+                enriched = 0
+                for row in reader:
+                    tname = (row.get("Table_name") or "").strip()
+                    cat = (row.get("Table_category") or "").strip()
+                    if not tname or not cat:
+                        continue
+                    if tname not in self.business_context:
+                        self.business_context[tname] = {"table_name": tname}
+                    self.business_context[tname]["category"] = cat
+                    enriched += 1
+            logger.info(f"📂 Enriched {enriched} tables with CSV category for TableSelector")
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to enrich business context with CSV categories: {e}")
+
     def _load_schema(self, csv_path):
         schema = {}
+        # Also store typed column strings and PKs for rich LLM prompts
+        self._schema_typed: dict[str, dict] = {}
 
         with open(csv_path, newline="", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f)
@@ -356,6 +386,8 @@ class SQLAssistantService:
 
             table_key = headers["table_name"]
             columns_key = headers["table_columns(data type)"]
+            pk_key = headers.get("primary_key")
+            desc_key = headers.get("table_description")
 
             for row in reader:
                 table = row[table_key].strip()
@@ -365,6 +397,11 @@ class SQLAssistantService:
                     continue
 
                 schema[table] = []
+                self._schema_typed[table] = {
+                    "columns_typed": columns_raw.strip() if columns_raw else "",
+                    "primary_key": row[pk_key].strip() if pk_key and row.get(pk_key) else "",
+                    "description": row[desc_key].strip()[:200] if desc_key and row.get(desc_key) else "",
+                }
 
                 if columns_raw:
                     columns = columns_raw.split(",")
@@ -374,6 +411,62 @@ class SQLAssistantService:
                             schema[table].append(col_name)
 
         return schema
+
+    # ----------------------------------------------------------
+    # KPI REFINER — RICH TABLE CONTEXT BUILDER
+    # ----------------------------------------------------------
+    def _build_kpi_refiner_table_context(self, table_names: set) -> str:
+        """Build detailed table context (schema + business descriptions)
+        for only the tables used by the KPI candidates.
+
+        Pulls from:
+          - ``_schema_typed`` (Table_information.csv) → typed columns, PKs
+          - ``business_context`` (table_descriptions.json) → descriptions,
+            join guidance, self-sufficient queries, not-needed-for hints
+        """
+        blocks = []
+        for tbl in sorted(table_names):
+            parts = [f"TABLE: {tbl}"]
+
+            # ── Typed columns & PK from CSV ──
+            typed = self._schema_typed.get(tbl, {})
+            if typed.get("columns_typed"):
+                parts.append(f"  COLUMNS (with types): {typed['columns_typed']}")
+            elif tbl in self.schema:
+                parts.append(f"  COLUMNS: {', '.join(self.schema[tbl])}")
+            if typed.get("primary_key"):
+                parts.append(f"  PRIMARY KEY: {typed['primary_key']}")
+
+            # ── Business context from table_descriptions.json ──
+            bctx = self.business_context.get(tbl, {})
+            if bctx.get("description"):
+                # First 250 chars of description
+                desc = bctx["description"].replace("\n", " ")[:250]
+                parts.append(f"  DESCRIPTION: {desc}")
+            if bctx.get("key_business_attributes"):
+                attrs = "; ".join(bctx["key_business_attributes"][:3])[:200]
+                parts.append(f"  BUSINESS NOTES: {attrs}")
+            if bctx.get("frequently_joined_with"):
+                parts.append(
+                    f"  COMMONLY JOINED WITH: "
+                    f"{', '.join(bctx['frequently_joined_with'])}"
+                )
+            if bctx.get("self_sufficient_for"):
+                suf = "; ".join(bctx["self_sufficient_for"][:2])[:200]
+                parts.append(f"  SELF-SUFFICIENT FOR: {suf}")
+
+            # ── Columns that need backtick quoting ──
+            needs_quoting = []
+            for col_name in self.schema.get(tbl, []):
+                if " " in col_name or "-" in col_name or "(" in col_name:
+                    needs_quoting.append(col_name)
+            if needs_quoting:
+                quoted = ", ".join(f"`{c}`" for c in needs_quoting)
+                parts.append(f"  ⚠️ COLUMNS REQUIRING BACKTICK QUOTING: {quoted}")
+
+            blocks.append("\n".join(parts))
+
+        return "\n\n".join(blocks) if blocks else "(no schema available)"
 
     # ----------------------------------------------------------
     # LEARNED TABLE EXTRACTION
@@ -1295,6 +1388,63 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
     # 📊 LLM KPI QUERY REFINEMENT (SQL-aware, replaces simple validator)
     # ----------------------------------------------------------
 
+    @staticmethod
+    def _extract_output_columns(sql: str) -> list[str]:
+        """Extract output column aliases from the *final* SELECT of a SQL query.
+
+        This looks at aliases (``AS alias``) and bare column references in
+        the outermost SELECT to tell the LLM what columns the KPI returns.
+        Handles CTEs (WITH ... SELECT) by finding the last SELECT.
+        """
+        import re
+
+        # Strip everything before the last top-level SELECT
+        # (CTEs define inner SELECTs but we want the final one)
+        # Simple heuristic: split on ')\s*SELECT' or standalone 'SELECT'
+        # and take the last portion's column list.
+        sql_upper = sql.upper()
+
+        # Find the last top-level SELECT (not inside parentheses)
+        # We'll use the portion after the last SELECT that's followed by FROM
+        parts = re.split(r'\)\s*SELECT\b', sql, flags=re.IGNORECASE)
+        if len(parts) > 1:
+            final_part = 'SELECT' + parts[-1]
+        else:
+            final_part = sql
+
+        # Extract the SELECT ... FROM portion
+        m = re.search(
+            r'\bSELECT\b(.+?)\bFROM\b',
+            final_part,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if not m:
+            return []
+
+        select_body = m.group(1)
+
+        # Extract AS aliases
+        aliases = re.findall(
+            r'\bAS\s+`([^`]+)`',  # backtick-quoted aliases
+            select_body,
+            re.IGNORECASE,
+        )
+        aliases += re.findall(
+            r'\bAS\s+([A-Za-z_][A-Za-z0-9_ ]*?)\s*(?:,|$|\n)',
+            select_body,
+            re.IGNORECASE,
+        )
+
+        # Deduplicate while preserving order
+        seen = set()
+        result = []
+        for a in aliases:
+            a_clean = a.strip()
+            if a_clean and a_clean.lower() not in seen:
+                seen.add(a_clean.lower())
+                result.append(a_clean)
+        return result
+
     # JSON schema for the structured LLM response
     _KPI_REFINE_SCHEMA = {
         "type": "object",
@@ -1393,37 +1543,44 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
         if not candidate_sqls:
             return None
 
-        # ── Table/column guidance ─────────────────────────────────────
+        # ── Rich table/column guidance ────────────────────────────────
         all_tables = set()
         for c in candidate_sqls:
             all_tables.update(c.get("tables_used", []))
+        # Also include tables referenced in KPI SQL (JOINs, CTEs, sub-queries)
+        # that may not be in tables_used metadata
+        for c in candidate_sqls:
+            for tbl in self.schema:
+                if tbl in c.get("sql", ""):
+                    all_tables.add(tbl)
 
-        table_schema_lines = []
-        for tbl in sorted(all_tables):
-            cols = self.schema.get(tbl)
-            if cols:
-                # cols is a list of column-name strings
-                col_names = cols if isinstance(cols[0], str) else [c["name"] for c in cols]
-                table_schema_lines.append(
-                    f"  TABLE: {tbl}\n  COLUMNS: {', '.join(col_names)}"
-                )
-        table_context = "\n".join(table_schema_lines) if table_schema_lines else "(no schema)"
+        table_context = self._build_kpi_refiner_table_context(all_tables)
 
         # ── Build candidate blocks ────────────────────────────────────
         candidate_blocks = []
         for i, c in enumerate(candidate_sqls, 1):
-            # Include example user queries from the KPI registry
             uq = c.get("user_queries", [])
             uq_text = ""
             if uq:
                 uq_lines = "\n".join(f"  - {q}" for q in uq[:5])
                 uq_text = f"\nExample user questions this KPI answers:\n{uq_lines}\n"
+
+            # Extract output columns so the LLM knows what the KPI returns
+            output_cols = self._extract_output_columns(c["sql"])
+            output_cols_text = ""
+            if output_cols:
+                output_cols_text = (
+                    f"\nOUTPUT COLUMNS (what the KPI returns): "
+                    f"{', '.join(output_cols)}\n"
+                )
+
             candidate_blocks.append(
                 f"--- KPI {i}: {c['kpi_id']} ---\n"
                 f"Name: {c['kpi_name']}\n"
                 f"Logic: {c['logic'][:350]}\n"
                 f"Chart type: {c['chart_type']}\n"
                 f"Tables: {', '.join(c['tables_used'])}"
+                f"{output_cols_text}"
                 f"{uq_text}\n"
                 f"SQL:\n{c['sql']}"
             )
@@ -1436,43 +1593,91 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             f'USER QUERY: "{user_query}"\n\n'
             f"TOP KPI CANDIDATES (with their parameter-substituted SQL):\n\n"
             f"{candidates_text}\n\n"
-            f"TABLE / COLUMN REFERENCE (only these tables exist):\n{table_context}\n\n"
-            "CRITICAL CONSTRAINT:\n"
-            "You MUST pick one of the above KPI candidates. These KPIs contain "
-            "proven, tested SQL that is already parameterised for the user's "
-            "location and time range. Do NOT return NONE unless the user's "
-            "question is completely unrelated to warehouse operations (e.g. "
-            "weather, sports, jokes). If the user asks for a metric that is "
-            "computable from the columns in ANY candidate's SQL, pick that "
-            "candidate and adjust its SQL.\n\n"
-            "YOUR TASK:\n"
-            "1. Pick the KPI whose SQL can best answer the user's question.\n"
-            "2. If it matches perfectly → return its SQL as-is.\n"
-            "3. If it's close but needs modification, you may:\n"
-            "   a. COLUMN PROJECTION: wrap in subquery to select fewer columns:\n"
-            "      SELECT _cp.COL1 FROM ( <original_sql_without_semicolon> ) AS _cp;\n"
-            "   b. AGGREGATION: wrap to SUM/AVG/COUNT over original columns:\n"
-            "      SELECT SUM(_cp.INACTIVE_HOURS) AS TOTAL_INACTIVE_HOURS "
-            "FROM ( <original_sql_without_semicolon> ) AS _cp "
-            "WHERE _cp.BOT_ID = 'BOT-0009';\n"
-            "   c. FILTER: add WHERE to the wrapper to filter specific rows.\n"
-            "4. NEVER invent new tables or columns. Use ONLY what exists in the "
-            "   candidate SQL and the TABLE/COLUMN REFERENCE above.\n"
-            "5. Preserve the inner SQL structure exactly (CTEs, JOINs, WHERE, "
-            "   ORDER BY). Only wrap the outer SELECT.\n\n"
+            f"TABLE / COLUMN REFERENCE (only these tables and columns exist — "
+            f"NO other tables or columns may be used):\n\n{table_context}\n\n"
+            "═══════════════════════════════════════════════════════════════\n"
+            "CRITICAL RULES:\n"
+            "═══════════════════════════════════════════════════════════════\n\n"
+            "1. PICK ONE KPI: You MUST pick one of the above KPI candidates.\n"
+            "   Return NONE only if the question is completely unrelated to\n"
+            "   warehouse operations (weather, sports, jokes).\n\n"
+            "2. PREFER RETURNING SQL AS-IS: If the KPI SQL already answers the\n"
+            "   user's question, return it EXACTLY as shown — do not modify.\n"
+            "   This is the safest option and should be your default.\n\n"
+            "3. ALLOWED MODIFICATIONS (only when truly necessary):\n"
+            "   a. COLUMN PROJECTION — wrap to select fewer output columns:\n"
+            "      SELECT _cp.`COLUMN_NAME` FROM ( <inner_sql> ) AS _cp;\n"
+            "   b. AGGREGATION — wrap to SUM/AVG/COUNT:\n"
+            "      SELECT SUM(_cp.`INACTIVE_HOURS`) AS TOTAL\n"
+            "      FROM ( <inner_sql> ) AS _cp;\n"
+            "   c. FILTER — add WHERE to the wrapper for specific rows.\n"
+            "   d. UNIT / DERIVED VALUE CONVERSION — when the user asks for\n"
+            "      data in a different unit or derived form than the KPI\n"
+            "      returns, apply a mathematical transformation in the\n"
+            "      outer wrapper SELECT.  See rule 7 below for details.\n"
+            "   In all cases, <inner_sql> is the original KPI SQL with its\n"
+            "   trailing semicolon removed.\n\n"
+            "4. COLUMN QUOTING (MANDATORY):\n"
+            "   • EVERY column reference in the wrapper must use MySQL\n"
+            "     backtick quoting: _cp.`Column Name`, _cp.`host-location`\n"
+            "   • This applies to ALL columns — even single-word names.\n"
+            "   • Inner KPI SQL already has correct quoting — do NOT change it.\n"
+            "   • Column aliases defined in the inner SELECT (e.g. AS VALUE,\n"
+            "     AS `Total occupied weight (kg)`) are the names visible\n"
+            "     to the outer wrapper via _cp.\n\n"
+            "5. SCHEMA BOUNDARY:\n"
+            "   • NEVER invent new tables or columns not listed above.\n"
+            "   • NEVER reference columns from a different table than what\n"
+            "     the KPI SQL already uses.\n"
+            "   • Only alias names from the inner SELECT are available to _cp.\n\n"
+            "6. PRESERVE INNER SQL:\n"
+            "   • Never rewrite the inner KPI SQL structure (CTEs, JOINs,\n"
+            "     WHERE, GROUP BY, ORDER BY). Only wrap the outer SELECT.\n\n"
+            "7. UNIT / DERIVED VALUE CONVERSION (CRITICAL THINKING RULE):\n"
+            "   Compare what the KPI OUTPUT COLUMNS return vs what the user\n"
+            "   asked for.  If the units or form differ, apply a mathematical\n"
+            "   conversion in the wrapper SELECT.  DO NOT return raw data in\n"
+            "   the wrong unit — always convert.\n\n"
+            "   Common conversions (apply when the user's wording implies a\n"
+            "   different unit than the KPI column):\n"
+            "   • minutes ↔ hours:  _cp.`Downtime` / 60 AS `Downtime_Hours`\n"
+            "     or _cp.`ACTIVE_HOURS` * 60 AS `Active_Minutes`\n"
+            "   • seconds → minutes: col / 60;  seconds → hours: col / 3600\n"
+            "   • kg ↔ tons:  _cp.`weight_kg` / 1000 AS `weight_tons`\n"
+            "   • cm³ ↔ m³:  _cp.`volume_cm3` / 1000000 AS `volume_m3`\n"
+            "   • cm³ ↔ liters: col / 1000\n"
+            "   • grams ↔ kg: col / 1000\n"
+            "   • percentage ↔ fraction: col / 100 or col * 100\n"
+            "   • per-hour ↔ per-day: col * active_hours_in_day\n\n"
+            "   How to detect the need for conversion:\n"
+            "   - User says 'hours' but KPI column says 'Mins' or 'minutes'\n"
+            "     → divide by 60\n"
+            "   - User says 'minutes' but KPI column says 'Hours'\n"
+            "     → multiply by 60\n"
+            "   - User says 'tons/tonnes' but column has 'kg'\n"
+            "     → divide by 1000\n"
+            "   - User says 'cubic meters/m3' but column has 'cm3'\n"
+            "     → divide by 1000000\n"
+            "   - User says 'liters/litres' but column has 'cm3'\n"
+            "     → divide by 1000\n"
+            "   - Any other unit mismatch: apply the correct factor.\n\n"
+            "   When converting, ROUND to 2 decimal places:\n"
+            "     ROUND(_cp.`Downtime` / 60, 2) AS `Downtime_Hours`\n\n"
+            "   If unsure whether conversion is needed, return data AS-IS\n"
+            "   (the original unit is always safe).\n\n"
+            "   ALWAYS keep non-metric columns (BOT_ID, time, STATION, etc.)\n"
+            "   alongside the converted column in the outer SELECT.\n\n"
             "DOMAIN RULES:\n"
-            "• \"active time/hours\" for a specific bot → Active vs Inactive hours "
-            "KPI, project BOT_ID + ACTIVE_HOURS.\n"
-            "• \"inactive time/hours\" for a specific bot → Active vs Inactive hours "
-            "KPI, project BOT_ID + INACTIVE_HOURS.\n"
-            "• \"total inactive time\" for a bot → Active vs Inactive hours KPI, "
-            "project BOT_ID + INACTIVE_HOURS (this gives per-bot hours, which IS "
-            "the total inactive time for that bot).\n"
-            "• \"active vs inactive\" or comparison → keep ALL columns.\n"
-            "• \"how many bots\" / \"count of bots\" (no time words) → count KPI.\n"
-            "• \"number of inactive bots\" / \"count inactive bots\" → Inactive Bots count KPI.\n"
+            "• \"active time/hours\" for a bot → Active vs Inactive KPI,\n"
+            "  project `BOT_ID` + `ACTIVE_HOURS`.\n"
+            "• \"inactive time/hours\" for a bot → project `BOT_ID` +\n"
+            "  `INACTIVE_HOURS`.\n"
+            "• \"active vs inactive\" or comparison → keep ALL columns as-is.\n"
+            "• \"how many bots\" / \"count of bots\" → count KPI.\n"
             "• The SQL must be valid MySQL 8.x.\n\n"
-            "Respond with valid JSON matching the required schema."
+            "Respond with valid JSON matching the required schema.\n"
+            "In the explanation field, if you applied a unit conversion,\n"
+            "state what conversion was applied and why."
         )
 
         try:
@@ -1517,10 +1722,29 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
 
             selected = next(c for c in candidate_sqls if c["kpi_id"] == selected_id)
 
+            # Use the LLM-refined SQL.  The improved prompt now provides
+            # full schema with types, backtick-quoting rules, and strict
+            # constraints against inventing columns.  As a safety net,
+            # _fix_wrapper_column_quoting() repairs any _cp.X references
+            # that are missing backtick quotes.
+            llm_sql = result["sql"].strip()
+            if llm_sql != selected["sql"].strip():
+                logger.info(
+                    f"📊 LLM KPI refiner: SQL modified for {selected_id}"
+                )
+                logger.debug(
+                    f"📊 LLM SQL: {llm_sql[:300]}"
+                )
+                llm_sql = self._fix_wrapper_column_quoting(llm_sql)
+            else:
+                logger.info(
+                    f"📊 LLM KPI refiner: SQL returned as-is for {selected_id}"
+                )
+
             return {
                 "kpi_id": selected_id,
                 "kpi_name": selected["kpi_name"],
-                "sql": result["sql"],
+                "sql": llm_sql,
                 "chart_type": result.get("chart_type", selected["chart_type"]),
                 "explanation": result.get("explanation", ""),
                 "tables_used": selected["tables_used"],
@@ -1531,6 +1755,47 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
         except Exception as e:
             logger.warning(f"📊 LLM KPI refiner error: {e}")
             return None
+
+    @staticmethod
+    def _fix_wrapper_column_quoting(sql: str) -> str:
+        """Fix unquoted column references in _cp.COLUMN wrapper SQL.
+
+        The LLM sometimes writes ``_cp.Total occupied weight (kg)``
+        instead of ``_cp.`Total occupied weight (kg)```.  This method
+        finds bare ``_cp.<word>`` patterns that contain spaces, hyphens,
+        or parentheses and wraps them in backticks.
+
+        It also fixes ``SUM(_cp.COL)`` / ``AVG(_cp.COL)`` etc.
+
+        Already-backtick-quoted references (``_cp.`col```) are left alone.
+        """
+        import re
+
+        def _quote_cp_ref(m: re.Match) -> str:
+            prefix = m.group(1)   # _cp. (possibly inside SUM( etc.)
+            col = m.group(2)      # column name — may have spaces
+            # Already quoted?
+            if col.startswith("`"):
+                return m.group(0)
+            # Needs quoting if has special chars
+            if " " in col or "-" in col or "(" in col:
+                return f"{prefix}`{col}`"
+            return m.group(0)
+
+        # Match _cp.<column_name_possibly_with_spaces> up to common SQL
+        # delimiters (comma, FROM, WHERE, AS, ORDER, GROUP, closing paren,
+        # semicolon, newline).
+        # Greedy — captures the longest run of non-delimiter chars.
+        fixed = re.sub(
+            r'(_cp\.)'                              # group 1: _cp.
+            r'([^`,\n;]+?)'                         # group 2: column ref
+            r'(?=\s*(?:,|\bFROM\b|\bWHERE\b|\bAS\b|\bORDER\b|\bGROUP\b'
+            r'|\bLIMIT\b|\bHAVING\b|\)|\s*;|\s*$))',
+            _quote_cp_ref,
+            sql,
+            flags=re.IGNORECASE,
+        )
+        return fixed
 
     # ----------------------------------------------------------
     # 📊 DASHBOARD KPI MATCH
@@ -1641,7 +1906,7 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                 )
 
         # ── Disambiguation check ──
-        # If top-1 score < 0.92 and the gap to top-2 is < 0.5,
+        # If top-1 score < 0.92 and the gap to top-2 is < 0.10,
         # return a special response so the frontend can ask the user.
         from .kpi_resolver import DashboardKPIResolver as _Resolver
         if (
@@ -1725,55 +1990,61 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             )
 
         if llm_result is None:
-            # LLM refiner unavailable or rejected all → use top-1 as fallback
+            # LLM refiner unavailable/skipped → use top-1 match as-is
             logger.info(
                 f"📊 LLM refiner returned None for: '{clean_question}' — "
                 f"using top KPI match '{kpi_match.kpi_name}' as fallback"
             )
-            return kpi_match
-
-        # ── Build KPIMatch from LLM-refined result ──
-        selected_id = llm_result["kpi_id"]
-        picked_entry = None
-        for kpi_entry in self.kpi_resolver.kpis:
-            if kpi_entry.id == selected_id:
-                picked_entry = kpi_entry
-                break
-
-        if picked_entry:
-            from .kpi_resolver import KPIMatch
-            refined_params = kpi_match.parameters_applied.copy()
-            refined_params["llm_refined"] = "true"
-            if selected_id != kpi_match.kpi_id:
-                refined_params["llm_switched_from"] = kpi_match.kpi_id
-            if llm_result.get("explanation"):
-                refined_params["llm_explanation"] = llm_result["explanation"][:200]
-
-            kpi_match = KPIMatch(
-                kpi_id=selected_id,
-                kpi_name=picked_entry.kpi_name,
-                category=picked_entry.category,
-                chart_type=llm_result.get("chart_type", picked_entry.chart_type),
-                logic=picked_entry.logic,
-                sql=llm_result["sql"],
-                raw_query=picked_entry.query,
-                match_score=llm_result.get("score", kpi_match.match_score),
-                tables_used=picked_entry.tables_used,
-                requires_location=picked_entry.requires_location,
-                requires_time_range=picked_entry.requires_time_range,
-                parameters_applied=refined_params,
-                top_candidates=kpi_match.top_candidates,
-            )
-            logger.info(
-                f"📊 LLM refined KPI: {selected_id} '{picked_entry.kpi_name}' "
-                f"(switched={selected_id != kpi_match.kpi_id}). "
-                f"Explanation: {llm_result.get('explanation', '')[:150]}"
-            )
+            # Fall through to execution with the original kpi_match
         else:
-            logger.warning(
-                f"📊 LLM refiner returned unknown kpi_id={selected_id}, "
-                f"keeping original match"
-            )
+            # ── Build KPIMatch from LLM-refined result ──
+            selected_id = llm_result["kpi_id"]
+            picked_entry = None
+            for kpi_entry in self.kpi_resolver.kpis:
+                if kpi_entry.id == selected_id:
+                    picked_entry = kpi_entry
+                    break
+
+            if picked_entry:
+                from .kpi_resolver import KPIMatch
+                refined_params = kpi_match.parameters_applied.copy()
+                refined_params["llm_refined"] = "true"
+                if selected_id != kpi_match.kpi_id:
+                    refined_params["llm_switched_from"] = kpi_match.kpi_id
+                if llm_result.get("explanation"):
+                    refined_params["llm_explanation"] = llm_result["explanation"][:200]
+
+                # Apply column projection deterministically
+                refined_sql, refined_params = self.kpi_resolver._apply_column_projection(
+                    llm_result["sql"], refined_params,
+                    clean_question, selected_id,
+                )
+
+                kpi_match = KPIMatch(
+                    kpi_id=selected_id,
+                    kpi_name=picked_entry.kpi_name,
+                    category=picked_entry.category,
+                    chart_type=llm_result.get("chart_type", picked_entry.chart_type),
+                    logic=picked_entry.logic,
+                    sql=refined_sql,
+                    raw_query=picked_entry.query,
+                    match_score=llm_result.get("score", kpi_match.match_score),
+                    tables_used=picked_entry.tables_used,
+                    requires_location=picked_entry.requires_location,
+                    requires_time_range=picked_entry.requires_time_range,
+                    parameters_applied=refined_params,
+                    top_candidates=kpi_match.top_candidates,
+                )
+                logger.info(
+                    f"📊 LLM refined KPI: {selected_id} '{picked_entry.kpi_name}' "
+                    f"(switched={selected_id != kpi_match.kpi_id}). "
+                    f"Explanation: {llm_result.get('explanation', '')[:150]}"
+                )
+            else:
+                logger.warning(
+                    f"📊 LLM refiner returned unknown kpi_id={selected_id}, "
+                    f"keeping original match"
+                )
 
         logger.info(
             f"📊 Dashboard KPI hit: id={kpi_match.kpi_id}, '{kpi_match.kpi_name}' "
@@ -2127,7 +2398,17 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             bin_id=_bin_id, wave_id=_wave_id, order_id=_order_id,
         )
 
+        # ── Column projection: select only relevant columns based on intent ──
+        sql, params_applied = self.kpi_resolver._apply_column_projection(
+            sql, params_applied, clean_question, picked_entry.id,
+        )
+
         params_applied["user_selected"] = "true"
+
+        logger.info(
+            f"📊 KPI user-selected: id={kpi_id}, '{picked_entry.kpi_name}' "
+            f"params={params_applied}"
+        )
 
         # Execute
         try:
@@ -2259,6 +2540,17 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             f"📊 KPI skip → SQL generator for: '{clean_question}' "
             f"entities={entities}"
         )
+
+        # ── Invalidate the cached disambiguation response ──
+        # The first pass cached the disambiguation ChatResponse for this
+        # question.  If we don't remove it, process_query() will return
+        # the disambiguation UI again instead of reaching SQL generation.
+        if self.cache.get(session_id, clean_question):
+            logger.info(
+                f"📊 Clearing cached disambiguation response for: "
+                f"'{clean_question[:60]}'"
+            )
+            self.cache.delete(session_id, clean_question)
 
         # Skip KPI and SP matching — go straight to SQL generation.
         # Delegate to process_query but with a marker to skip KPI.

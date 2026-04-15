@@ -194,7 +194,7 @@ class TestFormattingPipeline:
 
         assert confidence > 0.5
         assert "```sql" in formatted
-        assert "Rows Returned: 1" in formatted
+        assert "Rows returned: 1" in formatted
         assert "42" in formatted
 
 

@@ -1,0 +1,339 @@
+﻿.\venv\Scripts\python.exe : 2026-04-15 14:38:39,690 [WARNING] 
+app.services.sql_assistant.sp_resolver: ΓÜá∩╕Å SP tables without 
+'host-location': {'api_master', 'wcs_to_wms_payload'}
+At line:1 char:64
++ ... ch $b ==="; .\venv\Scripts\python.exe -m evaluation.production_query_ ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2026-04-15 14:3...o_wms_payload'} 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2026-04-15 14:38:40,304 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.027 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'Active number of Bots' (0.600)
+2026-04-15 14:38:40,304 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.600 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:38:43,507 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: CHENNAI (score: 0.40, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:38:44,565 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.656 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:38:45,770 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.804 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:38:46,908 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.021 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'SKU wise Expiry Ageing' (0.594)
+2026-04-15 14:38:46,908 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'SKU wise Expiry Ageing' score=0.594 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:38:48,235 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'SKU wise Expiry Ageing' score=0.639 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:38:56,165 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: MUMBAI (score: 0.43, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:39:00,643 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Distinct SKU' score=0.705 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:05,091 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Location Blocked' score=0.727 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:08,810 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.35, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:39:11,381 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.743 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:15,322 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: MUMBAI (score: 0.43, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:39:15,707 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Category-wise Distinct SKU Count' score=0.621 
+(below HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:19,610 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.030 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'Category-wise SKU Quantity' (0.608)
+2026-04-15 14:39:19,610 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Category-wise SKU Quantity' score=0.608 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:21,128 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bin Weight Capacity' score=0.754 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:22,491 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'SKU-wise Bin Distribution' score=0.646 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:23,534 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.019 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'SKU wise Expiry Ageing' (0.587)
+2026-04-15 14:39:23,534 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'SKU wise Expiry Ageing' score=0.587 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:25,470 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.024 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'SKU wise Expiry Ageing' (0.576)
+2026-04-15 14:39:25,470 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'SKU wise Expiry Ageing' score=0.576 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:27,036 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'SKU Count by Expiry Ageing (days)' score=0.632 
+(below HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:29,012 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'SKU Count by Expiry Ageing (days)' score=0.620 
+(below HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:30,457 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Blocked SKUs' score=0.765 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:31,877 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Blocked SKUs' score=0.749 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:33,255 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Blocked SKUs' score=0.776 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:36,838 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Top 10 Picked SKUs' score=0.553 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:38,155 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Reserved to Put' score=0.728 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+  Loaded 650 production queries from queries_till_14_04.txt
+  Initializing SQL Assistant Service...
+  Service ready in 32.4s (91 tables)
+
+================================================================================
+  Production Query Evaluation -- 100 queries
+  Mode: DRY RUN (table selection only)
+================================================================================
+
+  [OK] #401 | route=sql_generation  | tables=[bot_master,bot_alarm_log,bin_protrusion_master+9] | score=1.00 | issues=0 | List the running bots id in SHAKTI
+  [OK] #402 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | HOW MANY BOTS WERE INACTIVE BETWEEN 4PM TO 6PM ON 
+  [OK] #403 | route=sql_generation  | tables=[bot_alarm_log,bot_charging_bit_log_archive,bot_obstacle_log+9] | score=1.00 | issues=0 | show me alram raised in chennai in all bots in las
+  [OK] #404 | route=sql_generation  | tables=[test_table,chatbot_sql_queries,hw_safety_door_master+9] | score=1.00 | issues=0 | show all the tables in the database
+  [OK] #405 | route=sql_generation  | tables=[bot_alarm_log,bot_alarm_log_archive,bot_manual_alarm_log_archive+9] | score=1.00 | issues=0 | CAN YOU GIVE ME THE ALARMS LOG FOR BOT-0021 IN FRK
+  [OK] #406 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | IN frk, How many bots were active during the 4pm t
+  [OK] #407 | route=sql_generation  | tables=[location_master,live_inventory_master,sku_batch_master+9] | score=1.00 | issues=0 | Give me article wise Expiry Ageing in chennai
+  [OK] #408 | route=sql_generation  | tables=[live_inventory_master,sku_batch_master,live_inventory_master_log+9] | score=1.00 | issues=0 | in chennai Which articles, batches, and bins are n
+  [OK] #409 | route=sql_generation  | tables=[lpn_master_archive,lpn_master,lpn_pick_wave_order_mapping+9] | score=1.00 | issues=0 | In frk, How many LPNs were closed during the 4 pm 
+  [OK] #410 | route=sql_generation  | tables=[live_inventory_master,sku_master,location_master+9] | score=1.00 | issues=0 | how many distinct article in chennai has?
+  [OK] #411 | route=sql_generation  | tables=[live_inventory_master,location_master,sku_master+9] | score=1.00 | issues=0 | How many distinct articles are currently present a
+  [OK] #412 | route=sql_generation  | tables=[sku_master,live_inventory_master,sku_batch_master+9] | score=1.00 | issues=0 | distinct articles in frk
+  [OK] #413 | route=sql_generation  | tables=[live_inventory_master,sku_master,test_table+9] | score=1.00 | issues=0 | give me distinct articles in chennai
+  [OK] #414 | route=sql_generation  | tables=[location_master,live_inventory_master,sku_master+9] | score=1.00 | issues=0 | How many distinct articles are currently present a
+  [OK] #415 | route=sql_generation  | tables=[live_inventory_master,sku_master,test_table+9] | score=1.00 | issues=0 | distinct articles in chennai
+  [OK] #416 | route=sql_generation  | tables=[live_inventory_master,sku_master,location_master+9] | score=1.00 | issues=0 | how many distinct article has in chennai?
+  [OK] #417 | route=sql_generation  | tables=[live_inventory_master,sku_master,hardware_registered+9] | score=1.00 | issues=0 | count of distinct article in chennai
+  [OK] #418 | route=sql_generation  | tables=[bin_protrusion_master,store_bin_master,bin_info_master+9] | score=1.00 | issues=0 | how to many bins are there in chennai?
+  [OK] #419 | route=sql_generation  | tables=[bin_protrusion_master,store_bin_master,bin_info_master+9] | score=1.00 | issues=0 | How many  bins are available at the chennai
+  [OK] #420 | route=sql_generation  | tables=[location_block_master,dashboard_log_location_block_master,bot_obstacle_log+9] | score=1.00 | issues=0 | SHOW ME BLOCKED LOCATION LIST IN CHENNAI FOR LAST 
+  [OK] #421 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data_archive,wms_to_wcs_order_line_request_data,wms_to_wcs_order_line_level_pre_staged_data_archive+9] | score=1.00 | issues=0 | give me total order line processed in banglore for
+  [OK] #422 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data_archive,wms_to_wcs_order_line_level_pre_staged_data_archive,bot_alarm_log+9] | score=1.00 | issues=0 | totla order processed in banglore for last one wee
+  [OK] #423 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data_archive,order_bin_task_purge_log,wms_to_wcs_order_line_level_pre_staged_data_archive+9] | score=1.00 | issues=0 | give me total order lines processed in last 7 days
+  [OK] #424 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | how many bots available in banglore
+  [OK] #425 | route=sql_generation  | tables=[bin_info_master,bin_protrusion_master,order_bin_mapping+9] | score=1.00 | issues=0 | how many total bins we have in ablr
+  [OK] #426 | route=sql_generation  | tables=[bot_history,bot_history_log,bot_master+9] | score=1.00 | issues=0 | How many hours was each bot active and inactive du
+  [OK] #427 | route=sql_generation  | tables=[bot_history,bot_history_log,bot_master+9] | score=1.00 | issues=0 | active vs inactive time for bots in banglore for l
+  [OK] #428 | route=sql_generation  | tables=[sku_master,live_inventory_master,category_master+9] | score=1.00 | issues=0 | what is Category-wise Distinct article percenatge?
+  [OK] #429 | route=sql_generation  | tables=[recovery_pick_task_master,pick_rule_master,pick_wave_order_master_archive+9] | score=1.00 | issues=0 | average pick in banglore today
+  [OK] #430 | route=sql_generation  | tables=[recovery_pick_task_master,pick_wave_order_master_archive,lpn_pick_wave_order_mapping_archive+9] | score=1.00 | issues=0 | acerage pick time in banglore today
+  [OK] #431 | route=sql_generation  | tables=[live_inventory_master,sku_master,wms_to_wcs_order_line_level_pre_staged_data+9] | score=1.00 | issues=0 | what is Category-wise article Quantity in chennai?
+  [OK] #432 | route=sql_generation  | tables=[live_inventory_master,bin_protrusion_master,store_bin_master+9] | score=1.00 | issues=0 | At Chennai, for each article and bin, how much spa
+  [OK] #433 | route=sql_generation  | tables=[live_inventory_master,bin_protrusion_master,bin_info_master+9] | score=1.00 | issues=0 | tell me article wise bin distribution in chennai
+  [OK] #434 | route=sql_generation  | tables=[location_master,sku_batch_master,live_inventory_master+9] | score=1.00 | issues=0 | can u tell me article wise Expiry ageing in chenna
+  [OK] #435 | route=sql_generation  | tables=[location_master,sku_batch_master,live_inventory_master+9] | score=1.00 | issues=0 | article wise Expiry ageing in chennai?
+  [OK] #436 | route=sql_generation  | tables=[live_inventory_master,sku_batch_master,live_inventory_master_log+9] | score=1.00 | issues=0 | At Chennai, how many articles and how much quantit
+  [OK] #437 | route=sql_generation  | tables=[live_inventory_master,sku_batch_master,live_inventory_master_log+9] | score=1.00 | issues=0 | How many articles and how much quantity fall into 
+  [OK] #438 | route=sql_generation  | tables=[location_block_master,dashboard_log_location_block_master,live_inventory_master+9] | score=1.00 | issues=0 | what is Total Blocked article in frk?
+  [OK] #439 | route=sql_generation  | tables=[location_block_master,dashboard_log_location_block_master,live_inventory_master+9] | score=1.00 | issues=0 | total blocked article in banglore
+  [OK] #440 | route=sql_generation  | tables=[location_block_master,dashboard_log_location_block_master,live_inventory_master+9] | score=1.00 | issues=0 | Total blocked article count in banglore
+  [OK] #441 | route=sql_generation  | tables=[sku_master,live_inventory_master,lidar_bifurcation_table+9] | score=1.00 | issues=0 | Distinct article in frk
+  [OK] #442 | route=sql_generation  | tables=[pick_rule_master,picklist_split_recommendation_log,recovery_pick_task_master+9] | score=1.00 | issues=0 | Top 10 Picked articles in frk?
+2026-04-15 14:39:42,189 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.39, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:39:43,164 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Reserved to Put' score=0.757 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:50,973 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.752 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:52,787 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.009 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'Total Bins' (0.837)
+2026-04-15 14:39:52,787 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.837 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:53,562 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.28, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:39:53,822 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bin Utilisation' score=0.763 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:57,115 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Location Blocked' score=0.727 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:39:58,649 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: CHENNAI (score: 0.28, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:40:00,638 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Reserved to Pick' score=0.702 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:40:01,718 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Pick Bin Presentation' score=0.631 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:40:03,883 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.610 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:40:09,774 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: CHENNAI (score: 0.27, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:40:10,040 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.560 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:40:10,861 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: BANGALORE (score: 0.31, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:40:11,149 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bins Per Hour (Bot active + inactive time)' 
+score=0.562 (below HIGH_CONFIDENCE=0.85). Accepting but flagging for 
+monitoring.
+2026-04-15 14:40:11,847 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: MUMBAI (score: 0.41, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:40:14,781 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Reserved to Pick' score=0.711 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:40:19,782 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.32, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:40:25,539 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.582 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:40:36,755 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: BANGALORE (score: 0.24, threshold: 0.65). Falling back to 
+all-sites.
+  [OK] #443 | route=sql_generation  | tables=[subcontroller_reservations_master_log,picklist_split_recommendation_log,picklist_split_recommendation_cluster_log+9] | score=0.85 | issues=1 | total reserve to put in banglore for last one week
+  [OK] #444 | route=sql_generation  | tables=[subcontroller_reservations_master_log,location_block_master,dashboard_log_location_block_master+9] | score=0.85 | issues=1 | reserve to put in banglore for last one week
+  [OK] #445 | route=sql_generation  | tables=[lidar_bifurcation_table,live_inventory_master,lpn_master+9] | score=1.00 | issues=0 | distinct article in blr
+  [OK] #446 | route=sql_generation  | tables=[subcontroller_reservations_master_log,put_wave_wms_data_archive,picklist_split_recommendation_log+9] | score=0.85 | issues=1 | total reserve to put in last one week
+  [OK] #447 | route=sql_generation  | tables=[subcontroller_reservations_master_log,bot_obstacle_log_archive,bot_history+9] | score=1.00 | issues=0 | total researve to put in banglore in last 7 days
+  [OK] #448 | route=sql_generation  | tables=[live_inventory_master,test_lww_target,lpn_master+9] | score=1.00 | issues=0 | Show total distinct article count in blr
+  [OK] #449 | route=sql_generation  | tables=[lidar_bifurcation_table,live_inventory_master,sku_master+9] | score=1.00 | issues=0 | distinct article iin blr
+  [OK] #450 | route=sql_generation  | tables=[lidar_bifurcation_table,lpn_master,hw_ptl_master+9] | score=1.00 | issues=0 | Distinct article in blr?
+  [OK] #451 | route=sql_generation  | tables=[lpn_master,test_lww_target,hw_ptl_master+9] | score=1.00 | issues=0 | volume uitilization in blr
+  [OK] #452 | route=sql_generation  | tables=[bin_protrusion_master,bin_info_master,order_bin_mapping+9] | score=1.00 | issues=0 | total bins  in bler
+  [OK] #453 | route=sql_generation  | tables=[bin_info_master,bin_protrusion_master,store_bin_master+9] | score=1.00 | issues=0 | tell me total bins available in banglore
+  [OK] #454 | route=sql_generation  | tables=[bin_protrusion_master,order_bin_mapping,bin_info_master+9] | score=1.00 | issues=0 | bin used percentage
+  [OK] #455 | route=sql_generation  | tables=[picklist_split_recommendation_cluster_log,hw_station_master,hw_charging_station_master+9] | score=1.00 | issues=0 | can you check and confirm how many stations were r
+  [OK] #456 | route=sql_generation  | tables=[location_block_master,dashboard_log_location_block_master,location_master+9] | score=1.00 | issues=0 | show me blocked locations right now at chennai
+  [OK] #457 | route=sql_generation  | tables=[location_block_master,dashboard_log_location_block_master,location_master+9] | score=1.00 | issues=0 | show me blocked location in chennai now
+  [OK] #458 | route=sql_generation  | tables=[pick_wave_order_master,pick_wave_wms_data,short_pick_wave_reason+9] | score=1.00 | issues=0 | and show me the pick qunatity as well
+  [OK] #459 | route=sql_generation  | tables=[pick_rule_master,short_pick_wave_reason,pick_wave_order_master+9] | score=1.00 | issues=0 | how many quantitiies are reserved for picking at F
+  [OK] #460 | route=sp              | tables=[pick_wave_order_master,pick_wave_order_master_archive,picklist_split_recommendation_log+9] | score=1.00 | issues=0 | give me average bin presentations for pick waves r
+  [OK] #461 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | tell me the top five alrams in faruknagar
+  [OK] #462 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | give me top 5 alarms faced in bots at FRK today
+  [OK] #463 | route=sql_generation  | tables=[bot_alarm_log,location_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | tell me the top five alrams in faruknagar for toda
+  [OK] #464 | route=sql_generation  | tables=[pick_rule_master,recovery_pick_task_master,picklist_split_recommendation_log+9] | score=1.00 | issues=0 | give me top picked article at FRK
+  [OK] #465 | route=sql_generation  | tables=[pick_rule_master,picklist_split_recommendation_log,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | give me top picked articles since starting at FRK
+  [OK] #466 | route=sql_generation  | tables=[bot_alarm_log,bot_master,bot_history+9  ] | score=1.00 | issues=0 | give me top 5 bots which did most of the tasks tod
+  [OK] #467 | route=sql_generation  | tables=[bin_protrusion_master,order_bin_task_master,bin_protrusion_master_log+9] | score=0.85 | issues=1 | give me top 5 bots which brought maximum bins to s
+  [OK] #468 | route=sql_generation  | tables=[bin_protrusion_master,bot_obstacle_log,bot_obstacle_log_archive+9] | score=1.00 | issues=0 | give me top 5 bots which brought max bins from sto
+  [OK] #469 | route=sql_generation  | tables=[hw_station_master,hw_charging_station_master,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | how many stations were run yesterday at chennai si
+  [OK] #470 | route=sql_generation  | tables=[pick_rule_master,short_pick_wave_reason,recovery_pick_task_master+9] | score=1.00 | issues=0 | how many quantities are reserved for picking actio
+  [OK] #471 | route=sql_generation  | tables=[lpn_master,lpn_master_archive,lpn_pick_wave_order_mapping+9] | score=1.00 | issues=0 | what is the LPN close count today at FRK
+  [OK] #472 | route=sql_generation  | tables=[location_master,live_inventory_master,bot_obstacle_log_archive+9] | score=1.00 | issues=0 | give me article count by expiray aging in banglore
+  [OK] #473 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | which alarm was most frequent at FRK today?
+  [OK] #474 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | total bot
+  [OK] #475 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | total bot in frk
+  [OK] #476 | route=sql_generation  | tables=[bot_history,bot_master,bot_history_log+9] | score=1.00 | issues=0 | total bot sitewise
+  [OK] #477 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | give me alarms code raised on BOT-0007 today sitew
+  [OK] #478 | route=sql_generation  | tables=[bot_master,bot_history,test_lww_target+9] | score=1.00 | issues=0 | where is BOT-0001 in frk
+  [OK] #479 | route=sql_generation  | tables=[bot_master,location_master,bot_alarm_log+9] | score=1.00 | issues=0 | BOT-0001 in which aysle in frk currently?
+  [OK] #480 | route=sql_generation  | tables=[bin_info_master,order_bin_mapping,store_bin_master+9] | score=1.00 | issues=0 | where is this BIN-0324 in frk
+  [OK] #481 | route=sql_generation  | tables=[station_home_master,station_no_read_logs,hw_station_master+9] | score=1.00 | issues=0 | we are STATION-0001 right now, what was the previo
+  [OK] #482 | route=sql_generation  | tables=[station_home_master,bin_protrusion_master,station_no_read_logs+9] | score=1.00 | issues=0 | which was the last bot id at STATION-0001 in frk n
+  [OK] #483 | route=sql_generation  | tables=[bot_master,bin_protrusion_master,test_lww_target+9] | score=1.00 | issues=0 | what is te ip of BOT-0027 in chennai
+  [OK] #484 | route=sql_generation  | tables=[bot_master,bot_charging_bit_log_archive,bin_protrusion_master+9] | score=1.00 | issues=0 | are the counters of BOT-0027 is increasing at chen
+  [OK] #485 | route=sql_generation  | tables=[lpn_master,hw_ptl_master,lpn_master_archive+9] | score=1.00 | issues=0 | how to close lpn manually for PTL id 101 in frk
+  [OK] #486 | route=sql_generation  | tables=[bot_charging_bit_log_archive,hw_charging_station_master,bot_master+9] | score=1.00 | issues=0 | which bot is not going to charging point although 
+  [OK] #487 | route=sql_generation  | tables=[store_bin_master,location_master,order_bin_mapping+9] | score=1.00 | issues=0 | in aile 3 and aile 4 how location are available to
+  [OK] #488 | route=sql_generation  | tables=[location_master,order_bin_mapping,bin_protrusion_master+9] | score=1.00 | issues=0 | in asile 3 and asile 4 how location are available 
+  [OK] #489 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | HOW MANY BOTS ARE ACTIVE NOW IN BLR?
+2026-04-15 14:40:43,372 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: CHENNAI (score: 0.30, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:40:45,936 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.19, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:40:50,890 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.26, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:40:51,840 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: SHAKTI (score: 0.40, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:40:52,750 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.31, threshold: 0.65). Falling back to 
+all-sites.
+  [OK] #490 | route=sql_generation  | tables=[bot_master                              ] | score=1.00 | issues=0 | How many bots are active today in blr?
+  [OK] #491 | route=sql_generation  | tables=[pick_wave_wms_data,pick_wave_wms_data_archive,wms_to_wcs_order_request_data_archive+9] | score=1.00 | issues=0 | give me the above data towwer wise
+  [OK] #492 | route=missing_table   | tables=[lpn_master,lpn_master_archive,lpn_pick_wave_order_mapping+9] | score=1.00 | issues=0 | what is the json response received from wms while 
+  [OK] #493 | route=sql_generation  | tables=[lpn_master_archive,lpn_master,lpn_pick_wave_order_mapping_archive+9] | score=1.00 | issues=0 | no i need json response while closing this lpn id 
+  [OK] #494 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | How many bots were active today in blr?
+  [OK] #495 | route=sql_generation  | tables=[bin_protrusion_master,test_lww_target,bot_master+9] | score=1.00 | issues=0 | where is BOT-0001 in frk, also give me left or rig
+  [OK] #496 | route=sql_generation  | tables=[bin_protrusion_master,bot_alarm_log,location_block_master+9] | score=1.00 | issues=0 | where is BOT-0001 in frk, give me coordinates with
+  [OK] #497 | route=sql_generation  | tables=[bot_history,bot_master,bot_obstacle_log+9] | score=1.00 | issues=0 | where is BOT-0001
+  [OK] #498 | route=sql_generation  | tables=[bin_protrusion_master,bot_alarm_log,bot_obstacle_log+9] | score=1.00 | issues=0 | this BOT-0001 is actualy in which side of this loc
+  [OK] #499 | route=sql_generation  | tables=[location_master,location_block_master,bin_protrusion_master+9] | score=1.00 | issues=0 | i was asking about tower side
+  [OK] #500 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | how many bots are active sitewise
+
+================================================================================
+  SUMMARY -- 100 queries evaluated
+================================================================================
+
+  -- Route Distribution --
+     sql_generation         98 (98.0%)
+     sp                      1 (1.0%)
+     missing_table           1 (1.0%)
+
+  -- Quality Scores --
+     Average score:    0.994
+     Perfect (>=0.95):   96 (96.0%)
+     Good (0.7-0.95):     4 (4.0%)
+     Poor (<0.7):         0 (0.0%)
+     Errors:              0 (0.0%)
+
+  -- Preprocessing --
+     Tenant extracted:  100/100
+     All-sites:          20/100
+
+  -- SQL Generation --
+     Total SQL gen:      98
+     With time filter:    0
+     With joins:          0
+     With tenant:         0
+     With LIMIT:          0
+
+  -- Top Issues --
+        4x  Expected table
+
+================================================================================
+
+  Results saved to C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\evaluation\production_query_results.json

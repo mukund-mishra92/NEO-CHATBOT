@@ -25,7 +25,7 @@ from datetime import datetime, timedelta, timezone
 
 import numpy as np
 
-from .match_utils import strip_matching_noise
+from .match_utils import strip_matching_noise, strip_time_noise_for_embedding
 
 logger = logging.getLogger(__name__)
 
@@ -267,6 +267,7 @@ _SCHEMA_PATTERNS: List[re.Pattern] = [
         r"\bdescribe\b.*\btable\b",
         r"\bschema\b.*\btable\b",
         r"\bstructure\b.*\btable\b",
+        r"\btable\b.*\bstructure\b",
         r"\bfields?\b.*\btable\b",
         r"\blist\b.*\btables?\b",
         r"\bshow\b.*\btables?\b.*\bdatabase\b",
@@ -1329,7 +1330,7 @@ class DashboardKPIResolver:
             has_pct = _has_any_phrase(q_lower, (
                 "percentage", "utilization", "utilisation", "utilized",
                 "utilised", "percent",
-            ))
+            )) or "%" in q_lower
             has_bin_word = _has_any_phrase(q_lower, ("bin", "bins"))
             # "bin" + "volume" → kpi_046 (Bin-wise Volume Util)
             if has_bin_word and has_volume:
@@ -1510,14 +1511,15 @@ class DashboardKPIResolver:
         # semantic proximity.  Keyword scoring uses the normalised question
         # and expands via SYNONYMS to bridge the gap.
         #
-        # IMPORTANT: Do NOT strip the question for embedding.  Embeddings
-        # handle filler/time/location words gracefully — stripping reduces
-        # semantic signal (e.g. "bots inactive ?" vs the full natural-language
-        # question).  Keyword scoring continues to use the stripped version.
-        if original_question:
-            embed_question = original_question
-        else:
-            embed_question = question
+        # Strip time-range noise from the embedding input so that
+        # phrases like "today", "last 7 days" do not dilute cosine
+        # similarity.  Location names and filler words are KEPT —
+        # locations provide domain context (warehousing/logistics)
+        # and filler words preserve sentence structure, both of which
+        # benefit embedding quality.
+        embed_question = strip_time_noise_for_embedding(
+            original_question or question
+        )
         q_embedding = self._get_question_embedding(embed_question)
 
         # Choose threshold based on available scoring method

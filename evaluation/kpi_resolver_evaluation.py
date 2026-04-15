@@ -33,11 +33,18 @@ Usage:
 """
 
 import sys
+import io
 import json
 import time
 import argparse
 import logging
 from pathlib import Path
+
+# Force UTF-8 stdout on Windows to avoid cp1252 UnicodeEncodeError
+if sys.stdout.encoding != 'utf-8':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+if sys.stderr.encoding != 'utf-8':
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
@@ -387,7 +394,7 @@ def run_evaluation(
         results.append(result)
 
         if verbose or not correct:
-            status = "✅" if correct else "❌"
+            status = "OK" if correct else "FAIL"
             print(
                 f"  {status} [{tc.source[:4]:>4}] #{tc.id:<4} "
                 f"Q: {tc.question[:55]:<57} "
@@ -461,36 +468,36 @@ def print_report(results: List[EvalResult], cases: List[KPITestCase]):
     print(f"  Mean Confidence:      {mean_confidence:.3f}")
     print(f"  Mean Latency:         {mean_latency:.1f} ms")
 
-    print(f"\n  ── By Source ──")
+    print(f"\n  -- By Source --")
     for s, d in sorted(sources.items()):
         acc = d["correct"] / d["total"] if d["total"] else 0
         print(f"    {s:<12} {d['correct']}/{d['total']:<5} ({acc:.1%})")
 
-    print(f"\n  ── By Category ──")
+    print(f"\n  -- By Category --")
     for c, d in sorted(categories.items()):
         acc = d["correct"] / d["total"] if d["total"] else 0
         print(f"    {c:<12} {d['correct']}/{d['total']:<5} ({acc:.1%})")
 
-    print(f"\n  ── Error Breakdown ──")
+    print(f"\n  -- Error Breakdown --")
     print(f"    False Negatives:    {len(false_negatives)}")
     print(f"    False Positives:    {len(false_positives)}")
     print(f"    Misroutes:          {len(misroutes)}")
 
     if misroutes:
-        print(f"\n  ── Misrouted Queries ──")
+        print(f"\n  -- Misrouted Queries --")
         for r in misroutes:
             print(f"    #{r.test_id} Q: {r.question[:55]}")
             print(f"       Expected: {r.expected_kpi_id} ({r.expected_kpi_name})")
             print(f"       Got:      {r.actual_kpi_id} ({r.actual_kpi_name}) score={r.actual_score:.3f}")
 
     if false_negatives:
-        print(f"\n  ── False Negatives (missed KPIs) ──")
+        print(f"\n  -- False Negatives (missed KPIs) --")
         for r in false_negatives[:10]:
             print(f"    #{r.test_id} Q: {r.question[:55]}")
             print(f"       Expected: {r.expected_kpi_id} ({r.expected_kpi_name})  top5={'YES' if r.top5_hit else 'NO'}")
 
     if false_positives:
-        print(f"\n  ── False Positives (should be None) ──")
+        print(f"\n  -- False Positives (should be None) --")
         for r in false_positives[:10]:
             print(f"    #{r.test_id} Q: {r.question[:55]}")
             print(f"       Matched:  {r.actual_kpi_id} ({r.actual_kpi_name}) score={r.actual_score:.3f}")

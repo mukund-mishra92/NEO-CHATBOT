@@ -83,10 +83,32 @@ class ChatHistoryService:
         raise last_error
     
     def _ensure_tables_exist(self):
-        """Create chat history tables if they don't exist"""
+        """Create chat history tables if they don't exist.
+        
+        If the DB user lacks CREATE TABLE privileges (common in production
+        with read-only or restricted accounts), this logs a warning and
+        continues — the tables likely already exist, created by a DBA.
+        """
         try:
             conn = self._get_connection()
             cursor = conn.cursor()
+
+            # ── Quick check: do the tables already exist? ──
+            # If so, skip all CREATE statements entirely.
+            try:
+                cursor.execute("""
+                    SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+                    WHERE TABLE_SCHEMA = DATABASE()
+                      AND TABLE_NAME = 'chatbot_chat_history'
+                """)
+                tables_exist = cursor.fetchone()[0] > 0
+                if tables_exist:
+                    logger.info("✅ Chat history tables already exist — skipping CREATE")
+                    cursor.close()
+                    conn.close()
+                    return
+            except Exception:
+                pass  # INFORMATION_SCHEMA query failed; fall through to CREATE
             
             # Main chat log table
             cursor.execute("""

@@ -1,0 +1,286 @@
+﻿.\venv\Scripts\python.exe : 2026-04-15 14:41:26,569 [WARNING] 
+app.services.sql_assistant.sp_resolver: ΓÜá∩╕Å SP tables without 
+'host-location': {'api_master', 'wcs_to_wms_payload'}
+At line:1 char:64
++ ... ch $b ==="; .\venv\Scripts\python.exe -m evaluation.production_query_ ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2026-04-15 14:4...o_wms_payload'} 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2026-04-15 14:41:27,180 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.813 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:41:29,944 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Number of Inactive Bots' score=0.756 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:41:32,346 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: PUNE (score: 0.32, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:41:32,748 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.689 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:41:34,810 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.665 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:41:36,263 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Alarm Type per Bot' score=0.681 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:41:37,474 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.561 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:41:56,387 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Alarm Type per Bot' score=0.726 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:41:57,869 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Home Time per Bot (Hours)' score=0.807 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:42:00,286 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Top 10 PUT SKUs' score=0.627 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:42:02,372 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Top 10 PUT SKUs' score=0.595 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:42:03,725 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: MUMBAI (score: 0.32, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:42:06,965 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: MUMBAI (score: 0.20, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:42:08,662 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: FRK (score: 0.24, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:42:17,273 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bins Per Hour (Bot active + inactive time)' 
+score=0.620 (below HIGH_CONFIDENCE=0.85). Accepting but flagging for 
+monitoring.
+2026-04-15 14:42:26,245 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: CHENNAI (score: 0.21, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:42:32,818 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI ambiguity: top-2 within margin (0.015 < 0.05) ΓÇö tiebreak 
+inconclusive, accepting higher scorer 'Bins Per Hour (Bot active + inactive 
+time)' (0.669)
+2026-04-15 14:42:32,818 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bins Per Hour (Bot active + inactive time)' 
+score=0.669 (below HIGH_CONFIDENCE=0.85). Accepting but flagging for 
+monitoring.
+2026-04-15 14:42:35,902 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.721 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+  Loaded 650 production queries from queries_till_14_04.txt
+  Initializing SQL Assistant Service...
+  Service ready in 29.1s (91 tables)
+
+================================================================================
+  Production Query Evaluation -- 100 queries
+  Mode: DRY RUN (table selection only)
+================================================================================
+
+  [OK] #501 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | How many bots are active today in chennai?
+  [OK] #502 | route=sql_generation  | tables=[station_home_master,bin_protrusion_master,station_no_read_logs+9] | score=1.00 | issues=0 | what was the bot id came for STATION-0001 in frk t
+  [OK] #503 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | give me the count of total bots in blr
+  [OK] #504 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | how many bots are active in blr?
+  [OK] #505 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | Show the number of bots that were actually working
+  [OK] #506 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | Show the number of bots that were actually working
+  [OK] #507 | route=sql_generation  | tables=[bot_alarm_log,bot_master,bot_manual_alarm_log_archive+9] | score=1.00 | issues=0 | give me alarm type per bot with their frequency si
+  [OK] #508 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | total alarm in banglore today
+  [OK] #509 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | How many bots are inactive today in blr?
+  [OK] #510 | route=sql_generation  | tables=[bot_master,bin_protrusion_master,bot_history+9] | score=1.00 | issues=0 | give me ip of BOT-0027 in frk
+  [OK] #511 | route=sql_generation  | tables=[bot_master,bot_alarm_log,bin_protrusion_master+9] | score=1.00 | issues=0 | total bots in faruknagar
+  [OK] #512 | route=sql_generation  | tables=[bot_master,bot_alarm_log,bot_history+9  ] | score=1.00 | issues=0 | active bots in farukanagr
+  [OK] #513 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | average active hours for bots in faruknagar
+  [OK] #514 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | verage active hours for bots in faruknagar today
+  [OK] #515 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | average active hours for bots in faruknagar today
+  [OK] #516 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | active hours for bots in farukanagr today
+  [OK] #517 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | total bots in banglore
+  [OK] #518 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | give me total bots in frk
+  [OK] #519 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | total bots in frk
+  [OK] #520 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | give me total bots in frk today
+  [OK] #521 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | give me total bots in blr
+  [OK] #522 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_master+9] | score=1.00 | issues=0 | Show alarm breakdown by type for each bot in Shakt
+  [OK] #523 | route=sql_generation  | tables=[bot_history,station_home_master,bot_master+9] | score=1.00 | issues=0 | How many hours did BOT-0002 stay at its home or re
+  [OK] #524 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | total bot in blr
+  [OK] #525 | route=sql_generation  | tables=[live_inventory_master,sku_master,put_wave_order_master+9] | score=1.00 | issues=0 | show the top values for top 10 put articles in far
+  [OK] #526 | route=sql_generation  | tables=[put_wave_order_master_archive,put_wave_order_master,live_inventory_master+9] | score=1.00 | issues=0 | show top 10 put articles in frk today
+  [OK] #527 | route=sql_generation  | tables=[hw_ptl_master,hw_station_master,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | ow many PTLs are there per GTC station?
+  [OK] #528 | route=sql_generation  | tables=[hw_ptl_master,hw_station_master,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | how many PTLs are there per GTC station in FRK
+  [OK] #529 | route=sql_generation  | tables=[hw_ptl_master,hw_station_master,picklist_split_station_pref+9] | score=1.00 | issues=0 | how many ptls are there per gtc station
+  [OK] #530 | route=sql_generation  | tables=[hw_ptl_master,hw_station_master,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | how many PTLs are there per GTC station?
+  [OK] #531 | route=sql_generation  | tables=[hw_ptl_master,hw_station_master,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | how many PTLs are there per GTC station in FRK..?
+  [OK] #532 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | Total bots at blr?
+  [OK] #533 | route=sql_generation  | tables=[bot_master                              ] | score=1.00 | issues=0 | how many bots are active today in frk?
+  [OK] #534 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | list the bots active today in frk
+  [OK] #535 | route=sql_generation  | tables=[bin_protrusion_master,bin_protrusion_master_log,order_bin_task_master+9] | score=1.00 | issues=0 | show bin representation by BOT-0006 today in frk
+  [OK] #536 | route=sp              | tables=[bin_protrusion_master,order_bin_task_master,order_bin_mapping+9] | score=1.00 | issues=0 | how many bins are processed per hour by BOT-0016 t
+  [OK] #537 | route=sql_generation  | tables=[bin_info_master,bin_protrusion_master,store_bin_master+9] | score=1.00 | issues=0 | how many bins are currently in use at blr
+  [OK] #538 | route=sql_generation  | tables=[bin_info_master,bin_protrusion_master,bin_protrusion_master_log+9] | score=1.00 | issues=0 | how many bin we have in blr
+  [OK] #539 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | active bots in frk today?
+  [OK] #540 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | What is the active time vs inactive time for BOT-0
+  [OK] #541 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | Return the count of bots that were active at any p
+  [OK] #542 | route=reuse           | tables=[bot_master                              ] | score=1.00 | issues=0 | How many bots are inactive today in?
+  [OK] #543 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | How many bots are inactive today in frk?
+  [OK] #544 | route=sql_generation  | tables=[bot_history,bot_master,bot_alarm_log+9  ] | score=1.00 | issues=0 | What is the avg active hours for BOT-0012 in frk?
+  [OK] #545 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | Average inactive hours for BOT-0007 in frk today
+  [OK] #546 | route=sp              | tables=[bin_protrusion_master,bot_alarm_log,bot_master+9] | score=1.00 | issues=0 | How many bins per hour did each bot process today 
+  [OK] #547 | route=sp              | tables=[bin_protrusion_master,bin_protrusion_master_log,bot_history+9] | score=1.00 | issues=0 | Show hourly bins per hour by active time for the B
+2026-04-15 14:42:38,150 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.661 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:42:40,752 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Average  Active Hours for bot' score=0.738 
+(below HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:42:45,827 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bots Active Time (mins) per Hour' score=0.571 
+(below HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:42:57,072 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Net IPP' score=0.683 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:42:58,765 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'PUT IPP' score=0.738 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:01,798 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Gross IPP' score=0.826 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:02,580 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: CHENNAI (score: 0.24, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:43:04,224 [WARNING] 
+app.services.sql_assistant.query_preprocessor: ΓÜá∩╕Å Low-confidence tenant 
+detection ignored: CHENNAI (score: 0.21, threshold: 0.65). Falling back to 
+all-sites.
+2026-04-15 14:43:05,883 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bot-Downtime (Mins)' score=0.671 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:07,608 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Bin-wise Volume Utilization (%)' score=0.832 
+(below HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:18,113 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Number of Inactive Bots' score=0.731 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:20,145 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Number of Inactive Bots' score=0.780 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:23,564 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Number of Inactive Bots' score=0.675 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:25,441 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Number of Inactive Bots' score=0.658 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:30,490 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Occupied Weight' score=0.704 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:31,591 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.722 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:33,721 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.712 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:35,703 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Occupied Weight' score=0.711 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:40,125 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bins' score=0.759 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:41,719 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Bin Capacity' score=0.754 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:46,996 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Active number of Bots' score=0.826 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+2026-04-15 14:43:48,771 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Occupied Weight' score=0.721 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+  [OK] #548 | route=sql_generation  | tables=[bot_alarm_log,bot_master,bot_manual_alarm_log_archive+9] | score=1.00 | issues=0 | Return bot-wise total alarms, excluding manual ala
+  [OK] #549 | route=sql_generation  | tables=[bot_alarm_log,maintenance_alarm_logs,bot_master+9] | score=1.00 | issues=0 | show me alarms details raised in BOT-0006 in frk t
+  [OK] #550 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | active bots in frk
+  [OK] #551 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | average active hors for bots in frk today
+  [OK] #552 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | avg active hours for all bots in frk today
+  [OK] #553 | route=sql_generation  | tables=[picklist_split_recommendation_cluster_log,bot_master,bot_history+9] | score=1.00 | issues=0 | avg Active hours today in frk
+  [OK] #554 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log_archive+9] | score=1.00 | issues=0 | what is the active time of BOT-0009 in frk today?
+  [OK] #555 | route=sql_generation  | tables=[bot_history,bot_master,bot_history_log+9] | score=1.00 | issues=0 | show daily downtime minutes for each bot in frk to
+  [OK] #556 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | ctive vs Inactive time for bots in frk today
+  [OK] #557 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log_archive+9] | score=1.00 | issues=0 | can you tell me the active and inactive time of BO
+  [OK] #558 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | total bots in frk today
+  [OK] #559 | route=sql_generation  | tables=[bin_protrusion_master,bin_protrusion_master_log,bot_master+9] | score=1.00 | issues=0 | can you tell me bin represnetion by bot today in f
+  [OK] #560 | route=sql_generation  | tables=[wms_to_wcs_order_line_request_data,wms_to_wcs_order_line_level_pre_staged_data,wms_to_wcs_order_level_pre_staged_data+9] | score=1.00 | issues=0 | give me total order line processed today in banglo
+  [OK] #561 | route=sql_generation  | tables=[lpn_master,hw_ptl_master,test_lww_target+9] | score=1.00 | issues=0 | only give me gross ipp for blr today
+  [OK] #562 | route=sql_generation  | tables=[hw_ptl_master,lpn_master,lpn_master_archive+9] | score=1.00 | issues=0 | what is net ipp for blr today?
+  [OK] #563 | route=sql_generation  | tables=[put_wave_order_master,put_wave_wms_data,short_put_wave_reason+9] | score=1.00 | issues=0 | what is put wave gross ipp for blr today
+  [OK] #564 | route=sql_generation  | tables=[lpn_pick_wave_order_mapping_archive,wave_master,lpn_pick_wave_order_mapping+9] | score=1.00 | issues=0 | put wave gross ipp for blr today
+  [OK] #565 | route=sql_generation  | tables=[lpn_pick_wave_order_mapping,pick_wave_order_master_archive,picklist_split_recommendation_log+9] | score=1.00 | issues=0 | what is pick wave gross ipp for blr today
+  [OK] #566 | route=sql_generation  | tables=[chatbot_sql_queries,chatbot_query_patterns,chatbot_chat_history+9] | score=1.00 | issues=0 | give me all the sql queries asked today
+  [OK] #567 | route=sql_generation  | tables=[chatbot_sql_queries,chatbot_chat_history,chatbot_query_patterns+9] | score=1.00 | issues=0 | give me all the user_query asked today in sql_chat
+  [OK] #568 | route=sql_generation  | tables=[bot_history,bot_master,bot_history_log+9] | score=1.00 | issues=0 | which bot has the most downtime  in frk today?
+  [OK] #569 | route=sql_generation  | tables=[bin_protrusion_master,bin_info_master,store_bin_master+9] | score=1.00 | issues=0 | what is bin volume occupancy rate in frk today
+  [OK] #570 | route=sql_generation  | tables=[live_inventory_master,chatbot_sql_queries,sku_master+9] | score=1.00 | issues=0 | total qunatity of articles we have in chennai
+  [OK] #571 | route=sql_generation  | tables=[live_inventory_master,chatbot_sql_queries,sku_master+9] | score=1.00 | issues=0 | total articles we have in chennai
+  [OK] #572 | route=sql_generation  | tables=[bot_history,bot_master,bot_history_log+9] | score=1.00 | issues=0 | can you tell me the active and inactive hours for 
+  [OK] #573 | route=sp              | tables=[bin_protrusion_master,order_bin_mapping,order_bin_task_master+9] | score=1.00 | issues=0 | CAN YOU TELL ME THE HOURLY BIN REPRESENTATION AT F
+  [OK] #574 | route=sql_generation  | tables=[short_pick_wave_reason,pick_wave_order_master,recovery_pick_task_master+9] | score=1.00 | issues=0 | at is the overall average derived QBP across compl
+  [OK] #575 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | total number of bots we have sitewise
+  [OK] #576 | route=sql_generation  | tables=[bot_master,bot_history,bot_obstacle_log+9] | score=1.00 | issues=0 | TELL THE NO OF INACTIVE BOTS IN FRK YESTERDAY
+  [OK] #577 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | HOW MANY BOTS ARE INACTIVE TODAY IN FRK TODAY?
+  [OK] #578 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | INACTIVE BOTS IN BLR YESTERDAY
+  [OK] #579 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | INACTIVE BOTS IN FRK TODAY
+  [OK] #580 | route=sql_generation  | tables=[pick_rule_master,pick_wave_order_master_archive,picklist_split_recommendation_log+9] | score=1.00 | issues=0 | WHICH ARE MOST 10 Picked articles  IN FRK TODAY?
+  [OK] #581 | route=sql_generation  | tables=[pick_rule_master,picklist_split_recommendation_log,picklist_split_recommendation_cluster_log+9] | score=1.00 | issues=0 | WHICH ARE MOST 10 Picked SKUs IN FRK TODAY?
+  [OK] #582 | route=sql_generation  | tables=[live_inventory_master,location_master,live_inventory_master_log+9] | score=1.00 | issues=0 | What is the occupied inventory volume in cubic met
+  [OK] #583 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Give me total number of alarms raised at each bot 
+  [OK] #584 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | Give me total number of alarms raised at all the b
+  [OK] #585 | route=sql_generation  | tables=[live_inventory_master,location_master,live_inventory_master_log+9] | score=1.00 | issues=0 | What is the occupied inventory volume in cubic met
+  [OK] #586 | route=sp              | tables=[live_inventory_master,live_inventory_master_log,stock_audit_wave_order_master+9] | score=1.00 | issues=0 | How many bins are marked as AUDIT_MARKED in live i
+  [OK] #587 | route=sp              | tables=[live_inventory_master_log,live_inventory_master,stock_audit_wave_order_master+9] | score=1.00 | issues=0 | How many bins are marked as AUDIT_MARKED in live i
+  [OK] #588 | route=sql_generation  | tables=[bin_protrusion_master,store_bin_master,bin_info_master+9] | score=1.00 | issues=0 | What percent of total bin volume is occupied at fa
+  [OK] #589 | route=sql_generation  | tables=[bin_protrusion_master,bin_info_master,store_bin_master+9] | score=1.00 | issues=0 | What percent of total bin volume is occupied at ba
+  [OK] #590 | route=sql_generation  | tables=[hw_station_master,picklist_split_recommendation_cluster_log,location_master+9] | score=1.00 | issues=0 | How many workstations were used in faruknagar this
+  [OK] #591 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | Total bots at shakti?
+  [OK] #592 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | total available bots at shakti today
+  [OK] #593 | route=sql_generation  | tables=[bot_master,bot_history,bot_alarm_log+9  ] | score=1.00 | issues=0 | total active bots in frk today
+  [OK] #594 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | total active bot at shakti..?
+  [OK] #595 | route=sql_generation  | tables=[live_inventory_master,live_inventory_master_log,location_master+9] | score=1.00 | issues=0 | What is the occupied inventory volume in cubic met
+2026-04-15 14:43:56,188 [WARNING] app.services.sql_assistant.kpi_resolver: 
+≡ƒôè KPI low-confidence match: 'Total Alarms per Bot' score=0.604 (below 
+HIGH_CONFIDENCE=0.85). Accepting but flagging for monitoring.
+  [OK] #596 | route=sp              | tables=[live_inventory_master,live_inventory_master_log,stock_audit_wave_order_master+9] | score=1.00 | issues=0 | How many bins are marked as AUDIT_MARKED in live i
+  [OK] #597 | route=sql_generation  | tables=[bot_master,bot_history,bot_history_log+9] | score=1.00 | issues=0 | total available bots at shakti..?
+  [OK] #598 | route=sql_generation  | tables=[bot_history,bot_master,bot_history_log+9] | score=1.00 | issues=0 | Total active hours of all bots in faruknagar yeste
+  [OK] #599 | route=sql_generation  | tables=[bot_history,bot_master,bot_obstacle_log+9] | score=1.00 | issues=0 | give me total active hours for bot 7  in faruknaga
+  [OK] #600 | route=sql_generation  | tables=[bot_alarm_log,bot_master,maintenance_alarm_logs+9] | score=1.00 | issues=0 | How many bots had at least one alarm infrk today
+
+================================================================================
+  SUMMARY -- 100 queries evaluated
+================================================================================
+
+  -- Route Distribution --
+     sql_generation         92 (92.0%)
+     sp                      7 (7.0%)
+     reuse                   1 (1.0%)
+
+  -- Quality Scores --
+     Average score:    1.000
+     Perfect (>=0.95):  100 (100.0%)
+     Good (0.7-0.95):     0 (0.0%)
+     Poor (<0.7):         0 (0.0%)
+     Errors:              0 (0.0%)
+
+  -- Preprocessing --
+     Tenant extracted:  100/100
+     All-sites:          10/100
+
+  -- SQL Generation --
+     Total SQL gen:      92
+     With time filter:    0
+     With joins:          0
+     With tenant:         0
+     With LIMIT:          0
+
+================================================================================
+
+  Results saved to C:\Users\Balmukund.Mishra\Desktop\NEO\Neo-Chatbot\evaluation\production_query_results.json

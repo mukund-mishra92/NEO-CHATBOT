@@ -156,7 +156,7 @@ class RAGEvaluator:
             status = self.pipeline.get_status()
             print(f"  Pipeline ready: {status['total_chunks']} chunks in ChromaDB")
         except Exception as e:
-            print(f"  ⚠️ Pipeline init failed: {e}")
+            print(f"  [WARN] Pipeline init failed: {e}")
             self.dry_run = True
 
     def evaluate(
@@ -187,7 +187,7 @@ class RAGEvaluator:
             result = self._evaluate_case(case, top_k=top_k)
             self.results.append(result)
 
-            status = "✅" if result.error is None else "❌"
+            status = "OK" if result.error is None else "FAIL"
             print(
                 f"  {status} [{result.case_id:>3}] {result.query[:50]:<50} "
                 f"recall={result.retrieval.recall_at_k:.2f} "
@@ -407,24 +407,24 @@ class RAGEvaluator:
         print(f"  Successful:   {summary.successful}")
         print(f"  Failed:       {summary.failed}")
         print()
-        print(f"  📊 Retrieval Quality")
+        print(f"  [Retrieval Quality]")
         print(f"     Recall@k:       {summary.avg_recall_at_k:.1%}")
         print(f"     Precision@k:    {summary.avg_precision_at_k:.1%}")
         print(f"     MRR:            {summary.avg_mrr:.3f}")
         print()
-        print(f"  📝 Answer Quality")
+        print(f"  [Answer Quality]")
         print(f"     Topic Coverage: {summary.avg_topic_coverage:.1%}")
         print()
-        print(f"  🖼️  Image Relevance")
+        print(f"  [Image Relevance]")
         print(f"     Image Recall:   {summary.avg_image_recall:.1%}")
         print(f"     Image Precision:{summary.avg_image_precision:.1%}")
         print()
-        print(f"  ⏱️  Latency")
+        print(f"  [Latency]")
         print(f"     Average:        {summary.avg_latency_ms:.0f} ms")
         print(f"     P95:            {summary.p95_latency_ms:.0f} ms")
 
         if summary.by_category:
-            print(f"\n  📂 By Category:")
+            print(f"\n  [By Category]:")
             for cat, metrics in sorted(summary.by_category.items()):
                 print(
                     f"     {cat:<15} n={metrics['count']:<3} "
@@ -433,7 +433,7 @@ class RAGEvaluator:
                 )
 
         if summary.by_difficulty:
-            print(f"\n  🎯 By Difficulty:")
+            print(f"\n  [By Difficulty]:")
             for diff, metrics in sorted(summary.by_difficulty.items()):
                 print(
                     f"     {diff:<10} n={metrics['count']:<3} "
@@ -455,7 +455,7 @@ class RAGEvaluator:
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, default=str)
-        print(f"\n  💾 Results saved to {path}")
+        print(f"\n  Results saved to {path}")
 
 
 def _avg(values: List[float]) -> float:
@@ -480,11 +480,11 @@ def main():
 
     evaluator = RAGEvaluator(dataset_path=args.dataset, dry_run=args.dry_run)
 
-    print("\n🔄 Loading evaluation dataset...")
+    print("\n>> Loading evaluation dataset...")
     count = evaluator.load_dataset()
     print(f"  Loaded {count} cases")
 
-    print("\n🔄 Initializing RAG pipeline...")
+    print("\n>> Initializing RAG pipeline...")
     evaluator.init_pipeline()
 
     case_ids = None

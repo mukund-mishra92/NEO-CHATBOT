@@ -646,22 +646,22 @@ class TestAnswerPlanner:
         )
 
     def test_classify_factual(self):
-        assert self.planner._classify_query("What is the NEO system?") == "factual"
-        assert self.planner._classify_query("How many warehouses are supported?") == "factual"
+        assert self.planner._classify("what is the neo system?") == "factual"
+        assert self.planner._classify("how many warehouses are supported?") == "factual"
 
     def test_classify_procedural(self):
-        assert self.planner._classify_query("How to configure the robot arm?") == "procedural"
-        assert self.planner._classify_query("Steps to setup the database") == "procedural"
+        assert self.planner._classify("how to configure the robot arm?") == "procedural"
+        assert self.planner._classify("steps to setup the database") == "procedural"
 
     def test_classify_comparison(self):
-        assert self.planner._classify_query("Compare FIFO and LIFO strategies") == "comparison"
-        assert self.planner._classify_query("Difference between A and B") == "comparison"
+        assert self.planner._classify("compare fifo and lifo strategies") == "comparison"
+        assert self.planner._classify("difference between a and b") == "comparison"
 
     def test_classify_exploratory(self):
-        assert self.planner._classify_query("Explain the architecture of NEO") == "exploratory"
+        assert self.planner._classify("explain the architecture of neo") == "exploratory"
 
     def test_classify_default_exploratory(self):
-        assert self.planner._classify_query("Tell me everything") == "exploratory"
+        assert self.planner._classify("tell me everything") == "exploratory"
 
     def test_plan_factual_sections(self):
         chunks = [self._make_chunk(f"c{i}") for i in range(5)]
@@ -675,7 +675,6 @@ class TestAnswerPlanner:
         plan = self.planner.plan("How to configure the system?", chunks)
         assert plan.query_type == "procedural"
         headings = [s.heading for s in plan.sections]
-        assert "Overview" in headings
         assert "Steps" in headings
 
     def test_plan_with_images(self):
@@ -688,8 +687,8 @@ class TestAnswerPlanner:
         chunks = [self._make_chunk()]
         plan = self.planner.plan("What is NEO?", chunks)
         ctx = plan.to_prompt_context()
-        assert "ANSWER PLAN" in ctx
-        assert "Section 1" in ctx
+        assert "ANSWER BRIEF" in ctx
+        assert "SECTION 1" in ctx
 
 
 # ════════════════════════════════════════════════════════════

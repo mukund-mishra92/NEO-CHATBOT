@@ -342,6 +342,8 @@ def test_client():
             sources=[],
             suggested_actions=[],
             metadata={},
+            images=[],
+            structured_response=None,
         )
         mock_kb.process_query.return_value = MagicMock(
             response="Test KB response",
@@ -353,6 +355,8 @@ def test_client():
             sql_query=None,
             query_results=None,
             metadata={},
+            images=[],
+            structured_response=None,
         )
 
         from app.main import app

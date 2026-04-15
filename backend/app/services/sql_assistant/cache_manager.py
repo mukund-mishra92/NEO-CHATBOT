@@ -11,3 +11,7 @@ class QueryCacheManager:
 
     def set(self, session_id: str, question: str, response):
         self._cache[(session_id, question)] = response
+
+    def delete(self, session_id: str, question: str):
+        """Remove a cached entry (e.g. after disambiguation invalidation)."""
+        self._cache.pop((session_id, question), None)

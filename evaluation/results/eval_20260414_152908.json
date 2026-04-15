@@ -1,0 +1,1739 @@
+{
+  "timestamp": "2026-04-14T15:29:08.778177",
+  "total_tests": 72,
+  "passed": 72,
+  "failed": 0,
+  "avg_score": 1.0,
+  "avg_latency_ms": 0.0,
+  "dry_run": true,
+  "results": [
+    {
+      "test_id": 1,
+      "category": "single_table_count",
+      "question": "How many bins currently hold inventory in faruknagar?",
+      "difficulty": "easy",
+      "tests_feature": "single-table sufficiency + tenant resolution",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 2,
+      "category": "single_table_count",
+      "question": "How many bots are enabled in bhiwandi?",
+      "difficulty": "easy",
+      "tests_feature": "single-table sufficiency + tenant resolution",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 3,
+      "category": "single_table_count",
+      "question": "Total active SKUs in panvel warehouse",
+      "difficulty": "easy",
+      "tests_feature": "single-table sufficiency + tenant resolution",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 4,
+      "category": "single_table_count",
+      "question": "How many waves are currently processing?",
+      "difficulty": "easy",
+      "tests_feature": "single-table sufficiency",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 5,
+      "category": "single_table_count",
+      "question": "Count of disabled stations in faruknagar",
+      "difficulty": "easy",
+      "tests_feature": "single-table sufficiency + tenant resolution",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 6,
+      "category": "single_table_aggregation",
+      "question": "What is the total inventory quantity in bhiwandi?",
+      "difficulty": "easy",
+      "tests_feature": "single-table sufficiency + aggregation",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 7,
+      "category": "single_table_aggregation",
+      "question": "Average battery percentage of all enabled bots",
+      "difficulty": "easy",
+      "tests_feature": "single-table sufficiency + aggregation",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 8,
+      "category": "single_table_aggregation",
+      "question": "What is the maximum velocity score across all SKUs?",
+      "difficulty": "easy",
+      "tests_feature": "single-table sufficiency + aggregation",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 9,
+      "category": "multi_table_join",
+      "question": "Top 5 most frequently ordered SKUs with their names in last 7 days",
+      "difficulty": "medium",
+      "tests_feature": "legitimate JOIN for SKU name lookup",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 10,
+      "category": "multi_table_join",
+      "question": "List bins with their aisle and tower location in faruknagar",
+      "difficulty": "medium",
+      "tests_feature": "legitimate JOIN for location details",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 11,
+      "category": "multi_table_join",
+      "question": "Show all waves with station names for today",
+      "difficulty": "medium",
+      "tests_feature": "legitimate JOIN for station details",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 12,
+      "category": "tenant_multi_site",
+      "question": "How many bots are enabled in faruknagar vs bhiwandi?",
+      "difficulty": "medium",
+      "tests_feature": "multi-tenant comparison query",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 13,
+      "category": "tenant_multi_site",
+      "question": "Compare total inventory across all warehouses",
+      "difficulty": "medium",
+      "tests_feature": "multi-tenant comparison without specific tenant",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 14,
+      "category": "tenant_resolution",
+      "question": "Show active waves in panvel",
+      "difficulty": "easy",
+      "tests_feature": "tenant resolution — panvel to pnvl",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 15,
+      "category": "tenant_resolution",
+      "question": "List all alarms for bots in bhiwandi today",
+      "difficulty": "medium",
+      "tests_feature": "tenant resolution — bhiwandi to shakti",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 16,
+      "category": "entity_resolution",
+      "question": "What is the current status of bot 5?",
+      "difficulty": "easy",
+      "tests_feature": "entity resolution — bot 5 to BOT-0005",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 17,
+      "category": "entity_resolution",
+      "question": "Show all tasks assigned to bot 12 today",
+      "difficulty": "medium",
+      "tests_feature": "entity resolution — bot 12 to BOT-0012",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 18,
+      "category": "entity_resolution",
+      "question": "Status of wave 100 in faruknagar",
+      "difficulty": "medium",
+      "tests_feature": "entity + tenant resolution combined",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 19,
+      "category": "entity_resolution",
+      "question": "Which station is currently used by wave 50?",
+      "difficulty": "medium",
+      "tests_feature": "entity resolution — wave 50",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 20,
+      "category": "time_filter",
+      "question": "How many pick waves were completed today?",
+      "difficulty": "medium",
+      "tests_feature": "time filter — today + correct status column",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 21,
+      "category": "time_filter",
+      "question": "Total tasks completed in last 24 hours",
+      "difficulty": "medium",
+      "tests_feature": "time filter — relative time expression",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 22,
+      "category": "time_filter",
+      "question": "Show alarms raised in the last 1 hour for faruknagar",
+      "difficulty": "medium",
+      "tests_feature": "time filter — 1 hour window + tenant",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 23,
+      "category": "time_filter",
+      "question": "Waves started in March 2026",
+      "difficulty": "medium",
+      "tests_feature": "time filter — specific month/year",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 24,
+      "category": "enum_filter",
+      "question": "List all GTP type stations in bhiwandi",
+      "difficulty": "medium",
+      "tests_feature": "enum value matching + tenant resolution",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 25,
+      "category": "enum_filter",
+      "question": "How many bots are in manual mode?",
+      "difficulty": "easy",
+      "tests_feature": "enum value matching — auto_manual",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 26,
+      "category": "enum_filter",
+      "question": "Count of PUT waves vs PICK waves",
+      "difficulty": "medium",
+      "tests_feature": "enum grouping",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 27,
+      "category": "complex_aggregation",
+      "question": "Top 10 bins with most SKU variety (distinct articles)",
+      "difficulty": "medium",
+      "tests_feature": "GROUP BY + COUNT DISTINCT + ORDER + LIMIT",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 28,
+      "category": "complex_aggregation",
+      "question": "Average tasks per bot per day over last 7 days",
+      "difficulty": "hard",
+      "tests_feature": "nested aggregation — avg of counts",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 29,
+      "category": "complex_aggregation",
+      "question": "Which warehouse has the highest pick wave throughput this week?",
+      "difficulty": "hard",
+      "tests_feature": "cross-tenant aggregation + ranking",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 30,
+      "category": "complex_aggregation",
+      "question": "Show daily wave completion trend for last 14 days",
+      "difficulty": "medium",
+      "tests_feature": "time-series aggregation",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 31,
+      "category": "synonym_resolution",
+      "question": "How many robots are active?",
+      "difficulty": "easy",
+      "tests_feature": "synonym — robot to bot",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 32,
+      "category": "synonym_resolution",
+      "question": "Show all products in inventory",
+      "difficulty": "easy",
+      "tests_feature": "synonym — product to article/SKU",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 33,
+      "category": "synonym_resolution",
+      "question": "How many items are stored in bin 100?",
+      "difficulty": "medium",
+      "tests_feature": "synonym — items to inventory + entity resolution",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 34,
+      "category": "archive_vs_live",
+      "question": "Show completed waves from yesterday",
+      "difficulty": "medium",
+      "tests_feature": "should use live table not archive for recent data",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 35,
+      "category": "archive_vs_live",
+      "question": "Find historical picking data for order ORD-000100 from last month",
+      "difficulty": "hard",
+      "tests_feature": "should prefer archive for historical queries",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 36,
+      "category": "order_management",
+      "question": "How many orders are currently pending at station 3?",
+      "difficulty": "medium",
+      "tests_feature": "order status query + entity resolution",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 37,
+      "category": "order_management",
+      "question": "Total items picked today across all stations",
+      "difficulty": "medium",
+      "tests_feature": "picking aggregation",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 38,
+      "category": "order_management",
+      "question": "Show short pick reasons in faruknagar this week",
+      "difficulty": "medium",
+      "tests_feature": "short pick analysis + tenant",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 39,
+      "category": "put_wave",
+      "question": "How many put operations are completed today?",
+      "difficulty": "medium",
+      "tests_feature": "put wave status query",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 40,
+      "category": "put_wave",
+      "question": "Total quantity stored via put waves this week in bhiwandi",
+      "difficulty": "medium",
+      "tests_feature": "put wave aggregation + tenant",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 41,
+      "category": "stock_audit",
+      "question": "How many stock audit waves were completed this month?",
+      "difficulty": "medium",
+      "tests_feature": "stock audit filtering via wave_type enum",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 42,
+      "category": "stock_audit",
+      "question": "List all audit discrepancies where actual quantity differs from expected",
+      "difficulty": "medium",
+      "tests_feature": "stock audit discrepancy detection",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 43,
+      "category": "bot_operations",
+      "question": "Which bots have critical battery health?",
+      "difficulty": "easy",
+      "tests_feature": "enum filter — BATTERY_HEALTH",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 44,
+      "category": "bot_operations",
+      "question": "How many alarms were raised by bot 7 today?",
+      "difficulty": "medium",
+      "tests_feature": "entity resolution + time filter + single-table",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 45,
+      "category": "bot_operations",
+      "question": "Top 5 bots with most alarms in last 7 days",
+      "difficulty": "medium",
+      "tests_feature": "alarm aggregation + ranking",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 46,
+      "category": "bot_operations",
+      "question": "List bots with load condition as loaded (LD)",
+      "difficulty": "easy",
+      "tests_feature": "enum filter — LOAD_CONDITION",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 47,
+      "category": "location_bin",
+      "question": "How many bins are in aisle A01 tower T03?",
+      "difficulty": "medium",
+      "tests_feature": "legitimate JOIN for location to bin mapping",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 48,
+      "category": "location_bin",
+      "question": "Total blocked locations in faruknagar",
+      "difficulty": "easy",
+      "tests_feature": "single-table sufficiency for blocked locations",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 49,
+      "category": "task_operations",
+      "question": "How many tasks are pending right now?",
+      "difficulty": "easy",
+      "tests_feature": "live vs log table selection",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 50,
+      "category": "task_operations",
+      "question": "Average task completion time in the last 24 hours",
+      "difficulty": "hard",
+      "tests_feature": "time difference calculation",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 51,
+      "category": "wms_integration",
+      "question": "How many WMS order requests are pending?",
+      "difficulty": "medium",
+      "tests_feature": "WMS integration table selection",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 52,
+      "category": "wms_integration",
+      "question": "Show failed API payloads in last 6 hours",
+      "difficulty": "medium",
+      "tests_feature": "API payload error analysis",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 53,
+      "category": "lpn_tracking",
+      "question": "How many LPNs are currently open in bhiwandi?",
+      "difficulty": "medium",
+      "tests_feature": "LPN status + tenant + live vs archive",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 54,
+      "category": "hardware_config",
+      "question": "List all charging stations in faruknagar",
+      "difficulty": "easy",
+      "tests_feature": "hardware config table selection",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 55,
+      "category": "hardware_config",
+      "question": "How many scanners are registered in the system?",
+      "difficulty": "easy",
+      "tests_feature": "hardware config lookup",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 56,
+      "category": "sku_batch",
+      "question": "Show all batches for SKU with ID ART-001",
+      "difficulty": "medium",
+      "tests_feature": "batch lookup by SKU",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 57,
+      "category": "sku_batch",
+      "question": "List expired batches in the system",
+      "difficulty": "medium",
+      "tests_feature": "date comparison for expiry",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 58,
+      "category": "dashboard_metrics",
+      "question": "Show login attempts with failed status in last 24 hours",
+      "difficulty": "medium",
+      "tests_feature": "dashboard log table selection",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 59,
+      "category": "dashboard_metrics",
+      "question": "How many API errors occurred today?",
+      "difficulty": "easy",
+      "tests_feature": "error log analysis",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 60,
+      "category": "complex_join",
+      "question": "Which aisles have the most inventory by quantity?",
+      "difficulty": "hard",
+      "tests_feature": "3-table JOIN for aisle-level inventory",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 61,
+      "category": "complex_join",
+      "question": "Show order line details with SKU names for wave W-001",
+      "difficulty": "hard",
+      "tests_feature": "order detail with SKU name enrichment",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 62,
+      "category": "no_tenant",
+      "question": "Total number of categories in the system",
+      "difficulty": "easy",
+      "tests_feature": "query that should NOT inject tenant filter",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 63,
+      "category": "ambiguous_query",
+      "question": "Show me the inventory",
+      "difficulty": "easy",
+      "tests_feature": "vague query should add LIMIT for safety",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 64,
+      "category": "ambiguous_query",
+      "question": "Latest alarms",
+      "difficulty": "easy",
+      "tests_feature": "terse query should infer recent + limit",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 65,
+      "category": "negative_test",
+      "question": "Drop the bot_master table",
+      "difficulty": "easy",
+      "tests_feature": "SQL injection / dangerous query rejection",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 66,
+      "category": "negative_test",
+      "question": "DELETE FROM live_inventory_master",
+      "difficulty": "easy",
+      "tests_feature": "DML rejection — only SELECT allowed",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 67,
+      "category": "negative_test",
+      "question": "What is the weather today?",
+      "difficulty": "easy",
+      "tests_feature": "out-of-scope query rejection",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 68,
+      "category": "inventory_analysis",
+      "question": "Which bins have zero inventory (empty bins) in panvel?",
+      "difficulty": "medium",
+      "tests_feature": "zero-quantity filter + tenant",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 69,
+      "category": "inventory_analysis",
+      "question": "Top 10 SKUs by total quantity in stock",
+      "difficulty": "medium",
+      "tests_feature": "inventory ranking — single table",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 70,
+      "category": "bin_loading",
+      "question": "Show pending bin loading orders for station 2",
+      "difficulty": "medium",
+      "tests_feature": "bin loading specific table",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 71,
+      "category": "reservation",
+      "question": "How many location reservations exist right now?",
+      "difficulty": "easy",
+      "tests_feature": "reservation table selection",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    },
+    {
+      "test_id": 72,
+      "category": "maintenance",
+      "question": "Show incomplete maintenance tasks",
+      "difficulty": "medium",
+      "tests_feature": "maintenance table selection",
+      "generated_sql": "[DRY RUN - no SQL generated]",
+      "used_tables": [],
+      "success": false,
+      "error_message": "",
+      "retry_count": 0,
+      "latency_ms": 0.0,
+      "confidence": 0.0,
+      "checks": [
+        {
+          "name": "dry_run",
+          "passed": true,
+          "detail": "Test case structure valid",
+          "score": 1.0
+        }
+      ],
+      "overall_pass": true,
+      "score": 1.0
+    }
+  ]
+}

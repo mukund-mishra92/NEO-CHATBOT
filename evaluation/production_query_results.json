@@ -1,0 +1,4728 @@
+{
+  "timestamp": "2026-04-15T14:45:42.946090",
+  "total_queries": 50,
+  "mode": "dry_run",
+  "summary": {
+    "total": 50,
+    "avg_score": 0.997,
+    "perfect_count": 49,
+    "good_count": 1,
+    "poor_count": 0,
+    "error_count": 0,
+    "route_distribution": {
+      "sql_generation": 46,
+      "sp": 3,
+      "reuse": 1
+    },
+    "top_issues": {
+      "Expected table": 1
+    }
+  },
+  "results": [
+    {
+      "query_id": 601,
+      "query": "total how many bots we have in frk",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": null,
+        "kpi_name": null,
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "total how many bots we have in frk",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_alarm_log",
+          "bot_obstacle_log",
+          "bin_protrusion_master",
+          "bot_obstacle_log_archive",
+          "auto_calibration_logs",
+          "bot_history_log",
+          "gearbox_log",
+          "bot_auto_manual_logs",
+          "bot_alarm_log_archive",
+          "test_lww_target"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1959,
+      "error": null
+    },
+    {
+      "query_id": 602,
+      "query": "How many minute bots were down because of alarms in frk yesterday..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_008",
+        "kpi_name": "Total Alarms per Bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "How many minute bots were down because of alarms in frk yesterday..?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_alarm_log",
+          "bot_master",
+          "maintenance_alarm_logs",
+          "bot_manual_alarm_log_archive",
+          "bot_alarm_log_archive",
+          "bot_history",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "auto_calibration_logs",
+          "bot_history_log",
+          "bot_auto_manual_logs",
+          "task_master_log_backup"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1453,
+      "error": null
+    },
+    {
+      "query_id": 603,
+      "query": "Which bot had the highest active hours in frk yesterday",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "Which bot had the highest active hours in frk yesterday",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_master",
+          "bot_history_log",
+          "bot_alarm_log",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "bot_auto_manual_logs",
+          "bot_alarm_log_archive",
+          "bot_auto_manual_logs_archive",
+          "bot_charging_bit_log_archive",
+          "auto_calibration_logs",
+          "bot_manual_alarm_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1275,
+      "error": null
+    },
+    {
+      "query_id": 604,
+      "query": "How many bots stayed inactive in frk last week..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_003",
+        "kpi_name": "Number of Inactive Bots",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "How many bots stayed inactive in frk last week..?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_history_log",
+          "bot_master",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "bot_auto_manual_logs",
+          "bot_alarm_log",
+          "bot_auto_manual_logs_archive",
+          "auto_calibration_logs",
+          "bot_alarm_log_archive",
+          "maintenance_alarm_logs",
+          "bot_charging_bit_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1202,
+      "error": null
+    },
+    {
+      "query_id": 605,
+      "query": "Give me average number of hour bot 7 was active last week in faruknagar..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_004",
+        "kpi_name": "Average  Active Hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "Give me average number of hour BOT-0007 was active last week in faruknagar..?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_alarm_log",
+          "bot_master",
+          "bot_auto_manual_logs",
+          "bot_charging_bit_log_archive",
+          "auto_calibration_logs",
+          "maintenance_alarm_logs",
+          "bot_history_log",
+          "bot_alarm_log_archive",
+          "bot_manual_alarm_log_archive",
+          "bot_obstacle_log",
+          "bot_auto_manual_logs_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1369,
+      "error": null
+    },
+    {
+      "query_id": 606,
+      "query": "How many hours bot 7 was active today in faruknagar..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "How many hours BOT-0007 was active today in faruknagar..?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_alarm_log",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "test_lww_target",
+          "bot_history_log",
+          "bin_protrusion_master",
+          "maintenance_alarm_logs",
+          "location_block_master",
+          "bot_auto_manual_logs",
+          "bot_alarm_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1373,
+      "error": null
+    },
+    {
+      "query_id": 607,
+      "query": "What is the active hours for bot 7 in frk today..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "What is the active hours for BOT-0007 in frk today..?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_obstacle_log_archive",
+          "bot_alarm_log",
+          "bot_history_log",
+          "bot_obstacle_log",
+          "test_lww_target",
+          "bot_alarm_log_archive",
+          "bin_protrusion_master",
+          "bot_charging_bit_log_archive",
+          "bot_auto_manual_logs",
+          "bot_auto_manual_logs_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1456,
+      "error": null
+    },
+    {
+      "query_id": 608,
+      "query": "Give me  average bins deliverd per hour only when bot was active last week for bot 7 in frk .?",
+      "route": {
+        "route": "sp",
+        "kpi_id": "kpi_004",
+        "kpi_name": "Average  Active Hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": "ES_BIN_PER_HOUR_PER_STATION"
+      },
+      "preprocess": {
+        "clean_question": "Give me  average bins deliverd per hour only when bot was active last week for BOT-0007 in frk .?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bin_protrusion_master",
+          "bin_protrusion_master_log",
+          "bot_history",
+          "order_bin_task_purge_log",
+          "bot_alarm_log",
+          "order_bin_task_master",
+          "bot_obstacle_log",
+          "auto_calibration_logs",
+          "bot_obstacle_log_archive",
+          "bot_history_log",
+          "order_bin_mapping",
+          "order_bin_mapping_log"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1586,
+      "error": null
+    },
+    {
+      "query_id": 609,
+      "query": "How many bins on an average BOT-0007 deliverd yesterday in faruknagar?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": null,
+        "kpi_name": null,
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "How many bins on an average BOT-0007 deliverd yesterday in faruknagar?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bin_protrusion_master",
+          "order_bin_mapping",
+          "order_bin_task_master",
+          "bin_protrusion_master_log",
+          "store_bin_master",
+          "bin_info_master",
+          "bot_master",
+          "bot_alarm_log",
+          "bot_obstacle_log",
+          "order_bin_task_purge_log",
+          "location_master",
+          "bot_obstacle_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1730,
+      "error": null
+    },
+    {
+      "query_id": 610,
+      "query": "Give me total number of alarms raised at all the bot in frk today, give me result bot-wise?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_008",
+        "kpi_name": "Total Alarms per Bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "Give me total number of alarms raised at all the bot in frk today, give me result bot-wise?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_alarm_log",
+          "bot_master",
+          "bot_alarm_log_archive",
+          "maintenance_alarm_logs",
+          "bot_manual_alarm_log_archive",
+          "bot_history",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "auto_calibration_logs",
+          "bot_history_log",
+          "bot_charging_bit_log_archive",
+          "bin_protrusion_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1393,
+      "error": null
+    },
+    {
+      "query_id": 611,
+      "query": "Give me total number of alarms raised today at bot 17 in frk today..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_008",
+        "kpi_name": "Total Alarms per Bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "Give me total number of alarms raised today at BOT-0017 in frk today..?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0017",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0017",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_alarm_log",
+          "bot_master",
+          "maintenance_alarm_logs",
+          "bot_alarm_log_archive",
+          "bot_manual_alarm_log_archive",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "bot_history",
+          "auto_calibration_logs",
+          "bin_protrusion_master",
+          "bin_protrusion_master_log",
+          "bot_history_log"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1478,
+      "error": null
+    },
+    {
+      "query_id": 612,
+      "query": "How much time each bot has spent today at their home location , give me result bot-wise for today in frk..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_011",
+        "kpi_name": "Home Time per Bot (Hours)",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "How much time each bot has spent today at their home location , give me result bot-wise for today in frk..?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_master",
+          "bot_history_log",
+          "bot_obstacle_log",
+          "bot_alarm_log",
+          "bot_obstacle_log_archive",
+          "auto_calibration_logs",
+          "bin_protrusion_master",
+          "bot_charging_bit_log_archive",
+          "bot_alarm_log_archive",
+          "bot_auto_manual_logs",
+          "gearbox_log"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": false,
+        "table_notes": "Missing: ['location_master']",
+        "possible_missing_tables": [
+          "location_master"
+        ],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 0.85,
+        "issues": [
+          "Expected table(s) ['location_master'] for concept 'location' not in selection"
+        ]
+      },
+      "latency_ms": 1022,
+      "error": null
+    },
+    {
+      "query_id": 613,
+      "query": "give me a comparison of time in hours each bot has spent in hme locations today in frk..?",
+      "route": {
+        "route": "sp",
+        "kpi_id": "kpi_011",
+        "kpi_name": "Home Time per Bot (Hours)",
+        "kpi_confidence": 0.0,
+        "sp_name": "ES_BOT_TIME_SPEND_ON_HOME_BUFFER_LOADED"
+      },
+      "preprocess": {
+        "clean_question": "give me a comparison of time in hours each bot has spent in hme locations today in frk..?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_history_log",
+          "bot_master",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "bot_alarm_log",
+          "station_home_master",
+          "auto_calibration_logs",
+          "bot_alarm_log_archive",
+          "bin_protrusion_master",
+          "bot_auto_manual_logs",
+          "bot_charging_bit_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1728,
+      "error": null
+    },
+    {
+      "query_id": 614,
+      "query": "How much time bot-7 has spent on home location today..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_011",
+        "kpi_name": "Home Time per Bot (Hours)",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "How much time BOT-0007 has spent on home location today..?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": true,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_obstacle_log",
+          "bot_master",
+          "bot_history_log",
+          "station_home_master",
+          "bot_obstacle_log_archive",
+          "location_master",
+          "bot_alarm_log",
+          "bin_protrusion_master",
+          "bin_protrusion_master_log",
+          "location_block_master",
+          "bot_auto_manual_logs"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1479,
+      "error": null
+    },
+    {
+      "query_id": 615,
+      "query": "give me bots downtime in minutes this week in frk in hours?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_012",
+        "kpi_name": "Bot-Downtime (Mins)",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "give me bots downtime in minutes this week in frk in hours?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_master",
+          "bot_history_log",
+          "bot_alarm_log",
+          "maintenance_alarm_logs",
+          "bot_auto_manual_logs",
+          "bot_alarm_log_archive",
+          "gearbox_log",
+          "bot_obstacle_log",
+          "bot_auto_manual_logs_archive",
+          "auto_calibration_logs",
+          "bot_charging_bit_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 2420,
+      "error": null
+    },
+    {
+      "query_id": 616,
+      "query": "give me bots downtime in minutes the last week in hours for frk.",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_012",
+        "kpi_name": "Bot-Downtime (Mins)",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "give me bots downtime in minutes the last week in hours for frk.",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_history_log",
+          "bot_alarm_log",
+          "maintenance_alarm_logs",
+          "bot_alarm_log_archive",
+          "bot_master",
+          "bot_auto_manual_logs",
+          "bot_charging_bit_log_archive",
+          "bot_auto_manual_logs_archive",
+          "bot_obstacle_log",
+          "bot_manual_alarm_log_archive",
+          "gearbox_log"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 2122,
+      "error": null
+    },
+    {
+      "query_id": 617,
+      "query": "give me bots downtime in minutes last week in frk in hours?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_012",
+        "kpi_name": "Bot-Downtime (Mins)",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "give me bots downtime in minutes last week in frk in hours?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_history_log",
+          "bot_alarm_log",
+          "maintenance_alarm_logs",
+          "bot_alarm_log_archive",
+          "bot_auto_manual_logs",
+          "bot_auto_manual_logs_archive",
+          "bot_charging_bit_log_archive",
+          "gearbox_log",
+          "bot_master",
+          "bot_obstacle_log",
+          "bot_manual_alarm_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1786,
+      "error": null
+    },
+    {
+      "query_id": 618,
+      "query": "how many bots are inactive today in blr",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_003",
+        "kpi_name": "Number of Inactive Bots",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "how many bots are inactive today in blr",
+        "raw_entities": {
+          "host-location": [
+            "BLR"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'BLR': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'BLR': 1.0}"
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_history_log",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "bot_alarm_log",
+          "maintenance_alarm_logs",
+          "auto_calibration_logs",
+          "bot_alarm_log_archive",
+          "bot_charging_bit_log_archive",
+          "bot_auto_manual_logs",
+          "test_lww_target"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 2934,
+      "error": null
+    },
+    {
+      "query_id": 619,
+      "query": "in frk, can you give me inactive and active hours for bot 17?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "in frk, can you give me inactive and active hours for BOT-0017?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0017",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0017",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_history_log",
+          "bot_obstacle_log_archive",
+          "bot_alarm_log",
+          "bin_protrusion_master",
+          "bot_obstacle_log",
+          "picklist_split_recommendation_cluster_log",
+          "bot_alarm_log_archive",
+          "test_lww_target",
+          "bot_auto_manual_logs",
+          "bot_auto_manual_logs_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1932,
+      "error": null
+    },
+    {
+      "query_id": 620,
+      "query": "can you give me bots count in frk today",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": null,
+        "kpi_name": null,
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "can you give me bots count in frk today",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_alarm_log",
+          "bot_obstacle_log",
+          "bin_protrusion_master",
+          "bot_history_log",
+          "bot_obstacle_log_archive",
+          "bot_charging_bit_log_archive",
+          "test_lww_target",
+          "gearbox_log",
+          "auto_calibration_logs",
+          "bot_alarm_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1542,
+      "error": null
+    },
+    {
+      "query_id": 621,
+      "query": "Show idle hours per bot based on no task activity in frk in the selected shift?",
+      "route": {
+        "route": "sp",
+        "kpi_id": "kpi_005",
+        "kpi_name": "Average Inactive Hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": "ES_BOT_TASKS_PER_HOUR"
+      },
+      "preprocess": {
+        "clean_question": "Show idle hours per bot based on no task activity in frk in the selected shift?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_alarm_log",
+          "bot_master",
+          "bot_history",
+          "bot_history_log",
+          "maintenance_alarm_logs",
+          "picklist_split_recommendation_cluster_log",
+          "bot_auto_manual_logs",
+          "bot_alarm_log_archive",
+          "auto_calibration_logs",
+          "bot_auto_manual_logs_archive",
+          "bot_charging_bit_log_archive",
+          "bot_manual_alarm_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1586,
+      "error": null
+    },
+    {
+      "query_id": 622,
+      "query": "give me bot downtime this week for bot 17 in frk",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_012",
+        "kpi_name": "Bot-Downtime (Mins)",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "give me bot downtime this week for BOT-0017 in frk",
+        "raw_entities": {
+          "BOT_ID": "BOT-0017",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0017",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_alarm_log",
+          "test_lww_target",
+          "bot_history_log",
+          "maintenance_alarm_logs",
+          "bot_auto_manual_logs",
+          "bot_obstacle_log",
+          "auto_calibration_logs",
+          "bot_alarm_log_archive",
+          "bot_obstacle_log_archive",
+          "bin_protrusion_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1548,
+      "error": null
+    },
+    {
+      "query_id": 623,
+      "query": "what is the occupied inventory volume in cubic meters at banglore",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_023",
+        "kpi_name": "Occupied Weight",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "what is the occupied inventory volume in cubic meters at banglore",
+        "raw_entities": {
+          "host-location": [
+            "BLR"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'BLR': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'BLR': 1.0}"
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "live_inventory_master",
+          "live_inventory_master_log",
+          "location_master",
+          "store_bin_master",
+          "location_block_master",
+          "order_bin_mapping",
+          "bin_info_master",
+          "bin_protrusion_master",
+          "sku_batch_master",
+          "bot_obstacle_log_archive",
+          "bot_alarm_log",
+          "sku_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1931,
+      "error": null
+    },
+    {
+      "query_id": 624,
+      "query": "what is the occupied inventory volume in cubic meters at banglore today",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_023",
+        "kpi_name": "Occupied Weight",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "what is the occupied inventory volume in cubic meters at banglore today",
+        "raw_entities": {
+          "host-location": [
+            "BLR"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'BLR': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'BLR': 1.0}"
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "live_inventory_master",
+          "live_inventory_master_log",
+          "location_master",
+          "location_block_master",
+          "store_bin_master",
+          "order_bin_mapping",
+          "bin_protrusion_master",
+          "bot_obstacle_log_archive",
+          "bot_alarm_log",
+          "bin_info_master",
+          "bot_obstacle_log",
+          "sku_batch_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1545,
+      "error": null
+    },
+    {
+      "query_id": 625,
+      "query": "otal active hours of all bots in faruknagar yesterday?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "otal active hours of all bots in faruknagar yesterday?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_master",
+          "bot_obstacle_log",
+          "bot_history_log",
+          "bot_alarm_log",
+          "bot_obstacle_log_archive",
+          "bot_alarm_log_archive",
+          "bot_auto_manual_logs",
+          "bot_charging_bit_log_archive",
+          "auto_calibration_logs",
+          "bot_manual_alarm_log_archive",
+          "maintenance_alarm_logs"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1329,
+      "error": null
+    },
+    {
+      "query_id": 626,
+      "query": "Total active hours bot 7  in faruknagar for last friday..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "Total active hours BOT-0007  in faruknagar for last friday..?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_alarm_log",
+          "bot_charging_bit_log_archive",
+          "bot_alarm_log_archive",
+          "auto_calibration_logs",
+          "bot_history",
+          "maintenance_alarm_logs",
+          "bot_obstacle_log",
+          "bot_manual_alarm_log_archive",
+          "bot_auto_manual_logs",
+          "bot_obstacle_log_archive",
+          "bot_auto_manual_logs_archive",
+          "bot_history_log"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 999,
+      "error": null
+    },
+    {
+      "query_id": 627,
+      "query": "How many bots had at least one alarm in shakti today?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_008",
+        "kpi_name": "Total Alarms per Bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "How many bots had at least one alarm in shakti today?",
+        "raw_entities": {
+          "host-location": [
+            "shakti"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'SHAKTI': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "shakti"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'SHAKTI': 1.0}"
+        },
+        "tenant_extracted": "shakti",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_alarm_log",
+          "maintenance_alarm_logs",
+          "bot_alarm_log_archive",
+          "bot_manual_alarm_log_archive",
+          "bot_history",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "auto_calibration_logs",
+          "bot_history_log",
+          "gearbox_log",
+          "task_master_log_backup"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1533,
+      "error": null
+    },
+    {
+      "query_id": 628,
+      "query": "give mt total active hours for bot 7 today in frk",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "give mt total active hours for BOT-0007 today in frk",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_master",
+          "bot_alarm_log",
+          "bot_history_log",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "bot_charging_bit_log_archive",
+          "test_lww_target",
+          "auto_calibration_logs",
+          "bot_auto_manual_logs",
+          "bin_protrusion_master",
+          "maintenance_alarm_logs"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1131,
+      "error": null
+    },
+    {
+      "query_id": 629,
+      "query": "give me total active hours for bot 7 today in frk",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "give me total active hours for BOT-0007 today in frk",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_master",
+          "bot_history_log",
+          "bot_alarm_log",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "bot_charging_bit_log_archive",
+          "bot_auto_manual_logs",
+          "bot_alarm_log_archive",
+          "test_lww_target",
+          "auto_calibration_logs",
+          "bin_protrusion_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1957,
+      "error": null
+    },
+    {
+      "query_id": 630,
+      "query": "How many hours BOT-0007 was active today in faruknagar..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "How many hours BOT-0007 was active today in faruknagar..?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_alarm_log",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "test_lww_target",
+          "bot_history_log",
+          "bin_protrusion_master",
+          "maintenance_alarm_logs",
+          "location_block_master",
+          "bot_auto_manual_logs",
+          "bot_alarm_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1555,
+      "error": null
+    },
+    {
+      "query_id": 631,
+      "query": "How many hours bot 7 was active today in faruknagar..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "How many hours BOT-0007 was active today in faruknagar..?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0007",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_alarm_log",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "test_lww_target",
+          "bot_history_log",
+          "bin_protrusion_master",
+          "maintenance_alarm_logs",
+          "location_block_master",
+          "bot_auto_manual_logs",
+          "bot_alarm_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1225,
+      "error": null
+    },
+    {
+      "query_id": 632,
+      "query": "TELL ME ACTIVE HOURS FOR BOT 19 IN FRK TODAY",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "TELL ME ACTIVE HOURS FOR BOT-0019 IN FRK TODAY",
+        "raw_entities": {
+          "BOT_ID": "BOT-0019",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0019",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_alarm_log",
+          "bot_history_log",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "test_lww_target",
+          "bin_protrusion_master",
+          "location_master",
+          "bot_auto_manual_logs",
+          "picklist_split_recommendation_cluster_log",
+          "bot_alarm_log_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1713,
+      "error": null
+    },
+    {
+      "query_id": 633,
+      "query": "Which bot had the highest active hours in banglore last friday..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_001",
+        "kpi_name": "Active vs Inactive hours for bot",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "Which bot had the highest active hours in banglore last friday..?",
+        "raw_entities": {
+          "host-location": [
+            "BLR"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'BLR': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'BLR': 1.0}"
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_auto_manual_logs",
+          "bot_alarm_log",
+          "bot_history_log",
+          "auto_calibration_logs",
+          "bot_charging_bit_log_archive",
+          "bot_alarm_log_archive",
+          "bot_auto_manual_logs_archive",
+          "bot_obstacle_log",
+          "bot_manual_alarm_log_archive",
+          "bot_obstacle_log_archive",
+          "chatbot_chat_history"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1474,
+      "error": null
+    },
+    {
+      "query_id": 634,
+      "query": "How many minutes BOT-0027 was down today in frk..?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_012",
+        "kpi_name": "Bot-Downtime (Mins)",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "How many minutes BOT-0027 was down today in frk..?",
+        "raw_entities": {
+          "BOT_ID": "BOT-0027",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "BOT_ID": "BOT-0027",
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_history",
+          "bot_master",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "bot_alarm_log",
+          "bot_history_log",
+          "test_lww_target",
+          "maintenance_alarm_logs",
+          "bot_auto_manual_logs",
+          "bot_alarm_log_archive",
+          "bin_protrusion_master",
+          "location_block_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1862,
+      "error": null
+    },
+    {
+      "query_id": 635,
+      "query": "which bins are blocked for picking in frk today?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_032",
+        "kpi_name": "Total Bin Blocked",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "which bins are blocked for picking in frk today?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "pick_rule_master",
+          "recovery_pick_task_master",
+          "location_block_master",
+          "bin_protrusion_master",
+          "order_bin_mapping",
+          "order_bin_task_master",
+          "bin_protrusion_master_log",
+          "picklist_split_recommendation_cluster_log",
+          "bin_info_master",
+          "short_pick_wave_reason",
+          "order_bin_task_purge_log",
+          "live_inventory_master_log"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1471,
+      "error": null
+    },
+    {
+      "query_id": 636,
+      "query": "which bins are blocked for picking in frk today?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_032",
+        "kpi_name": "Total Bin Blocked",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "which bins are blocked for picking in frk today?",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "pick_rule_master",
+          "recovery_pick_task_master",
+          "location_block_master",
+          "bin_protrusion_master",
+          "order_bin_mapping",
+          "order_bin_task_master",
+          "bin_protrusion_master_log",
+          "picklist_split_recommendation_cluster_log",
+          "bin_info_master",
+          "short_pick_wave_reason",
+          "order_bin_task_purge_log",
+          "live_inventory_master_log"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1794,
+      "error": null
+    },
+    {
+      "query_id": 637,
+      "query": "Please answer this in more depth with clear step-by-step explanation, important components, and practical examples. Keep it concise but informative.",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": null,
+        "kpi_name": null,
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "Please answer this in more depth with clear step-by-step explanation, important components, and practical examples. Keep it concise but informative.",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "location_master",
+          "hw_conveyor_master",
+          "hw_conveyor_mux_master",
+          "bot_obstacle_log",
+          "short_pick_wave_reason",
+          "hw_curtain_light_master",
+          "live_inventory_master",
+          "live_inventory_master_log",
+          "short_put_wave_reason",
+          "hw_ptl_master",
+          "wave_master",
+          "sku_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1271,
+      "error": null
+    },
+    {
+      "query_id": 638,
+      "query": "FROM WHICH BINS I CAN'T PERFORM PICKING IN FRK",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": null,
+        "kpi_name": null,
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "FROM WHICH BINS I CAN'T PERFORM PICKING IN FRK",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "recovery_pick_task_master",
+          "pick_rule_master",
+          "order_bin_mapping",
+          "order_bin_task_master",
+          "bin_protrusion_master",
+          "bin_info_master",
+          "picklist_split_recommendation_cluster_log",
+          "short_pick_wave_reason",
+          "store_bin_master",
+          "pick_wave_order_master",
+          "bin_protrusion_master_log",
+          "pick_wave_order_master_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1073,
+      "error": null
+    },
+    {
+      "query_id": 639,
+      "query": "WHICH BINS ARE BLOCKED FOR PICKING",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_032",
+        "kpi_name": "Total Bin Blocked",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "WHICH BINS ARE BLOCKED FOR PICKING",
+        "raw_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": true,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "location_block_master",
+          "order_bin_mapping",
+          "recovery_pick_task_master",
+          "pick_rule_master",
+          "bin_protrusion_master",
+          "order_bin_task_master",
+          "bin_info_master",
+          "short_pick_wave_reason",
+          "bin_protrusion_master_log",
+          "picklist_split_recommendation_cluster_log",
+          "picklist_split_order_master",
+          "pick_wave_order_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1401,
+      "error": null
+    },
+    {
+      "query_id": 640,
+      "query": "WHICH BINS ARE BLOCKED FOR PICKING?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_032",
+        "kpi_name": "Total Bin Blocked",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "WHICH BINS ARE BLOCKED FOR PICKING?",
+        "raw_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": true,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "location_block_master",
+          "recovery_pick_task_master",
+          "pick_rule_master",
+          "order_bin_mapping",
+          "bin_protrusion_master",
+          "order_bin_task_master",
+          "short_pick_wave_reason",
+          "bin_info_master",
+          "picklist_split_order_master",
+          "picklist_split_recommendation_cluster_log",
+          "bin_protrusion_master_log",
+          "pick_wave_order_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 948,
+      "error": null
+    },
+    {
+      "query_id": 641,
+      "query": "WHICH BINS ARE BLOCKED FOR PICKING?",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_032",
+        "kpi_name": "Total Bin Blocked",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "WHICH BINS ARE BLOCKED FOR PICKING?",
+        "raw_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": true,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "location_block_master",
+          "recovery_pick_task_master",
+          "pick_rule_master",
+          "order_bin_mapping",
+          "bin_protrusion_master",
+          "order_bin_task_master",
+          "short_pick_wave_reason",
+          "bin_info_master",
+          "picklist_split_order_master",
+          "picklist_split_recommendation_cluster_log",
+          "bin_protrusion_master_log",
+          "pick_wave_order_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1271,
+      "error": null
+    },
+    {
+      "query_id": 642,
+      "query": "tell me the bins blocked for picking",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_032",
+        "kpi_name": "Total Bin Blocked",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "tell me the bins blocked for picking",
+        "raw_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": true,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bin_protrusion_master",
+          "location_block_master",
+          "order_bin_mapping",
+          "bin_info_master",
+          "recovery_pick_task_master",
+          "pick_rule_master",
+          "order_bin_task_master",
+          "bin_protrusion_master_log",
+          "order_bin_task_purge_log",
+          "store_bin_master",
+          "order_bin_mapping_log",
+          "short_pick_wave_reason"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1400,
+      "error": null
+    },
+    {
+      "query_id": 643,
+      "query": "how many bots are active",
+      "route": {
+        "route": "reuse",
+        "kpi_id": "kpi_002",
+        "kpi_name": "Active number of Bots",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "how many bots are active",
+        "raw_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": true,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master"
+        ],
+        "selection_source": "learned",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1223,
+      "error": null
+    },
+    {
+      "query_id": 644,
+      "query": "how many bots are active today in frk",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_002",
+        "kpi_name": "Active number of Bots",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "how many bots are active today in frk",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "bot_master",
+          "bot_history",
+          "bot_alarm_log",
+          "bot_history_log",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "bin_protrusion_master",
+          "auto_calibration_logs",
+          "chatbot_query_patterns",
+          "bot_alarm_log_archive",
+          "bot_auto_manual_logs",
+          "bot_auto_manual_logs_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1032,
+      "error": null
+    },
+    {
+      "query_id": 645,
+      "query": "how many bots are blocked for picking in frk",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": null,
+        "kpi_name": null,
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "how many bots are blocked for picking in frk",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "pick_rule_master",
+          "location_block_master",
+          "bot_master",
+          "recovery_pick_task_master",
+          "bot_obstacle_log",
+          "bot_alarm_log",
+          "bot_obstacle_log_archive",
+          "picklist_split_recommendation_cluster_log",
+          "bin_protrusion_master",
+          "bot_history",
+          "picklist_split_order_master",
+          "short_pick_wave_reason"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 2076,
+      "error": null
+    },
+    {
+      "query_id": 646,
+      "query": "how many bins are blocked in frk",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_032",
+        "kpi_name": "Total Bin Blocked",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "how many bins are blocked in frk",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "location_block_master",
+          "bin_protrusion_master",
+          "order_bin_mapping",
+          "bin_info_master",
+          "store_bin_master",
+          "bin_protrusion_master_log",
+          "order_bin_task_master",
+          "dashboard_log_location_block_master",
+          "live_inventory_master",
+          "order_bin_task_purge_log",
+          "order_bin_mapping_log",
+          "location_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1197,
+      "error": null
+    },
+    {
+      "query_id": 647,
+      "query": "how many bots are blocked in frk",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": null,
+        "kpi_name": null,
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "how many bots are blocked in frk",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "location_block_master",
+          "bot_master",
+          "bot_obstacle_log",
+          "bot_obstacle_log_archive",
+          "bot_history",
+          "bot_alarm_log",
+          "bin_protrusion_master",
+          "bot_history_log",
+          "bot_alarm_log_archive",
+          "auto_calibration_logs",
+          "dashboard_log_location_block_master",
+          "test_lww_target"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1148,
+      "error": null
+    },
+    {
+      "query_id": 648,
+      "query": "how many bins are blocked for picking in frk",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": "kpi_032",
+        "kpi_name": "Total Bin Blocked",
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "how many bins are blocked for picking in frk",
+        "raw_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "mapped_entities": {
+          "host-location": [
+            "frk"
+          ],
+          "_multi_tenant": false,
+          "_all_sites": false,
+          "_tenant_confidence": "{'FRK': 1.0}"
+        },
+        "tenant_extracted": "frk",
+        "tenant_confidence": 0.0,
+        "is_all_sites": false,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "pick_rule_master",
+          "order_bin_mapping",
+          "bin_protrusion_master",
+          "recovery_pick_task_master",
+          "location_block_master",
+          "order_bin_task_master",
+          "bin_info_master",
+          "store_bin_master",
+          "short_pick_wave_reason",
+          "bin_protrusion_master_log",
+          "picklist_split_recommendation_cluster_log",
+          "live_inventory_master"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1682,
+      "error": null
+    },
+    {
+      "query_id": 649,
+      "query": "how many bins are not eligible for picking",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": null,
+        "kpi_name": null,
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "how many bins are not eligible for picking",
+        "raw_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": true,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "order_bin_mapping",
+          "pick_rule_master",
+          "recovery_pick_task_master",
+          "bin_protrusion_master",
+          "bin_info_master",
+          "short_pick_wave_reason",
+          "store_bin_master",
+          "order_bin_task_master",
+          "live_inventory_master",
+          "picklist_split_recommendation_cluster_log",
+          "pick_wave_wms_data",
+          "live_inventory_master_log"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1257,
+      "error": null
+    },
+    {
+      "query_id": 650,
+      "query": "how many total qunatities came for batch pick list code \"\"xyz",
+      "route": {
+        "route": "sql_generation",
+        "kpi_id": null,
+        "kpi_name": null,
+        "kpi_confidence": 0.0,
+        "sp_name": null
+      },
+      "preprocess": {
+        "clean_question": "how many total qunatities came for batch pick list code \"\"xyz",
+        "raw_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "mapped_entities": {
+          "host-location": [
+            "BLR",
+            "chennai",
+            "frk",
+            "shakti"
+          ],
+          "_multi_tenant": true,
+          "_all_sites": true
+        },
+        "tenant_extracted": "BLR",
+        "tenant_confidence": 0.0,
+        "is_all_sites": true,
+        "is_location_breakdown": false,
+        "synonyms_applied": []
+      },
+      "table_selection": {
+        "selected_tables": [
+          "short_pick_wave_reason",
+          "pick_wave_wms_data",
+          "pick_wave_order_master",
+          "recovery_pick_task_master",
+          "wms_to_wcs_order_level_pre_staged_data",
+          "sku_batch_master",
+          "pick_wave_order_master_archive",
+          "location_master",
+          "lpn_pick_wave_order_mapping",
+          "picklist_split_order_master",
+          "pick_rule_master",
+          "pick_wave_wms_data_archive"
+        ],
+        "selection_source": "hybrid",
+        "scores": {}
+      },
+      "sql_generation": {
+        "sql": "",
+        "tables_used": [],
+        "columns_used": [],
+        "has_joins": false,
+        "join_tables": [],
+        "join_conditions": [],
+        "has_time_filter": false,
+        "time_columns": [],
+        "has_tenant_filter": false,
+        "has_limit": false,
+        "confidence": 0.0,
+        "assumptions": [],
+        "warnings": [],
+        "error": null
+      },
+      "execution": {
+        "success": false,
+        "row_count": 0,
+        "execution_time_ms": 0,
+        "error": null,
+        "columns_returned": []
+      },
+      "quality": {
+        "route_is_reasonable": true,
+        "route_notes": "",
+        "tables_look_relevant": true,
+        "table_notes": "",
+        "possible_missing_tables": [],
+        "has_cartesian_product": false,
+        "join_notes": "",
+        "time_filter_appropriate": true,
+        "time_notes": "",
+        "columns_relevant": true,
+        "column_notes": "",
+        "overall_score": 1.0,
+        "issues": []
+      },
+      "latency_ms": 1229,
+      "error": null
+    }
+  ]
+}
