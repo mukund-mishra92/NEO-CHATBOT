@@ -64,6 +64,10 @@ class Settings:
     AGENTIC_MAX_ITERATIONS: int = int(os.getenv("AGENTIC_MAX_ITERATIONS", "1"))  # Max retry loops (default 1)
     AGENTIC_TIMEOUT_SECONDS: int = int(os.getenv("AGENTIC_TIMEOUT_SECONDS", "60"))  # Max execution time
     
+    # Agentic SQL Generation (Multi-Agent SQL Pipeline)
+    AGENTIC_SQL_ENABLED: bool = os.getenv("AGENTIC_SQL_ENABLED", "true").lower() == "true"
+    AGENTIC_SQL_MAX_ITERATIONS: int = int(os.getenv("AGENTIC_SQL_MAX_ITERATIONS", "2"))  # Writer→Reviewer retry loops
+    
     # Vector Store Configuration
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
     CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE", "1000"))

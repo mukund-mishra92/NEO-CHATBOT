@@ -161,6 +161,7 @@ class SQLEngine:
         schema_override: Optional[Dict[str, List[str]]] = None,
         entity_context: Optional[str] = None,
         conversation_history: Optional[List[Dict[str, str]]] = None,
+        domain_knowledge: Optional[str] = None,
     ) -> Dict[str, Any]:
 
         # --------------------------------------------------
@@ -296,6 +297,7 @@ class SQLEngine:
             path_text=ctx.get("path_text", ""),
             column_facts=ctx.get("column_facts", ""),
             entity_context=entity_context or "",
+            domain_knowledge=domain_knowledge or "",
         )
 
 

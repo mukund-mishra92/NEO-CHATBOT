@@ -22,6 +22,8 @@ from .table_selector import TableSelector
 from .kpi_resolver import DashboardKPIResolver
 from .sp_resolver import SPResolver
 from .archive_handler import ArchiveHandler
+from .knowledge_layer import KnowledgeLayer
+from .agents import AgenticSQLOrchestrator
 
 
 import logging
@@ -168,8 +170,33 @@ class SQLAssistantService:
         # Archive handler (dynamic _archive table routing for historical date ranges)
         self.archive_handler = ArchiveHandler(self.db_config)
 
+        # Domain knowledge layer (production-verified query patterns, filters, formulas)
+        try:
+            self.knowledge_layer = KnowledgeLayer()
+            logger.info("📚 KnowledgeLayer initialized successfully")
+        except Exception as e:
+            logger.warning(f"⚠️ KnowledgeLayer failed to load: {e}")
+            self.knowledge_layer = None
+
         # Load business rules for missing-table detection
         self.business_rules = self._load_business_rules()
+
+        # Agentic SQL Generation Pipeline (multi-agent LangGraph)
+        self.agentic_sql_enabled = settings.AGENTIC_SQL_ENABLED
+        self.agentic_orchestrator = None
+        if self.agentic_sql_enabled:
+            try:
+                self.agentic_orchestrator = AgenticSQLOrchestrator(
+                    max_iterations=settings.AGENTIC_SQL_MAX_ITERATIONS,
+                )
+                if self.agentic_orchestrator.is_available():
+                    logger.info("🤖 Agentic SQL Pipeline enabled and ready")
+                else:
+                    logger.warning("⚠️ Agentic SQL Pipeline enabled but not available (LLM/LangGraph issue)")
+                    self.agentic_orchestrator = None
+            except Exception as e:
+                logger.warning(f"⚠️ Agentic SQL Pipeline failed to initialize: {e}")
+                self.agentic_orchestrator = None
 
         logger.info(f"✅ SQLAssistantService initialized with {len(self.schema)} tables")
 
@@ -990,19 +1017,24 @@ class SQLAssistantService:
             return cached
 
         # --------------------------------------------------
-        # 📊 DASHBOARD KPI MATCH (pre-built Grafana queries)
+        # 📊 KPI / SP RESOLVERS — DISABLED
+        # Domain knowledge is now injected directly into the SQL
+        # generation prompt via KnowledgeLayer, making pre-built
+        # KPI/SP matching unnecessary.  The resolvers remain
+        # instantiated so _parse_time_range is still available
+        # for the reuse-engine time computation below.
         # --------------------------------------------------
-        kpi_response = self._try_kpi_match(clean_question, entities, session_id,
-                                               original_question=question,
-                                               user_id=getattr(request, 'user_id', None))
-        if kpi_response:
-            self.cache.set(session_id, clean_question, kpi_response)
-            return kpi_response
-
-        sp_response = self._try_sp_match(clean_question, entities)
-        if sp_response:
-            self.cache.set(session_id, clean_question, sp_response)
-            return sp_response
+        # kpi_response = self._try_kpi_match(clean_question, entities, session_id,
+        #                                        original_question=question,
+        #                                        user_id=getattr(request, 'user_id', None))
+        # if kpi_response:
+        #     self.cache.set(session_id, clean_question, kpi_response)
+        #     return kpi_response
+        #
+        # sp_response = self._try_sp_match(clean_question, entities)
+        # if sp_response:
+        #     self.cache.set(session_id, clean_question, sp_response)
+        #     return sp_response
 
         # ── Compute time range for reuse substitution ──
         _reuse_time_from = _reuse_time_to = None
@@ -1078,6 +1110,38 @@ class SQLAssistantService:
 
             if not selected_tables:
                 selected_tables = list(self.schema.keys())[:5]
+
+            # --------------------------------------------------
+            # KNOWLEDGE-BASED TABLE AUGMENTATION
+            # --------------------------------------------------
+            if self.knowledge_layer:
+                try:
+                    additional_tables = self.knowledge_layer.get_additional_tables(
+                        clean_question, selected_tables
+                    )
+                    for table in additional_tables:
+                        if table in self.schema and table not in selected_tables:
+                            selected_tables.append(table)
+                            logger.info(f"📚 KnowledgeLayer added table: {table}")
+                except Exception as e:
+                    logger.warning(f"⚠️ KnowledgeLayer table augmentation failed: {e}")
+
+            # --------------------------------------------------
+            # GET DOMAIN KNOWLEDGE FOR PROMPT
+            # --------------------------------------------------
+            domain_knowledge_text = ""
+            if self.knowledge_layer:
+                try:
+                    domain_knowledge_text = self.knowledge_layer.get_knowledge_for_prompt(
+                        clean_question, selected_tables
+                    )
+                    if domain_knowledge_text:
+                        logger.info(
+                            f"📚 Domain knowledge injected: "
+                            f"{len(domain_knowledge_text)} chars"
+                        )
+                except Exception as e:
+                    logger.warning(f"⚠️ KnowledgeLayer prompt generation failed: {e}")
 
             # --------------------------------------------------
             # ENRICHED SCHEMA
@@ -1170,7 +1234,8 @@ class SQLAssistantService:
                     conversation_history=[
                         {"role": m.get("role", ""), "content": m.get("content", "")}
                         for m in conversation_history
-                    ] if conversation_history else None
+                    ] if conversation_history else None,
+                    domain_knowledge=domain_knowledge_text,
                 )
 
                 sql = self._enforce_entities_in_sql(result["sql"], entities)
@@ -1207,21 +1272,111 @@ class SQLAssistantService:
                     metadata=result
                 )
 
-            # generation_result, execution_result = self.retry_engine.run(
-            #     generate_fn,
-            #     self.validator,
-            #     self.executor,
-            #     feedback_generator=self.feedback_generator,
-            #     schema_validator=self.schema_validator,
-            # )
+            # --------------------------------------------------
+            # 🤖 AGENTIC SQL PIPELINE (multi-agent LangGraph)
+            # Falls back to traditional single-shot if unavailable
+            # --------------------------------------------------
+            agentic_used = False
+            if self.agentic_orchestrator:
+                try:
+                    logger.info("🤖 Using Agentic SQL Pipeline (4-agent LangGraph)")
 
-            generation_result, execution_result = self.retry_engine.run(
-                generate_fn,
-                self.validator,
-                self.executor,
-                feedback_generator=self.feedback_generator,
-                schema_validator=self.schema_validator,
-            )
+                    # Build multi-tenant config for the orchestrator
+                    mt_config = {
+                        "enabled": self.multi_tenant_enabled,
+                        "tenant_column": self.tenant_column,
+                        "distinct_warning": self.multi_tenant_distinct_warning,
+                        "is_all_sites": entities.get("_all_sites", False),
+                        "is_location_breakdown": entities.get("_location_breakdown", False),
+                    }
+
+                    # Build entity context (same logic as generate_fn above)
+                    entity_lines = []
+                    is_all_sites = entities.get("_all_sites", False)
+                    is_location_breakdown = entities.get("_location_breakdown", False)
+                    for k, v in entities.items():
+                        if k.startswith('_'):
+                            continue
+                        if is_all_sites and k == self.tenant_column:
+                            continue
+                        if isinstance(v, list):
+                            entity_lines.append(f"{k} = {v[0]}" if len(v) == 1 else f"{k} IN ({', '.join(v)})")
+                        else:
+                            entity_lines.append(f"{k} = '{v}'")
+                    entity_ctx = "\n".join(entity_lines)
+                    if self.multi_tenant_enabled:
+                        entity_ctx += f"\n\nSCHEMA WARNING: {self.multi_tenant_distinct_warning}"
+                        if is_location_breakdown:
+                            entity_ctx += (
+                                f"\n\nIMPORTANT: User wants data GROUPED/SEGREGATED by location. "
+                                f"DO NOT filter by `{self.tenant_column}` value. "
+                                f"Instead, include `{self.tenant_column}` in SELECT and GROUP BY clause "
+                                f"so results are broken down per location."
+                            )
+                        elif is_all_sites:
+                            entity_ctx += (
+                                f"\n\nIMPORTANT: This is an AGGREGATE query across ALL locations. "
+                                f"DO NOT add any `{self.tenant_column}` filter."
+                            )
+
+                    agentic_result = self.agentic_orchestrator.run(
+                        question=clean_question,
+                        clean_question=clean_question,
+                        selected_tables=selected_tables,
+                        filtered_schema=filtered_schema,
+                        entity_context=entity_ctx,
+                        domain_knowledge=domain_knowledge_text,
+                        conversation_history=[
+                            {"role": m.get("role", ""), "content": m.get("content", "")}
+                            for m in conversation_history
+                        ] if conversation_history else None,
+                        multi_tenant_config=mt_config,
+                    )
+
+                    agentic_sql = agentic_result.get("sql", "")
+                    if agentic_sql:
+                        # Enforce entities in the agentic SQL
+                        agentic_sql = self._enforce_entities_in_sql(agentic_sql, entities)
+
+                        generation_result = SQLGenerationResult(
+                            sql=agentic_sql,
+                            confidence=agentic_result.get("confidence", 0.80),
+                            explanation="Generated by Agentic SQL Pipeline (4-agent LangGraph)",
+                            assumptions=agentic_result.get("assumptions", []),
+                            metadata=agentic_result,
+                        )
+
+                        # Validate + Execute
+                        self.validator.validate(agentic_sql)
+                        self.schema_validator.validate(agentic_sql)
+                        execution_result = self.executor.execute(agentic_sql)
+
+                        agentic_used = True
+                        logger.info(
+                            f"✅ Agentic SQL success: {execution_result.row_count} rows, "
+                            f"review_passed={agentic_result.get('review_passed')}, "
+                            f"iterations={agentic_result.get('iterations')}"
+                        )
+                    else:
+                        logger.warning("⚠️ Agentic pipeline returned empty SQL — falling back")
+
+                except Exception as e:
+                    logger.warning(f"⚠️ Agentic SQL Pipeline failed: {e} — falling back to traditional")
+                    agentic_used = False
+
+            # --------------------------------------------------
+            # TRADITIONAL SINGLE-SHOT PIPELINE (fallback)
+            # --------------------------------------------------
+            if not agentic_used:
+                logger.info("📝 Using traditional single-shot SQL generation")
+
+                generation_result, execution_result = self.retry_engine.run(
+                    generate_fn,
+                    self.validator,
+                    self.executor,
+                    feedback_generator=self.feedback_generator,
+                    schema_validator=self.schema_validator,
+                )
 
             sql = generation_result.sql
 
@@ -2074,15 +2229,7 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             logger.error(
                 f"🚫 KPI id={kpi_match.kpi_id}, '{kpi_match.kpi_name}' matched "
                 f"(score={kpi_match.match_score:.2f}) but execution "
-                f"failed: {e}. Returning error — no LLM fallback."
-            )
-
-            error_response = (
-                f"Your question matches a predefined dashboard KPI "
-                f"(**{kpi_match.kpi_name}**), but execution failed:\n\n"
-                f"```\n{e}\n```\n\n"
-                f"This is a database permission or schema issue — "
-                f"no alternative SQL was generated to avoid incorrect data."
+                f"failed: {e}. Falling through to SQL generation pipeline."
             )
 
             # ── Log failed KPI execution to DB ──
@@ -2091,7 +2238,7 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                     session_id=session_id,
                     chatbot_type="sql_assistant",
                     user_query=original_question or clean_question,
-                    assistant_response=error_response,
+                    assistant_response=f"KPI execution failed, falling through to SQL gen: {e}",
                     confidence_score=0.0,
                     response_time_ms=0,
                     user_id=user_id,
@@ -2101,7 +2248,7 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                     session_id=session_id,
                     user_query=original_question or clean_question,
                     generated_sql=sql,
-                    execution_status="failed",
+                    execution_status="failed_fallthrough",
                     error_message=str(e),
                     rows_returned=0,
                     execution_time_ms=0,
@@ -2112,25 +2259,9 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
             except Exception as log_err:
                 logger.warning(f"⚠️ KPI chat history logging failed (non-fatal): {log_err}")
 
-            return ChatResponse(
-                response=error_response,
-                chatbot_type=ChatbotType.SQL_ASSISTANT,
-                session_id=session_id,
-                sources=[],
-                confidence_score=0.0,
-                query_results=[],
-                metadata={
-                    "sql_query": sql,
-                    "error": str(e),
-                    "dashboard_kpi": {
-                        "kpi_id": kpi_match.kpi_id,
-                        "kpi_name": kpi_match.kpi_name,
-                        "match_score": kpi_match.match_score,
-                        "source": "dashboard_kpi",
-                        "status": "execution_failed",
-                    },
-                },
-            )
+            # 🔥 FALLBACK: Return None so the calling code falls through
+            # to the SQL generation pipeline (now enhanced with domain knowledge)
+            return None
 
         # ── Success ──
         row_count = execution_result.row_count
@@ -2645,42 +2776,17 @@ Respond with ONLY the kpi_id (e.g. "kpi_001") or "NONE". Nothing else."""
                     f"Query: {execution_error}  |  CALL: {call_err}"
                 )
 
-        # ── Both strategies failed → return error to user, NO LLM ──
+        # ── Both strategies failed → fall through to SQL generation pipeline ──
         if execution_result is None:
             logger.error(
                 f"🚫 SP '{sp_match.sp_name}' matched "
                 f"(score={sp_match.match_score:.2f}) but ALL execution "
-                f"strategies failed. Returning error — no LLM fallback."
+                f"strategies failed. Falling through to SQL generation pipeline."
             )
 
-            error_response = (
-                f"Your question matches a predefined report "
-                f"(**{sp_match.sp_name}**), but execution failed:\n\n"
-                f"```\n{execution_error}\n```\n\n"
-                f"This is a database permission or schema issue — "
-                f"no alternative SQL was generated to avoid incorrect data.\n\n"
-                f"**Action required:** Ask your DBA to grant EXECUTE "
-                f"privilege on this stored procedure to the service account."
-            )
-
-            return ChatResponse(
-                response=error_response,
-                chatbot_type=ChatbotType.SQL_ASSISTANT,
-                session_id=None,
-                sources=[],
-                confidence_score=0.0,
-                query_results=[],
-                metadata={
-                    "sql_query": sp_match.sql,
-                    "error": execution_error,
-                    "stored_procedure": {
-                        "sp_name": sp_match.sp_name,
-                        "match_score": sp_match.match_score,
-                        "source": "stored_procedure",
-                        "status": "execution_failed",
-                    },
-                },
-            )
+            # 🔥 FALLBACK: Return None so the calling code falls through
+            # to the SQL generation pipeline (now enhanced with domain knowledge)
+            return None
 
         # ── Success ──
         row_count = execution_result.row_count

@@ -522,6 +522,7 @@ def build_universal_prompt(
     path_text: str = "",
     column_facts: str = "",
     entity_context: str = "",
+    domain_knowledge: str = "",
 ) -> str:
     """
     Build the complete system prompt by combining the universal instructions
@@ -534,6 +535,8 @@ def build_universal_prompt(
         path_text:         Multi-hop join paths
         column_facts:      Critical column truths
         entity_context:    Resolved entity info (BOT_ID, STATION_ID, etc.)
+        domain_knowledge:  Domain knowledge from KnowledgeLayer (table patterns,
+                          business filters, SQL templates, formulas)
 
     Returns:
         Complete system prompt string for the LLM.
@@ -561,6 +564,10 @@ def build_universal_prompt(
     # Column facts
     if column_facts:
         parts.append("\n" + column_facts)
+
+    # Domain knowledge (table patterns, business filters, SQL templates, formulas)
+    if domain_knowledge:
+        parts.append(domain_knowledge)
 
     # Entity resolution
     if entity_context:
